@@ -1,0 +1,135 @@
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sparkles, Send, Loader2, Bot, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export default function Mentor() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage: Message = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const response = await supabase.functions.invoke('mentor-chat', {
+        body: { 
+          messages: [...messages, userMessage],
+          profile: profile 
+        }
+      });
+
+      if (response.error) throw response.error;
+
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: response.data?.message || "I'm here to help you navigate your journey. What's on your mind?" 
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." 
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-12rem)] lg:h-[calc(100vh-8rem)]">
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1 flex items-center gap-2">
+          <Sparkles className="w-7 h-7 text-primary" />
+          AI Mentor
+        </h1>
+        <p className="text-muted-foreground">Your calm, pragmatic guide</p>
+      </div>
+
+      {/* Chat Area */}
+      <Card variant="glass" className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold mb-2">Hello, {profile?.name || 'there'}</h3>
+              <p className="text-muted-foreground max-w-md">
+                I'm your AI mentor. Ask me about your goals, habits, or any challenge you're facing. 
+                I'll provide calm, direct guidance tailored to your life phase.
+              </p>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
+            <div key={i} className={cn("flex gap-3", msg.role === 'user' && "justify-end")}>
+              {msg.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Bot className="w-4 h-4 text-primary" />
+                </div>
+              )}
+              <div className={msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-assistant'}>
+                {msg.content}
+              </div>
+              {msg.role === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          ))}
+
+          {loading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-primary" />
+              </div>
+              <div className="chat-bubble-assistant">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            </div>
+          )}
+          <div ref={scrollRef} />
+        </div>
+
+        {/* Input */}
+        <div className="p-4 border-t border-border/30">
+          <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask your mentor..."
+              disabled={loading}
+              className="flex-1"
+            />
+            <Button type="submit" variant="gold" disabled={loading || !input.trim()}>
+              <Send className="w-4 h-4" />
+            </Button>
+          </form>
+        </div>
+      </Card>
+    </div>
+  );
+}
