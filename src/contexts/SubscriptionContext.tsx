@@ -85,9 +85,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     try {
-      // Fetch subscription status
+      // Fetch subscription status using safe view (excludes license keys)
       const { data: subscription } = await supabase
-        .from('user_subscriptions')
+        .from('user_subscriptions_safe')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();

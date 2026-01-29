@@ -96,8 +96,9 @@ export default function Community() {
     if (data) {
       const friendPromises = data.map(async (f) => {
         const friendUserId = f.requester_id === user.id ? f.addressee_id : f.requester_id;
+        // Use profiles_public view to protect sensitive data (location, etc.)
         const { data: profileData } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('name, avatar_url')
           .eq('user_id', friendUserId)
           .single();
@@ -128,8 +129,9 @@ export default function Community() {
 
     if (data) {
       const postsWithDetails = await Promise.all(data.map(async (post) => {
+        // Use profiles_public view to protect sensitive data (location, etc.)
         const { data: profileData } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('name, avatar_url')
           .eq('user_id', post.user_id)
           .single();
@@ -208,10 +210,10 @@ export default function Community() {
     if (!user || !searchEmail) return;
     setLoading(true);
 
-    // Find user by email in profiles (we need to look up via auth)
+    // Find user by name using profiles_public view (protects sensitive data)
     // For now, we'll search by name
     const { data: profiles } = await supabase
-      .from('profiles')
+      .from('profiles_public')
       .select('user_id, name')
       .ilike('name', `%${searchEmail}%`)
       .neq('user_id', user.id)
@@ -433,8 +435,9 @@ export default function Community() {
 
     if (data) {
       const commentsWithUsers = await Promise.all(data.map(async (comment) => {
+        // Use profiles_public view to protect sensitive data (location, etc.)
         const { data: profileData } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('name, avatar_url')
           .eq('user_id', comment.user_id)
           .single();
