@@ -15,10 +15,20 @@ import {
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
-  AlertTriangle, Loader2
+  AlertTriangle, Loader2, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 
 interface Friend {
@@ -101,6 +111,8 @@ export default function Community() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [postAnalysis, setPostAnalysis] = useState<PostAnalysis | null>(null);
   const [showAnalysisResult, setShowAnalysisResult] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -339,6 +351,35 @@ export default function Community() {
     } else {
       toast.success(accept ? 'Friend request accepted!' : 'Friend request declined');
       fetchFriends();
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    if (!user) return;
+    setIsDeleting(true);
+
+    try {
+      // First delete related reactions
+      await supabase.from('reactions').delete().eq('post_id', postId);
+      
+      // Delete related comments
+      await supabase.from('comments').delete().eq('post_id', postId);
+      
+      // Delete the post
+      const { error } = await supabase.from('posts').delete().eq('id', postId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Post deleted successfully');
+      setPosts(posts.filter(p => p.id !== postId));
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Failed to delete post');
+    } finally {
+      setIsDeleting(false);
+      setPostToDelete(null);
     }
   };
 
@@ -694,11 +735,24 @@ export default function Community() {
                     </Avatar>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold">{post.user_name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(post.created_at), 'MMM d, h:mm a')}
-                        </span>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{post.user_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(post.created_at), 'MMM d, h:mm a')}
+                          </span>
+                        </div>
+                        
+                        {post.user_id === user?.id && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => setPostToDelete(post.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                       
                       {post.content && (
@@ -1154,6 +1208,35 @@ export default function Community() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Post Confirmation */}
+      <AlertDialog open={!!postToDelete} onOpenChange={() => setPostToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => postToDelete && deletePost(postToDelete)}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
