@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.analyze-post-content]
 verify_jwt = false
+
+[functions.analyze-journal-entry]
+verify_jwt = false

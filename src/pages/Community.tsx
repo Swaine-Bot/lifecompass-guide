@@ -15,7 +15,7 @@ import {
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
-  AlertTriangle, Loader2, Trash2
+  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -30,6 +30,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Friend {
   id: string;
@@ -113,6 +114,7 @@ export default function Community() {
   const [showAnalysisResult, setShowAnalysisResult] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [feedbackExpanded, setFeedbackExpanded] = useState(true);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1080,18 +1082,20 @@ export default function Community() {
       <Dialog open={showAnalysisResult} onOpenChange={closeAnalysisAndReset}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {postAnalysis?.approved ? (
-                <>
-                  <Bot className="w-5 h-5 text-primary" />
-                  AI Mentor Feedback
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                  Content Not Approved
-                </>
-              )}
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {postAnalysis?.approved ? (
+                  <>
+                    <Bot className="w-5 h-5 text-primary" />
+                    AI Mentor Feedback
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-5 h-5 text-destructive" />
+                    Content Not Approved
+                  </>
+                )}
+              </div>
             </DialogTitle>
             <DialogDescription>
               {postAnalysis?.approved 
@@ -1100,67 +1104,84 @@ export default function Community() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
-            {!postAnalysis?.approved && postAnalysis?.flagReason && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{postAnalysis.flagReason}</AlertDescription>
-              </Alert>
-            )}
-            
-            {postAnalysis?.mentorComment && (
-              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm text-primary mb-1">AI Mentor says:</p>
-                    <p className="text-sm">{postAnalysis.mentorComment}</p>
+          <Collapsible open={feedbackExpanded} onOpenChange={setFeedbackExpanded}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-muted-foreground">
+                {feedbackExpanded ? 'Mentor feedback & suggestions' : 'Click to expand feedback'}
+              </span>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 px-2">
+                  {feedbackExpanded ? (
+                    <>Hide <ChevronUp className="w-4 h-4 ml-1" /></>
+                  ) : (
+                    <>Show <ChevronDown className="w-4 h-4 ml-1" /></>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+
+            <CollapsibleContent className="space-y-4">
+              {!postAnalysis?.approved && postAnalysis?.flagReason && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>{postAnalysis.flagReason}</AlertDescription>
+                </Alert>
+              )}
+              
+              {postAnalysis?.mentorComment && (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-5 h-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-primary mb-1">AI Mentor says:</p>
+                      <p className="text-sm">{postAnalysis.mentorComment}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            {postAnalysis?.opportunities && postAnalysis.opportunities.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4 text-primary" />
-                  Opportunities Spotted
-                </h4>
-                {postAnalysis.opportunities.map((opp, idx) => (
-                  <div key={idx} className="bg-muted/50 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{opp.title}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {opp.category}
-                      </Badge>
+              )}
+              
+              {postAnalysis?.opportunities && postAnalysis.opportunities.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-primary" />
+                    Opportunities Spotted
+                  </h4>
+                  {postAnalysis.opportunities.map((opp, idx) => (
+                    <div key={idx} className="bg-muted/50 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{opp.title}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {opp.category}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{opp.description}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => {
+                          window.open(
+                            `https://www.google.com/search?q=${encodeURIComponent(opp.searchQuery)}`,
+                            '_blank'
+                          );
+                        }}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-2" />
+                        Find {opp.category} Near You
+                      </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">{opp.description}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-2"
-                      onClick={() => {
-                        window.open(
-                          `https://www.google.com/search?q=${encodeURIComponent(opp.searchQuery)}`,
-                          '_blank'
-                        );
-                      }}
-                    >
-                      <ExternalLink className="w-3 h-3 mr-2" />
-                      Find {opp.category} Near You
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <div className="flex justify-end pt-2">
-              <Button variant="gold" onClick={closeAnalysisAndReset}>
-                {postAnalysis?.approved ? 'Done' : 'Edit Post'}
-              </Button>
-            </div>
+                  ))}
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+          
+          <div className="flex justify-end pt-2">
+            <Button variant="gold" onClick={closeAnalysisAndReset}>
+              {postAnalysis?.approved ? 'Done' : 'Edit Post'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
