@@ -1,16 +1,18 @@
-import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Crown, Calendar, PenLine } from 'lucide-react';
+import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Calendar, PenLine, Users, Gift, Crown } from 'lucide-react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import lifestackLogo from '@/assets/lifestack-logo.png';
 
 const mainNavItems = [
   { path: '/home', label: 'Home', icon: Home },
   { path: '/goals', label: 'Goals & Plans', icon: Target },
   { path: '/calendar', label: 'Calendar', icon: Calendar },
   { path: '/habits', label: 'Habits', icon: BarChart3 },
-  { path: '/journal', label: 'Journal', icon: PenLine },
+  { path: '/life-events', label: 'Life Events', icon: Gift },
   { path: '/mentor', label: 'AI Mentor', icon: MessageCircle },
+  { path: '/community', label: 'Community', icon: Users },
   { path: '/library', label: 'Library', icon: BookOpen },
 ];
 
@@ -34,12 +36,9 @@ export const Sidebar = () => {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 h-screen bg-sidebar border-r border-sidebar-border">
-      {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <Link to="/home" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-gold-light flex items-center justify-center">
-            <Crown className="w-4 h-4 text-primary-foreground" />
-          </div>
+          <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8" />
           <span className="font-serif text-xl font-semibold text-foreground">LifeStack</span>
         </Link>
       </div>

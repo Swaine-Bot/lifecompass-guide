@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Crown, Sparkles, Target, Brain, BookOpen, ArrowRight, Check } from 'lucide-react';
+import { Sparkles, Target, Brain, BookOpen, ArrowRight, Check, Shield, Users } from 'lucide-react';
+import lifestackLogo from '@/assets/lifestack-logo.png';
 
 const features = [
   {
@@ -23,6 +24,16 @@ const features = [
     title: 'Life Playbooks',
     description: 'Curated templates for every phase—from first job to legacy planning.'
   },
+  {
+    icon: Users,
+    title: 'Community',
+    description: 'Connect with friends and family. Share progress and support each other.'
+  },
+  {
+    icon: Shield,
+    title: 'Privacy First',
+    description: 'Your data is encrypted and protected. We never sell your information.'
+  },
 ];
 
 const phases = [
@@ -40,9 +51,7 @@ export default function Landing() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-gold-light flex items-center justify-center">
-              <Crown className="w-4 h-4 text-primary-foreground" />
-            </div>
+            <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8" />
             <span className="font-serif text-xl font-semibold">LifeStack</span>
           </div>
           <div className="flex items-center gap-3">
@@ -67,7 +76,7 @@ export default function Landing() {
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
             <span className="text-gold-gradient">Guide your life</span>
             <br />
-            <span className="text-foreground">from first job to final legacy</span>
+            <span className="text-foreground">from your first job to your last breath</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
@@ -99,7 +108,7 @@ export default function Landing() {
             A complete system for goals, habits, reflection, and growth—all in one elegant experience.
           </p>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -162,14 +171,26 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border/30">
-        <div className="container max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-primary" />
-            <span className="font-serif font-semibold">LifeStack</span>
+        <div className="container max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <img src={lifestackLogo} alt="LifeStack" className="w-5 h-5" />
+              <span className="font-serif font-semibold">LifeStack</span>
+            </div>
+            
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link to="/privacy" className="hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">
+                Terms & Conditions
+              </Link>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              © 2026 LifeStack. All rights reserved.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            © 2025 LifeStack. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>

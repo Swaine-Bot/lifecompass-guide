@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          post_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          post_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_checkins: {
         Row: {
           created_at: string | null
@@ -41,6 +76,33 @@ export type Database = {
           mood?: number | null
           notes?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string | null
+          id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["friendship_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string | null
+          id?: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string | null
+          id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -247,6 +309,45 @@ export type Database = {
         }
         Relationships: []
       }
+      life_events: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          id: string
+          recurring: boolean | null
+          reminder_days_before: number[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          recurring?: boolean | null
+          reminder_days_before?: number[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          recurring?: boolean | null
+          reminder_days_before?: number[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mentor_conversations: {
         Row: {
           created_at: string | null
@@ -367,9 +468,88 @@ export type Database = {
           },
         ]
       }
+      posts: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          media_urls: Json | null
+          updated_at: string | null
+          user_id: string
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: Json | null
+          updated_at?: string | null
+          user_id: string
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Relationships: []
+      }
+      privacy_settings: {
+        Row: {
+          allow_friend_requests: boolean | null
+          created_at: string | null
+          id: string
+          privacy_policy_accepted: boolean | null
+          privacy_policy_accepted_at: string | null
+          profile_visibility:
+            | Database["public"]["Enums"]["post_visibility"]
+            | null
+          show_activity_status: boolean | null
+          terms_accepted: boolean | null
+          terms_accepted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          allow_friend_requests?: boolean | null
+          created_at?: string | null
+          id?: string
+          privacy_policy_accepted?: boolean | null
+          privacy_policy_accepted_at?: string | null
+          profile_visibility?:
+            | Database["public"]["Enums"]["post_visibility"]
+            | null
+          show_activity_status?: boolean | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          allow_friend_requests?: boolean | null
+          created_at?: string | null
+          id?: string
+          privacy_policy_accepted?: boolean | null
+          privacy_policy_accepted_at?: string | null
+          profile_visibility?:
+            | Database["public"]["Enums"]["post_visibility"]
+            | null
+          show_activity_status?: boolean | null
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           available_minutes_per_day: number | null
+          avatar_url: string | null
           created_at: string | null
           focus_areas: Json | null
           id: string
@@ -383,6 +563,7 @@ export type Database = {
         }
         Insert: {
           available_minutes_per_day?: number | null
+          avatar_url?: string | null
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
@@ -396,6 +577,7 @@ export type Database = {
         }
         Update: {
           available_minutes_per_day?: number | null
+          avatar_url?: string | null
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
@@ -408,6 +590,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reactions: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string
+          post_id: string | null
+          reaction: Database["public"]["Enums"]["reaction_type"]
+          user_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          reaction: Database["public"]["Enums"]["reaction_type"]
+          user_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          reaction?: Database["public"]["Enums"]["reaction_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
@@ -498,6 +722,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      are_friends: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -508,6 +736,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      event_type:
+        | "birthday"
+        | "anniversary"
+        | "deadline"
+        | "milestone"
+        | "custom"
+      friendship_status: "pending" | "accepted" | "declined" | "blocked"
       goal_status: "active" | "completed" | "paused" | "archived"
       habit_frequency: "daily" | "weekly" | "custom"
       life_phase:
@@ -516,6 +751,8 @@ export type Database = {
         | "family_home"
         | "explorer"
         | "legacy_impact"
+      post_visibility: "public" | "friends" | "private"
+      reaction_type: "like" | "love" | "celebrate" | "support" | "insightful"
       task_status: "backlog" | "this_week" | "today" | "done"
     }
     CompositeTypes: {
@@ -645,6 +882,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      event_type: [
+        "birthday",
+        "anniversary",
+        "deadline",
+        "milestone",
+        "custom",
+      ],
+      friendship_status: ["pending", "accepted", "declined", "blocked"],
       goal_status: ["active", "completed", "paused", "archived"],
       habit_frequency: ["daily", "weekly", "custom"],
       life_phase: [
@@ -654,6 +899,8 @@ export const Constants = {
         "explorer",
         "legacy_impact",
       ],
+      post_visibility: ["public", "friends", "private"],
+      reaction_type: ["like", "love", "celebrate", "support", "insightful"],
       task_status: ["backlog", "this_week", "today", "done"],
     },
   },

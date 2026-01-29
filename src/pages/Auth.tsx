@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Crown, Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import lifestackLogo from '@/assets/lifestack-logo.png';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -24,6 +26,8 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -59,6 +63,11 @@ export default function Auth() {
     e.preventDefault();
     
     if (!validateForm()) return;
+    
+    if (isSignUp && (!acceptedTerms || !acceptedPrivacy)) {
+      toast.error('Please accept the Terms and Privacy Policy to continue');
+      return;
+    }
     
     setLoading(true);
 
@@ -107,9 +116,7 @@ export default function Auth() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-gold-light flex items-center justify-center">
-                <Crown className="w-6 h-6 text-primary-foreground" />
-              </div>
+              <img src={lifestackLogo} alt="LifeStack" className="w-12 h-12" />
               <span className="font-serif text-2xl font-bold">LifeStack</span>
             </div>
           </div>
@@ -161,7 +168,14 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    {!isSignUp && (
+                      <Link to="/reset-password" className="text-xs text-primary hover:underline">
+                        Forgot password?
+                      </Link>
+                    )}
+                  </div>
                   <div className="relative">
                     <Input
                       id="password"
@@ -185,7 +199,44 @@ export default function Auth() {
                   )}
                 </div>
 
-                <Button type="submit" variant="gold" className="w-full" disabled={loading}>
+                {isSignUp && (
+                  <div className="space-y-3 py-2">
+                    <div className="flex items-start gap-2">
+                      <Checkbox 
+                        id="terms" 
+                        checked={acceptedTerms}
+                        onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                      />
+                      <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight">
+                        I agree to the{' '}
+                        <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                          Terms & Conditions
+                        </Link>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox 
+                        id="privacy" 
+                        checked={acceptedPrivacy}
+                        onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                      />
+                      <label htmlFor="privacy" className="text-sm text-muted-foreground leading-tight">
+                        I have read and accept the{' '}
+                        <Link to="/privacy" className="text-primary hover:underline" target="_blank">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                <Button 
+                  type="submit" 
+                  variant="gold" 
+                  className="w-full" 
+                  disabled={loading || (isSignUp && (!acceptedTerms || !acceptedPrivacy))}
+                >
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   {isSignUp ? 'Create Account' : 'Sign In'}
                 </Button>
