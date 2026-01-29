@@ -1,15 +1,28 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { Loader2 } from 'lucide-react';
 import { useSessionTracking } from '@/hooks/useSessionTracking';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 export const AppLayout = () => {
-  const { user, loading, profile } = useAuth();
+  const { user, loading, profile, refreshProfile } = useAuth();
+  const location = useLocation();
+  const queryClient = useQueryClient();
   
   // Track user session for screen time analytics
   useSessionTracking();
+
+  const handleRefresh = useCallback(async () => {
+    // Refresh all queries and profile data
+    await Promise.all([
+      queryClient.invalidateQueries(),
+      refreshProfile(),
+    ]);
+  }, [queryClient, refreshProfile]);
 
   if (loading) {
     return (
@@ -35,9 +48,14 @@ export const AppLayout = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 overflow-x-hidden">
-        <div className="flex-1 container max-w-5xl mx-auto py-6 px-4 lg:px-6">
-          <Outlet />
-        </div>
+        <PullToRefresh 
+          onRefresh={handleRefresh}
+          className="flex-1 h-full"
+        >
+          <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6">
+            <Outlet />
+          </div>
+        </PullToRefresh>
       </main>
       <BottomNav />
     </div>
