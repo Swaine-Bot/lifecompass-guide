@@ -478,7 +478,7 @@ export default function Admin() {
                         </p>
                       </CardContent>
                     </Card>
-                    <Card className="bg-amber-500/10 border-amber-500/20">
+                    <Card className="bg-primary/10 border-primary/20">
                       <CardContent className="p-4 text-center">
                         <div className="text-2xl font-semibold">${analytics?.revenue.founderRevenue.toFixed(2)}</div>
                         <p className="text-sm text-muted-foreground">Founder Plans</p>
@@ -612,21 +612,21 @@ export default function Admin() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <TrendingUp className="h-8 w-8 text-green-500" />
+                      <TrendingUp className="h-8 w-8 text-primary" />
                       <div>
                         <div className="text-2xl font-bold">{analytics?.features.usage.habits || 0}</div>
                         <p className="text-sm text-muted-foreground">Habits Tracked</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <BookOpen className="h-8 w-8 text-blue-500" />
+                      <BookOpen className="h-8 w-8 text-primary" />
                       <div>
                         <div className="text-2xl font-bold">{analytics?.features.usage.journal || 0}</div>
                         <p className="text-sm text-muted-foreground">Journal Entries</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <MessageSquare className="h-8 w-8 text-purple-500" />
+                      <MessageSquare className="h-8 w-8 text-primary" />
                       <div>
                         <div className="text-2xl font-bold">{analytics?.features.usage.mentor || 0}</div>
                         <p className="text-sm text-muted-foreground">Mentor Chats</p>
