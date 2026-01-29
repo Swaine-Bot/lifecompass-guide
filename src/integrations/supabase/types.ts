@@ -561,6 +561,7 @@ export type Database = {
           last_longitude: number | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at: string | null
+          micro_moves_count: number
           name: string | null
           onboarding_completed: boolean | null
           strictness_level: number | null
@@ -579,6 +580,7 @@ export type Database = {
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
           strictness_level?: number | null
@@ -597,6 +599,7 @@ export type Database = {
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
           strictness_level?: number | null
@@ -732,6 +735,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          gumroad_license_key: string | null
+          gumroad_product_id: string | null
+          id: string
+          is_active: boolean
+          started_at: string | null
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          gumroad_license_key?: string | null
+          gumroad_product_id?: string | null
+          id?: string
+          is_active?: boolean
+          started_at?: string | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          gumroad_license_key?: string | null
+          gumroad_product_id?: string | null
+          id?: string
+          is_active?: boolean
+          started_at?: string | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -748,6 +790,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_micro_moves: { Args: { p_user_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -768,6 +811,7 @@ export type Database = {
         | "legacy_impact"
       post_visibility: "public" | "friends" | "private"
       reaction_type: "like" | "love" | "celebrate" | "support" | "insightful"
+      subscription_tier: "free" | "pro" | "founder"
       task_status: "backlog" | "this_week" | "today" | "done"
     }
     CompositeTypes: {
@@ -916,6 +960,7 @@ export const Constants = {
       ],
       post_visibility: ["public", "friends", "private"],
       reaction_type: ["like", "love", "celebrate", "support", "insightful"],
+      subscription_tier: ["free", "pro", "founder"],
       task_status: ["backlog", "this_week", "today", "done"],
     },
   },
