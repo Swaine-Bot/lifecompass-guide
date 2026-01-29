@@ -503,6 +503,7 @@ export type Database = {
           allow_friend_requests: boolean | null
           created_at: string | null
           id: string
+          location_permission: string | null
           privacy_policy_accepted: boolean | null
           privacy_policy_accepted_at: string | null
           profile_visibility:
@@ -518,6 +519,7 @@ export type Database = {
           allow_friend_requests?: boolean | null
           created_at?: string | null
           id?: string
+          location_permission?: string | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
           profile_visibility?:
@@ -533,6 +535,7 @@ export type Database = {
           allow_friend_requests?: boolean | null
           created_at?: string | null
           id?: string
+          location_permission?: string | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
           profile_visibility?:
@@ -553,7 +556,10 @@ export type Database = {
           created_at: string | null
           focus_areas: Json | null
           id: string
+          last_latitude: number | null
+          last_longitude: number | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
+          location_updated_at: string | null
           name: string | null
           onboarding_completed: boolean | null
           strictness_level: number | null
@@ -567,7 +573,10 @@ export type Database = {
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
+          last_latitude?: number | null
+          last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          location_updated_at?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
           strictness_level?: number | null
@@ -581,7 +590,10 @@ export type Database = {
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
+          last_latitude?: number | null
+          last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          location_updated_at?: string | null
           name?: string | null
           onboarding_completed?: boolean | null
           strictness_level?: number | null
