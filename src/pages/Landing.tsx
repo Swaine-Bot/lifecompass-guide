@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Target, Brain, BookOpen, ArrowRight, Check, Shield, Users, Download, Play } from 'lucide-react';
+import { Sparkles, Target, Brain, BookOpen, ArrowRight, Check, Shield, Users, Download, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import lifestackLogo from '@/assets/lifestack-logo.png';
 
@@ -136,11 +136,34 @@ export default function Landing() {
               <Download className="w-4 h-4" />
               Download Video
             </Button>
-            <Button variant="ghost" asChild className="gap-2">
-              <Link to="/launch-video">
-                <Play className="w-4 h-4" />
-                View Full Production Kit
-              </Link>
+            <Button
+              variant="ghost"
+              className="gap-2"
+              onClick={async () => {
+                const shareData = {
+                  title: 'LifeStack - Your Life Operating System',
+                  text: 'Guide your life from your first job to your last breath. An AI mentor that helps you plan, track, and reflect.',
+                  url: 'https://lifecompass-guide.lovable.app',
+                };
+                
+                if (navigator.share && navigator.canShare(shareData)) {
+                  try {
+                    await navigator.share(shareData);
+                    toast.success('Thanks for sharing!');
+                  } catch (err) {
+                    if ((err as Error).name !== 'AbortError') {
+                      await navigator.clipboard.writeText(shareData.url);
+                      toast.success('Link copied to clipboard!');
+                    }
+                  }
+                } else {
+                  await navigator.clipboard.writeText(shareData.url);
+                  toast.success('Link copied to clipboard!');
+                }
+              }}
+            >
+              <Share2 className="w-4 h-4" />
+              Share App
             </Button>
           </div>
         </div>
