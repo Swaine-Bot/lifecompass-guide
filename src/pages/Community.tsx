@@ -15,8 +15,9 @@ import {
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
-  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil
+  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail
 } from 'lucide-react';
+import { InviteFriends } from '@/components/community/InviteFriends';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -1038,12 +1039,28 @@ export default function Community() {
         </TabsContent>
 
         <TabsContent value="friends" className="space-y-4">
-          {/* Add Friend */}
+          {/* Invite Friends - Not on the app yet */}
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Mail className="w-5 h-5 text-primary" />
+                Invite Friends
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Know someone who would love LifeStack? Invite them via email or WhatsApp!
+              </p>
+              <InviteFriends userName={profile?.name || 'A friend'} />
+            </CardContent>
+          </Card>
+
+          {/* Add Friend - Already on the app */}
           <Card variant="glass">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <UserPlus className="w-5 h-5" />
-                Add Friend
+                Find Friends on LifeStack
               </CardTitle>
             </CardHeader>
             <CardContent>
