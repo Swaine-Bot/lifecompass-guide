@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Send, Loader2, Bot, User } from 'lucide-react';
+import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -56,6 +56,13 @@ export default function Mentor() {
     }
   };
 
+  const professionalLinks = [
+    { label: 'Find a Therapist', query: 'therapist near me' },
+    { label: 'Find a Doctor', query: 'doctor near me' },
+    { label: 'Financial Advisor', query: 'financial advisor near me' },
+    { label: 'Career Counselor', query: 'career counselor near me' },
+  ];
+
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] lg:h-[calc(100vh-8rem)]">
       {/* Header */}
@@ -66,6 +73,34 @@ export default function Mentor() {
         </h1>
         <p className="text-muted-foreground">Your calm, pragmatic guide</p>
       </div>
+
+      {/* Disclaimer */}
+      <Card className="mb-4 p-3 bg-warning/10 border-warning/30">
+        <div className="flex gap-2 items-start">
+          <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-medium text-warning mb-1">Important Disclaimer</p>
+            <p className="text-muted-foreground text-xs mb-2">
+              This AI mentor provides general guidance only and does not constitute professional advice. 
+              For medical, mental health, financial, or legal matters, please consult qualified professionals.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {professionalLinks.map((link) => (
+                <a
+                  key={link.query}
+                  href={`https://www.google.com/maps/search/${encodeURIComponent(link.query)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Chat Area */}
       <Card variant="glass" className="flex-1 flex flex-col overflow-hidden">
