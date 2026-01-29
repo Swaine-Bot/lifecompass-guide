@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
-  LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info
+  LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -47,17 +47,109 @@ export default function Settings() {
     allow_friend_requests: true,
   });
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
       setName(profile.name || '');
       setTimezone(profile.timezone || 'UTC');
+      loadAvatarUrl();
     }
     fetchPrivacySettings();
   }, [profile]);
+
+  const loadAvatarUrl = async () => {
+    if (!profile?.avatar_url) {
+      setAvatarUrl(null);
+      return;
+    }
+    
+    // If it's a storage path, generate signed URL
+    if (profile.avatar_url.includes('avatars/')) {
+      const { data, error } = await supabase.storage
+        .from('user-media')
+        .createSignedUrl(profile.avatar_url, 3600);
+      
+      if (!error && data) {
+        setAvatarUrl(data.signedUrl);
+      }
+    } else {
+      setAvatarUrl(profile.avatar_url);
+    }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a valid image (JPG, PNG, WebP, or GIF)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      // Delete old avatar if exists
+      if (profile?.avatar_url) {
+        await supabase.storage
+          .from('user-media')
+          .remove([profile.avatar_url]);
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `avatars/${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('user-media')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Update profile with new avatar path
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: fileName })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Get signed URL for display
+      const { data: urlData } = await supabase.storage
+        .from('user-media')
+        .createSignedUrl(fileName, 3600);
+
+      if (urlData) {
+        setAvatarUrl(urlData.signedUrl);
+      }
+
+      toast.success('Profile picture updated!');
+      refreshProfile();
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const fetchPrivacySettings = async () => {
     if (!user) return;
@@ -171,13 +263,49 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4 mb-6">
-                <Avatar className="w-20 h-20">
-                  <AvatarFallback className="text-2xl">{name?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
-                <Button variant="outline">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Change Photo
-                </Button>
+                <div className="relative group">
+                  <Avatar className="w-20 h-20 ring-2 ring-border">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                      {name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  {uploadingAvatar && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    id="avatar-upload"
+                  />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                  >
+                    {uploadingAvatar ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="w-4 h-4 mr-2" />
+                        Change Photo
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG, WebP or GIF. Max 5MB.
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-2">
