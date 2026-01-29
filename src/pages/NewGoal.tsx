@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Target, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SHORT_TEXT_LENGTH } from '@/lib/validation';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
@@ -45,7 +46,14 @@ export default function NewGoal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !formData.title.trim()) return;
+    if (!user) return;
+
+    // Validate form data
+    const validation = validateWithSchema(goalSchema, formData);
+    if (!validation.success) {
+      toast.error('error' in validation ? validation.error : 'Validation failed');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -120,12 +128,13 @@ export default function NewGoal() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Goal Title *</Label>
+              <Label htmlFor="title">Goal Title * <span className="text-muted-foreground text-xs">({formData.title.length}/{MAX_TITLE_LENGTH})</span></Label>
               <Input
                 id="title"
                 placeholder="e.g., Run a marathon, Launch my side business"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, MAX_TITLE_LENGTH) })}
+                maxLength={MAX_TITLE_LENGTH}
                 required
               />
             </div>
@@ -181,33 +190,36 @@ export default function NewGoal() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="success_metric">Success Metric</Label>
+              <Label htmlFor="success_metric">Success Metric <span className="text-muted-foreground text-xs">({formData.success_metric.length}/{MAX_SHORT_TEXT_LENGTH})</span></Label>
               <Input
                 id="success_metric"
                 placeholder="How will you know you've achieved this?"
                 value={formData.success_metric}
-                onChange={(e) => setFormData({ ...formData, success_metric: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, success_metric: e.target.value.slice(0, MAX_SHORT_TEXT_LENGTH) })}
+                maxLength={MAX_SHORT_TEXT_LENGTH}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="why">Why This Matters</Label>
+              <Label htmlFor="why">Why This Matters <span className="text-muted-foreground text-xs">({formData.why.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
               <Textarea
                 id="why"
                 placeholder="What's the deeper reason behind this goal?"
                 value={formData.why}
-                onChange={(e) => setFormData({ ...formData, why: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, why: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
+                maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="constraints">Constraints & Challenges</Label>
+              <Label htmlFor="constraints">Constraints & Challenges <span className="text-muted-foreground text-xs">({formData.constraints.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
               <Textarea
                 id="constraints"
                 placeholder="What obstacles might you face?"
                 value={formData.constraints}
-                onChange={(e) => setFormData({ ...formData, constraints: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, constraints: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
+                maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={2}
               />
             </div>
