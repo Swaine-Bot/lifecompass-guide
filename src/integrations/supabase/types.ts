@@ -790,7 +790,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_micro_moves: { Args: { p_user_id: string }; Returns: number }
+      increment_micro_moves: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
