@@ -3,9 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { Loader2 } from 'lucide-react';
+import { useSessionTracking } from '@/hooks/useSessionTracking';
 
 export const AppLayout = () => {
   const { user, loading, profile } = useAuth();
+  
+  // Track user session for screen time analytics
+  useSessionTracking();
 
   if (loading) {
     return (
