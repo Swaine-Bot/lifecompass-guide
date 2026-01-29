@@ -2,6 +2,7 @@ import { Home, Target, BarChart3, MessageCircle, Users, Crown } from 'lucide-rea
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePendingFriendRequests } from '@/hooks/usePendingFriendRequests';
 
 const navItems = [
   { path: '/home', label: 'Home', icon: Home },
@@ -14,6 +15,7 @@ const navItems = [
 export const BottomNav = () => {
   const { isAdmin } = useAuth();
   const location = useLocation();
+  const pendingCount = usePendingFriendRequests();
 
   return (
     <nav className="bottom-nav lg:hidden">
@@ -21,20 +23,28 @@ export const BottomNav = () => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/home' && location.pathname.startsWith(item.path));
+          const showBadge = item.path === '/community' && pendingCount > 0;
           
           return (
             <Link
               key={item.path}
               to={item.path}
               className={cn(
-                "bottom-nav-item flex-1",
+                "bottom-nav-item flex-1 relative",
                 isActive && "active"
               )}
             >
-              <item.icon className={cn(
-                "w-5 h-5 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground"
-              )} />
+              <div className="relative">
+                <item.icon className={cn(
+                  "w-5 h-5 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )} />
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
+                    {pendingCount > 9 ? '9+' : pendingCount}
+                  </span>
+                )}
+              </div>
               <span className={cn(
                 "text-xs font-medium",
                 isActive ? "text-primary" : "text-muted-foreground"

@@ -22,6 +22,8 @@ export const AppLayout = () => {
       queryClient.invalidateQueries(),
       refreshProfile(),
     ]);
+    // Dispatch custom event for pages using local state
+    window.dispatchEvent(new CustomEvent('app-refresh'));
   }, [queryClient, refreshProfile]);
 
   if (loading) {

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import lifestackLogo from '@/assets/lifestack-logo.png';
+import { usePendingFriendRequests } from '@/hooks/usePendingFriendRequests';
 
 const mainNavItems = [
   { path: '/home', label: 'Home', icon: Home },
@@ -12,7 +13,7 @@ const mainNavItems = [
   { path: '/habits', label: 'Habits', icon: BarChart3 },
   { path: '/life-events', label: 'Life Events', icon: Gift },
   { path: '/mentor', label: 'AI Mentor', icon: MessageCircle },
-  { path: '/community', label: 'Community', icon: Users },
+  { path: '/community', label: 'Community', icon: Users, showBadge: true },
   { path: '/library', label: 'Library', icon: BookOpen },
 ];
 
@@ -28,6 +29,7 @@ export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, isAdmin, signOut } = useAuth();
+  const pendingCount = usePendingFriendRequests();
 
   const handleSignOut = async () => {
     await signOut();
@@ -58,6 +60,7 @@ export const Sidebar = () => {
         {mainNavItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/home' && location.pathname.startsWith(item.path));
+          const showBadge = item.showBadge && pendingCount > 0;
           
           return (
             <Link
@@ -65,7 +68,14 @@ export const Sidebar = () => {
               to={item.path}
               className={cn("nav-item", isActive && "active")}
             >
-              <item.icon className="w-5 h-5" />
+              <div className="relative">
+                <item.icon className="w-5 h-5" />
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
+                    {pendingCount > 9 ? '9+' : pendingCount}
+                  </span>
+                )}
+              </div>
               <span>{item.label}</span>
             </Link>
           );

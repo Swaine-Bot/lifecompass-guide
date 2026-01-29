@@ -137,6 +137,19 @@ export default function Community() {
     }
   }, [user]);
 
+  // Listen for pull-to-refresh events from AppLayout
+  useEffect(() => {
+    const handleAppRefresh = () => {
+      if (user) {
+        fetchFriends();
+        fetchPosts();
+      }
+    };
+
+    window.addEventListener('app-refresh', handleAppRefresh);
+    return () => window.removeEventListener('app-refresh', handleAppRefresh);
+  }, [user]);
+
   const fetchFriends = async () => {
     if (!user) return;
 
@@ -153,9 +166,9 @@ export default function Community() {
     if (data) {
       const friendPromises = data.map(async (f) => {
         const friendUserId = f.requester_id === user.id ? f.addressee_id : f.requester_id;
-        // Use profiles_public view to protect sensitive data (location, etc.)
+        // Use profiles_searchable view which bypasses RLS for friend data
         const { data: profileData } = await supabase
-          .from('profiles_public')
+          .from('profiles_searchable')
           .select('name, avatar_url')
           .eq('user_id', friendUserId)
           .single();
@@ -186,9 +199,9 @@ export default function Community() {
 
     if (data) {
       const postsWithDetails = await Promise.all(data.map(async (post) => {
-        // Use profiles_public view to protect sensitive data (location, etc.)
+        // Use profiles_searchable view which bypasses RLS for friend data
         const { data: profileData } = await supabase
-          .from('profiles_public')
+          .from('profiles_searchable')
           .select('name, avatar_url')
           .eq('user_id', post.user_id)
           .single();
