@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Target, Brain, BookOpen, ArrowRight, Check, Shield, Users } from 'lucide-react';
+import { Sparkles, Target, Brain, BookOpen, ArrowRight, Check, Shield, Users, Download, Play } from 'lucide-react';
+import { toast } from 'sonner';
 import lifestackLogo from '@/assets/lifestack-logo.png';
 
 const features = [
@@ -93,6 +94,53 @@ export default function Landing() {
             </Button>
             <Button size="xl" variant="outline" asChild>
               <Link to="/auth">Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Launch Video Section */}
+      <section className="py-16 px-4 bg-gradient-to-b from-background to-card/50">
+        <div className="container max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2">Watch Our Story</h2>
+            <p className="text-muted-foreground">A journey through life, guided by LifeStack</p>
+          </div>
+          
+          <div className="relative rounded-2xl overflow-hidden bg-black/80 shadow-2xl border border-border/50">
+            <div className="aspect-video">
+              <video
+                className="w-full h-full object-contain"
+                controls
+                playsInline
+                poster="/videos/intro-poster.jpg"
+              >
+                <source src="/videos/launch-teaser.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                const a = document.createElement('a');
+                a.href = '/videos/launch-teaser.mp4';
+                a.download = 'lifestack-launch-video.mp4';
+                a.click();
+                toast.success('Video download started!');
+              }}
+            >
+              <Download className="w-4 h-4" />
+              Download Video
+            </Button>
+            <Button variant="ghost" asChild className="gap-2">
+              <Link to="/launch-video">
+                <Play className="w-4 h-4" />
+                View Full Production Kit
+              </Link>
             </Button>
           </div>
         </div>
