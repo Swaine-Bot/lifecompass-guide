@@ -31,6 +31,7 @@ import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Admin from "./pages/Admin";
+import IPDocumentation from "./pages/IPDocumentation";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/update-password" element={<UpdatePassword />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/ip-docs" element={<IPDocumentation />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
