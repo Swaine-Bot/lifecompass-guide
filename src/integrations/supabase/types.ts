@@ -866,6 +866,15 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_searchable: {
+        Row: {
+          avatar_url: string | null
+          life_phase: Database["public"]["Enums"]["life_phase"] | null
+          name: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       user_subscriptions_safe: {
         Row: {
           created_at: string | null
