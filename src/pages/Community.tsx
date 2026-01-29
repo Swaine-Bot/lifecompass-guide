@@ -295,11 +295,12 @@ export default function Community() {
       });
 
       // Broad case-insensitive search - search for any part of the name
+      // Use profiles_searchable view which bypasses RLS for friend discovery
       const searchTerm = searchQuery.trim().toLowerCase();
       const { data: profiles } = await supabase
-        .from('profiles_public')
+        .from('profiles_searchable')
         .select('user_id, name, avatar_url, life_phase')
-        .or(`name.ilike.%${searchTerm}%,name.ilike.${searchTerm}%,name.ilike.%${searchTerm}`)
+        .ilike('name', `%${searchTerm}%`)
         .limit(20);
 
       if (profiles) {
