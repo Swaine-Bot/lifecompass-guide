@@ -28,6 +28,13 @@ interface Friend {
   is_requester: boolean;
 }
 
+interface SearchResult {
+  user_id: string;
+  name: string | null;
+  avatar_url: string | null;
+  life_phase: string | null;
+}
+
 interface Post {
   id: string;
   user_id: string;
@@ -62,7 +69,11 @@ export default function Community() {
   const { user, profile } = useAuth();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [searchEmail, setSearchEmail] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [selectedUser, setSelectedUser] = useState<SearchResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
@@ -71,6 +82,7 @@ export default function Community() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -206,30 +218,76 @@ export default function Community() {
     return signedUrls;
   };
 
+  // Live search for users
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!user || searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      
+      // Get existing friendships to exclude
+      const { data: existingFriendships } = await supabase
+        .from('friendships')
+        .select('requester_id, addressee_id')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+
+      const excludedIds = new Set<string>([user.id]);
+      existingFriendships?.forEach(f => {
+        excludedIds.add(f.requester_id);
+        excludedIds.add(f.addressee_id);
+      });
+
+      const { data: profiles } = await supabase
+        .from('profiles_public')
+        .select('user_id, name, avatar_url, life_phase')
+        .ilike('name', `%${searchQuery.trim()}%`)
+        .limit(10);
+
+      if (profiles) {
+        const filtered = profiles.filter(p => p.user_id && !excludedIds.has(p.user_id));
+        setSearchResults(filtered as SearchResult[]);
+        setShowSearchResults(filtered.length > 0);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+
+      setIsSearching(false);
+    };
+
+    const debounce = setTimeout(searchUsers, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery, user]);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectUserForRequest = (userResult: SearchResult) => {
+    setSelectedUser(userResult);
+    setSearchQuery(userResult.name || '');
+    setShowSearchResults(false);
+  };
+
   const sendFriendRequest = async () => {
-    if (!user || !searchEmail) return;
+    if (!user || !selectedUser) return;
     setLoading(true);
-
-    // Find user by name using profiles_public view (protects sensitive data)
-    // For now, we'll search by name
-    const { data: profiles } = await supabase
-      .from('profiles_public')
-      .select('user_id, name')
-      .ilike('name', `%${searchEmail}%`)
-      .neq('user_id', user.id)
-      .limit(5);
-
-    if (!profiles || profiles.length === 0) {
-      toast.error('No users found with that name');
-      setLoading(false);
-      return;
-    }
-
-    const targetUser = profiles[0];
 
     const { error } = await supabase.from('friendships').insert({
       requester_id: user.id,
-      addressee_id: targetUser.user_id,
+      addressee_id: selectedUser.user_id,
       status: 'pending'
     });
 
@@ -240,8 +298,9 @@ export default function Community() {
         toast.error('Failed to send friend request');
       }
     } else {
-      toast.success(`Friend request sent to ${targetUser.name}!`);
-      setSearchEmail('');
+      toast.success(`Friend request sent to ${selectedUser.name}!`);
+      setSearchQuery('');
+      setSelectedUser(null);
       fetchFriends();
     }
 
@@ -598,19 +657,93 @@ export default function Community() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <div className="relative flex-1" ref={searchContainerRef}>
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
                   <Input
                     placeholder="Search by name..."
-                    value={searchEmail}
-                    onChange={(e) => setSearchEmail(e.target.value)}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSelectedUser(null);
+                    }}
+                    onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
                     className="pl-9"
                   />
+                  
+                  {/* Search Results Dropdown */}
+                  {showSearchResults && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto animate-fade-in">
+                      {isSearching ? (
+                        <div className="p-4 text-center text-muted-foreground">
+                          <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
+                          Searching...
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        searchResults.map((result) => (
+                          <button
+                            key={result.user_id}
+                            onClick={() => selectUserForRequest(result)}
+                            className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+                          >
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={result.avatar_url || undefined} />
+                              <AvatarFallback className="bg-primary/10 text-primary">
+                                {result.name?.charAt(0) || 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{result.name || 'Unknown'}</p>
+                              {result.life_phase && (
+                                <p className="text-xs text-muted-foreground capitalize">
+                                  {result.life_phase.replace(/_/g, ' ')}
+                                </p>
+                              )}
+                            </div>
+                            <UserPlus className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                        ))
+                      ) : searchQuery.length >= 2 ? (
+                        <div className="p-4 text-center text-muted-foreground">
+                          No users found
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
-                <Button variant="gold" onClick={sendFriendRequest} disabled={loading || !searchEmail}>
-                  <Send className="w-4 h-4" />
+                
+                <Button 
+                  variant="gold" 
+                  onClick={sendFriendRequest} 
+                  disabled={loading || !selectedUser}
+                  className="shrink-0"
+                >
+                  {selectedUser ? <Send className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                 </Button>
               </div>
+              
+              {/* Selected User Indicator */}
+              {selectedUser && (
+                <div className="mt-3 flex items-center gap-2 p-2 bg-primary/10 rounded-lg animate-fade-in">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={selectedUser.avatar_url || undefined} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">
+                      {selectedUser.name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="flex-1 text-sm font-medium">{selectedUser.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setSearchQuery('');
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
