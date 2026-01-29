@@ -3,7 +3,7 @@
 
 **Prepared:** January 29, 2026  
 **Last Updated:** January 29, 2026  
-**Version:** 2.0  
+**Version:** 2.1  
 **Jurisdiction:** South Africa (Primary) / PCT International
 
 ---
@@ -252,6 +252,28 @@ A user engagement tracking system comprising:
 
 that enables platform optimization without compromising user privacy.
 
+### Concept F: Interactive AI Insights Discovery (NEW)
+
+A user engagement system for AI-generated content comprising:
+- "Tap to reveal" interaction pattern on media posts;
+- Visual overlay prompts encouraging user engagement;
+- Per-user privacy controls for AI insight visibility to friends;
+- Cached AI analysis for performance optimization;
+- Collapsible inline feedback display;
+
+that increases user engagement with AI-generated insights while respecting privacy preferences.
+
+### Concept G: Web Push Notification System (NEW)
+
+A privacy-respecting notification delivery system comprising:
+- Automatic VAPID key generation and management;
+- Service Worker-based background notification handling;
+- Granular notification category preferences (goals, social, nudges);
+- Browser permission state management;
+- Push subscription lifecycle management;
+
+that enables timely user engagement without requiring native app installation.
+
 ---
 
 ## DRAWINGS DESCRIPTION
@@ -344,4 +366,4 @@ The responsive navigation system provides:
 
 *This document is prepared for patent application purposes and should be reviewed by a qualified patent attorney before filing.*
 
-*Version 2.0 - January 29, 2026*
+*Version 2.1 - January 29, 2026*

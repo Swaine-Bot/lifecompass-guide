@@ -3,7 +3,7 @@
 
 ---
 
-**Document Version:** 2.0  
+**Document Version:** 2.1  
 **Compilation Date:** January 29, 2026  
 **Last Updated:** January 29, 2026  
 **Prepared For:** Patent Application & IP Protection (South Africa and International)
@@ -250,9 +250,21 @@ AI Models Used:
 - Reactions (Like, Love, Celebrate, Support, Insightful)
 - Comments
 - AI content moderation
-- Post deletion
+- Post deletion and editing
+- Inline AI insights with "tap to reveal" interaction on media
+- User avatar and name integration in feed posts
+- AI mentor visibility privacy controls (per-user setting)
+- Friends' posts visibility in unified social feed
 
-### 8. Life Events Calendar
+### 8. Push Notification System
+**Files:** `public/sw.js`, `supabase/functions/push-vapid-keys/index.ts`, `supabase/functions/send-push-notification/index.ts`
+
+- Web Push API integration with auto-generated VAPID keys
+- Service Worker for background notification handling
+- Granular notification preferences (Goals, Social, Nudges)
+- Privacy-respecting push subscription management
+
+### 9. Life Events Calendar
 **File:** `src/pages/LifeEvents.tsx`
 
 - Event types: Birthday, Anniversary, Deadline, Milestone, Custom
@@ -304,17 +316,18 @@ AI Models Used:
 - Source code manifest
 - Secure access for authorized users
 
-### 14. Settings & Preferences
+### 15. Settings & Preferences
 **File:** `src/pages/Settings.tsx`
 
-- Profile management
-- Privacy settings
-- Notification preferences
+- Profile management with avatar upload
+- Clickable avatar in home page header for quick settings access
+- Privacy settings including AI insights visibility to friends
+- Push notification preferences (master toggle + granular controls)
 - Language selection
 - Timezone configuration
 - Account management
 
-### 15. Responsive Navigation
+### 16. Responsive Navigation
 **Files:** `src/components/layout/Sidebar.tsx`, `src/components/layout/BottomNav.tsx`
 
 - Desktop: Sidebar with full navigation
