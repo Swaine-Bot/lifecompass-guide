@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Calendar
+  Sun, Moon, Cloud, Zap, Check, Calendar, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -48,7 +48,7 @@ const energyOptions = [
 ];
 
 export default function Home() {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
@@ -181,12 +181,17 @@ export default function Home() {
             {format(new Date(), 'EEEE, MMMM d')}
           </p>
         </div>
-        <Button variant="gold" size="sm" asChild>
-          <Link to="/goals/new">
-            <Plus className="w-4 h-4 mr-1" />
-            Add Goal
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="gold" size="sm" asChild>
+            <Link to="/goals/new">
+              <Plus className="w-4 h-4 mr-1" />
+              Add Goal
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={signOut}>
+            <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Stats Row */}
