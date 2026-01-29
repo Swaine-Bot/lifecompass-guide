@@ -12,12 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
-  LogOut, Save, Camera, MapPin
+  LogOut, Save, Camera, MapPin, Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import lifestackLogo from '@/assets/lifestack-logo.png';
 import { useLocation, LocationPermission } from '@/hooks/useLocation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Language } from '@/lib/translations';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -31,6 +33,7 @@ export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
+  const { language, setLanguage, t, languageNames } = useLanguage();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
@@ -203,9 +206,27 @@ export default function Settings() {
                 </Select>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="language" className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  {t('settings.language')}
+                </Label>
+                <p className="text-sm text-muted-foreground">{t('settings.selectLanguage')}</p>
+                <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border border-border">
+                    {(Object.keys(languageNames) as Language[]).map((lang) => (
+                      <SelectItem key={lang} value={lang}>{languageNames[lang]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <Button variant="gold" onClick={updateProfile} disabled={loading}>
                 <Save className="w-4 h-4 mr-2" />
-                Save Changes
+                {t('settings.saveChanges')}
               </Button>
             </CardContent>
           </Card>

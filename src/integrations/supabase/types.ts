@@ -556,6 +556,7 @@ export type Database = {
           created_at: string | null
           focus_areas: Json | null
           id: string
+          language: string | null
           last_latitude: number | null
           last_longitude: number | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
@@ -573,6 +574,7 @@ export type Database = {
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
+          language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
@@ -590,6 +592,7 @@ export type Database = {
           created_at?: string | null
           focus_areas?: Json | null
           id?: string
+          language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null

@@ -12,6 +12,10 @@ interface Profile {
   strictness_level: number;
   focus_areas: string[];
   onboarding_completed: boolean;
+  language?: string;
+  last_latitude?: number;
+  last_longitude?: number;
+  location_updated_at?: string;
 }
 
 interface AuthContextType {
