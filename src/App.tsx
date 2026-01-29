@@ -28,6 +28,7 @@ import Terms from "./pages/Terms";
 import ResetPassword from "./pages/ResetPassword";
 import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/update-password" element={<UpdatePassword />} />
+                <Route path="/pricing" element={<Pricing />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
