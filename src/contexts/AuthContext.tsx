@@ -6,6 +6,7 @@ interface Profile {
   id: string;
   user_id: string;
   name: string | null;
+  avatar_url: string | null;
   timezone: string;
   life_phase: 'student_early_career' | 'builder' | 'family_home' | 'explorer' | 'legacy_impact';
   available_minutes_per_day: number;
