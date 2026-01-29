@@ -42,6 +42,46 @@ serve(async (req) => {
     console.log("Authenticated user:", userId);
 
     const { messages, profile } = await req.json();
+    
+    // Validate input
+    const MAX_MESSAGE_LENGTH = 5000;
+    const MAX_MESSAGES = 50;
+    
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid messages format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (messages.length > MAX_MESSAGES) {
+      return new Response(
+        JSON.stringify({ error: "Too many messages in conversation" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage?.content || typeof lastMessage.content !== 'string') {
+      return new Response(
+        JSON.stringify({ error: "Invalid message content" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Sanitize messages - ensure only valid roles and content
+    const sanitizedMessages = messages.map((m: { role: string; content: string }) => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: String(m.content).slice(0, MAX_MESSAGE_LENGTH)
+    }));
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -92,7 +132,7 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages.map((m: any) => ({ role: m.role, content: m.content })),
+          ...sanitizedMessages,
         ],
       }),
     });

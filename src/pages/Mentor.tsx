@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
+import { MAX_MESSAGE_LENGTH } from '@/lib/validation';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,9 +34,15 @@ export default function Mentor() {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput || loading) return;
+    
+    // Validate message length
+    if (trimmedInput.length > MAX_MESSAGE_LENGTH) {
+      return;
+    }
 
-    const userMessage: Message = { role: 'user', content: input };
+    const userMessage: Message = { role: 'user', content: trimmedInput };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -172,13 +179,19 @@ export default function Mentor() {
         {/* Input */}
         <div className="p-4 border-t border-border/30">
           <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask your mentor..."
-              disabled={loading}
-              className="flex-1"
-            />
+            <div className="flex-1 relative">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
+                placeholder="Ask your mentor..."
+                disabled={loading}
+                maxLength={MAX_MESSAGE_LENGTH}
+                className="pr-16"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                {input.length}/{MAX_MESSAGE_LENGTH}
+              </span>
+            </div>
             <Button type="submit" variant="gold" disabled={loading || !input.trim()}>
               <Send className="w-4 h-4" />
             </Button>

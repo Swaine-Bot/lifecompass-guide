@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Flame, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH } from '@/lib/validation';
 
 const colors = [
   '#D4AF37', // Gold
@@ -45,7 +46,14 @@ export default function NewHabit() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !formData.title.trim()) return;
+    if (!user) return;
+
+    // Validate form data
+    const validation = validateWithSchema(habitSchema, formData);
+    if (!validation.success) {
+      toast.error('error' in validation ? validation.error : 'Validation failed');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -98,23 +106,25 @@ export default function NewHabit() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Habit Name *</Label>
+              <Label htmlFor="title">Habit Name * <span className="text-muted-foreground text-xs">({formData.title.length}/{MAX_TITLE_LENGTH})</span></Label>
               <Input
                 id="title"
                 placeholder="e.g., Morning meditation, Read 20 pages"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, MAX_TITLE_LENGTH) })}
+                maxLength={MAX_TITLE_LENGTH}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description <span className="text-muted-foreground text-xs">({formData.description.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
               <Textarea
                 id="description"
                 placeholder="What does this habit look like when done well?"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
+                maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={2}
               />
             </div>
