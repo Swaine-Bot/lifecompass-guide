@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
-  LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2
+  LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
+  Bell, BellOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -22,6 +23,7 @@ import { useLocation, LocationPermission } from '@/hooks/useLocation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/lib/translations';
 import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -29,6 +31,9 @@ interface PrivacySettings {
   profile_visibility: 'public' | 'friends' | 'private';
   show_activity_status: boolean;
   allow_friend_requests: boolean;
+  notifications_goals: boolean;
+  notifications_social: boolean;
+  notifications_nudges: boolean;
 }
 
 export default function Settings() {
@@ -37,6 +42,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const { language, setLanguage, t, languageNames } = useLanguage();
+  const pushNotifications = usePushNotifications();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
@@ -45,6 +51,9 @@ export default function Settings() {
     profile_visibility: 'friends',
     show_activity_status: true,
     allow_friend_requests: true,
+    notifications_goals: true,
+    notifications_social: true,
+    notifications_nudges: true,
   });
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -167,6 +176,9 @@ export default function Settings() {
         profile_visibility: (data.profile_visibility as 'public' | 'friends' | 'private') || 'friends',
         show_activity_status: data.show_activity_status ?? true,
         allow_friend_requests: data.allow_friend_requests ?? true,
+        notifications_goals: data.notifications_goals ?? true,
+        notifications_social: data.notifications_social ?? true,
+        notifications_nudges: data.notifications_nudges ?? true,
       });
     }
   };
@@ -498,6 +510,86 @@ export default function Settings() {
                     <SelectItem value="never">Never</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Push Notifications Settings */}
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Push Notifications
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Master Push Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    {pushNotifications.isSubscribed ? (
+                      <Bell className="w-4 h-4 text-primary" />
+                    ) : (
+                      <BellOff className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    Enable Push Notifications
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {pushNotifications.isSupported 
+                      ? pushNotifications.isSubscribed 
+                        ? "You'll receive notifications on this device"
+                        : "Get notified about important updates"
+                      : "Push notifications are not supported on this device"}
+                  </p>
+                  {pushNotifications.permission === 'denied' && (
+                    <p className="text-xs text-destructive mt-1">
+                      Notifications blocked. Please enable in browser settings.
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  checked={pushNotifications.isSubscribed}
+                  onCheckedChange={() => pushNotifications.toggle()}
+                  disabled={!pushNotifications.isSupported || pushNotifications.loading || pushNotifications.permission === 'denied'}
+                />
+              </div>
+
+              {/* Notification Categories */}
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-muted-foreground">Notification Types</p>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Goals & Tasks</Label>
+                    <p className="text-sm text-muted-foreground">Deadline reminders and task notifications</p>
+                  </div>
+                  <Switch
+                    checked={privacySettings.notifications_goals}
+                    onCheckedChange={(v) => updatePrivacy({ notifications_goals: v })}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Social Activity</Label>
+                    <p className="text-sm text-muted-foreground">Reactions and comments on your posts</p>
+                  </div>
+                  <Switch
+                    checked={privacySettings.notifications_social}
+                    onCheckedChange={(v) => updatePrivacy({ notifications_social: v })}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Nudges & Reminders</Label>
+                    <p className="text-sm text-muted-foreground">Daily check-ins and habit reminders</p>
+                  </div>
+                  <Switch
+                    checked={privacySettings.notifications_nudges}
+                    onCheckedChange={(v) => updatePrivacy({ notifications_nudges: v })}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

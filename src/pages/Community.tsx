@@ -60,6 +60,8 @@ interface Post {
   reactions_count: number;
   comments_count: number;
   user_reaction?: string | null;
+  // AI analysis stored with the post
+  ai_feedback?: PostAnalysis | null;
 }
 
 interface Comment {
@@ -119,6 +121,9 @@ export default function Community() {
   const [editPostContent, setEditPostContent] = useState('');
   const [editPostVisibility, setEditPostVisibility] = useState<'public' | 'friends' | 'private'>('friends');
   const [isSavingPostEdit, setIsSavingPostEdit] = useState(false);
+  const [expandedFeedbackPostId, setExpandedFeedbackPostId] = useState<string | null>(null);
+  const [loadingFeedbackPostId, setLoadingFeedbackPostId] = useState<string | null>(null);
+  const [postFeedbacks, setPostFeedbacks] = useState<Record<string, PostAnalysis>>({});
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -652,6 +657,68 @@ export default function Community() {
     }
   };
 
+  // Fetch or toggle AI feedback for a post when tapping on its image
+  const togglePostFeedback = async (post: Post) => {
+    // If already expanded, collapse it
+    if (expandedFeedbackPostId === post.id) {
+      setExpandedFeedbackPostId(null);
+      return;
+    }
+
+    // If we already have feedback cached, just expand
+    if (postFeedbacks[post.id]) {
+      setExpandedFeedbackPostId(post.id);
+      return;
+    }
+
+    // Fetch AI feedback for this post
+    setLoadingFeedbackPostId(post.id);
+    setExpandedFeedbackPostId(post.id);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Generate signed URLs for media to send to AI
+      const signedUrls = await generateSignedUrls(post.media_urls);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-post-content`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session.access_token}`,
+          },
+          body: JSON.stringify({
+            content: post.content,
+            mediaUrls: signedUrls,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Analysis failed');
+      }
+
+      const analysis: PostAnalysis = await response.json();
+      
+      // Cache the feedback
+      setPostFeedbacks(prev => ({
+        ...prev,
+        [post.id]: analysis
+      }));
+    } catch (error) {
+      console.error('Failed to get AI feedback:', error);
+      toast.error('Failed to load AI feedback');
+      setExpandedFeedbackPostId(null);
+    } finally {
+      setLoadingFeedbackPostId(null);
+    }
+  };
 
   const toggleReaction = async (postId: string, reactionType: string) => {
     if (!user) return;
@@ -810,15 +877,97 @@ export default function Community() {
                       )}
                       
                       {post.media_urls.length > 0 && (
-                        <div className={`grid gap-2 mb-3 ${post.media_urls.length > 1 ? 'grid-cols-2' : ''}`}>
-                          {post.media_urls.map((url, idx) => (
-                            <img
-                              key={idx}
-                              src={url}
-                              alt=""
-                              className="rounded-lg w-full object-cover max-h-64"
-                            />
-                          ))}
+                        <div className="mb-3">
+                          <div 
+                            className={`grid gap-2 cursor-pointer ${post.media_urls.length > 1 ? 'grid-cols-2' : ''}`}
+                            onClick={() => togglePostFeedback(post)}
+                          >
+                            {post.media_urls.map((url, idx) => (
+                              <div key={idx} className="relative group">
+                                <img
+                                  src={url}
+                                  alt=""
+                                  className="rounded-lg w-full object-cover max-h-64 transition-all group-hover:opacity-90"
+                                />
+                                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
+                                    <Bot className="w-3 h-3 text-primary" />
+                                    <span>Tap for AI insights</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Inline AI Feedback Expansion */}
+                          {expandedFeedbackPostId === post.id && (
+                            <div className="mt-3 animate-fade-in">
+                              {loadingFeedbackPostId === post.id ? (
+                                <div className="flex items-center gap-2 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                  <span className="text-sm text-muted-foreground">Analyzing content...</span>
+                                </div>
+                              ) : postFeedbacks[post.id] ? (
+                                <Collapsible open={true}>
+                                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 space-y-3">
+                                    {/* Mentor Comment */}
+                                    {postFeedbacks[post.id].mentorComment && (
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                                          <Bot className="w-4 h-4 text-primary" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-medium text-primary mb-1">AI Mentor</p>
+                                          <p className="text-sm">{postFeedbacks[post.id].mentorComment}</p>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Opportunities */}
+                                    {postFeedbacks[post.id].opportunities?.length > 0 && (
+                                      <CollapsibleContent className="space-y-2 pt-2 border-t border-border/30">
+                                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                          <Lightbulb className="w-3 h-3" />
+                                          Opportunities Spotted
+                                        </div>
+                                        {postFeedbacks[post.id].opportunities.map((opp, idx) => (
+                                          <div key={idx} className="p-3 bg-background/50 rounded-lg">
+                                            <div className="flex items-start justify-between gap-2">
+                                              <div>
+                                                <p className="text-sm font-medium">{opp.title}</p>
+                                                <p className="text-xs text-muted-foreground">{opp.description}</p>
+                                              </div>
+                                              <a
+                                                href={`https://www.google.com/search?q=${encodeURIComponent(opp.searchQuery)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="shrink-0 p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <ExternalLink className="w-3 h-3" />
+                                              </a>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </CollapsibleContent>
+                                    )}
+                                    
+                                    {/* Collapse Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedFeedbackPostId(null);
+                                      }}
+                                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors w-full justify-center pt-2"
+                                    >
+                                      <ChevronUp className="w-3 h-3" />
+                                      Hide AI feedback
+                                    </button>
+                                  </div>
+                                </Collapsible>
+                              ) : null}
+                            </div>
+                          )}
                         </div>
                       )}
                       

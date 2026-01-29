@@ -71,5 +71,6 @@
       "url": "/mentor",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "permissions": ["notifications", "push"]
 }
