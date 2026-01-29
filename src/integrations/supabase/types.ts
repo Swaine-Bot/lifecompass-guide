@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_sessions: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -553,6 +580,7 @@ export type Database = {
         Row: {
           available_minutes_per_day: number | null
           avatar_url: string | null
+          country: string | null
           created_at: string | null
           focus_areas: Json | null
           guide_completed: boolean | null
@@ -565,6 +593,7 @@ export type Database = {
           micro_moves_count: number
           name: string | null
           onboarding_completed: boolean | null
+          province: string | null
           strictness_level: number | null
           timezone: string | null
           updated_at: string | null
@@ -573,6 +602,7 @@ export type Database = {
         Insert: {
           available_minutes_per_day?: number | null
           avatar_url?: string | null
+          country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
           guide_completed?: boolean | null
@@ -585,6 +615,7 @@ export type Database = {
           micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
+          province?: string | null
           strictness_level?: number | null
           timezone?: string | null
           updated_at?: string | null
@@ -593,6 +624,7 @@ export type Database = {
         Update: {
           available_minutes_per_day?: number | null
           avatar_url?: string | null
+          country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
           guide_completed?: boolean | null
@@ -605,6 +637,7 @@ export type Database = {
           micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
+          province?: string | null
           strictness_level?: number | null
           timezone?: string | null
           updated_at?: string | null
