@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 
 // Pages
@@ -34,43 +35,45 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/update-password" element={<UpdatePassword />} />
-            
-            {/* Protected routes */}
-            <Route element={<AppLayout />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/goals" element={<Goals />} />
-              <Route path="/goals/new" element={<NewGoal />} />
-              <Route path="/habits" element={<Habits />} />
-              <Route path="/habits/new" element={<NewHabit />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/journal" element={<Home />} />
-              <Route path="/mentor" element={<Mentor />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/life-events" element={<LifeEvents />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </LanguageProvider>
-  </AuthProvider>
-</QueryClientProvider>
+        <SubscriptionProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/update-password" element={<UpdatePassword />} />
+                
+                {/* Protected routes */}
+                <Route element={<AppLayout />}>
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/goals/new" element={<NewGoal />} />
+                  <Route path="/habits" element={<Habits />} />
+                  <Route path="/habits/new" element={<NewHabit />} />
+                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/journal" element={<Home />} />
+                  <Route path="/mentor" element={<Mentor />} />
+                  <Route path="/library" element={<Library />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/life-events" element={<LifeEvents />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </SubscriptionProvider>
+      </LanguageProvider>
+    </AuthProvider>
+  </QueryClientProvider>
 );
 
 export default App;

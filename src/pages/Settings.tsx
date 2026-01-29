@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
-  LogOut, Save, Camera, MapPin, Globe
+  LogOut, Save, Camera, MapPin, Globe, Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -20,6 +21,7 @@ import lifestackLogo from '@/assets/lifestack-logo.png';
 import { useLocation, LocationPermission } from '@/hooks/useLocation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/lib/translations';
+import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -31,6 +33,7 @@ interface PrivacySettings {
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
+  const { tier, isPremium, config, openCheckout } = useSubscription();
   const navigate = useNavigate();
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const { language, setLanguage, t, languageNames } = useLanguage();
@@ -46,6 +49,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -149,6 +153,10 @@ export default function Settings() {
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-1.5">
+            <Crown className="w-4 h-4" />
+            Subscription
+          </TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
@@ -228,6 +236,85 @@ export default function Settings() {
                 <Save className="w-4 h-4 mr-2" />
                 {t('settings.saveChanges')}
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="subscription" className="space-y-4">
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" />
+                Your Membership
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Current Plan</Label>
+                  <p className="text-sm text-muted-foreground">Your active subscription tier</p>
+                </div>
+                <SubscriptionBadge />
+              </div>
+
+              {!isPremium && (
+                <>
+                  <div className="pt-4 border-t border-border/30">
+                    <ProgressToPaywall />
+                  </div>
+
+                  <div className="grid gap-3 pt-4">
+                    <div 
+                      className="relative p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
+                      onClick={() => openCheckout('founder')}
+                    >
+                      <div className="absolute -top-2 left-4 px-2 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground">
+                        Founder - Limited
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <div>
+                          <p className="font-semibold">Founder Membership</p>
+                          <p className="text-sm text-muted-foreground">Price locked forever</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary">${config.founderPrice}</p>
+                          <p className="text-xs text-muted-foreground">/year</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div 
+                        className="flex-1 p-4 rounded-xl border border-border/50 bg-secondary/30 cursor-pointer hover:bg-secondary/50 transition-colors"
+                        onClick={() => openCheckout('yearly')}
+                      >
+                        <p className="font-semibold">Annual</p>
+                        <p className="text-xl font-bold">${config.yearlyPrice}<span className="text-xs text-muted-foreground">/yr</span></p>
+                        <p className="text-xs text-muted-foreground">Save 33%</p>
+                      </div>
+                      <div 
+                        className="flex-1 p-4 rounded-xl border border-border/30 cursor-pointer hover:bg-secondary/30 transition-colors"
+                        onClick={() => openCheckout('monthly')}
+                      >
+                        <p className="font-medium text-foreground/80">Monthly</p>
+                        <p className="text-xl font-bold text-foreground/80">${config.monthlyPrice}<span className="text-xs text-muted-foreground">/mo</span></p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {isPremium && (
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <p className="text-sm text-foreground/80">
+                    You have full access to all LifeStack features. Thank you for your commitment to growth!
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground">
+                Manage your subscription via Gumroad. Questions? Contact support.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -443,6 +530,11 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+      />
     </div>
   );
 }
