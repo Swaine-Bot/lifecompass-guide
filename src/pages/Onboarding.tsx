@@ -11,6 +11,7 @@ import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Ho
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { IntroVideo } from '@/components/onboarding/IntroVideo';
+import { UserGuide } from '@/components/onboarding/UserGuide';
 
 const phases = [
   { id: 'student_early_career', label: 'Student / Early Career', description: 'Building foundations and exploring paths', icon: GraduationCap },
@@ -31,6 +32,7 @@ const focusAreas = [
 
 export default function Onboarding() {
   const [showIntro, setShowIntro] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -102,14 +104,43 @@ export default function Onboarding() {
       if (error) throw error;
 
       await refreshProfile();
-      toast.success('Welcome to LifeStack!');
-      navigate('/home');
+      // Show the user guide after profile is saved
+      setShowGuide(true);
     } catch (err) {
       toast.error('Failed to save preferences. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleGuideComplete = async () => {
+    // Mark guide as completed
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ guide_completed: true })
+        .eq('user_id', user.id);
+    }
+    toast.success('Welcome to LifeStack!');
+    navigate('/home');
+  };
+
+  const handleGuideSkip = async () => {
+    // Still mark as completed when skipped
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ guide_completed: true })
+        .eq('user_id', user.id);
+    }
+    toast.success('Welcome to LifeStack!');
+    navigate('/home');
+  };
+
+  // Show user guide after onboarding wizard
+  if (showGuide) {
+    return <UserGuide onComplete={handleGuideComplete} onSkip={handleGuideSkip} />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

@@ -555,6 +555,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string | null
           focus_areas: Json | null
+          guide_completed: boolean | null
           id: string
           language: string | null
           last_latitude: number | null
@@ -574,6 +575,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           focus_areas?: Json | null
+          guide_completed?: boolean | null
           id?: string
           language?: string | null
           last_latitude?: number | null
@@ -593,6 +595,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           focus_areas?: Json | null
+          guide_completed?: boolean | null
           id?: string
           language?: string | null
           last_latitude?: number | null
