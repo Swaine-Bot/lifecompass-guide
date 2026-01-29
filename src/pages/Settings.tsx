@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff
+  Bell, BellOff, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -148,8 +148,9 @@ export default function Settings() {
         setAvatarUrl(urlData.signedUrl);
       }
 
+      // Refresh profile to update context with new avatar
+      await refreshProfile();
       toast.success('Profile picture updated!');
-      refreshProfile();
     } catch (error) {
       console.error('Avatar upload error:', error);
       toast.error('Failed to upload profile picture');
@@ -255,6 +256,15 @@ export default function Settings() {
             <p className="text-muted-foreground">Manage your account and preferences</p>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/home')}
+          className="rounded-full"
+          aria-label="Close settings"
+        >
+          <X className="w-5 h-5" />
+        </Button>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
