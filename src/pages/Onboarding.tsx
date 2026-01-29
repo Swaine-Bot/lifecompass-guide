@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Home, Compass, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { IntroVideo } from '@/components/onboarding/IntroVideo';
 
 const phases = [
   { id: 'student_early_career', label: 'Student / Early Career', description: 'Building foundations and exploring paths', icon: GraduationCap },
@@ -29,6 +30,7 @@ const focusAreas = [
 ];
 
 export default function Onboarding() {
+  const [showIntro, setShowIntro] = useState(true);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -49,6 +51,14 @@ export default function Onboarding() {
     { title: 'Focus Areas', subtitle: 'What matters most right now?' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
   ];
+
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+        <IntroVideo onComplete={() => setShowIntro(false)} />
+      </div>
+    );
+  }
 
   const handleNext = () => {
     if (step < steps.length - 1) {
