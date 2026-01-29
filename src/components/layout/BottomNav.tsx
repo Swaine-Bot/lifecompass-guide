@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, MessageCircle, BookOpen } from 'lucide-react';
+import { Home, Target, BarChart3, MessageCircle, Users } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -7,7 +7,7 @@ const navItems = [
   { path: '/goals', label: 'Plan', icon: Target },
   { path: '/habits', label: 'Track', icon: BarChart3 },
   { path: '/mentor', label: 'Mentor', icon: MessageCircle },
-  { path: '/library', label: 'Library', icon: BookOpen },
+  { path: '/community', label: 'Connect', icon: Users },
 ];
 
 export const BottomNav = () => {

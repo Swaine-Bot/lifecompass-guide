@@ -17,6 +17,14 @@ import Habits from "./pages/Habits";
 import NewHabit from "./pages/NewHabit";
 import Mentor from "./pages/Mentor";
 import Library from "./pages/Library";
+import Calendar from "./pages/Calendar";
+import Community from "./pages/Community";
+import Settings from "./pages/Settings";
+import LifeEvents from "./pages/LifeEvents";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import ResetPassword from "./pages/ResetPassword";
+import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +41,10 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
             
             {/* Protected routes */}
             <Route element={<AppLayout />}>
@@ -41,11 +53,13 @@ const App = () => (
               <Route path="/goals/new" element={<NewGoal />} />
               <Route path="/habits" element={<Habits />} />
               <Route path="/habits/new" element={<NewHabit />} />
-              <Route path="/calendar" element={<Goals />} />
+              <Route path="/calendar" element={<Calendar />} />
               <Route path="/journal" element={<Home />} />
               <Route path="/mentor" element={<Mentor />} />
               <Route path="/library" element={<Library />} />
-              <Route path="/settings" element={<Home />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/life-events" element={<LifeEvents />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
