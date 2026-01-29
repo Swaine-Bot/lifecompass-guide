@@ -87,19 +87,30 @@ export default function Terms() {
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle>Your Content</CardTitle>
+              <CardTitle>Content Ownership & License</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                <strong>Ownership:</strong> You retain all rights to content you create and upload to LifeStack. 
-                Your goals, journal entries, and personal data remain yours.
+                <strong>Transfer of Ownership:</strong> By uploading, submitting, or posting any content 
+                (including but not limited to text, images, videos, audio recordings, journal entries, and 
+                any other materials) to LifeStack, you hereby irrevocably transfer and assign all rights, 
+                title, and interest in such content to <strong>Pragmatic Analytics Solutions (Pty) Ltd</strong>. 
+                This includes all intellectual property rights, copyrights, and any derivative works.
               </p>
               <p>
-                <strong>License:</strong> By posting content, you grant us a limited license to store, display, 
-                and process that content to provide the Service to you. This license ends when you delete your content or account.
+                <strong>License Grant:</strong> You grant Pragmatic Analytics Solutions (Pty) Ltd a perpetual, 
+                worldwide, royalty-free, non-exclusive license to use, reproduce, modify, adapt, publish, 
+                translate, distribute, and display such content for any purpose, including but not limited 
+                to improving the Service, training AI models, marketing, and research purposes.
               </p>
               <p>
-                <strong>Responsibility:</strong> You are solely responsible for your content and its legality.
+                <strong>Waiver of Moral Rights:</strong> To the extent permitted by applicable law, you waive 
+                any moral rights you may have in the content you upload.
+              </p>
+              <p>
+                <strong>Responsibility:</strong> You are solely responsible for ensuring that any content 
+                you upload does not infringe upon the intellectual property rights or privacy rights of 
+                any third party, and that it complies with all applicable laws.
               </p>
             </CardContent>
           </Card>
@@ -156,22 +167,114 @@ export default function Terms() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-primary" />
-                Disclaimers & Limitations
+                Disclaimers & Limitations of Liability
               </CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                <strong>AS-IS Basis:</strong> The Service is provided "as is" without warranties of any kind, 
-                either express or implied, including fitness for a particular purpose.
+                <strong>AS-IS Basis:</strong> THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT 
+                WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED 
+                WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
               </p>
               <p>
-                <strong>No Guarantee:</strong> We do not guarantee that the Service will be uninterrupted, 
-                secure, or error-free.
+                <strong>No Guarantee:</strong> PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD DOES NOT WARRANT 
+                THAT THE SERVICE WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE, OR THAT ANY DEFECTS 
+                WILL BE CORRECTED.
               </p>
               <p>
-                <strong>Limitation of Liability:</strong> To the maximum extent permitted by law, LifeStack 
-                shall not be liable for any indirect, incidental, special, consequential, or punitive damages, 
-                or any loss of profits or revenues.
+                <strong>Limitation of Liability:</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, 
+                IN NO EVENT SHALL PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD, ITS DIRECTORS, OFFICERS, EMPLOYEES, 
+                AFFILIATES, AGENTS, CONTRACTORS, OR LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, 
+                CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS 
+                OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR IN CONNECTION 
+                WITH YOUR ACCESS TO OR USE OF (OR INABILITY TO ACCESS OR USE) THE SERVICE.
+              </p>
+              <p>
+                <strong>Maximum Liability:</strong> OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ALL CLAIMS 
+                ARISING FROM OR RELATED TO THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNTS 
+                PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED 
+                US DOLLARS (USD $100).
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
+                Data Loss & Security Breach Disclaimer
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-invert max-w-none">
+              <p>
+                <strong>No Liability for Data Loss:</strong> PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD SHALL 
+                NOT BE LIABLE FOR ANY LOSS, CORRUPTION, OR DESTRUCTION OF DATA, WHETHER CAUSED BY SYSTEM 
+                FAILURES, SECURITY BREACHES, UNAUTHORIZED ACCESS, NATURAL DISASTERS, ACTS OF WAR, TERRORISM, 
+                CIVIL UNREST, OR ANY OTHER CAUSE BEYOND OUR REASONABLE CONTROL.
+              </p>
+              <p>
+                <strong>Security Breach Disclaimer:</strong> WHILE WE IMPLEMENT INDUSTRY-STANDARD SECURITY 
+                MEASURES, NO SYSTEM IS COMPLETELY SECURE. WE DISCLAIM ALL LIABILITY FOR ANY UNAUTHORIZED 
+                ACCESS, DATA BREACHES, HACKING, CYBERATTACKS, PHISHING, RANSOMWARE, OR OTHER SECURITY 
+                INCIDENTS THAT MAY RESULT IN THE EXPOSURE, THEFT, MODIFICATION, OR DELETION OF YOUR DATA.
+              </p>
+              <p>
+                <strong>Force Majeure:</strong> We shall not be liable for any failure or delay in performing 
+                our obligations due to circumstances beyond our reasonable control, including but not limited 
+                to natural disasters, pandemics, war, terrorism, riots, government actions, power outages, 
+                internet service provider failures, or third-party service disruptions.
+              </p>
+              <p>
+                <strong>User Responsibility:</strong> You are responsible for maintaining your own backups 
+                of any critical data and for implementing appropriate security measures on your devices. 
+                You acknowledge that you use the Service at your own risk.
+              </p>
+              <p>
+                <strong>Indemnification:</strong> You agree to indemnify, defend, and hold harmless 
+                Pragmatic Analytics Solutions (Pty) Ltd and its affiliates from any claims, damages, 
+                losses, or expenses arising from your use of the Service, your violation of these Terms, 
+                or your infringement of any third-party rights.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle>Data Storage & Encryption</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-invert max-w-none">
+              <p>
+                <strong>Data Storage Location:</strong> Your data is stored on secure cloud infrastructure 
+                provided by our hosting partners, with primary data centers located in the <strong>United States</strong> and 
+                <strong> European Union</strong>. Data may be replicated across multiple geographic regions for 
+                redundancy and performance optimization.
+              </p>
+              <p>
+                <strong>Encryption Standards:</strong> We implement the following encryption measures to protect your data:
+              </p>
+              <ul>
+                <li><strong>Data in Transit:</strong> All data transmitted between your device and our servers 
+                is encrypted using TLS 1.3 (Transport Layer Security) with AES-256-GCM cipher suites</li>
+                <li><strong>Data at Rest:</strong> All stored data is encrypted using AES-256 (Advanced Encryption 
+                Standard with 256-bit keys), an industry-standard encryption algorithm approved for classified 
+                government information</li>
+                <li><strong>Database Encryption:</strong> Database-level encryption using transparent data 
+                encryption (TDE) with AES-256</li>
+                <li><strong>Backup Encryption:</strong> All database backups and replicas are encrypted using 
+                AES-256 encryption</li>
+                <li><strong>Key Management:</strong> Encryption keys are managed through secure key management 
+                systems with regular key rotation and access controls</li>
+              </ul>
+              <p>
+                <strong>Compliance:</strong> Our security practices are designed to align with internationally 
+                recognized standards including SOC 2 Type II, ISO 27001, and GDPR requirements. However, 
+                as stated in our disclaimers, no security measures can guarantee absolute protection against 
+                all threats.
+              </p>
+              <p>
+                <strong>Third-Party Processors:</strong> We may use third-party service providers for data 
+                processing, storage, and analytics. These providers are contractually obligated to maintain 
+                appropriate security measures and confidentiality of your data.
               </p>
             </CardContent>
           </Card>
@@ -209,16 +312,28 @@ export default function Terms() {
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle>Governing Law</CardTitle>
+              <CardTitle>Governing Law & Jurisdiction</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                These Terms shall be governed by the laws of the jurisdiction in which LifeStack is 
-                incorporated, without regard to conflict of law provisions.
+                These Terms shall be governed by and construed in accordance with the laws of the 
+                <strong> Republic of South Africa</strong>, without regard to its conflict of law provisions.
               </p>
               <p>
-                Any disputes arising from these Terms will be resolved through binding arbitration, 
+                <strong>Jurisdiction:</strong> You agree to submit to the exclusive jurisdiction of the 
+                courts located in Johannesburg, South Africa for the resolution of any disputes arising 
+                from these Terms or your use of the Service.
+              </p>
+              <p>
+                <strong>Arbitration:</strong> Any disputes arising from these Terms will first be subject 
+                to good faith negotiation. If unresolved within 30 days, disputes will be resolved through 
+                binding arbitration administered by the Arbitration Foundation of Southern Africa (AFSA), 
                 except where prohibited by law.
+              </p>
+              <p>
+                <strong>Class Action Waiver:</strong> TO THE EXTENT PERMITTED BY APPLICABLE LAW, YOU WAIVE 
+                ANY RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION AGAINST 
+                PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD.
               </p>
             </CardContent>
           </Card>
