@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { IntroVideo } from '@/components/onboarding/IntroVideo';
 import { UserGuide } from '@/components/onboarding/UserGuide';
+import { TermsAcceptance } from '@/components/onboarding/TermsAcceptance';
 
 const phases = [
   { id: 'student_early_career', label: 'Student / Early Career', description: 'Building foundations and exploring paths', icon: GraduationCap },
@@ -31,7 +32,8 @@ const focusAreas = [
 ];
 
 export default function Onboarding() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showTerms, setShowTerms] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -47,12 +49,35 @@ export default function Onboarding() {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
+  const handleTermsAccept = async () => {
+    if (!user) return;
+    
+    // Save terms acceptance to database
+    await supabase
+      .from('privacy_settings')
+      .upsert({
+        user_id: user.id,
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
+        privacy_policy_accepted: true,
+        privacy_policy_accepted_at: new Date().toISOString(),
+      });
+    
+    setShowTerms(false);
+    setShowIntro(true);
+  };
+
   const steps = [
     { title: 'Welcome', subtitle: "Let's personalize your experience" },
     { title: 'Life Phase', subtitle: 'Where are you in your journey?' },
     { title: 'Focus Areas', subtitle: 'What matters most right now?' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
   ];
+
+  // Show terms acceptance first
+  if (showTerms) {
+    return <TermsAcceptance onAccept={handleTermsAccept} />;
+  }
 
   if (showIntro) {
     return (
