@@ -14,9 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
-  Sparkles, Star, Lightbulb, HandHeart, Trophy
+  Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
+  AlertTriangle, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 
 interface Friend {
@@ -57,6 +59,20 @@ interface Comment {
   user_avatar: string | null;
 }
 
+interface OpportunitySuggestion {
+  category: string;
+  title: string;
+  description: string;
+  searchQuery: string;
+}
+
+interface PostAnalysis {
+  approved: boolean;
+  mentorComment: string;
+  opportunities: OpportunitySuggestion[];
+  flagReason?: string;
+}
+
 const REACTION_TYPES = [
   { type: 'like', icon: ThumbsUp, label: 'Like' },
   { type: 'love', icon: Heart, label: 'Love' },
@@ -82,6 +98,9 @@ export default function Community() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [postAnalysis, setPostAnalysis] = useState<PostAnalysis | null>(null);
+  const [showAnalysisResult, setShowAnalysisResult] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -428,16 +447,85 @@ export default function Community() {
   };
 
 
+  // Analyze post content with AI before posting
+  const analyzePostContent = async (content: string, mediaUrls: string[]): Promise<PostAnalysis | null> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-post-content`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session.access_token}`,
+          },
+          body: JSON.stringify({
+            content,
+            mediaUrls,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 429) {
+          toast.error('AI analysis rate limited. Please try again in a moment.');
+          return null;
+        }
+        throw new Error(errorData.error || 'Analysis failed');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Post analysis error:', error);
+      // Don't block posting if analysis fails - just skip it
+      return {
+        approved: true,
+        mentorComment: '',
+        opportunities: []
+      };
+    }
+  };
+
   const createPost = async () => {
     if (!user || (!newPostContent && selectedFiles.length === 0)) return;
     setLoading(true);
+    setIsAnalyzing(true);
 
     try {
       let mediaUrls: string[] = [];
       if (selectedFiles.length > 0) {
         mediaUrls = await uploadMedia(selectedFiles);
+        if (mediaUrls.length === 0 && selectedFiles.length > 0) {
+          // Upload failed
+          setLoading(false);
+          setIsAnalyzing(false);
+          return;
+        }
       }
 
+      // Analyze content with AI
+      const analysis = await analyzePostContent(newPostContent, mediaUrls);
+      setIsAnalyzing(false);
+
+      if (analysis) {
+        if (!analysis.approved) {
+          // Content was flagged
+          setPostAnalysis(analysis);
+          setShowAnalysisResult(true);
+          setLoading(false);
+          return;
+        }
+
+        // Store analysis for display
+        setPostAnalysis(analysis);
+      }
+
+      // Create the post
       const { error } = await supabase.from('posts').insert({
         user_id: user.id,
         content: newPostContent,
@@ -447,17 +535,42 @@ export default function Community() {
 
       if (error) throw error;
 
-      toast.success('Post created!');
-      setNewPostContent('');
-      setSelectedFiles([]);
-      setShowNewPost(false);
+      // Show success with mentor comment if available
+      if (analysis?.mentorComment) {
+        setShowAnalysisResult(true);
+      } else {
+        toast.success('Post created!');
+        resetPostForm();
+      }
+
       fetchPosts();
     } catch (error) {
+      console.error('Post creation error:', error);
       toast.error('Failed to create post');
+      resetPostForm();
     } finally {
       setLoading(false);
+      setIsAnalyzing(false);
     }
   };
+
+  const resetPostForm = () => {
+    setNewPostContent('');
+    setSelectedFiles([]);
+    setShowNewPost(false);
+    setPostAnalysis(null);
+    setShowAnalysisResult(false);
+  };
+
+  const closeAnalysisAndReset = () => {
+    if (postAnalysis?.approved) {
+      resetPostForm();
+    } else {
+      setShowAnalysisResult(false);
+      setPostAnalysis(null);
+    }
+  };
+
 
   const toggleReaction = async (postId: string, reactionType: string) => {
     if (!user) return;
@@ -882,10 +995,115 @@ export default function Community() {
                   </SelectContent>
                 </Select>
                 
-                <Button variant="gold" onClick={createPost} disabled={loading || (!newPostContent && selectedFiles.length === 0)}>
-                  Post
+                <Button 
+                  variant="gold" 
+                  onClick={createPost} 
+                  disabled={loading || isAnalyzing || (!newPostContent && selectedFiles.length === 0)}
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    'Post'
+                  )}
                 </Button>
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Analysis Result Dialog */}
+      <Dialog open={showAnalysisResult} onOpenChange={closeAnalysisAndReset}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {postAnalysis?.approved ? (
+                <>
+                  <Bot className="w-5 h-5 text-primary" />
+                  AI Mentor Feedback
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                  Content Not Approved
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {postAnalysis?.approved 
+                ? "Your post has been shared! Here's what the AI Mentor noticed."
+                : "This content couldn't be posted."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {!postAnalysis?.approved && postAnalysis?.flagReason && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{postAnalysis.flagReason}</AlertDescription>
+              </Alert>
+            )}
+            
+            {postAnalysis?.mentorComment && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-primary mb-1">AI Mentor says:</p>
+                    <p className="text-sm">{postAnalysis.mentorComment}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {postAnalysis?.opportunities && postAnalysis.opportunities.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                  Opportunities Spotted
+                </h4>
+                {postAnalysis.opportunities.map((opp, idx) => (
+                  <div key={idx} className="bg-muted/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{opp.title}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {opp.category}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{opp.description}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => {
+                        window.open(
+                          `https://www.google.com/search?q=${encodeURIComponent(opp.searchQuery)}`,
+                          '_blank'
+                        );
+                      }}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-2" />
+                      Find {opp.category} Near You
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="flex justify-end pt-2">
+              <Button variant="gold" onClick={closeAnalysisAndReset}>
+                {postAnalysis?.approved ? 'Done' : 'Edit Post'}
+              </Button>
             </div>
           </div>
         </DialogContent>
