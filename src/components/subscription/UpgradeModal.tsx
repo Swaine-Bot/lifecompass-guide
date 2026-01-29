@@ -1,9 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Crown, Check, Sparkles, Clock, Brain, Users, BarChart3 } from 'lucide-react';
+import { Crown, Sparkles, Clock, Brain, Users, BarChart3, LogIn } from 'lucide-react';
 
 interface UpgradeModalProps {
   open: boolean;
@@ -20,21 +18,21 @@ const PREMIUM_BENEFITS = [
 ];
 
 export function UpgradeModal({ open, onOpenChange, trigger = 'manual' }: UpgradeModalProps) {
-  const { config, microMovesCount, openCheckout } = useSubscription();
+  const { microMovesCount } = useSubscription();
   const { t } = useLanguage();
 
   const getTitle = () => {
     if (trigger === 'threshold') {
-      return "You're Ready to Deepen Your Commitment";
+      return "You've Shown Real Dedication";
     }
-    return "Unlock Your Full Potential";
+    return "Premium Features";
   };
 
   const getDescription = () => {
     if (trigger === 'threshold') {
-      return `You've completed ${microMovesCount} micro-moves. This is a rite of passage — you've proven your dedication. Now it's time to invest in your future self.`;
+      return `You've completed ${microMovesCount} micro-moves — an incredible milestone. These features are available with an active LifeStack subscription.`;
     }
-    return "Join LifeStack Pro to access all life phases, deeper AI mentorship, and tools for long-term transformation.";
+    return "Access all life phases, deeper AI mentorship, and tools for long-term transformation with an active subscription.";
   };
 
   return (
@@ -61,63 +59,24 @@ export function UpgradeModal({ open, onOpenChange, trigger = 'manual' }: Upgrade
           ))}
         </div>
 
-        <div className="grid gap-3 pt-4 border-t border-border/50">
-          {/* Founder Tier - Limited Time */}
-          <div 
-            className="relative p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-            onClick={() => openCheckout('founder')}
-          >
-            <Badge className="absolute -top-2 left-4 bg-primary text-primary-foreground">
-              Founder - Limited
-            </Badge>
-            <div className="flex items-center justify-between">
+        <div className="pt-4 border-t border-border/50">
+          <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <LogIn className="w-5 h-5 text-primary" />
+              </div>
               <div>
-                <p className="font-semibold text-foreground">Founder Membership</p>
-                <p className="text-sm text-muted-foreground">Price locked forever</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-primary">${config.founderPrice}</p>
-                <p className="text-xs text-muted-foreground">/year</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Yearly */}
-          <div 
-            className="p-4 rounded-xl border border-border/50 bg-secondary/30 cursor-pointer hover:bg-secondary/50 transition-colors"
-            onClick={() => openCheckout('yearly')}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground">Annual</p>
-                <p className="text-sm text-muted-foreground">Save 33%</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">${config.yearlyPrice}</p>
-                <p className="text-xs text-muted-foreground">/year</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Monthly */}
-          <div 
-            className="p-4 rounded-xl border border-border/30 cursor-pointer hover:bg-secondary/30 transition-colors"
-            onClick={() => openCheckout('monthly')}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground/80">Monthly</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xl font-bold text-foreground/80">${config.monthlyPrice}</p>
-                <p className="text-xs text-muted-foreground">/month</p>
+                <p className="font-medium text-foreground">Active subscription required</p>
+                <p className="text-sm text-muted-foreground">
+                  Log in with an active LifeStack account to access these features.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <p className="text-xs text-center text-muted-foreground pt-2">
-          Secure checkout via Gumroad. Cancel anytime.
+          LifeStack is an account-based life companion platform.
         </p>
       </DialogContent>
     </Dialog>

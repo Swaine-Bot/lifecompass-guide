@@ -33,7 +33,7 @@ interface PrivacySettings {
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
-  const { tier, isPremium, config, openCheckout } = useSubscription();
+  const { tier, isPremium } = useSubscription();
   const navigate = useNavigate();
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const { language, setLanguage, t, languageNames } = useLanguage();
@@ -245,14 +245,14 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-primary" />
-                Your Membership
+                Your Account
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Current Plan</Label>
-                  <p className="text-sm text-muted-foreground">Your active subscription tier</p>
+                  <Label>Account Status</Label>
+                  <p className="text-sm text-muted-foreground">Your current access level</p>
                 </div>
                 <SubscriptionBadge />
               </div>
@@ -263,43 +263,10 @@ export default function Settings() {
                     <ProgressToPaywall />
                   </div>
 
-                  <div className="grid gap-3 pt-4">
-                    <div 
-                      className="relative p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-                      onClick={() => openCheckout('founder')}
-                    >
-                      <div className="absolute -top-2 left-4 px-2 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground">
-                        Founder - Limited
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <div>
-                          <p className="font-semibold">Founder Membership</p>
-                          <p className="text-sm text-muted-foreground">Price locked forever</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">${config.founderPrice}</p>
-                          <p className="text-xs text-muted-foreground">/year</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <div 
-                        className="flex-1 p-4 rounded-xl border border-border/50 bg-secondary/30 cursor-pointer hover:bg-secondary/50 transition-colors"
-                        onClick={() => openCheckout('yearly')}
-                      >
-                        <p className="font-semibold">Annual</p>
-                        <p className="text-xl font-bold">${config.yearlyPrice}<span className="text-xs text-muted-foreground">/yr</span></p>
-                        <p className="text-xs text-muted-foreground">Save 33%</p>
-                      </div>
-                      <div 
-                        className="flex-1 p-4 rounded-xl border border-border/30 cursor-pointer hover:bg-secondary/30 transition-colors"
-                        onClick={() => openCheckout('monthly')}
-                      >
-                        <p className="font-medium text-foreground/80">Monthly</p>
-                        <p className="text-xl font-bold text-foreground/80">${config.monthlyPrice}<span className="text-xs text-muted-foreground">/mo</span></p>
-                      </div>
-                    </div>
+                  <div className="p-4 rounded-xl bg-secondary/30 border border-border/30">
+                    <p className="text-sm text-foreground/80">
+                      Some features require an active LifeStack subscription. Subscription management is handled through your LifeStack account.
+                    </p>
                   </div>
                 </>
               )}
@@ -313,7 +280,7 @@ export default function Settings() {
               )}
 
               <p className="text-xs text-muted-foreground">
-                Manage your subscription via Gumroad. Questions? Contact support.
+                LifeStack is an account-based life companion platform.
               </p>
             </CardContent>
           </Card>

@@ -17,7 +17,7 @@ export function LockedFeature({
   children, 
   className,
   previewContent,
-  teaser = "Unlock with Pro"
+  teaser = "Subscription required"
 }: LockedFeatureProps) {
   const { canAccessFeature, isPremium } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
