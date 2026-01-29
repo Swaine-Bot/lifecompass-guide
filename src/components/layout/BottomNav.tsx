@@ -1,6 +1,7 @@
-import { Home, Target, BarChart3, MessageCircle, Users } from 'lucide-react';
+import { Home, Target, BarChart3, MessageCircle, Users, Shield } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/home', label: 'Home', icon: Home },
@@ -12,11 +13,17 @@ const navItems = [
 
 export const BottomNav = () => {
   const location = useLocation();
+  const { isAdmin } = useAuth();
+
+  // If admin, replace last item with Admin link
+  const displayItems = isAdmin 
+    ? [...navItems.slice(0, 4), { path: '/admin', label: 'Admin', icon: Shield }]
+    : navItems;
 
   return (
     <nav className="bottom-nav lg:hidden">
       <div className="flex items-center justify-around px-2 py-1">
-        {navItems.map((item) => {
+        {displayItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/home' && location.pathname.startsWith(item.path));
           
