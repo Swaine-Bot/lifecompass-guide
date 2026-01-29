@@ -8,13 +8,38 @@ import { Badge } from '@/components/ui/badge';
 import { 
   PenLine, Image, Video, Mic, MicOff, Send, X, Loader2,
   Bot, Lightbulb, AlertTriangle, ExternalLink, ChevronUp, ChevronDown,
-  Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles
+  Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles,
+  Edit, Trash2, MoreVertical
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface OpportunitySuggestion {
   category: string;
@@ -88,6 +113,15 @@ export default function Journal() {
   const [analysis, setAnalysis] = useState<JournalAnalysis | null>(null);
   const [showFeedback, setShowFeedback] = useState(true);
   const [feedbackExpanded, setFeedbackExpanded] = useState(true);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [editGratitude, setEditGratitude] = useState('');
+  const [editReflection, setEditReflection] = useState('');
+  const [editMood, setEditMood] = useState<number | null>(null);
+  const [editEnergy, setEditEnergy] = useState<number | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -388,6 +422,67 @@ export default function Journal() {
     } finally {
       setLoading(false);
       setIsAnalyzing(false);
+    }
+  };
+
+  const deleteEntry = async (entryId: string) => {
+    if (!user) return;
+    setIsDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from('journal_entries')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) throw error;
+
+      toast.success('Journal entry deleted');
+      setEntries(entries.filter(e => e.id !== entryId));
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete entry');
+    } finally {
+      setIsDeleting(false);
+      setEntryToDelete(null);
+    }
+  };
+
+  const openEditDialog = (entry: JournalEntry) => {
+    setEditingEntry(entry);
+    setEditContent(entry.content || '');
+    setEditGratitude(entry.gratitude || '');
+    setEditReflection(entry.reflection || '');
+    setEditMood(entry.mood);
+    setEditEnergy(entry.energy);
+  };
+
+  const saveEditedEntry = async () => {
+    if (!editingEntry) return;
+    setIsSavingEdit(true);
+
+    try {
+      const { error } = await supabase
+        .from('journal_entries')
+        .update({
+          content: editContent || null,
+          gratitude: editGratitude || null,
+          reflection: editReflection || null,
+          mood: editMood,
+          energy: editEnergy,
+        })
+        .eq('id', editingEntry.id);
+
+      if (error) throw error;
+
+      toast.success('Journal entry updated');
+      setEditingEntry(null);
+      fetchEntries();
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('Failed to update entry');
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -735,6 +830,26 @@ export default function Journal() {
                         Energy: {energyOptions.find(e => e.value === entry.energy)?.label}
                       </span>
                     )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(entry)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setEntryToDelete(entry.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 {entry.content && (
@@ -747,6 +862,131 @@ export default function Journal() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!entryToDelete} onOpenChange={() => setEntryToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Journal Entry</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this journal entry? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => entryToDelete && deleteEntry(entryToDelete)}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingEntry} onOpenChange={() => setEditingEntry(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Journal Entry</DialogTitle>
+            <DialogDescription>
+              {editingEntry && format(new Date(editingEntry.date), 'EEEE, MMMM d, yyyy')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Mood & Energy */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Mood</label>
+                <div className="flex justify-between">
+                  {moodOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setEditMood(option.value)}
+                      className={cn(
+                        "mood-option text-xl",
+                        editMood === option.value && "selected"
+                      )}
+                      title={option.label}
+                    >
+                      {option.emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Energy</label>
+                <div className="flex justify-between">
+                  {energyOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setEditEnergy(option.value)}
+                      className={cn(
+                        "mood-option",
+                        editEnergy === option.value && "selected"
+                      )}
+                      title={option.label}
+                    >
+                      <option.icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Content</label>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Gratitude */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">🙏 Gratitude</label>
+              <Textarea
+                value={editGratitude}
+                onChange={(e) => setEditGratitude(e.target.value)}
+                rows={2}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Reflection */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">💭 Reflection</label>
+              <Textarea
+                value={editReflection}
+                onChange={(e) => setEditReflection(e.target.value)}
+                rows={2}
+                className="resize-none"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingEntry(null)}>
+              Cancel
+            </Button>
+            <Button variant="gold" onClick={saveEditedEntry} disabled={isSavingEdit}>
+              {isSavingEdit ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

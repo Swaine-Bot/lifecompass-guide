@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import Goals from "./pages/Goals";
+import GoalDetail from "./pages/GoalDetail";
 import NewGoal from "./pages/NewGoal";
 import Habits from "./pages/Habits";
 import NewHabit from "./pages/NewHabit";
@@ -61,6 +62,7 @@ const App = () => (
                 <Route element={<AppLayout />}>
                   <Route path="/home" element={<Home />} />
                   <Route path="/goals" element={<Goals />} />
+                  <Route path="/goals/:id" element={<GoalDetail />} />
                   <Route path="/goals/new" element={<NewGoal />} />
                   <Route path="/habits" element={<Habits />} />
                   <Route path="/habits/new" element={<NewHabit />} />
