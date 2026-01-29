@@ -151,9 +151,13 @@ export default function Community() {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        // Generate signed URLs for media (handles private bucket)
+        const rawMediaUrls = (post.media_urls as string[]) || [];
+        const signedMediaUrls = await generateSignedUrls(rawMediaUrls);
+
         return {
           ...post,
-          media_urls: (post.media_urls as string[]) || [],
+          media_urls: signedMediaUrls,
           user_name: profileData?.name || 'Unknown',
           user_avatar: profileData?.avatar_url,
           reactions_count: reactionsCount || 0,
@@ -164,6 +168,40 @@ export default function Community() {
 
       setPosts(postsWithDetails);
     }
+  };
+
+  // Generate signed URLs for private bucket media
+  const generateSignedUrls = async (urls: string[]): Promise<string[]> => {
+    if (urls.length === 0) return [];
+    
+    const signedUrls: string[] = [];
+    
+    for (const url of urls) {
+      // Check if this is a Supabase storage URL
+      if (url.includes('/storage/v1/') && url.includes('user-media')) {
+        try {
+          // Extract the file path from the URL
+          const pathMatch = url.match(/user-media\/([^?]+)/);
+          if (pathMatch) {
+            const filePath = decodeURIComponent(pathMatch[1]);
+            const { data, error } = await supabase.storage
+              .from('user-media')
+              .createSignedUrl(filePath, 3600); // 1 hour expiry
+            
+            if (!error && data) {
+              signedUrls.push(data.signedUrl);
+              continue;
+            }
+          }
+        } catch (e) {
+          console.error('Error creating signed URL:', e);
+        }
+      }
+      // If not a storage URL or signing failed, use original
+      signedUrls.push(url);
+    }
+    
+    return signedUrls;
   };
 
   const sendFriendRequest = async () => {
@@ -304,10 +342,14 @@ export default function Community() {
         .upload(fileName, file);
 
       if (!error && data) {
-        const { data: urlData } = supabase.storage
+        // Use signed URL for private bucket (1 hour expiry)
+        const { data: urlData, error: urlError } = await supabase.storage
           .from('user-media')
-          .getPublicUrl(data.path);
-        urls.push(urlData.publicUrl);
+          .createSignedUrl(data.path, 3600);
+        
+        if (!urlError && urlData) {
+          urls.push(urlData.signedUrl);
+        }
       } else if (error) {
         // Handle storage-level validation errors
         if (error.message?.includes('mime') || error.message?.includes('type')) {
@@ -323,6 +365,7 @@ export default function Community() {
     
     return urls;
   };
+
 
   const createPost = async () => {
     if (!user || (!newPostContent && selectedFiles.length === 0)) return;
