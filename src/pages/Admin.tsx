@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { 
   Users, 
   DollarSign, 
@@ -20,7 +21,11 @@ import {
   Heart,
   BarChart3,
   Shield,
-  FileText
+  FileText,
+  ArrowLeft,
+  AlertTriangle,
+  Bot,
+  Sparkles
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -65,6 +70,16 @@ interface Analytics {
     totalScreenTimeSeconds: number;
     avgScreenTimePerUserSeconds: number;
     moodTrends: { mood: number; count: number }[];
+    moodByCountry: Record<string, { avgMood: number; count: number }>;
+  };
+  moderation: {
+    flaggedPosts: { id: string; content: string; reason: string; createdAt: string }[];
+    flaggedJournals: { id: string; reason: string; createdAt: string }[];
+  };
+  mentorStats: {
+    totalConversations: number;
+    totalMessages: number;
+    recentConversations: { id: string; title: string; messageCount: number; createdAt: string }[];
   };
 }
 
@@ -87,6 +102,7 @@ const lifePhaseLabels: Record<string, string> = {
 export default function Admin() {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -186,6 +202,9 @@ export default function Admin() {
       <div className="container max-w-7xl mx-auto py-8 px-4">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <Shield className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
@@ -257,10 +276,12 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
             <TabsTrigger value="trends">Trends</TabsTrigger>
+            <TabsTrigger value="mentor">Mentor</TabsTrigger>
+            <TabsTrigger value="moderation">Moderation</TabsTrigger>
           </TabsList>
 
           {/* Users Tab */}
@@ -643,6 +664,181 @@ export default function Admin() {
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Mentor Tab */}
+          <TabsContent value="mentor" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Mentor Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bot className="h-5 w-5" />
+                    AI Mentor Statistics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <span className="text-sm font-medium">Total Conversations</span>
+                      <Badge variant="secondary" className="text-lg px-3">
+                        {analytics?.mentorStats?.totalConversations || 0}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <span className="text-sm font-medium">Total Messages</span>
+                      <Badge variant="secondary" className="text-lg px-3">
+                        {analytics?.mentorStats?.totalMessages || 0}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10">
+                      <span className="text-sm font-medium">Avg Messages per Conversation</span>
+                      <Badge variant="default" className="text-lg px-3">
+                        {analytics?.mentorStats?.totalConversations 
+                          ? (analytics.mentorStats.totalMessages / analytics.mentorStats.totalConversations).toFixed(1)
+                          : 0}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Conversations */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Mentor Conversations</CardTitle>
+                  <CardDescription>Latest AI mentor interactions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-64">
+                    <div className="space-y-3">
+                      {analytics?.mentorStats?.recentConversations?.slice(0, 10).map((convo) => (
+                        <div key={convo.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50">
+                          <div>
+                            <p className="text-sm font-medium">{convo.title || 'Untitled Conversation'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(convo.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge variant="outline">{convo.messageCount} msgs</Badge>
+                        </div>
+                      )) || (
+                        <p className="text-muted-foreground text-sm text-center py-8">
+                          No mentor conversations yet
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Mood by Country */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  User Mood by Country
+                </CardTitle>
+                <CardDescription>Average mood scores across different countries</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-64">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Country</TableHead>
+                        <TableHead>Avg Mood</TableHead>
+                        <TableHead>Journal Entries</TableHead>
+                        <TableHead>Mood Indicator</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Object.entries(analytics?.engagement?.moodByCountry || {})
+                        .sort(([, a], [, b]) => b.avgMood - a.avgMood)
+                        .map(([country, data]) => (
+                          <TableRow key={country}>
+                            <TableCell className="font-medium">{country}</TableCell>
+                            <TableCell>{data.avgMood.toFixed(1)}</TableCell>
+                            <TableCell>{data.count}</TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={data.avgMood >= 7 ? 'default' : data.avgMood >= 5 ? 'secondary' : 'destructive'}
+                                className={data.avgMood >= 7 ? 'bg-success' : ''}
+                              >
+                                {data.avgMood >= 7 ? '😊 Good' : data.avgMood >= 5 ? '🙂 Okay' : '😔 Low'}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      {Object.keys(analytics?.engagement?.moodByCountry || {}).length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                            No mood data available yet
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Moderation Tab */}
+          <TabsContent value="moderation" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {/* Flagged Posts */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-warning" />
+                    Flagged Content
+                  </CardTitle>
+                  <CardDescription>Posts and content flagged by AI moderation</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-96">
+                    <div className="space-y-4">
+                      {analytics?.moderation?.flaggedPosts?.map((post) => (
+                        <div key={post.id} className="p-4 rounded-lg border border-warning/30 bg-warning/5">
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge variant="outline" className="text-warning border-warning">
+                              Flagged Post
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(post.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-sm mb-2 line-clamp-3">{post.content}</p>
+                          <p className="text-xs text-warning">Reason: {post.reason}</p>
+                        </div>
+                      ))}
+                      {analytics?.moderation?.flaggedJournals?.map((journal) => (
+                        <div key={journal.id} className="p-4 rounded-lg border border-warning/30 bg-warning/5">
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge variant="outline" className="text-warning border-warning">
+                              Flagged Journal
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(journal.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-xs text-warning">Reason: {journal.reason}</p>
+                        </div>
+                      ))}
+                      {(!analytics?.moderation?.flaggedPosts?.length && !analytics?.moderation?.flaggedJournals?.length) && (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <Sparkles className="h-12 w-12 mx-auto mb-4 text-success" />
+                          <p className="font-medium">All Clear!</p>
+                          <p className="text-sm">No flagged content to review</p>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
             </div>

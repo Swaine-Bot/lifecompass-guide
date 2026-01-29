@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
       .from('goals')
       .select('id, user_id, created_at, category');
 
-    // Feature usage - journal entries
+    // Feature usage - journal entries with mood
     const { data: journals, error: journalsError } = await adminClient
       .from('journal_entries')
       .select('id, user_id, created_at, mood, energy, tags');
@@ -114,7 +114,12 @@ Deno.serve(async (req) => {
     // Feature usage - mentor conversations
     const { data: mentorConvos, error: mentorError } = await adminClient
       .from('mentor_conversations')
-      .select('id, user_id, created_at');
+      .select('id, user_id, created_at, title');
+
+    // Mentor messages count
+    const { data: mentorMessages, error: mentorMessagesError } = await adminClient
+      .from('mentor_messages')
+      .select('id, conversation_id, created_at');
 
     // Process data
     const totalUsers = profiles?.length || 0;
@@ -201,6 +206,27 @@ Deno.serve(async (req) => {
     });
     moodTrends.sort((a, b) => a.mood - b.mood);
 
+    // Mood by country
+    const moodByCountry: Record<string, { totalMood: number; count: number }> = {};
+    journals?.forEach(j => {
+      if (j.mood !== null && j.mood !== undefined) {
+        const userProfile = profiles?.find(p => p.user_id === j.user_id);
+        const country = userProfile?.country || 'Unknown';
+        if (!moodByCountry[country]) {
+          moodByCountry[country] = { totalMood: 0, count: 0 };
+        }
+        moodByCountry[country].totalMood += j.mood;
+        moodByCountry[country].count += 1;
+      }
+    });
+    const moodByCountryAvg: Record<string, { avgMood: number; count: number }> = {};
+    Object.entries(moodByCountry).forEach(([country, data]) => {
+      moodByCountryAvg[country] = {
+        avgMood: data.count > 0 ? data.totalMood / data.count : 0,
+        count: data.count
+      };
+    });
+
     // Goal category trends
     const goalCategories: Record<string, number> = {};
     goals?.forEach(g => {
@@ -224,6 +250,25 @@ Deno.serve(async (req) => {
       journalCount: journals?.filter(j => j.user_id === p.user_id).length || 0,
       postsCount: posts?.filter(po => po.user_id === p.user_id).length || 0,
     }));
+
+    // Mentor statistics
+    const mentorStats = {
+      totalConversations: mentorConvos?.length || 0,
+      totalMessages: mentorMessages?.length || 0,
+      recentConversations: mentorConvos?.slice(0, 20).map(c => ({
+        id: c.id,
+        title: c.title || 'Untitled',
+        messageCount: mentorMessages?.filter(m => m.conversation_id === c.id).length || 0,
+        createdAt: c.created_at
+      })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || []
+    };
+
+    // Moderation logs (for now, we'll simulate flagged content - in production this would come from actual moderation data)
+    // This is a placeholder - actual implementation would track flagged content
+    const moderation = {
+      flaggedPosts: [],
+      flaggedJournals: []
+    };
 
     const analytics = {
       users: {
@@ -252,7 +297,10 @@ Deno.serve(async (req) => {
         totalScreenTimeSeconds: totalScreenTime,
         avgScreenTimePerUserSeconds: avgScreenTimePerUser,
         moodTrends,
+        moodByCountry: moodByCountryAvg,
       },
+      moderation,
+      mentorStats,
     };
 
     console.log('Analytics compiled successfully');

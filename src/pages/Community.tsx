@@ -15,7 +15,7 @@ import {
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
-  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown
+  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -115,6 +115,10 @@ export default function Community() {
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [feedbackExpanded, setFeedbackExpanded] = useState(true);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [editPostContent, setEditPostContent] = useState('');
+  const [editPostVisibility, setEditPostVisibility] = useState<'public' | 'friends' | 'private'>('friends');
+  const [isSavingPostEdit, setIsSavingPostEdit] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -384,6 +388,38 @@ export default function Community() {
     } finally {
       setIsDeleting(false);
       setPostToDelete(null);
+    }
+  };
+
+  const openEditPost = (post: Post) => {
+    setEditingPost(post);
+    setEditPostContent(post.content || '');
+    setEditPostVisibility(post.visibility as 'public' | 'friends' | 'private');
+  };
+
+  const saveEditedPost = async () => {
+    if (!editingPost || !user) return;
+    setIsSavingPostEdit(true);
+
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({
+          content: editPostContent,
+          visibility: editPostVisibility,
+        })
+        .eq('id', editingPost.id);
+
+      if (error) throw error;
+
+      toast.success('Post updated');
+      setEditingPost(null);
+      fetchPosts();
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('Failed to update post');
+    } finally {
+      setIsSavingPostEdit(false);
     }
   };
 
@@ -748,14 +784,24 @@ export default function Community() {
                         </div>
                         
                         {post.user_id === user?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => setPostToDelete(post.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary"
+                              onClick={() => openEditPost(post)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => setPostToDelete(post.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                       
@@ -1260,6 +1306,42 @@ export default function Community() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Post Dialog */}
+      <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+            <DialogDescription>Update your post content</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              value={editPostContent}
+              onChange={(e) => setEditPostContent(e.target.value)}
+              rows={4}
+            />
+            <div>
+              <Label>Visibility</Label>
+              <Select value={editPostVisibility} onValueChange={(v) => setEditPostVisibility(v as 'public' | 'friends' | 'private')}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Public</SelectItem>
+                  <SelectItem value="friends">Friends Only</SelectItem>
+                  <SelectItem value="private">Private</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setEditingPost(null)}>Cancel</Button>
+            <Button onClick={saveEditedPost} disabled={isSavingPostEdit}>
+              {isSavingPostEdit ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
