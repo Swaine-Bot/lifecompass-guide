@@ -531,6 +531,9 @@ export type Database = {
           created_at: string | null
           id: string
           location_permission: string | null
+          notifications_goals: boolean | null
+          notifications_nudges: boolean | null
+          notifications_social: boolean | null
           privacy_policy_accepted: boolean | null
           privacy_policy_accepted_at: string | null
           profile_visibility:
@@ -547,6 +550,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           location_permission?: string | null
+          notifications_goals?: boolean | null
+          notifications_nudges?: boolean | null
+          notifications_social?: boolean | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
           profile_visibility?:
@@ -563,6 +569,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           location_permission?: string | null
+          notifications_goals?: boolean | null
+          notifications_nudges?: boolean | null
+          notifications_social?: boolean | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
           profile_visibility?:
@@ -641,6 +650,36 @@ export type Database = {
           strictness_level?: number | null
           timezone?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
