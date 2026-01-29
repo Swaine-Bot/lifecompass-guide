@@ -864,24 +864,6 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
         }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          life_phase?: Database["public"]["Enums"]["life_phase"] | null
-          name?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          life_phase?: Database["public"]["Enums"]["life_phase"] | null
-          name?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
         Relationships: []
       }
       user_subscriptions_safe: {
