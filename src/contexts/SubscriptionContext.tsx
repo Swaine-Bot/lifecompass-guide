@@ -116,9 +116,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!user) return 0;
 
     try {
-      const { data, error } = await supabase.rpc('increment_micro_moves', {
-        p_user_id: user.id
-      });
+      // No parameter needed - function uses auth.uid() server-side for security
+      const { data, error } = await supabase.rpc('increment_micro_moves');
 
       if (error) throw error;
 
