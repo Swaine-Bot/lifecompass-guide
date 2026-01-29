@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
-  LogOut, Save, Camera, MapPin, Globe, Crown
+  LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -451,6 +451,31 @@ export default function Settings() {
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                About LifeStack
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                LifeStack is your life companion platform for goals, habits, and personal growth.
+              </p>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => window.open('https://lifestack.app', '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Visit Website
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Version 1.0.0
+              </p>
             </CardContent>
           </Card>
 
