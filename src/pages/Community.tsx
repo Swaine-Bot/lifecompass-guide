@@ -272,11 +272,13 @@ export default function Community() {
         excludedIds.add(f.addressee_id);
       });
 
+      // Broad case-insensitive search - search for any part of the name
+      const searchTerm = searchQuery.trim().toLowerCase();
       const { data: profiles } = await supabase
         .from('profiles_public')
         .select('user_id, name, avatar_url, life_phase')
-        .ilike('name', `%${searchQuery.trim()}%`)
-        .limit(10);
+        .or(`name.ilike.%${searchTerm}%,name.ilike.${searchTerm}%,name.ilike.%${searchTerm}`)
+        .limit(20);
 
       if (profiles) {
         const filtered = profiles.filter(p => p.user_id && !excludedIds.has(p.user_id));
