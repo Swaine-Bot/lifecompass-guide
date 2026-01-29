@@ -5,19 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  User, Shield, Bell, Lock, Eye, Calendar, Trash2, 
-  LogOut, Save, Camera, Moon, Sun, Globe 
+  User, Shield, Lock, Trash2, 
+  LogOut, Save, Camera, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import lifestackLogo from '@/assets/lifestack-logo.png';
+import { useLocation, LocationPermission } from '@/hooks/useLocation';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -30,6 +30,7 @@ interface PrivacySettings {
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
@@ -259,6 +260,41 @@ export default function Settings() {
                   checked={privacySettings.allow_friend_requests}
                   onCheckedChange={(v) => updatePrivacy({ allow_friend_requests: v })}
                 />
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-border/30">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Location Services
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Enable location for finding nearby professionals and local features
+                  </p>
+                  {latitude && longitude && (
+                    <p className="text-xs text-primary mt-1">
+                      ✓ Location active
+                    </p>
+                  )}
+                  {locationError && (
+                    <p className="text-xs text-destructive mt-1">
+                      {locationError}
+                    </p>
+                  )}
+                </div>
+                <Select 
+                  value={locationPermission} 
+                  onValueChange={(v) => updatePermission(v as LocationPermission)}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="always">Always</SelectItem>
+                    <SelectItem value="while_using">While Using App</SelectItem>
+                    <SelectItem value="never">Never</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>

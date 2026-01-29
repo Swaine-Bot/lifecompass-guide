@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLocation } from '@/hooks/useLocation';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -18,6 +19,14 @@ export default function Mentor() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { profile } = useAuth();
+  const { getMapsSearchUrl, latitude, longitude, permission, requestLocation } = useLocation();
+
+  // Request location when page loads if permission allows
+  useEffect(() => {
+    if (permission === 'while_using') {
+      requestLocation();
+    }
+  }, [permission, requestLocation]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,7 +97,7 @@ export default function Mentor() {
               {professionalLinks.map((link) => (
                 <a
                   key={link.query}
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(link.query)}`}
+                  href={getMapsSearchUrl(link.query)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-primary hover:underline flex items-center gap-1"
@@ -98,6 +107,17 @@ export default function Mentor() {
                 </a>
               ))}
             </div>
+            {latitude && longitude && (
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                Using your location for nearby results
+              </p>
+            )}
+            {permission === 'never' && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Enable location in Settings for personalized nearby results
+              </p>
+            )}
           </div>
         </div>
       </Card>
