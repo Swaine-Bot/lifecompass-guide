@@ -224,12 +224,80 @@ export default function Community() {
     }
   };
 
+  // File upload validation constants
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
+  const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total per post
+  const MAX_FILES_PER_POST = 10;
+  const ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/png', 
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/quicktime',
+    'video/webm'
+  ];
+  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm'];
+
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      return { valid: false, error: `File "${file.name}" exceeds 10MB limit` };
+    }
+
+    // Validate MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return { valid: false, error: `File "${file.name}" has unsupported format. Allowed: images and videos` };
+    }
+
+    // Validate extension (defense in depth)
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+      return { valid: false, error: `File "${file.name}" has invalid extension` };
+    }
+
+    return { valid: true };
+  };
+
+  const sanitizeFileName = (fileName: string): string => {
+    // Extract extension safely
+    const parts = fileName.split('.');
+    const extension = parts.length > 1 ? parts.pop()?.toLowerCase() : '';
+    
+    // Only allow safe extensions
+    const safeExtension = ALLOWED_EXTENSIONS.includes(extension || '') ? extension : 'bin';
+    
+    return safeExtension || 'bin';
+  };
+
   const uploadMedia = async (files: File[]): Promise<string[]> => {
     const urls: string[] = [];
     
+    // Validate total number of files
+    if (files.length > MAX_FILES_PER_POST) {
+      toast.error(`Maximum ${MAX_FILES_PER_POST} files allowed per post`);
+      return [];
+    }
+
+    // Validate total size
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > MAX_TOTAL_SIZE) {
+      toast.error('Total file size exceeds 50MB limit');
+      return [];
+    }
+
+    // Validate each file
     for (const file of files) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user!.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        toast.error(validation.error);
+        return [];
+      }
+    }
+    
+    for (const file of files) {
+      const safeExtension = sanitizeFileName(file.name);
+      const fileName = `${user!.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${safeExtension}`;
       
       const { error, data } = await supabase.storage
         .from('user-media')
@@ -240,6 +308,16 @@ export default function Community() {
           .from('user-media')
           .getPublicUrl(data.path);
         urls.push(urlData.publicUrl);
+      } else if (error) {
+        // Handle storage-level validation errors
+        if (error.message?.includes('mime') || error.message?.includes('type')) {
+          toast.error(`File type not allowed: ${file.name}`);
+        } else if (error.message?.includes('size')) {
+          toast.error(`File too large: ${file.name}`);
+        } else {
+          toast.error(`Failed to upload: ${file.name}`);
+        }
+        console.error('Upload error:', error);
       }
     }
     
