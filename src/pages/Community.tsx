@@ -883,6 +883,11 @@ export default function Community() {
                       setSearchQuery(e.target.value);
                       setSelectedUser(null);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim().length >= 2) {
+                        setShowSearchResults(true);
+                      }
+                    }}
                     onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
                     className="pl-9"
                   />
@@ -927,6 +932,19 @@ export default function Community() {
                     </div>
                   )}
                 </div>
+                
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    if (searchQuery.trim().length >= 2) {
+                      setShowSearchResults(true);
+                    }
+                  }}
+                  disabled={isSearching || searchQuery.trim().length < 2}
+                  className="shrink-0"
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
                 
                 <Button 
                   variant="gold" 
