@@ -34,6 +34,7 @@ interface PrivacySettings {
   notifications_goals: boolean;
   notifications_social: boolean;
   notifications_nudges: boolean;
+  show_ai_insights_to_friends: boolean;
 }
 
 export default function Settings() {
@@ -54,6 +55,7 @@ export default function Settings() {
     notifications_goals: true,
     notifications_social: true,
     notifications_nudges: true,
+    show_ai_insights_to_friends: true,
   });
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -179,6 +181,7 @@ export default function Settings() {
         notifications_goals: data.notifications_goals ?? true,
         notifications_social: data.notifications_social ?? true,
         notifications_nudges: data.notifications_nudges ?? true,
+        show_ai_insights_to_friends: data.show_ai_insights_to_friends ?? true,
       });
     }
   };
@@ -474,6 +477,17 @@ export default function Settings() {
                 <Switch
                   checked={privacySettings.allow_friend_requests}
                   onCheckedChange={(v) => updatePrivacy({ allow_friend_requests: v })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Show AI Insights to Friends</Label>
+                  <p className="text-sm text-muted-foreground">Let friends see AI mentor comments on your posts</p>
+                </div>
+                <Switch
+                  checked={privacySettings.show_ai_insights_to_friends}
+                  onCheckedChange={(v) => updatePrivacy({ show_ai_insights_to_friends: v })}
                 />
               </div>
 

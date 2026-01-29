@@ -540,6 +540,7 @@ export type Database = {
             | Database["public"]["Enums"]["post_visibility"]
             | null
           show_activity_status: boolean | null
+          show_ai_insights_to_friends: boolean | null
           terms_accepted: boolean | null
           terms_accepted_at: string | null
           updated_at: string | null
@@ -559,6 +560,7 @@ export type Database = {
             | Database["public"]["Enums"]["post_visibility"]
             | null
           show_activity_status?: boolean | null
+          show_ai_insights_to_friends?: boolean | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
           updated_at?: string | null
@@ -578,6 +580,7 @@ export type Database = {
             | Database["public"]["Enums"]["post_visibility"]
             | null
           show_activity_status?: boolean | null
+          show_ai_insights_to_friends?: boolean | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
           updated_at?: string | null
