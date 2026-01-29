@@ -3,7 +3,7 @@
 
 **Owner:** Pragmatic Analytics Solutions (Pty) Ltd  
 **Date:** January 29, 2026  
-**Version:** 2.0
+**Version:** 2.1
 
 ---
 
@@ -62,6 +62,7 @@
 |-----------|---------|-------|
 | `src/hooks/useSessionTracking.ts` | Screen time analytics | ~80 |
 | `src/hooks/useLocation.ts` | Geolocation services | ~100 |
+| `src/hooks/usePushNotifications.ts` | Web Push subscription management | ~120 |
 | `src/hooks/use-mobile.tsx` | Mobile detection | ~30 |
 | `src/hooks/use-toast.ts` | Toast notifications | ~50 |
 
@@ -185,6 +186,8 @@
 | `supabase/functions/analyze-journal-entry/index.ts` | Journal AI analysis | ~250 |
 | `supabase/functions/analyze-post-content/index.ts` | Community content moderation | ~200 |
 | `supabase/functions/admin-analytics/index.ts` | Admin data aggregation | ~150 |
+| `supabase/functions/push-vapid-keys/index.ts` | VAPID key management for Web Push | ~80 |
+| `supabase/functions/send-push-notification/index.ts` | Push notification delivery | ~120 |
 
 ### Configuration
 
@@ -219,7 +222,9 @@
 | `public/favicon.png` | PNG favicon |
 | `public/manifest.json` | PWA manifest |
 | `public/robots.txt` | SEO robots file |
+| `public/sw.js` | Service Worker for push notifications |
 | `public/videos/intro.mp4` | Onboarding video |
+| `public/videos/launch-teaser.mp4` | Launch teaser video |
 | `public/icons/icon-72.png` | PWA icon 72x72 |
 | `public/icons/icon-96.png` | PWA icon 96x96 |
 | `public/icons/icon-128.png` | PWA icon 128x128 |
@@ -229,6 +234,7 @@
 | `public/icons/icon-384.png` | PWA icon 384x384 |
 | `public/icons/icon-512.png` | PWA icon 512x512 |
 | `src/assets/lifestack-logo.png` | App logo |
+| `src/assets/lifestack-logo-white-bg.png` | App logo (white background) |
 
 ---
 
@@ -246,15 +252,16 @@
 
 | Category | Files | Approx. Lines of Code |
 |----------|-------|----------------------|
-| Pages | 24 | ~6,500 |
-| Components | 60+ | ~4,500 |
+| Pages | 24 | ~6,800 |
+| Components | 60+ | ~4,600 |
 | Contexts | 3 | ~400 |
-| Hooks | 4 | ~260 |
+| Hooks | 5 | ~380 |
 | Utilities | 3 | ~280 |
-| Edge Functions | 4 | ~765 |
+| Edge Functions | 6 | ~965 |
 | Configuration | 12 | ~350 |
+| Service Workers | 1 | ~40 |
 | Tests | 2 | ~30 |
-| **TOTAL** | **112+** | **~13,200** |
+| **TOTAL** | **116+** | **~13,900** |
 
 ---
 
@@ -293,4 +300,4 @@
 
 ---
 
-*This manifest is accurate as of January 29, 2026 - Version 2.0*
+*This manifest is accurate as of January 29, 2026 - Version 2.1*
