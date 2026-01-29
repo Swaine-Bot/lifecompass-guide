@@ -2,6 +2,8 @@
 ## For: Pragmatic Analytics Solutions (Pty) Ltd
 
 **Prepared:** January 29, 2026  
+**Last Updated:** January 29, 2026  
+**Version:** 2.0  
 **Jurisdiction:** South Africa (Primary) / PCT International
 
 ---
@@ -14,7 +16,7 @@
 
 ## ABSTRACT
 
-A computer-implemented system and method for personal life management that adapts to a user's life phase and provides integrated goal tracking, habit formation, journaling, and AI-powered mentorship. The system analyzes multi-modal content (text, images, video, audio) to provide personalized feedback, opportunity detection, and professional referrals while enforcing appropriate boundaries for non-professional AI guidance.
+A computer-implemented system and method for personal life management that adapts to a user's life phase and provides integrated goal tracking, habit formation, journaling, and AI-powered mentorship. The system analyzes multi-modal content (text, images, video, audio) to provide personalized feedback, opportunity detection, and professional referrals while enforcing appropriate boundaries for non-professional AI guidance. The system includes social accountability features with AI-powered content moderation, subscription-based access tiers, and administrative analytics for platform management.
 
 ---
 
@@ -144,37 +146,56 @@ h) wherein the system provides supportive guidance while consistently deferring 
 
 **CLAIM 9:** The system of claim 1, wherein the system is implemented as a progressive web application capable of offline operation and installation on mobile devices.
 
+**CLAIM 10:** The system of claim 1, further comprising a subscription tier module configured to:
+- manage user access levels (free, pro, founder tiers);
+- gate premium features based on subscription status;
+- track usage patterns for paywall triggering;
+- integrate with external payment providers.
+
+**CLAIM 11:** The system of claim 1, further comprising an administrative dashboard module configured to:
+- aggregate user analytics across the platform;
+- display geographic distribution of users;
+- track subscription conversions;
+- monitor feature usage patterns;
+- analyze session duration metrics.
+
+**CLAIM 12:** The system of claim 1, further comprising a role-based access control system configured to:
+- assign user roles (user, admin);
+- restrict administrative functions to authorized roles;
+- modify navigation elements based on user role;
+- protect sensitive analytics endpoints.
+
 ### Claims Dependent on Claim 2
 
-**CLAIM 10:** The method of claim 2, wherein the content moderation instructions cause the language model to reject content comprising:
+**CLAIM 13:** The method of claim 2, wherein the content moderation instructions cause the language model to reject content comprising:
 - graphic violence;
 - pornographic material;
 - hate speech;
 - content promoting self-harm.
 
-**CLAIM 11:** The method of claim 2, wherein the goal-connected nudge comprises an actionable suggestion connecting the journal entry content to one of the user's active goals.
+**CLAIM 14:** The method of claim 2, wherein the goal-connected nudge comprises an actionable suggestion connecting the journal entry content to one of the user's active goals.
 
-**CLAIM 12:** The method of claim 2, wherein detected opportunities are categorized into domains including:
+**CLAIM 15:** The method of claim 2, wherein detected opportunities are categorized into domains including:
 - health and fitness services;
 - educational courses;
 - professional services;
 - hobby-related products;
 - relationship activities.
 
-**CLAIM 13:** The method of claim 2, further comprising:
+**CLAIM 16:** The method of claim 2, further comprising:
 - generating a signed URL for each uploaded media file;
 - storing media files in encrypted cloud storage;
 - validating file types against an allowlist before acceptance.
 
 ### Claims Dependent on Claim 3
 
-**CLAIM 14:** The system of claim 3, wherein the mentor persona is characterized as "calm, direct, and pragmatic" with responses that are "warm but actionable."
+**CLAIM 17:** The system of claim 3, wherein the mentor persona is characterized as "calm, direct, and pragmatic" with responses that are "warm but actionable."
 
-**CLAIM 15:** The system of claim 3, wherein crisis detection triggers immediate presentation of emergency contact information and crisis helpline numbers.
+**CLAIM 18:** The system of claim 3, wherein crisis detection triggers immediate presentation of emergency contact information and crisis helpline numbers.
 
-**CLAIM 16:** The system of claim 3, further comprising rate limiting to prevent abuse of the AI inference module.
+**CLAIM 19:** The system of claim 3, further comprising rate limiting to prevent abuse of the AI inference module.
 
-**CLAIM 17:** The system of claim 3, wherein professional referrals include geographically localized search queries based on the user's stored location.
+**CLAIM 20:** The system of claim 3, wherein professional referrals include geographically localized search queries based on the user's stored location.
 
 ---
 
@@ -211,6 +232,26 @@ A content distribution system for life phase-specific guidance packages ("playbo
 
 that users can install to bootstrap their life management practice.
 
+### Concept D: AI Community Content Moderation
+
+A pre-publication content review system comprising:
+- text analysis for policy violations;
+- media content screening;
+- feedback generation for content improvement;
+- visibility-based access control (public, friends, private);
+
+that maintains community standards while enabling social accountability.
+
+### Concept E: Session Analytics System
+
+A user engagement tracking system comprising:
+- session start/end detection;
+- duration calculation and storage;
+- aggregated analytics for platform insights;
+- privacy-preserving data collection;
+
+that enables platform optimization without compromising user privacy.
+
 ---
 
 ## DRAWINGS DESCRIPTION
@@ -226,6 +267,14 @@ that users can install to bootstrap their life management practice.
 **Figure 5:** Flowchart depicting the multi-modal journal analysis process including content moderation and opportunity detection.
 
 **Figure 6:** Entity-relationship diagram showing the database schema for users, goals, habits, journal entries, and social connections.
+
+**Figure 7:** User interface mockup showing the admin analytics dashboard with user growth charts and geographic distribution.
+
+**Figure 8:** State diagram showing the subscription tier transitions and feature access levels.
+
+**Figure 9:** Flowchart depicting the community post moderation workflow with AI analysis.
+
+**Figure 10:** User interface mockup showing responsive navigation with sidebar (desktop) and bottom navigation (mobile) with admin role awareness.
 
 ---
 
@@ -253,4 +302,46 @@ The present invention addresses these deficiencies by providing a unified platfo
 
 ---
 
+## DETAILED DESCRIPTION OF PREFERRED EMBODIMENTS
+
+### System Architecture
+
+The preferred embodiment comprises:
+
+1. **Frontend Application**: A React-based progressive web application utilizing TypeScript for type safety, Tailwind CSS for styling, and shadcn/ui for component primitives. The application is built with Vite for optimal development experience and production performance.
+
+2. **Backend Services**: Lovable Cloud (powered by Supabase) providing PostgreSQL database with Row Level Security, serverless edge functions written in Deno/TypeScript, and secure file storage with signed URLs.
+
+3. **AI Integration**: Lovable AI Gateway connecting to Google Gemini models (gemini-2.5-flash, gemini-3-flash-preview, gemini-2.5-pro) for mentorship, journal analysis, and content moderation.
+
+4. **State Management**: TanStack Query for server state with optimistic updates, React Context for global application state (authentication, subscription, language).
+
+### Authentication System
+
+The authentication system provides:
+- Email/password authentication with automatic session management
+- Password reset flow with secure email links
+- Role-based access control with admin detection
+- Session persistence across browser refreshes
+
+### Subscription System
+
+The subscription tier system implements:
+- Three-tier model: Free, Pro, Founder
+- Feature gating with graceful degradation
+- Progress-based paywall triggering
+- Gumroad integration for payment processing
+
+### Navigation System
+
+The responsive navigation system provides:
+- Desktop: Full sidebar with all navigation options
+- Mobile: Bottom navigation bar with condensed options
+- Admin awareness: Automatically shows Admin link for authorized users
+- Context-aware active states for current route
+
+---
+
 *This document is prepared for patent application purposes and should be reviewed by a qualified patent attorney before filing.*
+
+*Version 2.0 - January 29, 2026*

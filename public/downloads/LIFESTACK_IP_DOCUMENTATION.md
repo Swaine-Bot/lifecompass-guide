@@ -3,8 +3,9 @@
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 2.0  
 **Compilation Date:** January 29, 2026  
+**Last Updated:** January 29, 2026  
 **Prepared For:** Patent Application & IP Protection (South Africa and International)
 
 ---
@@ -36,6 +37,9 @@
 - Goal decomposition into actionable "micro-moves"
 - Social accountability features with content moderation
 - Life-phase adaptive user experience
+- Subscription tier management with progressive paywall
+- Admin analytics dashboard with role-based access
+- IP documentation and patent protection portal
 
 **Key Innovation:** A unified "Life Operating System" that adapts to the user's current life phase and provides personalized guidance through an AI mentor that understands the user's goals, habits, mood patterns, and social connections.
 
@@ -98,18 +102,22 @@ LifeStack provides a unified platform that:
 
 ```
 Frontend:
-├── React 18 (UI Framework)
+├── React 18.3.1 (UI Framework)
 ├── TypeScript (Type Safety)
 ├── Vite (Build Tool)
 ├── Tailwind CSS (Styling)
 ├── shadcn/ui (Component Library)
-├── Framer Motion (Animations)
-├── React Router (Navigation)
-├── TanStack Query (State Management)
-└── Recharts (Data Visualization)
+├── Framer Motion 12.29.2 (Animations)
+├── React Router 6.30.1 (Navigation)
+├── TanStack Query 5.83.0 (State Management)
+├── Recharts 2.15.4 (Data Visualization)
+├── React Hook Form 7.61.1 (Form Management)
+├── Zod 3.25.76 (Validation)
+├── Sonner 1.7.4 (Toast Notifications)
+└── date-fns 3.6.0 (Date Utilities)
 
 Backend:
-├── Supabase (Backend-as-a-Service)
+├── Lovable Cloud (Backend-as-a-Service)
 │   ├── PostgreSQL (Database)
 │   ├── Row Level Security (Data Protection)
 │   ├── Edge Functions (Serverless Logic)
@@ -133,12 +141,15 @@ AI Models Used:
 │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │    │
 │  │  │  Home   │ │ Journal │ │ Mentor  │ │Community│   │    │
 │  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘   │    │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │    │
+│  │  │  Goals  │ │ Habits  │ │ Admin   │ │ IP Docs │   │    │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘   │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    SUPABASE CLOUD                            │
+│                    LOVABLE CLOUD                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
 │  │ PostgreSQL   │  │   Storage    │  │Edge Functions│       │
 │  │   + RLS      │  │ (User Media) │  │   (Deno)     │       │
@@ -168,6 +179,7 @@ AI Models Used:
 - Daily available time slider (15-180 minutes)
 - Planning style preference (Flexible ↔ Structured)
 - Interactive user guide
+- Terms and privacy acceptance
 
 ### 2. Daily Dashboard ("Micro-Moves")
 **File:** `src/pages/Home.tsx`
@@ -255,7 +267,7 @@ AI Models Used:
 - Category organization
 
 ### 10. Admin Analytics Dashboard
-**File:** `src/pages/Admin.tsx`
+**Files:** `src/pages/Admin.tsx`, `supabase/functions/admin-analytics/index.ts`
 
 - Role-based access (admin only)
 - User growth metrics
@@ -263,6 +275,52 @@ AI Models Used:
 - Subscription analytics
 - Feature usage trends
 - Screen time tracking
+- IP Documentation quick access link
+
+### 11. Authentication System
+**Files:** `src/pages/Auth.tsx`, `src/pages/ResetPassword.tsx`, `src/pages/UpdatePassword.tsx`
+
+- Email/password authentication
+- Password reset with email link
+- Password update flow
+- Session management
+- Admin role detection
+
+### 12. Subscription & Monetization
+**Files:** `src/contexts/SubscriptionContext.tsx`, `src/components/subscription/*`
+
+- Tiered subscription system (Free, Pro, Founder)
+- Feature gating with LockedFeature component
+- Progress-based paywall
+- Upgrade modal prompts
+- Subscription badge display
+- Gumroad license key integration
+
+### 13. IP Documentation Portal
+**File:** `src/pages/IPDocumentation.tsx`
+
+- Downloadable IP documentation package
+- Patent claims documentation
+- Source code manifest
+- Secure access for authorized users
+
+### 14. Settings & Preferences
+**File:** `src/pages/Settings.tsx`
+
+- Profile management
+- Privacy settings
+- Notification preferences
+- Language selection
+- Timezone configuration
+- Account management
+
+### 15. Responsive Navigation
+**Files:** `src/components/layout/Sidebar.tsx`, `src/components/layout/BottomNav.tsx`
+
+- Desktop: Sidebar with full navigation
+- Mobile: Bottom navigation bar
+- Admin-aware navigation (shows Admin link for admin users)
+- Context-aware active states
 
 ---
 
@@ -536,19 +594,51 @@ life_events (
   id UUID PRIMARY KEY,
   user_id UUID,
   title TEXT,
+  description TEXT,
   event_date DATE,
   event_type ENUM (birthday, anniversary, deadline, milestone, custom),
   recurring BOOLEAN,
   reminder_days_before INTEGER[]
 )
 
--- App Sessions (Screen Time)
-app_sessions (
+-- Library: Playbooks
+library_playbooks (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  category TEXT,
+  phase ENUM (life phases),
+  content_json JSONB,
+  cover_image TEXT,
+  published BOOLEAN
+)
+
+-- Playbook Installations
+playbook_installs (
   id UUID PRIMARY KEY,
   user_id UUID,
-  started_at TIMESTAMP,
-  ended_at TIMESTAMP,
-  duration_seconds INTEGER
+  playbook_id UUID REFERENCES library_playbooks
+)
+
+-- Privacy Settings
+privacy_settings (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  profile_visibility ENUM (public, friends, private),
+  allow_friend_requests BOOLEAN,
+  show_activity_status BOOLEAN,
+  terms_accepted BOOLEAN,
+  terms_accepted_at TIMESTAMP,
+  privacy_policy_accepted BOOLEAN,
+  privacy_policy_accepted_at TIMESTAMP,
+  location_permission TEXT
+)
+
+-- User Roles
+user_roles (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  role ENUM (admin, user)
 )
 
 -- User Subscriptions
@@ -563,180 +653,120 @@ user_subscriptions (
   gumroad_product_id TEXT
 )
 
--- User Roles
-user_roles (
+-- App Sessions (Analytics)
+app_sessions (
   id UUID PRIMARY KEY,
   user_id UUID,
-  role ENUM (admin, user)
+  started_at TIMESTAMP,
+  ended_at TIMESTAMP,
+  duration_seconds INTEGER
+)
+```
+
+### Database Views
+
+```sql
+-- Public Profile View (for social features)
+profiles_public (
+  id, user_id, name, avatar_url, life_phase, created_at, updated_at
 )
 
--- Privacy Settings
-privacy_settings (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  profile_visibility ENUM (public, friends, private),
-  allow_friend_requests BOOLEAN,
-  show_activity_status BOOLEAN,
-  location_permission TEXT,
-  terms_accepted BOOLEAN,
-  privacy_policy_accepted BOOLEAN
+-- Safe Subscription View (hides sensitive data)
+user_subscriptions_safe (
+  id, user_id, tier, is_active, started_at, expires_at
 )
+```
 
--- Library Playbooks
-library_playbooks (
-  id UUID PRIMARY KEY,
-  title TEXT,
-  description TEXT,
-  phase ENUM (life phases),
-  category TEXT,
-  content_json JSONB,
-  cover_image TEXT,
-  published BOOLEAN
-)
+### Database Functions
 
--- Playbook Installs
-playbook_installs (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  playbook_id UUID REFERENCES library_playbooks,
-  installed_at TIMESTAMP
-)
+```sql
+-- Check if two users are friends
+are_friends(user1_id UUID, user2_id UUID) RETURNS BOOLEAN
+
+-- Check if user has a specific role
+has_role(_role app_role, _user_id UUID) RETURNS BOOLEAN
+
+-- Increment micro-moves counter
+increment_micro_moves() RETURNS INTEGER
 ```
 
 ---
 
 ## SECURITY ARCHITECTURE
 
+### Authentication
+- Email/password authentication via Lovable Cloud Auth
+- Secure password reset flow
+- Session-based authentication
+- JWT tokens with automatic refresh
+
 ### Row Level Security (RLS)
+All tables protected with RLS policies:
+- Users can only access their own data
+- Social data respects visibility settings
+- Admin roles have elevated access for analytics
 
-All tables implement RLS policies ensuring users can only access their own data:
+### Data Protection
+- TLS 1.3 encryption in transit (AES-256-GCM)
+- AES-256 encryption at rest
+- Secure file storage with signed URLs
+- Input validation with Zod schemas
 
-```sql
--- Example: profiles table
-CREATE POLICY "Users can view own profile"
-ON profiles FOR SELECT
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own profile"
-ON profiles FOR UPDATE
-USING (auth.uid() = user_id);
-```
-
-### Secure Views
-
-Public profile data exposed via secure view:
-```sql
-CREATE VIEW profiles_public WITH (security_invoker=on) AS
-SELECT user_id, name, avatar_url, life_phase
-FROM profiles;
--- Excludes: location, timezone, focus_areas, etc.
-```
-
-### File Upload Security
-
-- MIME type validation
-- File extension validation
-- Size limits (10MB per file, 50MB total)
-- Allowed types: images and videos only
-- Private storage with signed URLs
-
-### Encryption
-
-- **Transit:** TLS 1.3 with AES-256-GCM
-- **At Rest:** AES-256
-- **Database:** Transparent Data Encryption (TDE)
-- **Backups:** AES-256 encrypted
-
-### Input Validation
-
-Centralized validation using Zod:
-```typescript
-// src/lib/validation.ts
-export const MAX_MESSAGE_LENGTH = 5000;
-export const MAX_MESSAGES = 50;
-```
+### Privacy Controls
+- Granular privacy settings per user
+- Terms and privacy policy acceptance tracking
+- Location permission management
+- Profile visibility controls
 
 ---
 
 ## USER INTERFACE COMPONENTS
 
-### Design System
+### Layout Components
+| Component | Purpose |
+|-----------|---------|
+| `AppLayout.tsx` | Main application shell with navigation |
+| `Sidebar.tsx` | Desktop navigation with user info |
+| `BottomNav.tsx` | Mobile bottom navigation with admin awareness |
 
-**Color Palette (HSL):**
-```css
-:root {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --primary: 47 100% 50%;          /* Gold accent */
-  --primary-foreground: 240 10% 3.9%;
-  --secondary: 240 3.7% 15.9%;
-  --muted: 240 3.7% 15.9%;
-  --accent: 240 3.7% 15.9%;
-  --destructive: 0 84.2% 60.2%;
-  --warning: 38 92% 50%;
-}
-```
+### Onboarding Components
+| Component | Purpose |
+|-----------|---------|
+| `IntroVideo.tsx` | Introductory video player |
+| `TermsAcceptance.tsx` | Terms and privacy acceptance |
+| `UserGuide.tsx` | Interactive feature tour |
 
-### Custom Components
+### Subscription Components
+| Component | Purpose |
+|-----------|---------|
+| `LockedFeature.tsx` | Feature gating wrapper |
+| `ProgressToPaywall.tsx` | Usage-based paywall trigger |
+| `SubscriptionBadge.tsx` | Tier indicator display |
+| `UpgradeModal.tsx` | Upgrade prompt dialog |
 
-- Glass morphism cards
-- Gold accent buttons
-- Habit check circles
-- Mood emoji selector
-- Energy icon selector
-- Chat bubbles (user/assistant)
-- Collapsible feedback panels
+### UI Component Library (40+ shadcn/ui components)
+- Accordion, Alert, Avatar, Badge, Button
+- Card, Checkbox, Collapsible, Command
+- Dialog, Dropdown, Form, Input, Label
+- Menu, Navigation, Popover, Progress
+- Radio, Select, Separator, Sheet, Sidebar
+- Skeleton, Slider, Switch, Table, Tabs
+- Textarea, Toast, Toggle, Tooltip, etc.
 
 ---
 
 ## SOURCE CODE SUMMARY
 
-### File Count by Type
-
-| Category | Files | Description |
-|----------|-------|-------------|
-| Pages | 23 | Main application screens |
-| Components | 50+ | Reusable UI components |
-| Hooks | 4 | Custom React hooks |
-| Contexts | 3 | State management contexts |
-| Edge Functions | 4 | Backend serverless functions |
-| Utilities | 3 | Helper functions |
-
-### Key Files
-
-```
-src/
-├── pages/
-│   ├── Home.tsx           # Main dashboard
-│   ├── Journal.tsx        # Journaling feature
-│   ├── Mentor.tsx         # AI chat interface
-│   ├── Community.tsx      # Social features
-│   ├── Goals.tsx          # Goal management
-│   ├── Habits.tsx         # Habit tracking
-│   ├── Onboarding.tsx     # Setup wizard
-│   ├── Admin.tsx          # Analytics dashboard
-│   ├── Settings.tsx       # User preferences
-│   └── Terms.tsx          # Legal terms
-├── contexts/
-│   ├── AuthContext.tsx    # Authentication state
-│   ├── LanguageContext.tsx # i18n support
-│   └── SubscriptionContext.tsx # Subscription state
-├── hooks/
-│   ├── useSessionTracking.ts # Screen time
-│   └── useLocation.ts       # Geolocation
-└── components/
-    ├── layout/
-    │   ├── AppLayout.tsx    # App shell
-    │   ├── Sidebar.tsx      # Navigation
-    │   └── BottomNav.tsx    # Mobile nav
-    └── ui/                  # shadcn components
-
-supabase/functions/
-├── mentor-chat/           # AI mentor
-├── analyze-journal-entry/ # Journal AI
-├── analyze-post-content/  # Content moderation
-└── admin-analytics/       # Admin data
-```
+| Category | Files | Approx. Lines |
+|----------|-------|---------------|
+| Pages | 24 | ~6,500 |
+| Components | 60+ | ~4,500 |
+| Contexts | 3 | ~400 |
+| Hooks | 4 | ~300 |
+| Utilities | 3 | ~300 |
+| Edge Functions | 4 | ~800 |
+| Configuration | 12 | ~400 |
+| **TOTAL** | **110+** | **~13,200** |
 
 ---
 
@@ -744,96 +774,49 @@ supabase/functions/
 
 | Date | Milestone |
 |------|-----------|
-| Jan 2026 | Initial concept and architecture |
-| Jan 2026 | Core authentication and profiles |
-| Jan 2026 | Onboarding wizard implementation |
-| Jan 2026 | Goal and habit tracking systems |
-| Jan 2026 | AI Mentor integration |
-| Jan 2026 | Journal with AI analysis |
-| Jan 2026 | Community social features |
-| Jan 2026 | Content moderation AI |
-| Jan 2026 | Admin analytics dashboard |
-| Jan 29, 2026 | Terms & Conditions finalized |
-| Jan 29, 2026 | IP Documentation compiled |
+| January 2026 | Initial concept and architecture |
+| January 2026 | Core feature implementation |
+| January 2026 | AI integration (Mentor, Journal Analysis) |
+| January 2026 | Social features and community |
+| January 2026 | Admin dashboard and analytics |
+| January 2026 | Subscription system implementation |
+| January 2026 | IP documentation compilation |
+| January 29, 2026 | Version 2.0 documentation update |
 
 ---
 
 ## PRIOR ART DIFFERENTIATION
 
-### Compared to Habit Trackers (Habitica, Streaks)
-- LifeStack integrates habits with goals and life phases
-- AI mentor provides context-aware guidance
-- Social accountability features
+| Prior Art | LifeStack Differentiation |
+|-----------|---------------------------|
+| **Habitica** (habit tracking) | LifeStack integrates habits with goals, AI mentorship, and life-phase adaptation |
+| **Notion** (productivity) | LifeStack provides AI-guided personal mentorship with professional boundaries |
+| **Day One** (journaling) | LifeStack offers AI analysis with opportunity detection and goal nudging |
+| **Replika** (AI companion) | LifeStack enforces professional boundaries and integrates with productivity tools |
+| **Strides** (goal tracking) | LifeStack decomposes goals into micro-moves with effort estimation |
 
-### Compared to Goal Apps (Strides, Goals on Track)
-- Micro-moves decomposition methodology
-- "The One Thing" daily prioritization
-- AI-powered goal coaching
-
-### Compared to Journaling Apps (Day One, Journey)
-- Multi-modal input (text, photo, video, voice)
-- AI analysis with opportunity detection
-- Integration with goal and habit systems
-
-### Compared to AI Assistants (Replika, Character.AI)
-- Life-phase adaptive responses
-- Professional boundary enforcement
-- Integration with user's actual goals/habits
-
-### Unique Combination
-No existing product combines:
+**Key Differentiators:**
 1. Life-phase adaptive experience
-2. Goal → Milestone → Micro-moves decomposition
-3. AI mentor with professional guardrails
-4. Multi-modal journaling with AI analysis
-5. Social accountability with content moderation
-6. All in a unified "Life Operating System"
+2. AI mentor with professional boundary enforcement
+3. Unified platform vs fragmented apps
+4. Micro-moves framework for goal achievement
+5. Multi-modal journal analysis with opportunity detection
+6. Social accountability with AI moderation
 
 ---
 
 ## CLAIMS FOR PATENT PROTECTION
 
-### Claim 1: Life-Phase Adaptive User Experience
-A method and system for adapting a life management application's interface, recommendations, and AI responses based on the user's self-identified life phase.
+See companion document: `LIFESTACK_PATENT_CLAIMS.md`
 
-### Claim 2: Micro-Moves Task Decomposition
-A method for automatically decomposing user goals into milestones and "micro-moves" (5-15 minute actionable tasks) with effort-based scheduling.
+**Independent Claims:**
+1. Life-Phase Adaptive Personal Management System
+2. Multi-Modal Journal Analysis Method
+3. AI Mentor with Professional Boundary Enforcement
 
-### Claim 3: Context-Aware AI Mentorship
-A system for providing AI-powered life guidance that incorporates user's goals, habits, mood patterns, life phase, and conversation history while enforcing professional boundaries.
-
-### Claim 4: Multi-Modal Journal Analysis
-A method for analyzing journal entries containing text, images, video, and audio to provide positive reinforcement, goal-based nudges, and opportunity detection.
-
-### Claim 5: Goal-Connected Opportunity Detection
-A system for identifying commercial opportunities mentioned in user content and providing localized search queries for relevant services.
-
-### Claim 6: AI Content Moderation with Positive Feedback
-A method for moderating user-generated content that provides constructive feedback and suggestions rather than simple rejection.
+**Dependent Claims:** 14 additional claims covering specific implementations
 
 ---
 
-## APPENDICES
-
-### Appendix A: Complete Database Schema
-*See: `src/integrations/supabase/types.ts`*
-
-### Appendix B: Edge Function Source Code
-*See: `supabase/functions/` directory*
-
-### Appendix C: Terms & Conditions
-*See: `src/pages/Terms.tsx`*
-
-### Appendix D: Privacy Policy
-*See: `src/pages/PrivacyPolicy.tsx`*
-
----
-
-**Document Prepared By:** LifeStack Development Team  
-**For:** Pragmatic Analytics Solutions (Pty) Ltd  
-**Date:** January 29, 2026  
-**Version:** 1.0
-
----
-
-*This document contains confidential and proprietary information. Unauthorized distribution is prohibited.*
+*Document prepared for Pragmatic Analytics Solutions (Pty) Ltd*
+*Version 2.0 - January 29, 2026*
