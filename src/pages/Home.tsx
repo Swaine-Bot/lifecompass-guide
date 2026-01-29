@@ -5,9 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Calendar, LogOut
+  Sun, Moon, Cloud, Zap, Check, Calendar, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -48,12 +49,13 @@ const energyOptions = [
 ];
 
 export default function Home() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
   const [todayCheckin, setTodayCheckin] = useState<{ mood: number | null; energy: number | null }>({ mood: null, energy: null });
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
@@ -67,7 +69,28 @@ export default function Home() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    loadAvatarUrl();
+  }, [profile]);
+
+  const loadAvatarUrl = async () => {
+    if (!profile?.avatar_url) {
+      setAvatarUrl(null);
+      return;
+    }
+    
+    // If it's a storage path, generate signed URL
+    if (profile.avatar_url.includes('avatars/') || profile.avatar_url.includes('/')) {
+      const { data, error } = await supabase.storage
+        .from('user-media')
+        .createSignedUrl(profile.avatar_url, 3600);
+      
+      if (!error && data) {
+        setAvatarUrl(data.signedUrl);
+      }
+    } else {
+      setAvatarUrl(profile.avatar_url);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -173,13 +196,23 @@ export default function Home() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">
-            {greeting}, {profile?.name || 'there'}
-          </h1>
-          <p className="text-muted-foreground">
-            {format(new Date(), 'EEEE, MMMM d')}
-          </p>
+        <div className="flex items-center gap-3">
+          <Link to="/settings">
+            <Avatar className="w-12 h-12 ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer">
+              <AvatarImage src={avatarUrl || undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg">
+                {profile?.name?.charAt(0) || 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+          <div>
+            <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">
+              {greeting}, {profile?.name || 'there'}
+            </h1>
+            <p className="text-muted-foreground">
+              {format(new Date(), 'EEEE, MMMM d')}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="gold" size="sm" asChild>
@@ -188,8 +221,10 @@ export default function Home() {
               Add Goal
             </Link>
           </Button>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4" />
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/settings">
+              <Settings className="w-4 h-4" />
+            </Link>
           </Button>
         </div>
       </div>

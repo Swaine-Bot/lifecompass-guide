@@ -62,6 +62,8 @@ interface Post {
   user_reaction?: string | null;
   // AI analysis stored with the post
   ai_feedback?: PostAnalysis | null;
+  // Whether this user allows friends to see AI insights
+  show_ai_insights_to_friends?: boolean;
 }
 
 interface Comment {
@@ -190,6 +192,13 @@ export default function Community() {
           .eq('user_id', post.user_id)
           .single();
 
+        // Check if user allows AI insights to be shown to friends
+        const { data: privacyData } = await supabase
+          .from('privacy_settings')
+          .select('show_ai_insights_to_friends')
+          .eq('user_id', post.user_id)
+          .maybeSingle();
+
         const { count: reactionsCount } = await supabase
           .from('reactions')
           .select('*', { count: 'exact', head: true })
@@ -218,7 +227,8 @@ export default function Community() {
           user_avatar: profileData?.avatar_url,
           reactions_count: reactionsCount || 0,
           comments_count: commentsCount || 0,
-          user_reaction: userReaction?.reaction || null
+          user_reaction: userReaction?.reaction || null,
+          show_ai_insights_to_friends: privacyData?.show_ai_insights_to_friends ?? true
         };
       }));
 
@@ -665,6 +675,13 @@ export default function Community() {
       return;
     }
 
+    // Check if the post owner allows AI insights for friends (always allow for own posts)
+    const isOwnPost = post.user_id === user?.id;
+    if (!isOwnPost && !post.show_ai_insights_to_friends) {
+      toast.info('This user has disabled AI insights sharing');
+      return;
+    }
+
     // If we already have feedback cached, just expand
     if (postFeedbacks[post.id]) {
       setExpandedFeedbackPostId(post.id);
@@ -889,10 +906,18 @@ export default function Community() {
                                   alt=""
                                   className="rounded-lg w-full object-cover max-h-64 transition-all group-hover:opacity-90"
                                 />
-                                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
+                                {/* Always visible overlay prompt */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                                  <div className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                                    <Bot className="w-4 h-4 text-primary" />
+                                    <span className="text-sm font-medium">Tap for AI insights</span>
+                                  </div>
+                                </div>
+                                {/* Small badge indicator always visible */}
+                                <div className="absolute bottom-2 right-2">
+                                  <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs shadow-sm">
                                     <Bot className="w-3 h-3 text-primary" />
-                                    <span>Tap for AI insights</span>
+                                    <Sparkles className="w-3 h-3 text-primary" />
                                   </div>
                                 </div>
                               </div>
