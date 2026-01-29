@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
+import { Sparkles, Send, Loader2, Bot, User, AlertTriangle, ExternalLink, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { useLocation } from '@/hooks/useLocation';
 import { MAX_MESSAGE_LENGTH } from '@/lib/validation';
@@ -18,6 +19,7 @@ export default function Mentor() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [disclaimerOpen, setDisclaimerOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { profile } = useAuth();
   const { getMapsSearchUrl, latitude, longitude, permission, requestLocation } = useLocation();
@@ -91,43 +93,58 @@ export default function Mentor() {
       </div>
 
       {/* Disclaimer */}
-      <Card className="mb-4 p-3 bg-warning/10 border-warning/30">
-        <div className="flex gap-2 items-start">
-          <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-medium text-warning mb-1">Important Disclaimer</p>
-            <p className="text-muted-foreground text-xs mb-2">
-              This AI mentor provides general guidance only and does not constitute professional advice. 
-              For medical, mental health, financial, or legal matters, please consult qualified professionals.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {professionalLinks.map((link) => (
-                <a
-                  key={link.query}
-                  href={getMapsSearchUrl(link.query)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline flex items-center gap-1"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  {link.label}
-                </a>
-              ))}
+      <Collapsible open={disclaimerOpen} onOpenChange={setDisclaimerOpen}>
+        <Card className="mb-4 p-3 bg-warning/10 border-warning/30">
+          <div className="flex gap-2 items-start">
+            <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+            <div className="flex-1 text-sm">
+              <div className="flex items-center justify-between">
+                <p className="font-medium text-warning">Important Disclaimer</p>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground">
+                    {disclaimerOpen ? (
+                      <>Hide <ChevronUp className="w-3 h-3 ml-1" /></>
+                    ) : (
+                      <>Show <ChevronDown className="w-3 h-3 ml-1" /></>
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent>
+                <p className="text-muted-foreground text-xs mb-2 mt-1">
+                  This AI mentor provides general guidance only and does not constitute professional advice. 
+                  For medical, mental health, financial, or legal matters, please consult qualified professionals.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {professionalLinks.map((link) => (
+                    <a
+                      key={link.query}
+                      href={getMapsSearchUrl(link.query)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+                {latitude && longitude && (
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    Using your location for nearby results
+                  </p>
+                )}
+                {permission === 'never' && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Enable location in Settings for personalized nearby results
+                  </p>
+                )}
+              </CollapsibleContent>
             </div>
-            {latitude && longitude && (
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                Using your location for nearby results
-              </p>
-            )}
-            {permission === 'never' && (
-              <p className="text-xs text-muted-foreground mt-2">
-                Enable location in Settings for personalized nearby results
-              </p>
-            )}
           </div>
-        </div>
-      </Card>
+        </Card>
+      </Collapsible>
 
       {/* Chat Area */}
       <Card variant="glass" className="flex-1 flex flex-col overflow-hidden">
