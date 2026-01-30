@@ -55,7 +55,7 @@ export function MentorSidebar({
         variant="ghost"
         size="icon"
         onClick={onToggle}
-        className="absolute left-2 top-2 z-10 bg-background/80 backdrop-blur-sm"
+        className="shrink-0 ml-2 mt-2 bg-background/80 backdrop-blur-sm border border-border/30"
       >
         <ChevronRight className="w-4 h-4" />
       </Button>
