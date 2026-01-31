@@ -224,6 +224,19 @@ export default function Community() {
   const fetchPosts = async () => {
     if (!user) return;
 
+    // First fetch friend count for debugging
+    const { data: friendships, error: friendError } = await supabase
+      .from('friendships')
+      .select('requester_id, addressee_id, status')
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+      .eq('status', 'accepted');
+
+    const acceptedFriendIds = friendships?.map(f => 
+      f.requester_id === user.id ? f.addressee_id : f.requester_id
+    ) || [];
+    
+    console.log(`[Posts Debug] User ${user.id} has ${acceptedFriendIds.length} accepted friends:`, acceptedFriendIds);
+
     const { data, error } = await supabase
       .from('posts')
       .select('*')
@@ -236,7 +249,15 @@ export default function Community() {
     }
 
     if (data) {
-      console.log(`Fetched ${data.length} posts for user ${user.id}`);
+      console.log(`[Posts Debug] Fetched ${data.length} posts for user ${user.id}`);
+      
+      // Debug: show which posts came through RLS
+      data.forEach(post => {
+        const isOwnPost = post.user_id === user.id;
+        const isFriendPost = acceptedFriendIds.includes(post.user_id);
+        console.log(`[Posts Debug] Post ${post.id.slice(0,8)} by ${post.user_id.slice(0,8)}: visibility=${post.visibility}, isOwn=${isOwnPost}, isFriend=${isFriendPost}`);
+      });
+
       const postsWithDetails = await Promise.all(data.map(async (post) => {
         // Use profiles_searchable view which bypasses RLS for friend data
         const { data: profileData } = await supabase
