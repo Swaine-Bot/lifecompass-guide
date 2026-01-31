@@ -3,9 +3,9 @@
 
 ---
 
-**Document Version:** 2.1  
-**Compilation Date:** January 29, 2026  
-**Last Updated:** January 29, 2026  
+**Document Version:** 2.2  
+**Compilation Date:** January 31, 2026  
+**Last Updated:** January 31, 2026  
 **Prepared For:** Patent Application & IP Protection (South Africa and International)
 
 ---
@@ -33,15 +33,17 @@
 **LifeStack** is a comprehensive life management platform that combines:
 - AI-powered mentorship with context-aware, goal-based guidance
 - Multi-modal journaling (text, photo, video, voice) with AI content analysis
+- **Message to Future Self** with scheduled playback and push notification reminders
 - Habit tracking with behavioral analytics
 - Goal decomposition into actionable "micro-moves"
 - Social accountability features with content moderation
+- Dual account types (Individual and Page/Organization) with unified follow system
 - Life-phase adaptive user experience
 - Subscription tier management with progressive paywall
 - Admin analytics dashboard with role-based access
 - IP documentation and patent protection portal
 
-**Key Innovation:** A unified "Life Operating System" that adapts to the user's current life phase and provides personalized guidance through an AI mentor that understands the user's goals, habits, mood patterns, and social connections.
+**Key Innovation:** A unified "Life Operating System" that adapts to the user's current life phase and provides personalized guidance through an AI mentor that understands the user's goals, habits, mood patterns, and social connections—with unique temporal messaging features allowing users to send messages to their future selves.
 
 ---
 
@@ -89,7 +91,13 @@ LifeStack provides a unified platform that:
    - Voice memos
    - AI-powered content moderation and opportunity detection
 
-5. **Mood & Energy Tracking** - Daily check-ins with:
+5. **Message to Future Self** - Temporal messaging system:
+   - Schedule video or voice recordings for future playback
+   - Date and time picker for precise scheduling
+   - Push notification reminders when playback date arrives
+   - Dedicated autoplay playback experience
+
+6. **Mood & Energy Tracking** - Daily check-ins with:
    - 5-point mood scale with emoji visualization
    - 5-point energy scale with icon visualization
    - Correlation with habit completion and goal progress
@@ -122,6 +130,7 @@ Backend:
 │   ├── Row Level Security (Data Protection)
 │   ├── Edge Functions (Serverless Logic)
 │   ├── Storage (Media Files)
+│   ├── pg_cron (Scheduled Jobs)
 │   └── Authentication (User Management)
 └── Lovable AI Gateway (AI Integration)
 
@@ -144,6 +153,9 @@ AI Models Used:
 │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │    │
 │  │  │  Goals  │ │ Habits  │ │ Admin   │ │ IP Docs │   │    │
 │  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘   │    │
+│  │  ┌─────────────────────────────────────────────┐   │    │
+│  │  │           Journal Playback                   │   │    │
+│  │  └─────────────────────────────────────────────┘   │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -153,6 +165,7 @@ AI Models Used:
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
 │  │ PostgreSQL   │  │   Storage    │  │Edge Functions│       │
 │  │   + RLS      │  │ (User Media) │  │   (Deno)     │       │
+│  │   + pg_cron  │  │              │  │              │       │
 │  └──────────────┘  └──────────────┘  └──────────────┘       │
 │                              │                               │
 │                              ▼                               │
@@ -161,6 +174,13 @@ AI Models Used:
 │  │  ┌─────────────┐  ┌─────────────┐                │       │
 │  │  │ Mentor Chat │  │ Content Mod │                │       │
 │  │  └─────────────┘  └─────────────┘                │       │
+│  └──────────────────────────────────────────────────┘       │
+│                                                              │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │      Scheduled Jobs (pg_cron + pg_net)            │       │
+│  │  ┌─────────────────────────────────────────┐     │       │
+│  │  │ check-journal-reminders (every 5 mins)  │     │       │
+│  │  └─────────────────────────────────────────┘     │       │
 │  └──────────────────────────────────────────────────┘       │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -193,7 +213,7 @@ AI Models Used:
 - Quick action buttons
 
 ### 3. Goal Management System
-**Files:** `src/pages/Goals.tsx`, `src/pages/NewGoal.tsx`
+**Files:** `src/pages/Goals.tsx`, `src/pages/NewGoal.tsx`, `src/pages/GoalDetail.tsx`
 
 - Goal creation with:
   - Title and description
@@ -216,8 +236,8 @@ AI Models Used:
 - Visual completion interface
 - Streak tracking
 
-### 5. Journal System
-**File:** `src/pages/Journal.tsx`
+### 5. Journal System with Message to Future Self
+**Files:** `src/pages/Journal.tsx`, `src/pages/JournalPlayback.tsx`
 
 - Multi-modal entry:
   - Text content
@@ -228,8 +248,26 @@ AI Models Used:
 - Mood and energy capture
 - AI-powered analysis (see AI section)
 - Collapsible AI feedback display
+- **Message to Future Self feature:**
+  - Schedule video or voice recordings for future playback
+  - Date picker with calendar UI
+  - Time selection for precise scheduling
+  - Push notification reminders when date arrives
+  - Dedicated playback page with autoplay
+  - Click-through from notification to media playback
+- Entry management (edit, delete)
+- Recent entries display
 
-### 6. AI Mentor Chat
+### 6. Journal Playback Experience
+**File:** `src/pages/JournalPlayback.tsx`
+
+- Dedicated route: `/journal/playback/:entryId`
+- Automatic media retrieval with fresh signed URLs
+- Autoplay for video and audio content
+- Fallback handling for entries without media
+- Emotional context display (mood, energy, date)
+
+### 7. AI Mentor Chat
 **Files:** `src/pages/Mentor.tsx`, `supabase/functions/mentor-chat/index.ts`
 
 - Conversational AI interface
@@ -241,10 +279,12 @@ AI Models Used:
 - Location-based service recommendations
 - Rate limiting and error handling
 
-### 7. Community & Social Features
+### 8. Community & Social Features
 **File:** `src/pages/Community.tsx`
 
-- Friend search and requests
+- Dual account types (Individual and Page/Organization)
+- Unified follow system for both people and pages
+- Friend search and requests (for Individual accounts)
 - Post creation with media
 - Visibility controls (Public, Friends, Private)
 - Reactions (Like, Love, Celebrate, Support, Insightful)
@@ -255,30 +295,37 @@ AI Models Used:
 - User avatar and name integration in feed posts
 - AI mentor visibility privacy controls (per-user setting)
 - Friends' posts visibility in unified social feed
+- Page suggestion cards with follow/dismiss actions
+- Profile dialog on avatar/name click
 
-### 8. Push Notification System
-**Files:** `public/sw.js`, `supabase/functions/push-vapid-keys/index.ts`, `supabase/functions/send-push-notification/index.ts`
+### 9. Push Notification System
+**Files:** `public/sw.js`, `supabase/functions/push-vapid-keys/index.ts`, `supabase/functions/send-push-notification/index.ts`, `supabase/functions/check-journal-reminders/index.ts`
 
 - Web Push API integration with auto-generated VAPID keys
 - Service Worker for background notification handling
 - Granular notification preferences (Goals, Social, Nudges)
 - Privacy-respecting push subscription management
+- **Scheduled journal playback reminders:**
+  - Automated cron job runs every 5 minutes
+  - Detects due journal entries with scheduled playback
+  - Sends push notifications with direct link to playback
+  - Marks entries as reminded to prevent duplicates
 
-### 9. Life Events Calendar
+### 10. Life Events Calendar
 **File:** `src/pages/LifeEvents.tsx`
 
 - Event types: Birthday, Anniversary, Deadline, Milestone, Custom
 - Recurring events
 - Reminder scheduling
 
-### 9. Library (Playbooks)
+### 11. Library (Playbooks)
 **File:** `src/pages/Library.tsx`
 
 - Curated life playbooks by phase
 - Installation tracking
 - Category organization
 
-### 10. Admin Analytics Dashboard
+### 12. Admin Analytics Dashboard
 **Files:** `src/pages/Admin.tsx`, `supabase/functions/admin-analytics/index.ts`
 
 - Role-based access (admin only)
@@ -289,7 +336,7 @@ AI Models Used:
 - Screen time tracking
 - IP Documentation quick access link
 
-### 11. Authentication System
+### 13. Authentication System
 **Files:** `src/pages/Auth.tsx`, `src/pages/ResetPassword.tsx`, `src/pages/UpdatePassword.tsx`
 
 - Email/password authentication
@@ -298,7 +345,7 @@ AI Models Used:
 - Session management
 - Admin role detection
 
-### 12. Subscription & Monetization
+### 14. Subscription & Monetization
 **Files:** `src/contexts/SubscriptionContext.tsx`, `src/components/subscription/*`
 
 - Tiered subscription system (Free, Pro, Founder)
@@ -308,7 +355,7 @@ AI Models Used:
 - Subscription badge display
 - Gumroad license key integration
 
-### 13. IP Documentation Portal
+### 15. IP Documentation Portal
 **File:** `src/pages/IPDocumentation.tsx`
 
 - Downloadable IP documentation package
@@ -316,7 +363,7 @@ AI Models Used:
 - Source code manifest
 - Secure access for authorized users
 
-### 15. Settings & Preferences
+### 16. Settings & Preferences
 **File:** `src/pages/Settings.tsx`
 
 - Profile management with avatar upload
@@ -327,7 +374,7 @@ AI Models Used:
 - Timezone configuration
 - Account management
 
-### 16. Responsive Navigation
+### 17. Responsive Navigation
 **Files:** `src/components/layout/Sidebar.tsx`, `src/components/layout/BottomNav.tsx`
 
 - Desktop: Sidebar with full navigation
@@ -441,6 +488,18 @@ professionals for serious matters.
 - Detects policy violations
 - Suggests improvements
 
+### Automated Journal Reminder System
+
+**Edge Function:** `supabase/functions/check-journal-reminders/index.ts`
+
+**Innovation:** Scheduled reminder system for Message to Future Self:
+- Cron job executes every 5 minutes via pg_cron
+- Queries for journal entries with due playback dates
+- Triggers push notifications via send-push-notification function
+- Includes deep link to playback page
+- Marks entries as reminded to prevent duplicate notifications
+- Handles edge cases (no subscription, expired entries)
+
 ---
 
 ## DATABASE SCHEMA & DATA MODEL
@@ -454,6 +513,7 @@ profiles (
   user_id UUID REFERENCES auth.users,
   name TEXT,
   avatar_url TEXT,
+  bio TEXT,
   timezone TEXT,
   life_phase ENUM (student_early_career, builder, family_home, explorer, legacy_impact),
   available_minutes_per_day INTEGER,
@@ -467,7 +527,11 @@ profiles (
   country TEXT,
   province TEXT,
   guide_completed BOOLEAN,
-  micro_moves_count INTEGER DEFAULT 0
+  micro_moves_count INTEGER DEFAULT 0,
+  account_type ENUM (individual, page),
+  page_category TEXT,
+  is_verified BOOLEAN,
+  website_url TEXT
 )
 
 -- Goals
@@ -506,7 +570,7 @@ habit_logs (
   value NUMERIC
 )
 
--- Journal Entries
+-- Journal Entries (with Message to Future Self)
 journal_entries (
   id UUID PRIMARY KEY,
   user_id UUID,
@@ -516,7 +580,9 @@ journal_entries (
   reflection TEXT,
   mood INTEGER,
   energy INTEGER,
-  tags JSONB
+  tags JSONB,
+  scheduled_playback_at TIMESTAMP,
+  playback_reminder_sent BOOLEAN DEFAULT false
 )
 
 -- Daily Check-ins
@@ -576,13 +642,24 @@ friendships (
   status ENUM (pending, accepted, declined, blocked)
 )
 
+-- Social: Follows
+follows (
+  id UUID PRIMARY KEY,
+  follower_id UUID,
+  following_id UUID,
+  created_at TIMESTAMP
+)
+
 -- Social: Posts
 posts (
   id UUID PRIMARY KEY,
   user_id UUID,
   content TEXT,
   media_urls JSONB,
-  visibility ENUM (public, friends, private)
+  visibility ENUM (public, friends, private),
+  post_type ENUM (regular, goal, micro_move),
+  goal_id UUID REFERENCES goals,
+  habit_id UUID REFERENCES habits
 )
 
 -- Social: Comments
@@ -600,6 +677,14 @@ reactions (
   comment_id UUID REFERENCES comments,
   user_id UUID,
   reaction ENUM (like, love, celebrate, support, insightful)
+)
+
+-- Page Dismissals
+page_dismissals (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  dismissed_page_id UUID,
+  created_at TIMESTAMP
 )
 
 -- Life Events
@@ -640,6 +725,10 @@ privacy_settings (
   profile_visibility ENUM (public, friends, private),
   allow_friend_requests BOOLEAN,
   show_activity_status BOOLEAN,
+  show_ai_insights_to_friends BOOLEAN,
+  notifications_goals BOOLEAN,
+  notifications_social BOOLEAN,
+  notifications_nudges BOOLEAN,
   terms_accepted BOOLEAN,
   terms_accepted_at TIMESTAMP,
   privacy_policy_accepted BOOLEAN,
@@ -674,6 +763,17 @@ app_sessions (
   ended_at TIMESTAMP,
   duration_seconds INTEGER
 )
+
+-- Push Subscriptions
+push_subscriptions (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  endpoint TEXT,
+  p256dh TEXT,
+  auth TEXT,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
 ```
 
 ### Database Views
@@ -681,7 +781,14 @@ app_sessions (
 ```sql
 -- Public Profile View (for social features)
 profiles_public (
-  id, user_id, name, avatar_url, life_phase, created_at, updated_at
+  id, user_id, name, avatar_url, bio, life_phase, account_type, 
+  page_category, is_verified, website_url, created_at, updated_at
+)
+
+-- Searchable Profile View (for friend search)
+profiles_searchable (
+  user_id, name, avatar_url, bio, life_phase, account_type, 
+  page_category, is_verified
 )
 
 -- Safe Subscription View (hides sensitive data)
@@ -701,6 +808,20 @@ has_role(_role app_role, _user_id UUID) RETURNS BOOLEAN
 
 -- Increment micro-moves counter
 increment_micro_moves() RETURNS INTEGER
+
+-- Check if user is following another
+is_following(follower UUID, target UUID) RETURNS BOOLEAN
+```
+
+### Scheduled Jobs (pg_cron)
+
+```sql
+-- Journal playback reminder check (every 5 minutes)
+SELECT cron.schedule(
+  'check-journal-reminders',
+  '*/5 * * * *',
+  $$ SELECT net.http_post(...) $$
+);
 ```
 
 ---
@@ -730,6 +851,7 @@ All tables protected with RLS policies:
 - Terms and privacy policy acceptance tracking
 - Location permission management
 - Profile visibility controls
+- AI insights visibility toggle
 
 ---
 
@@ -757,6 +879,20 @@ All tables protected with RLS policies:
 | `SubscriptionBadge.tsx` | Tier indicator display |
 | `UpgradeModal.tsx` | Upgrade prompt dialog |
 
+### Community Components
+| Component | Purpose |
+|-----------|---------|
+| `PageSuggestionCard.tsx` | Page follow/dismiss suggestion |
+| `AccountTypeSelect.tsx` | Individual/Page account selector |
+| `InviteFriends.tsx` | Friend invitation interface |
+| `ShareGoalDialog.tsx` | Goal sharing modal |
+
+### Mentor Components
+| Component | Purpose |
+|-----------|---------|
+| `MentorMessage.tsx` | Chat message display |
+| `MentorSidebar.tsx` | Conversation history |
+
 ### UI Component Library (40+ shadcn/ui components)
 - Accordion, Alert, Avatar, Badge, Button
 - Card, Checkbox, Collapsible, Command
@@ -772,14 +908,15 @@ All tables protected with RLS policies:
 
 | Category | Files | Approx. Lines |
 |----------|-------|---------------|
-| Pages | 24 | ~6,500 |
-| Components | 60+ | ~4,500 |
+| Pages | 26 | ~7,500 |
+| Components | 70+ | ~5,200 |
 | Contexts | 3 | ~400 |
-| Hooks | 4 | ~300 |
+| Hooks | 6 | ~480 |
 | Utilities | 3 | ~300 |
-| Edge Functions | 4 | ~800 |
+| Edge Functions | 7 | ~1,100 |
 | Configuration | 12 | ~400 |
-| **TOTAL** | **110+** | **~13,200** |
+| Service Workers | 1 | ~90 |
+| **TOTAL** | **128+** | **~15,500** |
 
 ---
 
@@ -795,6 +932,11 @@ All tables protected with RLS policies:
 | January 2026 | Subscription system implementation |
 | January 2026 | IP documentation compilation |
 | January 29, 2026 | Version 2.0 documentation update |
+| January 29, 2026 | Push notification system |
+| January 29, 2026 | Page/Organization accounts with follow system |
+| January 31, 2026 | Message to Future Self feature |
+| January 31, 2026 | Journal Playback with automated reminders |
+| January 31, 2026 | Version 2.2 documentation update |
 
 ---
 
@@ -807,6 +949,8 @@ All tables protected with RLS policies:
 | **Day One** (journaling) | LifeStack offers AI analysis with opportunity detection and goal nudging |
 | **Replika** (AI companion) | LifeStack enforces professional boundaries and integrates with productivity tools |
 | **Strides** (goal tracking) | LifeStack decomposes goals into micro-moves with effort estimation |
+| **Marco Polo** (video messaging) | LifeStack integrates temporal video messaging within a unified life OS with AI analysis |
+| **Time Capsule apps** | LifeStack connects future messages to goals, mood tracking, and AI-powered insights |
 
 **Key Differentiators:**
 1. Life-phase adaptive experience
@@ -815,6 +959,8 @@ All tables protected with RLS policies:
 4. Micro-moves framework for goal achievement
 5. Multi-modal journal analysis with opportunity detection
 6. Social accountability with AI moderation
+7. **Message to Future Self with automated reminders**
+8. **Dual account types (Individual and Page/Organization)**
 
 ---
 
@@ -826,10 +972,11 @@ See companion document: `LIFESTACK_PATENT_CLAIMS.md`
 1. Life-Phase Adaptive Personal Management System
 2. Multi-Modal Journal Analysis Method
 3. AI Mentor with Professional Boundary Enforcement
+4. Temporal Self-Messaging System with Automated Reminders (NEW)
 
-**Dependent Claims:** 14 additional claims covering specific implementations
+**Dependent Claims:** 17 additional claims covering specific implementations
 
 ---
 
 *Document prepared for Pragmatic Analytics Solutions (Pty) Ltd*
-*Version 2.0 - January 29, 2026*
+*Version 2.2 - January 31, 2026*
