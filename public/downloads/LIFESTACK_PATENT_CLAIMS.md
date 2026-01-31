@@ -2,21 +2,21 @@
 ## For: Pragmatic Analytics Solutions (Pty) Ltd
 
 **Prepared:** January 29, 2026  
-**Last Updated:** January 29, 2026  
-**Version:** 2.1  
+**Last Updated:** January 31, 2026  
+**Version:** 2.2  
 **Jurisdiction:** South Africa (Primary) / PCT International
 
 ---
 
 ## INVENTION TITLE
 
-**LIFE-PHASE ADAPTIVE PERSONAL MANAGEMENT SYSTEM WITH AI-POWERED MENTORSHIP AND MULTI-MODAL CONTENT ANALYSIS**
+**LIFE-PHASE ADAPTIVE PERSONAL MANAGEMENT SYSTEM WITH AI-POWERED MENTORSHIP, MULTI-MODAL CONTENT ANALYSIS, AND TEMPORAL SELF-MESSAGING**
 
 ---
 
 ## ABSTRACT
 
-A computer-implemented system and method for personal life management that adapts to a user's life phase and provides integrated goal tracking, habit formation, journaling, and AI-powered mentorship. The system analyzes multi-modal content (text, images, video, audio) to provide personalized feedback, opportunity detection, and professional referrals while enforcing appropriate boundaries for non-professional AI guidance. The system includes social accountability features with AI-powered content moderation, subscription-based access tiers, and administrative analytics for platform management.
+A computer-implemented system and method for personal life management that adapts to a user's life phase and provides integrated goal tracking, habit formation, journaling, and AI-powered mentorship. The system analyzes multi-modal content (text, images, video, audio) to provide personalized feedback, opportunity detection, and professional referrals while enforcing appropriate boundaries for non-professional AI guidance. The system includes temporal self-messaging features allowing users to schedule media messages for future playback with automated push notification reminders, social accountability features with AI-powered content moderation supporting both individual and organizational accounts, subscription-based access tiers, and administrative analytics for platform management.
 
 ---
 
@@ -121,81 +121,137 @@ g) a response delivery module configured to present the AI response with appropr
 
 h) wherein the system provides supportive guidance while consistently deferring to human professionals for serious matters.
 
+### CLAIM 4: Temporal Self-Messaging System (NEW)
+
+A computer-implemented system for scheduling and delivering future self-messages, comprising:
+
+a) a media capture interface configured to record or upload:
+   - video recordings;
+   - voice recordings;
+   - combined with text, mood, and energy indicators;
+
+b) a scheduling module configured to:
+   - receive a future date and time from the user;
+   - validate that the scheduled time is in the future;
+   - store the scheduled playback timestamp with the journal entry;
+
+c) a persistent media storage system configured to:
+   - store uploaded media files with unique identifiers;
+   - generate time-limited signed URLs for secure playback;
+   - maintain media integrity over extended time periods;
+
+d) an automated reminder system comprising:
+   - a scheduled job executing at regular intervals (e.g., every 5 minutes);
+   - a query engine to identify entries with due playback dates;
+   - integration with a push notification delivery service;
+   - a deduplication mechanism to prevent repeated notifications;
+
+e) a dedicated playback interface configured to:
+   - retrieve the scheduled entry by identifier;
+   - generate fresh signed URLs for media access;
+   - automatically play video or audio content;
+   - display associated context (mood, energy, date, text);
+
+f) wherein the system enables users to create and receive messages from their past selves at predetermined future moments, integrated within a broader life management platform.
+
 ---
 
 ## DEPENDENT CLAIMS
 
 ### Claims Dependent on Claim 1
 
-**CLAIM 4:** The system of claim 1, wherein the goal decomposition engine further comprises an effort estimation module configured to assign estimated time durations to tasks based on historical user performance data.
+**CLAIM 5:** The system of claim 1, wherein the goal decomposition engine further comprises an effort estimation module configured to assign estimated time durations to tasks based on historical user performance data.
 
-**CLAIM 5:** The system of claim 1, wherein the adaptation engine modifies display layouts and navigation patterns based on the user's device type and life phase.
+**CLAIM 6:** The system of claim 1, wherein the adaptation engine modifies display layouts and navigation patterns based on the user's device type and life phase.
 
-**CLAIM 6:** The system of claim 1, further comprising a social accountability module configured to:
+**CLAIM 7:** The system of claim 1, further comprising a social accountability module configured to:
 - manage friend connections between users;
-- share selected goals or achievements with connected friends;
+- support follow relationships for organizational accounts;
+- share selected goals or achievements with connected friends or followers;
 - moderate shared content using AI analysis before publication.
 
-**CLAIM 7:** The system of claim 1, wherein the AI mentorship module maintains distinct conversation threads and retrieves relevant historical context when resuming conversations.
+**CLAIM 8:** The system of claim 1, wherein the AI mentorship module maintains distinct conversation threads and retrieves relevant historical context when resuming conversations.
 
-**CLAIM 8:** The system of claim 1, further comprising a habit tracking module configured to:
+**CLAIM 9:** The system of claim 1, further comprising a habit tracking module configured to:
 - record daily habit completions;
 - calculate streak counts;
 - correlate habit completion with mood and energy patterns;
 - provide visual feedback through completion indicators.
 
-**CLAIM 9:** The system of claim 1, wherein the system is implemented as a progressive web application capable of offline operation and installation on mobile devices.
+**CLAIM 10:** The system of claim 1, wherein the system is implemented as a progressive web application capable of offline operation and installation on mobile devices.
 
-**CLAIM 10:** The system of claim 1, further comprising a subscription tier module configured to:
+**CLAIM 11:** The system of claim 1, further comprising a subscription tier module configured to:
 - manage user access levels (free, pro, founder tiers);
 - gate premium features based on subscription status;
 - track usage patterns for paywall triggering;
 - integrate with external payment providers.
 
-**CLAIM 11:** The system of claim 1, further comprising an administrative dashboard module configured to:
+**CLAIM 12:** The system of claim 1, further comprising an administrative dashboard module configured to:
 - aggregate user analytics across the platform;
 - display geographic distribution of users;
 - track subscription conversions;
 - monitor feature usage patterns;
 - analyze session duration metrics.
 
-**CLAIM 12:** The system of claim 1, further comprising a role-based access control system configured to:
+**CLAIM 13:** The system of claim 1, further comprising a role-based access control system configured to:
 - assign user roles (user, admin);
 - restrict administrative functions to authorized roles;
 - modify navigation elements based on user role;
 - protect sensitive analytics endpoints.
 
+**CLAIM 14:** The system of claim 1, further comprising a dual account type system configured to:
+- support individual personal accounts;
+- support organizational/page accounts with category classification;
+- provide unified follow relationships across account types;
+- enable page discovery and suggestion mechanisms.
+
 ### Claims Dependent on Claim 2
 
-**CLAIM 13:** The method of claim 2, wherein the content moderation instructions cause the language model to reject content comprising:
+**CLAIM 15:** The method of claim 2, wherein the content moderation instructions cause the language model to reject content comprising:
 - graphic violence;
 - pornographic material;
 - hate speech;
 - content promoting self-harm.
 
-**CLAIM 14:** The method of claim 2, wherein the goal-connected nudge comprises an actionable suggestion connecting the journal entry content to one of the user's active goals.
+**CLAIM 16:** The method of claim 2, wherein the goal-connected nudge comprises an actionable suggestion connecting the journal entry content to one of the user's active goals.
 
-**CLAIM 15:** The method of claim 2, wherein detected opportunities are categorized into domains including:
+**CLAIM 17:** The method of claim 2, wherein detected opportunities are categorized into domains including:
 - health and fitness services;
 - educational courses;
 - professional services;
 - hobby-related products;
 - relationship activities.
 
-**CLAIM 16:** The method of claim 2, further comprising:
+**CLAIM 18:** The method of claim 2, further comprising:
 - generating a signed URL for each uploaded media file;
 - storing media files in encrypted cloud storage;
 - validating file types against an allowlist before acceptance.
 
 ### Claims Dependent on Claim 3
 
-**CLAIM 17:** The system of claim 3, wherein the mentor persona is characterized as "calm, direct, and pragmatic" with responses that are "warm but actionable."
+**CLAIM 19:** The system of claim 3, wherein the mentor persona is characterized as "calm, direct, and pragmatic" with responses that are "warm but actionable."
 
-**CLAIM 18:** The system of claim 3, wherein crisis detection triggers immediate presentation of emergency contact information and crisis helpline numbers.
+**CLAIM 20:** The system of claim 3, wherein crisis detection triggers immediate presentation of emergency contact information and crisis helpline numbers.
 
-**CLAIM 19:** The system of claim 3, further comprising rate limiting to prevent abuse of the AI inference module.
+**CLAIM 21:** The system of claim 3, further comprising rate limiting to prevent abuse of the AI inference module.
 
-**CLAIM 20:** The system of claim 3, wherein professional referrals include geographically localized search queries based on the user's stored location.
+**CLAIM 22:** The system of claim 3, wherein professional referrals include geographically localized search queries based on the user's stored location.
+
+### Claims Dependent on Claim 4 (NEW)
+
+**CLAIM 23:** The system of claim 4, wherein the scheduled job is implemented using database-level cron scheduling (pg_cron) with HTTP triggers to serverless functions.
+
+**CLAIM 24:** The system of claim 4, wherein push notifications include:
+- a title indicating the message source ("Message from Past You");
+- a body describing the scheduled playback;
+- a deep link directly to the playback interface;
+- action buttons for immediate viewing or dismissal.
+
+**CLAIM 25:** The system of claim 4, wherein the playback interface:
+- displays the original recording date and context;
+- shows the user's mood and energy state at recording time;
+- provides autoplay functionality for immediate emotional impact;
+- allows navigation back to the main journal interface.
 
 ---
 
@@ -252,7 +308,7 @@ A user engagement tracking system comprising:
 
 that enables platform optimization without compromising user privacy.
 
-### Concept F: Interactive AI Insights Discovery (NEW)
+### Concept F: Interactive AI Insights Discovery
 
 A user engagement system for AI-generated content comprising:
 - "Tap to reveal" interaction pattern on media posts;
@@ -263,7 +319,7 @@ A user engagement system for AI-generated content comprising:
 
 that increases user engagement with AI-generated insights while respecting privacy preferences.
 
-### Concept G: Web Push Notification System (NEW)
+### Concept G: Web Push Notification System
 
 A privacy-respecting notification delivery system comprising:
 - Automatic VAPID key generation and management;
@@ -274,11 +330,35 @@ A privacy-respecting notification delivery system comprising:
 
 that enables timely user engagement without requiring native app installation.
 
+### Concept H: Temporal Self-Messaging Framework (NEW)
+
+A holistic framework for future self-communication comprising:
+- Multi-modal message creation (video, voice, text);
+- Flexible scheduling with date and time precision;
+- Integration with mood/energy tracking for emotional context;
+- Automated delivery via push notifications;
+- Dedicated playback experience with autoplay;
+- Connection to broader life management goals and habits;
+
+that enables users to strengthen their relationship with their future selves through scheduled reflections and encouragements.
+
+### Concept I: Dual Account Type Social System (NEW)
+
+A unified social platform supporting:
+- Individual personal accounts for life management;
+- Organizational/Page accounts for brands and communities;
+- Asymmetric follow relationships (follow without friending);
+- Page category classification and discovery;
+- Verification status indicators;
+- Dismissible page suggestions in feed;
+
+that enables both personal connections and organizational engagement within a single platform.
+
 ---
 
 ## DRAWINGS DESCRIPTION
 
-**Figure 1:** System architecture diagram showing the relationship between frontend application, backend services, AI gateway, and data stores.
+**Figure 1:** System architecture diagram showing the relationship between frontend application, backend services, AI gateway, scheduled jobs, and data stores.
 
 **Figure 2:** User interface mockup showing the main dashboard with "The One Thing" task, habit check-ins, and mood/energy selectors.
 
@@ -298,11 +378,19 @@ that enables timely user engagement without requiring native app installation.
 
 **Figure 10:** User interface mockup showing responsive navigation with sidebar (desktop) and bottom navigation (mobile) with admin role awareness.
 
+**Figure 11 (NEW):** Sequence diagram showing the temporal self-messaging flow from recording through scheduled delivery and playback.
+
+**Figure 12 (NEW):** User interface mockup showing the journal entry form with scheduling controls for future playback.
+
+**Figure 13 (NEW):** User interface mockup showing the dedicated playback page with autoplay media and emotional context display.
+
+**Figure 14 (NEW):** Flowchart depicting the automated reminder system including cron job execution, notification delivery, and deduplication.
+
 ---
 
 ## TECHNICAL FIELD
 
-The present invention relates to personal information management systems, and more particularly to life management platforms that integrate goal tracking, habit formation, journaling, and AI-powered mentorship with adaptive user experiences based on life phase classification.
+The present invention relates to personal information management systems, and more particularly to life management platforms that integrate goal tracking, habit formation, journaling, temporal self-messaging, and AI-powered mentorship with adaptive user experiences based on life phase classification.
 
 ---
 
@@ -313,14 +401,16 @@ Prior art in personal management applications typically addresses isolated domai
 - Goal setting applications (Strides, Goals on Track)
 - Journaling applications (Day One, Journey)
 - AI assistants (Replika, Character.AI)
+- Time capsule applications (Future Me, Capsule)
 
 These solutions require users to maintain multiple applications without integration, leading to:
 - Fragmented data across platforms
 - Inability to correlate habits with goal progress
 - Generic AI responses without personal context
 - No adaptation to the user's life circumstances
+- Disconnected temporal messaging without life management context
 
-The present invention addresses these deficiencies by providing a unified platform that integrates all personal management domains with AI-powered guidance adapted to the user's life phase.
+The present invention addresses these deficiencies by providing a unified platform that integrates all personal management domains with AI-powered guidance adapted to the user's life phase, including novel temporal self-messaging capabilities with automated reminder delivery.
 
 ---
 
@@ -332,11 +422,13 @@ The preferred embodiment comprises:
 
 1. **Frontend Application**: A React-based progressive web application utilizing TypeScript for type safety, Tailwind CSS for styling, and shadcn/ui for component primitives. The application is built with Vite for optimal development experience and production performance.
 
-2. **Backend Services**: Lovable Cloud (powered by Supabase) providing PostgreSQL database with Row Level Security, serverless edge functions written in Deno/TypeScript, and secure file storage with signed URLs.
+2. **Backend Services**: Lovable Cloud (powered by Supabase) providing PostgreSQL database with Row Level Security, serverless edge functions written in Deno/TypeScript, secure file storage with signed URLs, and scheduled job execution via pg_cron.
 
 3. **AI Integration**: Lovable AI Gateway connecting to Google Gemini models (gemini-2.5-flash, gemini-3-flash-preview, gemini-2.5-pro) for mentorship, journal analysis, and content moderation.
 
 4. **State Management**: TanStack Query for server state with optimistic updates, React Context for global application state (authentication, subscription, language).
+
+5. **Scheduled Job System**: PostgreSQL pg_cron extension for scheduling background tasks, pg_net extension for HTTP requests to edge functions, enabling automated reminder delivery for temporal self-messaging.
 
 ### Authentication System
 
@@ -362,8 +454,28 @@ The responsive navigation system provides:
 - Admin awareness: Automatically shows Admin link for authorized users
 - Context-aware active states for current route
 
+### Temporal Self-Messaging System (NEW)
+
+The Message to Future Self system implements:
+- Media recording interface with video and audio capture
+- Date and time scheduling with calendar picker
+- Storage of scheduled timestamp with journal entry
+- Automated cron job checking for due entries every 5 minutes
+- Push notification delivery with deep link to playback
+- Dedicated playback page with autoplay and emotional context
+- Deduplication to prevent repeated notifications
+
+### Dual Account Type System (NEW)
+
+The social platform supports:
+- Individual accounts for personal life management
+- Page/Organization accounts with category classification
+- Unified follow system across account types
+- Page discovery and suggestion mechanism
+- Verification status for trusted accounts
+
 ---
 
 *This document is prepared for patent application purposes and should be reviewed by a qualified patent attorney before filing.*
 
-*Version 2.1 - January 29, 2026*
+*Version 2.2 - January 31, 2026*

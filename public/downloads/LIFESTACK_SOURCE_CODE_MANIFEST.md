@@ -2,8 +2,8 @@
 ## Complete File Inventory for IP Protection
 
 **Owner:** Pragmatic Analytics Solutions (Pty) Ltd  
-**Date:** January 29, 2026  
-**Version:** 2.1
+**Date:** January 31, 2026  
+**Version:** 2.2
 
 ---
 
@@ -14,7 +14,7 @@
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
 | `src/main.tsx` | Application entry point | ~30 |
-| `src/App.tsx` | Root component with routing | ~120 |
+| `src/App.tsx` | Root component with routing | ~130 |
 | `src/App.css` | Global styles | ~50 |
 | `src/index.css` | Tailwind and design tokens | ~250 |
 | `src/vite-env.d.ts` | TypeScript declarations | ~10 |
@@ -24,10 +24,12 @@
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
 | `src/pages/Home.tsx` | Main dashboard | ~400 |
-| `src/pages/Journal.tsx` | Multi-modal journaling | ~750 |
+| `src/pages/Journal.tsx` | Multi-modal journaling with Message to Future Self | ~1200 |
+| `src/pages/JournalPlayback.tsx` | Dedicated playback page for scheduled messages | ~150 |
 | `src/pages/Mentor.tsx` | AI chat interface | ~220 |
-| `src/pages/Community.tsx` | Social features | ~1200 |
+| `src/pages/Community.tsx` | Social features with dual account types | ~1300 |
 | `src/pages/Goals.tsx` | Goal management | ~300 |
+| `src/pages/GoalDetail.tsx` | Individual goal view | ~250 |
 | `src/pages/Habits.tsx` | Habit tracking | ~250 |
 | `src/pages/Calendar.tsx` | Calendar view | ~200 |
 | `src/pages/LifeEvents.tsx` | Life events management | ~300 |
@@ -35,7 +37,7 @@
 | `src/pages/Onboarding.tsx` | Setup wizard | ~360 |
 | `src/pages/NewGoal.tsx` | Goal creation form | ~200 |
 | `src/pages/NewHabit.tsx` | Habit creation form | ~200 |
-| `src/pages/Settings.tsx` | User preferences | ~300 |
+| `src/pages/Settings.tsx` | User preferences | ~350 |
 | `src/pages/Admin.tsx` | Admin analytics dashboard | ~450 |
 | `src/pages/Auth.tsx` | Authentication | ~150 |
 | `src/pages/ResetPassword.tsx` | Password reset request | ~150 |
@@ -44,6 +46,7 @@
 | `src/pages/Terms.tsx` | Terms & Conditions | ~360 |
 | `src/pages/PrivacyPolicy.tsx` | Privacy policy | ~300 |
 | `src/pages/Landing.tsx` | Marketing page | ~400 |
+| `src/pages/LaunchVideo.tsx` | Launch video page | ~100 |
 | `src/pages/Index.tsx` | Landing redirect | ~20 |
 | `src/pages/NotFound.tsx` | 404 page | ~50 |
 | `src/pages/IPDocumentation.tsx` | IP docs download portal | ~200 |
@@ -63,6 +66,8 @@
 | `src/hooks/useSessionTracking.ts` | Screen time analytics | ~80 |
 | `src/hooks/useLocation.ts` | Geolocation services | ~100 |
 | `src/hooks/usePushNotifications.ts` | Web Push subscription management | ~120 |
+| `src/hooks/useMentorConversations.ts` | Mentor chat state | ~80 |
+| `src/hooks/usePendingFriendRequests.ts` | Friend request state | ~60 |
 | `src/hooks/use-mobile.tsx` | Mobile detection | ~30 |
 | `src/hooks/use-toast.ts` | Toast notifications | ~50 |
 
@@ -91,6 +96,22 @@
 | `src/components/subscription/SubscriptionBadge.tsx` | Tier display | ~40 |
 | `src/components/subscription/UpgradeModal.tsx` | Upgrade prompt | ~150 |
 | `src/components/subscription/index.ts` | Barrel export | ~10 |
+
+### Community Components
+
+| File Path | Purpose | Lines |
+|-----------|---------|-------|
+| `src/components/community/PageSuggestionCard.tsx` | Page follow/dismiss | ~160 |
+| `src/components/community/AccountTypeSelect.tsx` | Account type selector | ~80 |
+| `src/components/community/InviteFriends.tsx` | Friend invitation | ~120 |
+| `src/components/community/ShareGoalDialog.tsx` | Goal sharing modal | ~150 |
+
+### Mentor Components
+
+| File Path | Purpose | Lines |
+|-----------|---------|-------|
+| `src/components/mentor/MentorMessage.tsx` | Chat message display | ~80 |
+| `src/components/mentor/MentorSidebar.tsx` | Conversation history | ~120 |
 
 ### Navigation Components
 
@@ -131,6 +152,7 @@
 | `src/components/ui/pagination.tsx` | Pagination controls |
 | `src/components/ui/popover.tsx` | Popovers |
 | `src/components/ui/progress.tsx` | Progress bars |
+| `src/components/ui/pull-to-refresh.tsx` | Pull to refresh |
 | `src/components/ui/radio-group.tsx` | Radio buttons |
 | `src/components/ui/resizable.tsx` | Resizable panels |
 | `src/components/ui/scroll-area.tsx` | Scroll containers |
@@ -165,7 +187,7 @@
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
 | `src/integrations/supabase/client.ts` | Lovable Cloud client | ~20 |
-| `src/integrations/supabase/types.ts` | Database TypeScript types | ~1065 |
+| `src/integrations/supabase/types.ts` | Database TypeScript types | ~1250 |
 
 ### Test Files
 
@@ -188,12 +210,13 @@
 | `supabase/functions/admin-analytics/index.ts` | Admin data aggregation | ~150 |
 | `supabase/functions/push-vapid-keys/index.ts` | VAPID key management for Web Push | ~80 |
 | `supabase/functions/send-push-notification/index.ts` | Push notification delivery | ~120 |
+| `supabase/functions/check-journal-reminders/index.ts` | Scheduled playback reminder checker | ~100 |
 
 ### Configuration
 
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
-| `supabase/config.toml` | Edge function configuration | ~15 |
+| `supabase/config.toml` | Edge function configuration | ~20 |
 
 ---
 
@@ -223,6 +246,7 @@
 | `public/manifest.json` | PWA manifest |
 | `public/robots.txt` | SEO robots file |
 | `public/sw.js` | Service Worker for push notifications |
+| `public/placeholder.svg` | Placeholder image |
 | `public/videos/intro.mp4` | Onboarding video |
 | `public/videos/launch-teaser.mp4` | Launch teaser video |
 | `public/icons/icon-72.png` | PWA icon 72x72 |
@@ -252,16 +276,16 @@
 
 | Category | Files | Approx. Lines of Code |
 |----------|-------|----------------------|
-| Pages | 24 | ~6,800 |
-| Components | 60+ | ~4,600 |
+| Pages | 26 | ~7,500 |
+| Components | 70+ | ~5,200 |
 | Contexts | 3 | ~400 |
-| Hooks | 5 | ~380 |
+| Hooks | 7 | ~520 |
 | Utilities | 3 | ~280 |
-| Edge Functions | 6 | ~965 |
+| Edge Functions | 7 | ~1,065 |
 | Configuration | 12 | ~350 |
-| Service Workers | 1 | ~40 |
+| Service Workers | 1 | ~90 |
 | Tests | 2 | ~30 |
-| **TOTAL** | **116+** | **~13,900** |
+| **TOTAL** | **128+** | **~15,500** |
 
 ---
 
@@ -294,10 +318,44 @@
 | input-otp | ^1.4.2 | OTP input |
 | react-day-picker | ^8.10.1 | Date picker |
 | react-resizable-panels | ^2.1.9 | Resizable panels |
+| react-markdown | ^10.1.0 | Markdown rendering |
+| canvas-confetti | ^1.9.4 | Celebration animations |
 | next-themes | ^0.3.0 | Theme management |
 | vite-plugin-pwa | ^1.2.0 | PWA support |
 | @radix-ui/* | Various | UI primitives (20+ packages) |
 
 ---
 
-*This manifest is accurate as of January 29, 2026 - Version 2.1*
+## NEW FILES IN VERSION 2.2
+
+| File Path | Purpose | Added |
+|-----------|---------|-------|
+| `src/pages/JournalPlayback.tsx` | Dedicated playback for scheduled messages | Jan 31, 2026 |
+| `supabase/functions/check-journal-reminders/index.ts` | Automated reminder checker | Jan 31, 2026 |
+
+---
+
+## DATABASE SCHEMA ADDITIONS (VERSION 2.2)
+
+### New Columns in journal_entries
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `scheduled_playback_at` | TIMESTAMP | When to remind user for playback |
+| `playback_reminder_sent` | BOOLEAN | Deduplication flag for reminders |
+
+### New Indexes
+
+| Index | Table | Purpose |
+|-------|-------|---------|
+| `idx_journal_entries_scheduled_playback` | journal_entries | Efficient query for due reminders |
+
+### New Scheduled Jobs (pg_cron)
+
+| Job Name | Schedule | Purpose |
+|----------|----------|---------|
+| `check-journal-reminders` | Every 5 minutes | Check and send playback reminders |
+
+---
+
+*This manifest is accurate as of January 31, 2026 - Version 2.2*
