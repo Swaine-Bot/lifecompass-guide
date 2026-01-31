@@ -38,6 +38,8 @@ interface Friend {
   user_id: string;
   name: string | null;
   avatar_url: string | null;
+  bio: string | null;
+  life_phase: string | null;
   status: 'pending' | 'accepted';
   is_requester: boolean;
 }
@@ -46,6 +48,15 @@ interface SearchResult {
   user_id: string;
   name: string | null;
   avatar_url: string | null;
+  bio: string | null;
+  life_phase: string | null;
+}
+
+interface FriendProfile {
+  user_id: string;
+  name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
   life_phase: string | null;
 }
 
@@ -127,6 +138,7 @@ export default function Community() {
   const [expandedFeedbackPostId, setExpandedFeedbackPostId] = useState<string | null>(null);
   const [loadingFeedbackPostId, setLoadingFeedbackPostId] = useState<string | null>(null);
   const [postFeedbacks, setPostFeedbacks] = useState<Record<string, PostAnalysis>>({});
+  const [selectedFriendProfile, setSelectedFriendProfile] = useState<FriendProfile | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -169,7 +181,7 @@ export default function Community() {
         // Use profiles_searchable view which bypasses RLS for friend data
         const { data: profileData } = await supabase
           .from('profiles_searchable')
-          .select('name, avatar_url')
+          .select('name, avatar_url, bio, life_phase')
           .eq('user_id', friendUserId)
           .single();
 
@@ -178,6 +190,8 @@ export default function Community() {
           user_id: friendUserId,
           name: profileData?.name || 'Unknown',
           avatar_url: profileData?.avatar_url,
+          bio: profileData?.bio || null,
+          life_phase: profileData?.life_phase || null,
           status: f.status as 'pending' | 'accepted',
           is_requester: f.requester_id === user.id
         };
@@ -197,7 +211,13 @@ export default function Community() {
       .order('created_at', { ascending: false })
       .limit(50);
 
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return;
+    }
+
     if (data) {
+      console.log(`Fetched ${data.length} posts for user ${user.id}`);
       const postsWithDetails = await Promise.all(data.map(async (post) => {
         // Use profiles_searchable view which bypasses RLS for friend data
         const { data: profileData } = await supabase
@@ -868,15 +888,44 @@ export default function Community() {
               <Card key={post.id} variant="glass">
                 <CardContent className="pt-4">
                   <div className="flex items-start gap-3">
-                    <Avatar>
-                      <AvatarImage src={post.user_avatar || undefined} />
-                      <AvatarFallback>{post.user_name?.charAt(0) || 'U'}</AvatarFallback>
-                    </Avatar>
+                    <button
+                      onClick={async () => {
+                        // Fetch profile data for this user
+                        const { data: profileData } = await supabase
+                          .from('profiles_searchable')
+                          .select('user_id, name, avatar_url, bio, life_phase')
+                          .eq('user_id', post.user_id)
+                          .single();
+                        if (profileData) {
+                          setSelectedFriendProfile(profileData);
+                        }
+                      }}
+                      className="shrink-0"
+                    >
+                      <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                        <AvatarImage src={post.user_avatar || undefined} />
+                        <AvatarFallback>{post.user_name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                    </button>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{post.user_name}</span>
+                          <button
+                            onClick={async () => {
+                              const { data: profileData } = await supabase
+                                .from('profiles_searchable')
+                                .select('user_id, name, avatar_url, bio, life_phase')
+                                .eq('user_id', post.user_id)
+                                .single();
+                              if (profileData) {
+                                setSelectedFriendProfile(profileData);
+                              }
+                            }}
+                            className="font-semibold hover:text-primary transition-colors"
+                          >
+                            {post.user_name}
+                          </button>
                           <span className="text-xs text-muted-foreground">
                             {format(new Date(post.created_at), 'MMM d, h:mm a')}
                           </span>
@@ -1236,13 +1285,30 @@ export default function Community() {
               ) : (
                 <div className="space-y-3">
                   {acceptedFriends.map((friend) => (
-                    <div key={friend.id} className="flex items-center gap-3">
+                    <button
+                      key={friend.id}
+                      onClick={() => setSelectedFriendProfile({
+                        user_id: friend.user_id,
+                        name: friend.name,
+                        avatar_url: friend.avatar_url,
+                        bio: friend.bio,
+                        life_phase: friend.life_phase
+                      })}
+                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left"
+                    >
                       <Avatar>
                         <AvatarImage src={friend.avatar_url || undefined} />
                         <AvatarFallback>{friend.name?.charAt(0) || 'U'}</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium">{friend.name}</span>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium block">{friend.name}</span>
+                        {friend.life_phase && (
+                          <span className="text-xs text-muted-foreground capitalize">
+                            {friend.life_phase.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                      </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -1563,6 +1629,47 @@ export default function Community() {
               {isSavingPostEdit ? 'Saving...' : 'Save'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Friend Profile Dialog */}
+      <Dialog open={!!selectedFriendProfile} onOpenChange={() => setSelectedFriendProfile(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Friend Profile</DialogTitle>
+            <DialogDescription className="sr-only">View friend's profile details</DialogDescription>
+          </DialogHeader>
+          {selectedFriendProfile && (
+            <div className="flex flex-col items-center text-center space-y-4 py-4">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={selectedFriendProfile.avatar_url || undefined} />
+                <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                  {selectedFriendProfile.name?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="space-y-1">
+                <h3 className="text-xl font-serif font-semibold">{selectedFriendProfile.name || 'Unknown'}</h3>
+                {selectedFriendProfile.life_phase && (
+                  <Badge variant="secondary" className="capitalize">
+                    {selectedFriendProfile.life_phase.replace(/_/g, ' ')}
+                  </Badge>
+                )}
+              </div>
+              
+              {selectedFriendProfile.bio && (
+                <p className="text-muted-foreground text-sm max-w-sm">
+                  {selectedFriendProfile.bio}
+                </p>
+              )}
+              
+              {!selectedFriendProfile.bio && (
+                <p className="text-muted-foreground text-sm italic">
+                  No bio yet
+                </p>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

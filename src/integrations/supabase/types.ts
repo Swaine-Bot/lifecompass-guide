@@ -592,6 +592,7 @@ export type Database = {
         Row: {
           available_minutes_per_day: number | null
           avatar_url: string | null
+          bio: string | null
           country: string | null
           created_at: string | null
           focus_areas: Json | null
@@ -614,6 +615,7 @@ export type Database = {
         Insert: {
           available_minutes_per_day?: number | null
           avatar_url?: string | null
+          bio?: string | null
           country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
@@ -636,6 +638,7 @@ export type Database = {
         Update: {
           available_minutes_per_day?: number | null
           avatar_url?: string | null
+          bio?: string | null
           country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
@@ -857,6 +860,7 @@ export type Database = {
       profiles_public: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string | null
           id: string | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
@@ -864,14 +868,49 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
         }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          name?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          name?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
         Relationships: []
       }
       profiles_searchable: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           name: string | null
           user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          life_phase?: Database["public"]["Enums"]["life_phase"] | null
+          name?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
