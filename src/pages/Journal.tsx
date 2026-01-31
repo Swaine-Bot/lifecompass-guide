@@ -9,8 +9,21 @@ import {
   PenLine, Image, Video, Mic, MicOff, Send, X, Loader2,
   Bot, Lightbulb, AlertTriangle, ExternalLink, ChevronUp, ChevronDown,
   Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles,
-  Edit, Trash2, MoreVertical
+  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock
 } from 'lucide-react';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
@@ -122,6 +135,9 @@ export default function Journal() {
   const [editMood, setEditMood] = useState<number | null>(null);
   const [editEnergy, setEditEnergy] = useState<number | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [scheduledPlaybackDate, setScheduledPlaybackDate] = useState<Date | undefined>(undefined);
+  const [scheduledPlaybackTime, setScheduledPlaybackTime] = useState<string>('09:00');
+  const [showSchedulePlayback, setShowSchedulePlayback] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -432,6 +448,15 @@ export default function Journal() {
         .eq('date', today)
         .maybeSingle();
 
+      // Calculate scheduled playback timestamp if set
+      let scheduledPlaybackAt: string | null = null;
+      if (showSchedulePlayback && scheduledPlaybackDate) {
+        const [hours, minutes] = scheduledPlaybackTime.split(':').map(Number);
+        const playbackDateTime = new Date(scheduledPlaybackDate);
+        playbackDateTime.setHours(hours, minutes, 0, 0);
+        scheduledPlaybackAt = playbackDateTime.toISOString();
+      }
+
       const entryData = {
         content: content || null,
         gratitude: gratitude || null,
@@ -441,6 +466,8 @@ export default function Journal() {
         date: today,
         // Store file PATHS in tags (not signed URLs which expire)
         tags: mediaPaths.length > 0 ? mediaPaths : null,
+        scheduled_playback_at: scheduledPlaybackAt,
+        playback_reminder_sent: false,
       };
 
       if (existing) {
@@ -454,7 +481,10 @@ export default function Journal() {
           .insert({ ...entryData, user_id: user.id });
       }
 
-      toast.success('Journal entry saved!');
+      const successMessage = scheduledPlaybackAt 
+        ? `Journal entry saved! You'll be reminded on ${format(new Date(scheduledPlaybackAt), 'MMM d, yyyy')} at ${format(new Date(scheduledPlaybackAt), 'h:mm a')}`
+        : 'Journal entry saved!';
+      toast.success(successMessage);
       
       // Reset all form fields for new entry
       setContent('');
@@ -466,6 +496,9 @@ export default function Journal() {
       setAudioBlob(null);
       setAudioUrl(null);
       setAnalysis(null);
+      setScheduledPlaybackDate(undefined);
+      setScheduledPlaybackTime('09:00');
+      setShowSchedulePlayback(false);
       
       fetchEntries();
     } catch (error) {
@@ -774,6 +807,81 @@ export default function Journal() {
                   >
                     <X className="w-3 h-3 text-white" />
                   </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Schedule Playback for Future Self */}
+          {(selectedFiles.length > 0 || audioUrl) && (
+            <div className="pt-2 border-t border-border/30">
+              <button
+                onClick={() => setShowSchedulePlayback(!showSchedulePlayback)}
+                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors w-full"
+              >
+                <CalendarClock className="w-4 h-4" />
+                <span>{showSchedulePlayback ? 'Cancel scheduled reminder' : 'Schedule reminder for future self'}</span>
+                {showSchedulePlayback && <Bell className="w-4 h-4 ml-auto text-primary" />}
+              </button>
+              
+              {showSchedulePlayback && (
+                <div className="mt-3 p-3 bg-primary/5 rounded-lg space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Get a push notification to revisit this {audioUrl ? 'voice message' : 'video'} on a future date
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "justify-start text-left font-normal flex-1 min-w-[140px]",
+                            !scheduledPlaybackDate && "text-muted-foreground"
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {scheduledPlaybackDate ? format(scheduledPlaybackDate, "PPP") : "Pick date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={scheduledPlaybackDate}
+                          onSelect={setScheduledPlaybackDate}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    
+                    <Select value={scheduledPlaybackTime} onValueChange={setScheduledPlaybackTime}>
+                      <SelectTrigger className="w-[110px]">
+                        <Clock className="mr-2 h-4 w-4" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="06:00">6:00 AM</SelectItem>
+                        <SelectItem value="07:00">7:00 AM</SelectItem>
+                        <SelectItem value="08:00">8:00 AM</SelectItem>
+                        <SelectItem value="09:00">9:00 AM</SelectItem>
+                        <SelectItem value="10:00">10:00 AM</SelectItem>
+                        <SelectItem value="12:00">12:00 PM</SelectItem>
+                        <SelectItem value="14:00">2:00 PM</SelectItem>
+                        <SelectItem value="17:00">5:00 PM</SelectItem>
+                        <SelectItem value="19:00">7:00 PM</SelectItem>
+                        <SelectItem value="20:00">8:00 PM</SelectItem>
+                        <SelectItem value="21:00">9:00 PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {scheduledPlaybackDate && (
+                    <p className="text-xs text-primary font-medium">
+                      📬 Reminder set for {format(scheduledPlaybackDate, 'EEEE, MMMM d, yyyy')} at {scheduledPlaybackTime.replace(':00', '')}:00 {parseInt(scheduledPlaybackTime) >= 12 ? 'PM' : 'AM'}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

@@ -11,3 +11,12 @@ verify_jwt = false
 
 [functions.admin-analytics]
 verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.push-vapid-keys]
+verify_jwt = false
+
+[functions.check-journal-reminders]
+verify_jwt = false

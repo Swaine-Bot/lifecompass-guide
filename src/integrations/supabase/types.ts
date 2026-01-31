@@ -285,7 +285,9 @@ export type Database = {
           gratitude: string | null
           id: string
           mood: number | null
+          playback_reminder_sent: boolean | null
           reflection: string | null
+          scheduled_playback_at: string | null
           tags: Json | null
           updated_at: string | null
           user_id: string
@@ -298,7 +300,9 @@ export type Database = {
           gratitude?: string | null
           id?: string
           mood?: number | null
+          playback_reminder_sent?: boolean | null
           reflection?: string | null
+          scheduled_playback_at?: string | null
           tags?: Json | null
           updated_at?: string | null
           user_id: string
@@ -311,7 +315,9 @@ export type Database = {
           gratitude?: string | null
           id?: string
           mood?: number | null
+          playback_reminder_sent?: boolean | null
           reflection?: string | null
+          scheduled_playback_at?: string | null
           tags?: Json | null
           updated_at?: string | null
           user_id?: string

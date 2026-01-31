@@ -20,6 +20,7 @@ import Habits from "./pages/Habits";
 import NewHabit from "./pages/NewHabit";
 import Mentor from "./pages/Mentor";
 import Journal from "./pages/Journal";
+import JournalPlayback from "./pages/JournalPlayback";
 import Library from "./pages/Library";
 import Calendar from "./pages/Calendar";
 import Community from "./pages/Community";
@@ -70,6 +71,7 @@ const App = () => (
                   <Route path="/habits/new" element={<NewHabit />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/journal" element={<Journal />} />
+                  <Route path="/journal/playback/:entryId" element={<JournalPlayback />} />
                   <Route path="/mentor" element={<Mentor />} />
                   <Route path="/library" element={<Library />} />
                   <Route path="/community" element={<Community />} />
