@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { IntroVideo } from '@/components/onboarding/IntroVideo';
 import { UserGuide } from '@/components/onboarding/UserGuide';
 import { TermsAcceptance } from '@/components/onboarding/TermsAcceptance';
+import { AccountTypeSelect } from '@/components/community/AccountTypeSelect';
 
 const phases = [
   { id: 'student_early_career', label: 'Student / Early Career', description: 'Building foundations and exploring paths', icon: GraduationCap },
@@ -35,6 +36,7 @@ export default function Onboarding() {
   const [showTerms, setShowTerms] = useState(true);
   const [showIntro, setShowIntro] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showAccountType, setShowAccountType] = useState(false);
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,6 +46,8 @@ export default function Onboarding() {
     available_minutes_per_day: 60,
     strictness_level: 5,
     focus_areas: ['health', 'career', 'mindset'],
+    account_type: 'individual' as 'individual' | 'page',
+    page_category: '' as string,
   });
 
   const { user, refreshProfile } = useAuth();
@@ -64,7 +68,7 @@ export default function Onboarding() {
       });
     
     setShowTerms(false);
-    setShowIntro(true);
+    setShowAccountType(true);
   };
 
   const steps = [
@@ -74,9 +78,38 @@ export default function Onboarding() {
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
   ];
 
+  const handleAccountTypeComplete = async (data: { accountType: 'individual' | 'page'; pageCategory?: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      account_type: data.accountType,
+      page_category: data.pageCategory || '',
+    }));
+    setShowAccountType(false);
+    setShowIntro(true);
+  };
+
   // Show terms acceptance first
   if (showTerms) {
     return <TermsAcceptance onAccept={handleTermsAccept} />;
+  }
+
+  // Show account type selection after terms
+  if (showAccountType) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <Crown className="w-6 h-6 text-primary" />
+            <span className="font-serif text-xl font-semibold">LifeStack</span>
+          </div>
+          <Card variant="glass">
+            <CardContent className="p-6">
+              <AccountTypeSelect onComplete={handleAccountTypeComplete} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   if (showIntro) {
@@ -123,6 +156,8 @@ export default function Onboarding() {
           strictness_level: formData.strictness_level,
           focus_areas: formData.focus_areas,
           onboarding_completed: true,
+          account_type: formData.account_type as any,
+          page_category: formData.page_category || null,
         })
         .eq('user_id', user.id);
 

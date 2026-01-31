@@ -106,6 +106,27 @@ export type Database = {
         }
         Relationships: []
       }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           addressee_id: string
@@ -466,6 +487,27 @@ export type Database = {
           },
         ]
       }
+      page_dismissals: {
+        Row: {
+          created_at: string
+          dismissed_page_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dismissed_page_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dismissed_page_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       playbook_installs: {
         Row: {
           id: string
@@ -499,8 +541,11 @@ export type Database = {
         Row: {
           content: string | null
           created_at: string | null
+          goal_id: string | null
+          habit_id: string | null
           id: string
           media_urls: Json | null
+          post_type: Database["public"]["Enums"]["post_type"]
           updated_at: string | null
           user_id: string
           visibility: Database["public"]["Enums"]["post_visibility"]
@@ -508,8 +553,11 @@ export type Database = {
         Insert: {
           content?: string | null
           created_at?: string | null
+          goal_id?: string | null
+          habit_id?: string | null
           id?: string
           media_urls?: Json | null
+          post_type?: Database["public"]["Enums"]["post_type"]
           updated_at?: string | null
           user_id: string
           visibility?: Database["public"]["Enums"]["post_visibility"]
@@ -517,13 +565,31 @@ export type Database = {
         Update: {
           content?: string | null
           created_at?: string | null
+          goal_id?: string | null
+          habit_id?: string | null
           id?: string
           media_urls?: Json | null
+          post_type?: Database["public"]["Enums"]["post_type"]
           updated_at?: string | null
           user_id?: string
           visibility?: Database["public"]["Enums"]["post_visibility"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_habit_id_fkey"
+            columns: ["habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       privacy_settings: {
         Row: {
@@ -590,6 +656,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
           available_minutes_per_day: number | null
           avatar_url: string | null
           bio: string | null
@@ -598,6 +665,7 @@ export type Database = {
           focus_areas: Json | null
           guide_completed: boolean | null
           id: string
+          is_verified: boolean | null
           language: string | null
           last_latitude: number | null
           last_longitude: number | null
@@ -606,13 +674,16 @@ export type Database = {
           micro_moves_count: number
           name: string | null
           onboarding_completed: boolean | null
+          page_category: string | null
           province: string | null
           strictness_level: number | null
           timezone: string | null
           updated_at: string | null
           user_id: string
+          website_url: string | null
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
           available_minutes_per_day?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -621,6 +692,7 @@ export type Database = {
           focus_areas?: Json | null
           guide_completed?: boolean | null
           id?: string
+          is_verified?: boolean | null
           language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
@@ -629,13 +701,16 @@ export type Database = {
           micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
+          page_category?: string | null
           province?: string | null
           strictness_level?: number | null
           timezone?: string | null
           updated_at?: string | null
           user_id: string
+          website_url?: string | null
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
           available_minutes_per_day?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -644,6 +719,7 @@ export type Database = {
           focus_areas?: Json | null
           guide_completed?: boolean | null
           id?: string
+          is_verified?: boolean | null
           language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
@@ -652,11 +728,13 @@ export type Database = {
           micro_moves_count?: number
           name?: string | null
           onboarding_completed?: boolean | null
+          page_category?: string | null
           province?: string | null
           strictness_level?: number | null
           timezone?: string | null
           updated_at?: string | null
           user_id?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -859,57 +937,78 @@ export type Database = {
     Views: {
       profiles_public: {
         Row: {
+          account_type: Database["public"]["Enums"]["account_type"] | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
           id: string | null
+          is_verified: boolean | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           name: string | null
+          page_category: string | null
           updated_at: string | null
           user_id: string | null
+          website_url: string | null
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"] | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
           id?: string | null
+          is_verified?: boolean | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           name?: string | null
+          page_category?: string | null
           updated_at?: string | null
           user_id?: string | null
+          website_url?: string | null
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["account_type"] | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
           id?: string | null
+          is_verified?: boolean | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           name?: string | null
+          page_category?: string | null
           updated_at?: string | null
           user_id?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
       profiles_searchable: {
         Row: {
+          account_type: Database["public"]["Enums"]["account_type"] | null
           avatar_url: string | null
           bio: string | null
+          is_verified: boolean | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           name: string | null
+          page_category: string | null
           user_id: string | null
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"] | null
           avatar_url?: string | null
           bio?: string | null
+          is_verified?: boolean | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           name?: string | null
+          page_category?: string | null
           user_id?: string | null
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["account_type"] | null
           avatar_url?: string | null
           bio?: string | null
+          is_verified?: boolean | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           name?: string | null
+          page_category?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -961,8 +1060,13 @@ export type Database = {
         Returns: boolean
       }
       increment_micro_moves: { Args: never; Returns: number }
+      is_following: {
+        Args: { follower: string; target: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      account_type: "individual" | "page"
       app_role: "admin" | "user"
       event_type:
         | "birthday"
@@ -979,6 +1083,7 @@ export type Database = {
         | "family_home"
         | "explorer"
         | "legacy_impact"
+      post_type: "regular" | "goal" | "micro_move"
       post_visibility: "public" | "friends" | "private"
       reaction_type: "like" | "love" | "celebrate" | "support" | "insightful"
       subscription_tier: "free" | "pro" | "founder"
@@ -1110,6 +1215,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_type: ["individual", "page"],
       app_role: ["admin", "user"],
       event_type: [
         "birthday",
@@ -1128,6 +1234,7 @@ export const Constants = {
         "explorer",
         "legacy_impact",
       ],
+      post_type: ["regular", "goal", "micro_move"],
       post_visibility: ["public", "friends", "private"],
       reaction_type: ["like", "love", "celebrate", "support", "insightful"],
       subscription_tier: ["free", "pro", "founder"],
