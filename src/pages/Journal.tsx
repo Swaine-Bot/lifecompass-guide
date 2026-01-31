@@ -145,7 +145,22 @@ export default function Journal() {
       .limit(10);
     
     if (data) {
-      setEntries(data);
+      // Generate signed URLs for media stored as paths in tags
+      const entriesWithMedia = await Promise.all(data.map(async (entry) => {
+        const tags = entry.tags as string[] | null;
+        let mediaUrls: string[] = [];
+        
+        if (tags && tags.length > 0) {
+          mediaUrls = await generateSignedUrls(tags);
+        }
+        
+        return {
+          ...entry,
+          media_urls: mediaUrls
+        };
+      }));
+      
+      setEntries(entriesWithMedia);
     }
   };
 
@@ -159,8 +174,9 @@ export default function Journal() {
     return { valid: true };
   };
 
+  // Upload media and return file PATHS (not signed URLs)
   const uploadMedia = async (files: File[]): Promise<string[]> => {
-    const urls: string[] = [];
+    const paths: string[] = [];
     
     if (files.length > MAX_FILES) {
       toast.error(`Maximum ${MAX_FILES} files allowed`);
@@ -190,20 +206,57 @@ export default function Journal() {
         .upload(fileName, file);
 
       if (!error && data) {
-        const { data: urlData } = await supabase.storage
-          .from('user-media')
-          .createSignedUrl(data.path, 3600);
-        
-        if (urlData) {
-          urls.push(urlData.signedUrl);
-        }
+        // Store the file PATH, not a signed URL (which expires)
+        paths.push(data.path);
       } else if (error) {
         toast.error(`Failed to upload: ${file.name}`);
         console.error('Upload error:', error);
       }
     }
     
-    return urls;
+    return paths;
+  };
+
+  // Generate signed URLs from stored paths for display
+  const generateSignedUrls = async (paths: string[]): Promise<string[]> => {
+    if (!paths || paths.length === 0) return [];
+    
+    const signedUrls: string[] = [];
+    
+    for (const path of paths) {
+      try {
+        // If it's already a full URL (legacy data), try to extract path
+        if (path.startsWith('http')) {
+          const pathMatch = path.match(/user-media\/([^?]+)/);
+          if (pathMatch) {
+            const filePath = decodeURIComponent(pathMatch[1]);
+            const { data, error } = await supabase.storage
+              .from('user-media')
+              .createSignedUrl(filePath, 3600);
+            
+            if (!error && data) {
+              signedUrls.push(data.signedUrl);
+              continue;
+            }
+          }
+          // If we can't extract, skip this URL
+          continue;
+        }
+        
+        // For stored paths, generate fresh signed URL
+        const { data, error } = await supabase.storage
+          .from('user-media')
+          .createSignedUrl(path, 3600);
+        
+        if (!error && data) {
+          signedUrls.push(data.signedUrl);
+        }
+      } catch (e) {
+        console.error('Error creating signed URL for path:', path, e);
+      }
+    }
+    
+    return signedUrls;
   };
 
   const startRecording = async () => {
@@ -325,8 +378,8 @@ export default function Journal() {
     setIsAnalyzing(true);
 
     try {
-      // Upload media files
-      let mediaUrls: string[] = [];
+      // Upload media files and get file PATHS (not URLs)
+      let mediaPaths: string[] = [];
       const filesToUpload = [...selectedFiles];
       
       // Add audio recording as a file
@@ -336,12 +389,18 @@ export default function Journal() {
       }
 
       if (filesToUpload.length > 0) {
-        mediaUrls = await uploadMedia(filesToUpload);
-        if (mediaUrls.length === 0 && filesToUpload.length > 0) {
+        mediaPaths = await uploadMedia(filesToUpload);
+        if (mediaPaths.length === 0 && filesToUpload.length > 0) {
           setLoading(false);
           setIsAnalyzing(false);
           return;
         }
+      }
+
+      // For AI analysis, we need temporary signed URLs
+      let analysisMediaUrls: string[] = [];
+      if (mediaPaths.length > 0) {
+        analysisMediaUrls = await generateSignedUrls(mediaPaths);
       }
 
       // Combine all text content for analysis
@@ -352,7 +411,7 @@ export default function Journal() {
       ].filter(Boolean).join('\n\n');
 
       // Analyze content with AI
-      const analysisResult = await analyzeJournalContent(fullContent, mediaUrls);
+      const analysisResult = await analyzeJournalContent(fullContent, analysisMediaUrls);
       setIsAnalyzing(false);
 
       if (analysisResult) {
@@ -380,7 +439,8 @@ export default function Journal() {
         mood: selectedMood,
         energy: selectedEnergy,
         date: today,
-        tags: mediaUrls.length > 0 ? mediaUrls : null, // Store media URLs in tags for now
+        // Store file PATHS in tags (not signed URLs which expire)
+        tags: mediaPaths.length > 0 ? mediaPaths : null,
       };
 
       if (existing) {
@@ -848,6 +908,50 @@ export default function Journal() {
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {entry.content}
                   </p>
+                )}
+                
+                {/* Display media (images, videos, audio) */}
+                {entry.media_urls && entry.media_urls.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {entry.media_urls.map((url, idx) => {
+                      // Determine media type from URL
+                      const isAudio = url.includes('.webm') || url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg') || url.includes('audio');
+                      const isVideo = url.includes('.mp4') || url.includes('.mov') || url.includes('video');
+                      
+                      if (isAudio) {
+                        return (
+                          <div key={idx} className="flex items-center gap-2 bg-primary/10 rounded-lg px-3 py-2">
+                            <Mic className="w-4 h-4 text-primary" />
+                            <audio controls className="h-8 max-w-[200px]" preload="metadata">
+                              <source src={url} type="audio/webm" />
+                              Your browser does not support audio playback.
+                            </audio>
+                          </div>
+                        );
+                      }
+                      
+                      if (isVideo) {
+                        return (
+                          <video 
+                            key={idx}
+                            src={url} 
+                            controls 
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                        );
+                      }
+                      
+                      // Default: image
+                      return (
+                        <img 
+                          key={idx}
+                          src={url} 
+                          alt="Journal media" 
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             ))}
