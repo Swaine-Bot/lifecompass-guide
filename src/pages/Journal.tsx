@@ -134,7 +134,6 @@ export default function Journal() {
   useEffect(() => {
     if (user) {
       fetchEntries();
-      fetchTodayEntry();
     }
   }, [user]);
 
@@ -147,22 +146,6 @@ export default function Journal() {
     
     if (data) {
       setEntries(data);
-    }
-  };
-
-  const fetchTodayEntry = async () => {
-    const { data } = await supabase
-      .from('journal_entries')
-      .select('*')
-      .eq('date', today)
-      .maybeSingle();
-    
-    if (data) {
-      setContent(data.content || '');
-      setGratitude(data.gratitude || '');
-      setReflection(data.reflection || '');
-      setSelectedMood(data.mood);
-      setSelectedEnergy(data.energy);
     }
   };
 
