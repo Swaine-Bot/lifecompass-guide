@@ -5,13 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Calendar, Settings
+  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 interface Task {
   id: string;
@@ -49,13 +52,16 @@ const energyOptions = [
 ];
 
 export default function Home() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
   const [todayCheckin, setTodayCheckin] = useState<{ mood: number | null; energy: number | null }>({ mood: null, energy: null });
   const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [showReward, setShowReward] = useState(false);
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
@@ -134,16 +140,64 @@ export default function Home() {
     }
   };
 
+  const triggerReward = () => {
+    setShowReward(true);
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#D4AF37', '#FFD700', '#FFA500']
+    });
+    setTimeout(() => setShowReward(false), 2000);
+  };
+
   const toggleTask = async (taskId: string, completed: boolean) => {
     const newStatus = completed ? 'done' : 'today';
-    await supabase
+    const { error } = await supabase
       .from('tasks')
       .update({ status: newStatus })
       .eq('id', taskId);
     
-    setTasks(prev => prev.map(t => 
-      t.id === taskId ? { ...t, status: newStatus } : t
-    ));
+    if (!error) {
+      setTasks(prev => prev.map(t => 
+        t.id === taskId ? { ...t, status: newStatus } : t
+      ));
+      
+      if (completed) {
+        triggerReward();
+        toast.success('🎉 Task completed! Keep it up!');
+      }
+    }
+  };
+
+  const addQuickTask = async () => {
+    if (!newTaskTitle.trim() || !user) return;
+    
+    setIsAddingTask(true);
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          title: newTaskTitle.trim(),
+          status: 'today',
+          user_id: user.id,
+          effort_minutes: 15,
+          is_one_thing: false
+        })
+        .select()
+        .single();
+      
+      if (!error && data) {
+        setTasks(prev => [...prev, data]);
+        setNewTaskTitle('');
+        toast.success('Task added!');
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+      toast.error('Failed to add task');
+    } finally {
+      setIsAddingTask(false);
+    }
   };
 
   const toggleHabit = async (habitId: string) => {
@@ -166,13 +220,16 @@ export default function Home() {
       const filtered = prev.filter(l => l.habit_id !== habitId);
       return [...filtered, { habit_id: habitId, completed: newCompleted }];
     });
+
+    if (newCompleted) {
+      toast.success('✨ Habit completed!');
+    }
   };
 
   const saveCheckin = async (type: 'mood' | 'energy', value: number) => {
     const newCheckin = { ...todayCheckin, [type]: value };
     setTodayCheckin(newCheckin);
 
-    // Simply upsert without checking - RLS handles user context
     const updateData = type === 'mood' ? { mood: value } : { energy: value };
     
     const { data: existing } = await supabase
@@ -184,12 +241,12 @@ export default function Home() {
     if (existing) {
       await supabase.from('daily_checkins').update(updateData).eq('id', existing.id);
     }
-    // Note: Insert requires user_id which is handled by RLS default, skip for now
   };
 
-  const oneThingTask = tasks.find(t => t.is_one_thing);
+  const oneThingTask = tasks.find(t => t.is_one_thing && t.status !== 'done');
   const microMoves = tasks.filter(t => !t.is_one_thing && t.status === 'today');
-  const completedToday = tasks.filter(t => t.status === 'done').length;
+  const completedTasks = tasks.filter(t => t.status === 'done');
+  const completedToday = completedTasks.length;
   const habitsCompleted = habitLogs.filter(l => l.completed).length;
 
   return (
@@ -276,49 +333,87 @@ export default function Home() {
 
       {/* Today's Micro-Moves */}
       <Card variant="glass">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Today's Micro-Moves</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/goals">
-                View all <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
+            <CardTitle className="text-lg flex items-center gap-2">
+              Today's Micro-Moves
+              {showReward && (
+                <span className="flex items-center gap-1 text-primary animate-pulse">
+                  <Trophy className="w-4 h-4" />
+                  <Star className="w-3 h-3" />
+                </span>
+              )}
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {microMoves.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p>No tasks for today yet</p>
-              <Button variant="outline" size="sm" className="mt-3" asChild>
-                <Link to="/goals">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Tasks
-                </Link>
-              </Button>
+          {/* Quick Add Task */}
+          <div className="flex gap-2 mb-3">
+            <Input
+              placeholder="Add a quick task..."
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addQuickTask()}
+              className="h-9 text-sm"
+              disabled={isAddingTask}
+            />
+            <Button 
+              size="sm" 
+              onClick={addQuickTask}
+              disabled={!newTaskTitle.trim() || isAddingTask}
+              className="h-9 px-3"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Task List - Compact */}
+          {microMoves.length === 0 && completedTasks.length === 0 ? (
+            <div className="text-center py-4 text-muted-foreground">
+              <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Add your first task above!</p>
             </div>
           ) : (
-            microMoves.slice(0, 5).map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-              >
-                <Checkbox 
-                  checked={task.status === 'done'}
-                  onCheckedChange={(checked) => toggleTask(task.id, checked as boolean)}
-                />
-                <span className={cn(
-                  "flex-1",
-                  task.status === 'done' && "line-through text-muted-foreground"
-                )}>
-                  {task.title}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {task.effort_minutes}m
-                </span>
-              </div>
-            ))
+            <div className="space-y-1">
+              {microMoves.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-secondary/30 transition-colors group"
+                >
+                  <Checkbox 
+                    checked={false}
+                    onCheckedChange={() => toggleTask(task.id, true)}
+                    className="w-4 h-4"
+                  />
+                  <span className="flex-1 text-sm truncate">{task.title}</span>
+                  <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    {task.effort_minutes}m
+                  </span>
+                </div>
+              ))}
+              
+              {/* Completed Tasks - More Compact */}
+              {completedTasks.length > 0 && (
+                <div className="pt-2 border-t border-border/30 mt-2">
+                  <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Completed ({completedTasks.length})
+                  </p>
+                  {completedTasks.slice(0, 3).map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center gap-2 py-1 px-2 text-muted-foreground"
+                    >
+                      <Checkbox 
+                        checked={true}
+                        onCheckedChange={() => toggleTask(task.id, false)}
+                        className="w-4 h-4"
+                      />
+                      <span className="flex-1 text-xs line-through truncate">{task.title}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

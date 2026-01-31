@@ -412,9 +412,18 @@ export default function Journal() {
       }
 
       toast.success('Journal entry saved!');
+      
+      // Reset all form fields for new entry
+      setContent('');
+      setGratitude('');
+      setReflection('');
+      setSelectedMood(null);
+      setSelectedEnergy(null);
       setSelectedFiles([]);
       setAudioBlob(null);
       setAudioUrl(null);
+      setAnalysis(null);
+      
       fetchEntries();
     } catch (error) {
       console.error('Save error:', error);
