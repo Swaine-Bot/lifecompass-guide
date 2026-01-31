@@ -15,9 +15,12 @@ import {
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
   Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
-  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail
+  AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail,
+  Target, Building2
 } from 'lucide-react';
 import { InviteFriends } from '@/components/community/InviteFriends';
+import { ShareGoalDialog } from '@/components/community/ShareGoalDialog';
+import { PageSuggestionCard } from '@/components/community/PageSuggestionCard';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -60,6 +63,15 @@ interface FriendProfile {
   life_phase: string | null;
 }
 
+interface PageSuggestion {
+  user_id: string;
+  name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  page_category: string | null;
+  is_verified: boolean;
+}
+
 interface Post {
   id: string;
   user_id: string;
@@ -72,6 +84,9 @@ interface Post {
   reactions_count: number;
   comments_count: number;
   user_reaction?: string | null;
+  post_type?: string;
+  goal_id?: string | null;
+  habit_id?: string | null;
   // AI analysis stored with the post
   ai_feedback?: PostAnalysis | null;
   // Whether this user allows friends to see AI insights
@@ -139,6 +154,8 @@ export default function Community() {
   const [loadingFeedbackPostId, setLoadingFeedbackPostId] = useState<string | null>(null);
   const [postFeedbacks, setPostFeedbacks] = useState<Record<string, PostAnalysis>>({});
   const [selectedFriendProfile, setSelectedFriendProfile] = useState<FriendProfile | null>(null);
+  const [showShareGoal, setShowShareGoal] = useState(false);
+  const [pageSuggestions, setPageSuggestions] = useState<PageSuggestion[]>([]);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -146,6 +163,7 @@ export default function Community() {
     if (user) {
       fetchFriends();
       fetchPosts();
+      fetchPageSuggestions();
     }
   }, [user]);
 
@@ -155,6 +173,7 @@ export default function Community() {
       if (user) {
         fetchFriends();
         fetchPosts();
+        fetchPageSuggestions();
       }
     };
 
@@ -269,6 +288,56 @@ export default function Community() {
       setPosts(postsWithDetails);
     }
   };
+
+  // Fetch page suggestions for the feed
+  const fetchPageSuggestions = async () => {
+    if (!user) return;
+
+    try {
+      // Get pages the user already follows
+      const { data: follows } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id);
+
+      const followedIds = new Set(follows?.map(f => f.following_id) || []);
+
+      // Get pages the user has dismissed
+      const { data: dismissals } = await supabase
+        .from('page_dismissals')
+        .select('dismissed_page_id')
+        .eq('user_id', user.id);
+
+      const dismissedIds = new Set(dismissals?.map(d => d.dismissed_page_id) || []);
+
+      // Fetch page accounts (not the current user, not followed, not dismissed)
+      const { data: pages } = await supabase
+        .from('profiles_searchable')
+        .select('user_id, name, avatar_url, bio, account_type, page_category, is_verified')
+        .eq('account_type', 'page')
+        .limit(10);
+
+      if (pages) {
+        const filteredPages = pages.filter(p => 
+          p.user_id !== user.id && 
+          !followedIds.has(p.user_id!) && 
+          !dismissedIds.has(p.user_id!)
+        ).slice(0, 3);
+
+        setPageSuggestions(filteredPages.map(p => ({
+          user_id: p.user_id!,
+          name: p.name,
+          avatar_url: p.avatar_url,
+          bio: p.bio,
+          page_category: p.page_category,
+          is_verified: p.is_verified || false
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching page suggestions:', error);
+    }
+  };
+
 
   // Generate signed URLs for private bucket media
   const generateSignedUrls = async (urls: string[]): Promise<string[]> => {
@@ -850,10 +919,16 @@ export default function Community() {
           <h1 className="text-2xl font-serif font-bold">Community</h1>
           <p className="text-muted-foreground">Connect with friends and family</p>
         </div>
-        <Button variant="gold" onClick={() => setShowNewPost(true)}>
-          <Share2 className="w-4 h-4 mr-2" />
-          New Post
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowShareGoal(true)}>
+            <Target className="w-4 h-4 mr-2" />
+            Share Goal
+          </Button>
+          <Button variant="gold" onClick={() => setShowNewPost(true)}>
+            <Share2 className="w-4 h-4 mr-2" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="feed" className="space-y-4">
@@ -870,6 +945,19 @@ export default function Community() {
         </TabsList>
 
         <TabsContent value="feed" className="space-y-4">
+          {/* Page Suggestions - inline cards */}
+          {pageSuggestions.length > 0 && posts.length > 0 && (
+            <PageSuggestionCard
+              page={pageSuggestions[0]}
+              onDismiss={(pageId) => {
+                setPageSuggestions(prev => prev.filter(p => p.user_id !== pageId));
+              }}
+              onFollow={(pageId) => {
+                setPageSuggestions(prev => prev.filter(p => p.user_id !== pageId));
+              }}
+            />
+          )}
+
           {posts.length === 0 ? (
             <Card variant="glass" className="text-center py-12">
               <CardContent>
@@ -878,58 +966,93 @@ export default function Community() {
                 <p className="text-muted-foreground mb-4">
                   Connect with friends and start sharing your journey
                 </p>
-                <Button variant="gold" onClick={() => setShowNewPost(true)}>
-                  Create your first post
-                </Button>
+                <div className="flex flex-col gap-2 items-center">
+                  <Button variant="gold" onClick={() => setShowNewPost(true)}>
+                    Create your first post
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowShareGoal(true)}>
+                    <Target className="w-4 h-4 mr-2" />
+                    Share a Goal
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ) : (
-            posts.map((post) => (
-              <Card key={post.id} variant="glass">
-                <CardContent className="pt-4">
-                  <div className="flex items-start gap-3">
-                    <button
-                      onClick={async () => {
-                        // Fetch profile data for this user
-                        const { data: profileData } = await supabase
-                          .from('profiles_searchable')
-                          .select('user_id, name, avatar_url, bio, life_phase')
-                          .eq('user_id', post.user_id)
-                          .single();
-                        if (profileData) {
-                          setSelectedFriendProfile(profileData);
-                        }
-                      }}
-                      className="shrink-0"
-                    >
-                      <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
-                        <AvatarImage src={post.user_avatar || undefined} />
-                        <AvatarFallback>{post.user_name?.charAt(0) || 'U'}</AvatarFallback>
-                      </Avatar>
-                    </button>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={async () => {
-                              const { data: profileData } = await supabase
-                                .from('profiles_searchable')
-                                .select('user_id, name, avatar_url, bio, life_phase')
-                                .eq('user_id', post.user_id)
-                                .single();
-                              if (profileData) {
-                                setSelectedFriendProfile(profileData);
-                              }
-                            }}
-                            className="font-semibold hover:text-primary transition-colors"
-                          >
-                            {post.user_name}
-                          </button>
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(post.created_at), 'MMM d, h:mm a')}
-                          </span>
-                        </div>
+            <>
+              {posts.map((post, index) => (
+                <div key={post.id}>
+                  {/* Insert page suggestion after every 3rd post */}
+                  {index > 0 && index % 3 === 0 && pageSuggestions[Math.floor(index / 3)] && (
+                    <div className="mb-4">
+                      <PageSuggestionCard
+                        page={pageSuggestions[Math.floor(index / 3)]}
+                        onDismiss={(pageId) => {
+                          setPageSuggestions(prev => prev.filter(p => p.user_id !== pageId));
+                        }}
+                        onFollow={(pageId) => {
+                          setPageSuggestions(prev => prev.filter(p => p.user_id !== pageId));
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  <Card variant="glass">
+                    <CardContent className="pt-4">
+                      <div className="flex items-start gap-3">
+                        <button
+                          onClick={async () => {
+                            // Fetch profile data for this user
+                            const { data: profileData } = await supabase
+                              .from('profiles_searchable')
+                              .select('user_id, name, avatar_url, bio, life_phase')
+                              .eq('user_id', post.user_id)
+                              .single();
+                            if (profileData) {
+                              setSelectedFriendProfile(profileData);
+                            }
+                          }}
+                          className="shrink-0"
+                        >
+                          <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                            <AvatarImage src={post.user_avatar || undefined} />
+                            <AvatarFallback>{post.user_name?.charAt(0) || 'U'}</AvatarFallback>
+                          </Avatar>
+                        </button>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                onClick={async () => {
+                                  const { data: profileData } = await supabase
+                                    .from('profiles_searchable')
+                                    .select('user_id, name, avatar_url, bio, life_phase')
+                                    .eq('user_id', post.user_id)
+                                    .single();
+                                  if (profileData) {
+                                    setSelectedFriendProfile(profileData);
+                                  }
+                                }}
+                                className="font-semibold hover:text-primary transition-colors"
+                              >
+                                {post.user_name}
+                              </button>
+                              {post.post_type === 'goal' && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Target className="w-3 h-3 mr-1" />
+                                  Goal
+                                </Badge>
+                              )}
+                              {post.post_type === 'micro_move' && (
+                                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                                  <Sparkles className="w-3 h-3 mr-1" />
+                                  Micro Move
+                                </Badge>
+                              )}
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(post.created_at), 'MMM d, h:mm a')}
+                              </span>
+                            </div>
                         
                         {post.user_id === user?.id && (
                           <div className="flex items-center gap-1">
@@ -1097,7 +1220,9 @@ export default function Community() {
                   </div>
                 </CardContent>
               </Card>
-            ))
+            </div>
+              ))}
+            </>
           )}
         </TabsContent>
 
@@ -1672,6 +1797,15 @@ export default function Community() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Share Goal/Micro Move Dialog */}
+      <ShareGoalDialog 
+        open={showShareGoal} 
+        onOpenChange={setShowShareGoal}
+        onPostCreated={() => {
+          fetchPosts();
+        }}
+      />
     </div>
   );
 }
