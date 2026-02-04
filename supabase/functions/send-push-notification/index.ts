@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { buildPushHTTPRequest } from "https://esm.sh/@pushforge/builder@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,46 +16,12 @@ interface PushPayload {
   data?: Record<string, unknown>;
 }
 
-// Simple web push implementation using fetch
-async function sendWebPush(
-  subscription: { endpoint: string; p256dh: string; auth: string },
-  payload: PushPayload,
-  vapidPublicKey: string,
-  vapidPrivateKey: string
-): Promise<boolean> {
-  try {
-    // For a proper implementation, you'd use the web-push protocol
-    // This is a simplified version that works with some limitations
-    
-    const response = await fetch(subscription.endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "TTL": "86400",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      console.error("Push failed:", response.status, await response.text());
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Push error:", error);
-    return false;
-  }
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -81,13 +48,6 @@ serve(async (req) => {
 
     // Check notification preferences for each user
     const notificationType = type || 'general';
-    let notificationColumn = 'notifications_nudges';
-    
-    if (notificationType === 'goal' || notificationType === 'task') {
-      notificationColumn = 'notifications_goals';
-    } else if (notificationType === 'social' || notificationType === 'reaction' || notificationType === 'comment') {
-      notificationColumn = 'notifications_social';
-    }
 
     // Get users who have notifications enabled
     const { data: privacySettings } = await supabaseAdmin
@@ -132,6 +92,20 @@ serve(async (req) => {
       );
     }
 
+    // Get VAPID keys from environment
+    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
+    const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
+    
+    if (!vapidPrivateKey || !vapidPublicKey) {
+      console.error("VAPID keys not configured");
+      // Fall back to logging only if keys not configured
+      console.log(`Would send ${subscriptions.length} push notifications:`, { title, body });
+      return new Response(
+        JSON.stringify({ message: "VAPID keys not configured - notifications logged only", sent: 0, logged: subscriptions.length }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const payload: PushPayload = {
       title,
       body,
@@ -145,21 +119,65 @@ serve(async (req) => {
       }
     };
 
-    // Send to all subscriptions
+    // Send to all subscriptions using Web Push
     let sent = 0;
     let failed = 0;
+    const failedEndpoints: string[] = [];
 
     for (const sub of subscriptions) {
       try {
-        // Note: Full web push requires VAPID signing which is complex
-        // For now, we log the intent and the actual push would need
-        // a proper web-push library or service
-        console.log(`Would send push to user ${sub.user_id}:`, payload);
-        sent++;
+        // Build the push subscription object for pushforge
+        const subscription = {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          }
+        };
+
+        // Build the HTTP request using pushforge
+        const { endpoint, headers, body: requestBody } = await buildPushHTTPRequest({
+          privateJWK: vapidPrivateKey,
+          subscription,
+          message: {
+            payload: JSON.parse(JSON.stringify(payload)),
+            adminContact: "mailto:support@lifestack.app"
+          }
+        });
+
+        // Send the push notification
+        const pushResponse = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: requestBody,
+        });
+
+        if (pushResponse.ok || pushResponse.status === 201) {
+          console.log(`Push sent to user ${sub.user_id}`);
+          sent++;
+        } else {
+          const errorText = await pushResponse.text();
+          console.error(`Push failed for user ${sub.user_id}:`, pushResponse.status, errorText);
+          
+          // If subscription is invalid (410 Gone or 404), remove it
+          if (pushResponse.status === 410 || pushResponse.status === 404) {
+            failedEndpoints.push(sub.endpoint);
+          }
+          failed++;
+        }
       } catch (error) {
-        console.error("Failed to send push:", error);
+        console.error(`Failed to send push to user ${sub.user_id}:`, error);
         failed++;
       }
+    }
+
+    // Clean up invalid subscriptions
+    if (failedEndpoints.length > 0) {
+      await supabaseAdmin
+        .from('push_subscriptions')
+        .delete()
+        .in('endpoint', failedEndpoints);
+      console.log(`Cleaned up ${failedEndpoints.length} invalid subscriptions`);
     }
 
     console.log(`Push notifications: ${sent} sent, ${failed} failed`);
