@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import lifestackLogo from '@/assets/lifestack-logo.png';
 
+const AUTH_BG_VIDEO_SRC = '/videos/auth-background.mp4?v=20260204';
+
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -110,7 +112,7 @@ export default function Auth() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
       >
-        <source src="/videos/auth-background.mp4" type="video/mp4" />
+        <source src={AUTH_BG_VIDEO_SRC} type="video/mp4" />
       </video>
       
       {/* Content Overlay */}
