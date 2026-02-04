@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import {
   PenLine, Image, Video, Mic, MicOff, Send, X, Loader2,
   Bot, Lightbulb, AlertTriangle, ExternalLink, ChevronUp, ChevronDown,
   Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles,
-  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock
+  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock, Mail, Eye, History
 } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
@@ -79,7 +80,10 @@ interface JournalEntry {
   date: string;
   created_at: string;
   media_urls?: string[];
-  mentor_feedback?: string;
+  mentor_feedback?: JournalAnalysis | null;
+  scheduled_playback_at?: string | null;
+  playback_reminder_sent?: boolean | null;
+  tags?: unknown;
 }
 
 const moodOptions = [
@@ -110,7 +114,9 @@ const ALLOWED_MIME_TYPES = [
 
 export default function Journal() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [scheduledMessages, setScheduledMessages] = useState<JournalEntry[]>([]);
   const [content, setContent] = useState('');
   const [gratitude, setGratitude] = useState('');
   const [reflection, setReflection] = useState('');
@@ -138,6 +144,7 @@ export default function Journal() {
   const [scheduledPlaybackDate, setScheduledPlaybackDate] = useState<Date | undefined>(undefined);
   const [scheduledPlaybackTime, setScheduledPlaybackTime] = useState<string>('09:00');
   const [showSchedulePlayback, setShowSchedulePlayback] = useState(false);
+  const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -150,6 +157,7 @@ export default function Journal() {
   useEffect(() => {
     if (user) {
       fetchEntries();
+      fetchScheduledMessages();
     }
   }, [user]);
 
@@ -158,7 +166,7 @@ export default function Journal() {
       .from('journal_entries')
       .select('*')
       .order('date', { ascending: false })
-      .limit(10);
+      .limit(20);
     
     if (data) {
       // Generate signed URLs for media stored as paths in tags
@@ -172,12 +180,54 @@ export default function Journal() {
         
         return {
           ...entry,
-          media_urls: mediaUrls
-        };
+          media_urls: mediaUrls,
+          mentor_feedback: entry.mentor_feedback as unknown as JournalAnalysis | null
+        } as JournalEntry;
       }));
       
       setEntries(entriesWithMedia);
     }
+  };
+
+  const fetchScheduledMessages = async () => {
+    // Fetch entries with scheduled playback (upcoming or due)
+    const { data } = await supabase
+      .from('journal_entries')
+      .select('*')
+      .not('scheduled_playback_at', 'is', null)
+      .order('scheduled_playback_at', { ascending: true })
+      .limit(20);
+    
+    if (data) {
+      const messagesWithMedia = await Promise.all(data.map(async (entry) => {
+        const tags = entry.tags as string[] | null;
+        let mediaUrls: string[] = [];
+        
+        if (tags && tags.length > 0) {
+          mediaUrls = await generateSignedUrls(tags);
+        }
+        
+        return {
+          ...entry,
+          media_urls: mediaUrls,
+          mentor_feedback: entry.mentor_feedback as unknown as JournalAnalysis | null
+        } as JournalEntry;
+      }));
+      
+      setScheduledMessages(messagesWithMedia);
+    }
+  };
+
+  const toggleInsights = (entryId: string) => {
+    setExpandedInsights(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(entryId)) {
+        newSet.delete(entryId);
+      } else {
+        newSet.add(entryId);
+      }
+      return newSet;
+    });
   };
 
   const validateFile = (file: File): { valid: boolean; error?: string } => {
@@ -468,6 +518,13 @@ export default function Journal() {
         tags: mediaPaths.length > 0 ? mediaPaths : null,
         scheduled_playback_at: scheduledPlaybackAt,
         playback_reminder_sent: false,
+        // Store AI mentor feedback for later viewing
+        mentor_feedback: analysisResult ? JSON.parse(JSON.stringify({
+          approved: analysisResult.approved,
+          mentorComment: analysisResult.mentorComment,
+          opportunities: analysisResult.opportunities,
+          nudge: analysisResult.nudge,
+        })) : null,
       };
 
       if (existing) {
@@ -960,17 +1017,90 @@ export default function Journal() {
         </CardContent>
       </Card>
 
-      {/* Recent Entries */}
+      {/* Messages to Future Self - Scheduled & Due */}
+      {scheduledMessages.length > 0 && (
+        <Card variant="glass" className="border-l-4 border-l-primary">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" />
+              Messages to Future Self
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {scheduledMessages.map((msg) => {
+              const scheduledDate = msg.scheduled_playback_at ? new Date(msg.scheduled_playback_at) : null;
+              const isDue = scheduledDate && scheduledDate <= new Date();
+              const hasMedia = msg.media_urls && msg.media_urls.length > 0;
+              
+              return (
+                <div 
+                  key={msg.id} 
+                  className={cn(
+                    "p-3 rounded-lg transition-colors cursor-pointer",
+                    isDue 
+                      ? "bg-primary/20 border border-primary/40 hover:bg-primary/30" 
+                      : "bg-secondary/30 hover:bg-secondary/50"
+                  )}
+                  onClick={() => navigate(`/journal/playback/${msg.id}`)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {isDue ? (
+                        <Badge variant="default" className="bg-primary text-primary-foreground">
+                          <Bell className="w-3 h-3 mr-1" />
+                          Ready to view
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {scheduledDate && format(scheduledDate, 'MMM d, yyyy')}
+                        </Badge>
+                      )}
+                      {hasMedia && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Mic className="w-3 h-3" />
+                          {msg.media_urls![0].includes('video') ? 'Video' : 'Voice'}
+                        </span>
+                      )}
+                    </div>
+                    <Button 
+                      variant={isDue ? "gold" : "outline"} 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/journal/playback/${msg.id}`);
+                      }}
+                    >
+                      <Play className="w-4 h-4 mr-1" />
+                      {isDue ? 'Play Now' : 'Preview'}
+                    </Button>
+                  </div>
+                  {msg.content && (
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {msg.content}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Recorded {format(new Date(msg.created_at), 'MMM d, yyyy')}
+                  </p>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Entries with AI Insights */}
       {entries.length > 0 && (
         <Card variant="glass">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Recent Entries
+              <History className="w-5 h-5" />
+              Previous Entries
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {entries.slice(0, 5).map((entry) => (
+            {entries.slice(0, 10).map((entry) => (
               <div 
                 key={entry.id} 
                 className="p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
@@ -997,6 +1127,12 @@ export default function Journal() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {entry.media_urls && entry.media_urls.length > 0 && (
+                          <DropdownMenuItem onClick={() => navigate(`/journal/playback/${entry.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Playback
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => openEditDialog(entry)}>
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
@@ -1059,6 +1195,63 @@ export default function Journal() {
                         />
                       );
                     })}
+                  </div>
+                )}
+
+                {/* AI Insights Toggle */}
+                {entry.mentor_feedback && entry.mentor_feedback.mentorComment && (
+                  <div className="mt-3 pt-2 border-t border-border/30">
+                    <button
+                      onClick={() => toggleInsights(entry.id)}
+                      className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors w-full"
+                    >
+                      <Bot className="w-3.5 h-3.5" />
+                      <span>AI Insights</span>
+                      {expandedInsights.has(entry.id) ? (
+                        <ChevronUp className="w-3.5 h-3.5 ml-auto" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 ml-auto" />
+                      )}
+                    </button>
+                    
+                    {expandedInsights.has(entry.id) && (
+                      <div className="mt-2 space-y-2 animate-fade-in">
+                        <div className="bg-primary/10 rounded-lg p-3">
+                          <div className="flex items-start gap-2">
+                            <Bot className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <p className="text-xs text-foreground">{entry.mentor_feedback.mentorComment}</p>
+                          </div>
+                        </div>
+                        
+                        {entry.mentor_feedback.nudge && (
+                          <div className="bg-accent/20 rounded-lg p-2">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Sparkles className="w-3 h-3 text-primary" />
+                              <span className="text-xs font-medium">Daily Nudge</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{entry.mentor_feedback.nudge}</p>
+                          </div>
+                        )}
+                        
+                        {entry.mentor_feedback.opportunities && entry.mentor_feedback.opportunities.length > 0 && (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Lightbulb className="w-3 h-3 text-primary" />
+                              <span className="text-xs font-medium">Opportunities</span>
+                            </div>
+                            {entry.mentor_feedback.opportunities.slice(0, 2).map((opp, idx) => (
+                              <div key={idx} className="bg-muted/50 rounded p-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium">{opp.title}</span>
+                                  <Badge variant="secondary" className="text-[10px] h-4">{opp.category}</Badge>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">{opp.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

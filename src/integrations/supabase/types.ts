@@ -284,6 +284,7 @@ export type Database = {
           energy: number | null
           gratitude: string | null
           id: string
+          mentor_feedback: Json | null
           mood: number | null
           playback_reminder_sent: boolean | null
           reflection: string | null
@@ -299,6 +300,7 @@ export type Database = {
           energy?: number | null
           gratitude?: string | null
           id?: string
+          mentor_feedback?: Json | null
           mood?: number | null
           playback_reminder_sent?: boolean | null
           reflection?: string | null
@@ -314,6 +316,7 @@ export type Database = {
           energy?: number | null
           gratitude?: string | null
           id?: string
+          mentor_feedback?: Json | null
           mood?: number | null
           playback_reminder_sent?: boolean | null
           reflection?: string | null

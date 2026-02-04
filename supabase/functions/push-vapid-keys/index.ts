@@ -1,10 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// In-memory cache for generated keys (within a single instance)
+let cachedKeys: { publicKey: string; privateKey: string } | null = null;
 
 // Generate VAPID keys using Web Crypto API
 async function generateVAPIDKeys() {
@@ -20,22 +22,18 @@ async function generateVAPIDKeys() {
   const publicKeyBuffer = await crypto.subtle.exportKey("raw", keyPair.publicKey);
   const privateKeyBuffer = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
 
-  // Convert to base64url
+  // Convert to base64url for public key
   const publicKey = btoa(String.fromCharCode(...new Uint8Array(publicKeyBuffer)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=/g, "");
   
-  const privateKey = btoa(String.fromCharCode(...new Uint8Array(privateKeyBuffer)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  // Convert private key to JWK format for pushforge compatibility
+  const privateKeyJwk = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+  const privateKey = JSON.stringify(privateKeyJwk);
 
   return { publicKey, privateKey };
 }
-
-// Store keys in a simple config table or environment
-let cachedPublicKey: string | null = null;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -43,8 +41,7 @@ serve(async (req) => {
   }
 
   try {
-    // For this demo, we'll generate deterministic keys based on a secret
-    // In production, you'd store these securely
+    // Check for configured keys first
     const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY");
     
     if (VAPID_PUBLIC_KEY) {
@@ -55,16 +52,19 @@ serve(async (req) => {
       );
     }
 
-    // Generate new keys if not configured
-    // Note: In production, these should be persisted
-    if (!cachedPublicKey) {
-      const keys = await generateVAPIDKeys();
-      cachedPublicKey = keys.publicKey;
-      console.log("Generated VAPID public key:", cachedPublicKey);
+    // Generate temporary keys if not configured
+    // Note: These are ephemeral and will change on function restart
+    if (!cachedKeys) {
+      cachedKeys = await generateVAPIDKeys();
+      console.log("Generated temporary VAPID keys (not persisted)");
+      console.log("For reliable push notifications, set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY secrets");
     }
 
     return new Response(
-      JSON.stringify({ publicKey: cachedPublicKey }),
+      JSON.stringify({ 
+        publicKey: cachedKeys.publicKey,
+        warning: "Using temporary keys - notifications may not work reliably"
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
