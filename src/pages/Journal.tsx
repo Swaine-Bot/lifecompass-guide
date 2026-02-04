@@ -145,6 +145,7 @@ export default function Journal() {
   const [scheduledPlaybackTime, setScheduledPlaybackTime] = useState<string>('09:00');
   const [showSchedulePlayback, setShowSchedulePlayback] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -220,6 +221,18 @@ export default function Journal() {
 
   const toggleInsights = (entryId: string) => {
     setExpandedInsights(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(entryId)) {
+        newSet.delete(entryId);
+      } else {
+        newSet.add(entryId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleEntry = (entryId: string) => {
+    setExpandedEntries(prev => {
       const newSet = new Set(prev);
       if (newSet.has(entryId)) {
         newSet.delete(entryId);
@@ -1100,59 +1113,107 @@ export default function Journal() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {entries.slice(0, 10).map((entry) => (
-              <div 
-                key={entry.id} 
-                className="p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">
-                    {format(new Date(entry.date), 'EEEE, MMMM d')}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {entry.mood && (
-                      <span className="text-lg">
-                        {moodOptions.find(m => m.value === entry.mood)?.emoji}
+            {entries.slice(0, 10).map((entry) => {
+              const isExpanded = expandedEntries.has(entry.id);
+              
+              return (
+                <div 
+                  key={entry.id} 
+                  className={cn(
+                    "p-3 rounded-lg transition-colors cursor-pointer",
+                    isExpanded 
+                      ? "bg-primary/10 border border-primary/30" 
+                      : "bg-secondary/30 hover:bg-secondary/50"
+                  )}
+                  onClick={() => toggleEntry(entry.id)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {format(new Date(entry.date), 'EEEE, MMMM d')}
                       </span>
-                    )}
-                    {entry.energy && (
-                      <span className="text-xs text-muted-foreground">
-                        Energy: {energyOptions.find(e => e.value === entry.energy)?.label}
-                      </span>
-                    )}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {entry.media_urls && entry.media_urls.length > 0 && (
-                          <DropdownMenuItem onClick={() => navigate(`/journal/playback/${entry.id}`)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Playback
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {entry.mood && (
+                        <span className="text-lg">
+                          {moodOptions.find(m => m.value === entry.mood)?.emoji}
+                        </span>
+                      )}
+                      {entry.energy && (
+                        <span className="text-xs text-muted-foreground">
+                          Energy: {energyOptions.find(e => e.value === entry.energy)?.label}
+                        </span>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {entry.media_urls && entry.media_urls.length > 0 && (
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/journal/playback/${entry.id}`); }}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Playback
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openEditDialog(entry); }}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
                           </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => openEditDialog(entry)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setEntryToDelete(entry.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          <DropdownMenuItem 
+                            onClick={(e) => { e.stopPropagation(); setEntryToDelete(entry.id); }}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-                {entry.content && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {entry.content}
-                  </p>
-                )}
+                  
+                  {/* Content preview or full content */}
+                  {entry.content && (
+                    <p className={cn(
+                      "text-sm text-muted-foreground",
+                      !isExpanded && "line-clamp-2"
+                    )}>
+                      {entry.content}
+                    </p>
+                  )}
+                  
+                  {/* Expanded content sections */}
+                  {isExpanded && (
+                    <div className="mt-3 space-y-3 animate-fade-in">
+                      {/* Gratitude */}
+                      {entry.gratitude && (
+                        <div className="bg-background/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-medium">Gratitude</span>
+                          </div>
+                          <p className="text-sm text-foreground">{entry.gratitude}</p>
+                        </div>
+                      )}
+                      
+                      {/* Reflection */}
+                      {entry.reflection && (
+                        <div className="bg-background/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Lightbulb className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-medium">Reflection</span>
+                          </div>
+                          <p className="text-sm text-foreground">{entry.reflection}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 
                 {/* Display media (images, videos, audio) */}
                 {entry.media_urls && entry.media_urls.length > 0 && (
@@ -1255,7 +1316,8 @@ export default function Journal() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       )}
