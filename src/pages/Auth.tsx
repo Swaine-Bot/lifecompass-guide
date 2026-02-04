@@ -101,14 +101,27 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="p-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm">Back to home</span>
-        </Link>
-      </header>
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+      >
+        <source src="/videos/auth-background.mp4" type="video/mp4" />
+      </video>
+      
+      {/* Content Overlay */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Header */}
+        <header className="p-4">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back to home</span>
+          </Link>
+        </header>
 
       {/* Auth Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
@@ -257,6 +270,7 @@ export default function Auth() {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );
