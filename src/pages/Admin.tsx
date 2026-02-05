@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   Bot,
   Sparkles,
-  Apple
+  Apple,
+  PlayCircle
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -226,6 +227,13 @@ export default function Admin() {
             >
               <Apple className="h-4 w-4" />
               <span className="font-medium text-sm">App Store</span>
+            </Link>
+            <Link 
+              to="/play-store-submission" 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-500 transition-colors"
+            >
+              <PlayCircle className="h-4 w-4" />
+              <span className="font-medium text-sm">Play Store</span>
             </Link>
           </div>
         </div>
