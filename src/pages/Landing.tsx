@@ -113,9 +113,8 @@ export default function Landing() {
                 className="w-full h-full object-contain"
                 controls
                 playsInline
-                poster="/videos/intro-poster.jpg"
               >
-                <source src="/videos/launch-teaser.mp4" type="video/mp4" />
+                <source src="/videos/launch-teaser.mp4?v=20260205" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -127,7 +126,7 @@ export default function Landing() {
               className="gap-2"
               onClick={() => {
                 const a = document.createElement('a');
-                a.href = '/videos/launch-teaser.mp4';
+                a.href = '/videos/launch-teaser.mp4?v=20260205';
                 a.download = 'lifestack-launch-video.mp4';
                 a.click();
                 toast.success('Video download started!');
