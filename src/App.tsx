@@ -35,6 +35,7 @@ import Pricing from "./pages/Pricing";
 import Admin from "./pages/Admin";
 import IPDocumentation from "./pages/IPDocumentation";
 import LaunchVideo from "./pages/LaunchVideo";
+import AppStoreSubmission from "./pages/AppStoreSubmission";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/ip-docs" element={<IPDocumentation />} />
                 <Route path="/launch-video" element={<LaunchVideo />} />
+                <Route path="/app-store-submission" element={<AppStoreSubmission />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
