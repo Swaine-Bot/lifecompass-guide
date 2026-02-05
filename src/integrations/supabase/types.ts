@@ -1061,6 +1061,21 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
       }
+      get_profile_for_viewer: {
+        Args: { target_user_id: string }
+        Returns: {
+          account_type: Database["public"]["Enums"]["account_type"]
+          avatar_url: string
+          bio: string
+          id: string
+          is_verified: boolean
+          life_phase: Database["public"]["Enums"]["life_phase"]
+          name: string
+          page_category: string
+          user_id: string
+          website_url: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
