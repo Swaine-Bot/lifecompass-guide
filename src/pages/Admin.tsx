@@ -25,7 +25,8 @@ import {
   ArrowLeft,
   AlertTriangle,
   Bot,
-  Sparkles
+  Sparkles,
+  Apple
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -211,13 +212,22 @@ export default function Admin() {
               <p className="text-muted-foreground">LifeStack Analytics & Insights</p>
             </div>
           </div>
-          <Link 
-            to="/ip-docs" 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-          >
-            <FileText className="h-4 w-4" />
-            <span className="font-medium">IP Documentation</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link 
+              to="/ip-docs" 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+            >
+              <FileText className="h-4 w-4" />
+              <span className="font-medium text-sm">IP Docs</span>
+            </Link>
+            <Link 
+              to="/app-store-submission" 
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+            >
+              <Apple className="h-4 w-4" />
+              <span className="font-medium text-sm">App Store</span>
+            </Link>
+          </div>
         </div>
 
         {/* Key Metrics */}
