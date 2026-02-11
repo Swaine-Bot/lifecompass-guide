@@ -27,8 +27,21 @@ import {
   Bot,
   Sparkles,
   Apple,
-  PlayCircle
+  PlayCircle,
+  Trash2
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -108,6 +121,47 @@ export default function Admin() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUserId(userId);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error('No authentication token');
+        return;
+      }
+
+      const { data, error: fnError } = await supabase.functions.invoke('admin-delete-user', {
+        headers: { Authorization: `Bearer ${token}` },
+        body: { userId },
+      });
+
+      if (fnError) {
+        toast.error(`Failed to delete user: ${fnError.message}`);
+      } else if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success('User deleted successfully');
+        // Remove user from local state
+        if (analytics) {
+          setAnalytics({
+            ...analytics,
+            users: {
+              ...analytics.users,
+              total: analytics.users.total - 1,
+              details: analytics.users.details.filter(u => u.id !== userId),
+            },
+          });
+        }
+      }
+    } catch (err: any) {
+      toast.error(`Error: ${err.message}`);
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -433,6 +487,7 @@ export default function Admin() {
                         <TableHead>Journal</TableHead>
                         <TableHead>Posts</TableHead>
                         <TableHead>Joined</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -460,6 +515,37 @@ export default function Admin() {
                           <TableCell>{user.postsCount}</TableCell>
                           <TableCell className="text-xs">
                             {new Date(user.joinedAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive"
+                                  disabled={deletingUserId === user.id}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will permanently delete this user and all their data (habits, goals, journal entries, posts, etc.). This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    onClick={() => handleDeleteUser(user.id)}
+                                  >
+                                    Delete User
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </TableCell>
                         </TableRow>
                       ))}
