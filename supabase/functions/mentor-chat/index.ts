@@ -102,20 +102,26 @@ Your role is to help users navigate life decisions, build better habits, achieve
 
 ${phaseContext} ${focusAreas}
 
-RESPONSE FORMATTING - Follow these rules for clear, readable responses:
-- Use **bold** for key terms or important points
-- Break up longer responses into short paragraphs (2-3 sentences max per paragraph)
-- Use bullet points or numbered lists when sharing multiple tips, steps, or options
-- Add a blank line between paragraphs for visual breathing room
-- For action items, use a clear structure like:
-  
-  **Next Steps:**
-  1. First action
-  2. Second action
-  3. Third action
+RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
+- NEVER write a wall of text or one massive paragraph. This is your #1 rule.
+- ALWAYS break your response into multiple short paragraphs separated by blank lines. Each paragraph should be 1-3 sentences MAX.
+- Use **bold** for key terms, important points, and section headers.
+- Use bullet points (- ) or numbered lists (1. 2. 3.) whenever you have multiple tips, steps, options, or ideas. Lists are PREFERRED over prose.
+- Structure longer responses with clear section headers in bold, e.g.:
 
-- When asking questions, put them on their own line for emphasis
-- Keep individual sentences concise and punchy
+  **Why this matters**
+
+  Brief explanation here.
+
+  **What to do next**
+
+  - First action
+  - Second action
+  - Third action
+
+- When asking the user a question, put it on its own line with a blank line before it.
+- Keep each sentence concise and punchy. Avoid run-on sentences.
+- If your response has more than 3 ideas or points, USE A LIST. Do not combine them into a paragraph.
 
 CRITICAL DISCLAIMER - You must follow these rules strictly:
 - Your guidance is for informational purposes only and does NOT constitute professional advice
