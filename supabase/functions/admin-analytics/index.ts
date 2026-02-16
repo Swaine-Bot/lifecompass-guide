@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     // User count and details
     const { data: profiles, error: profilesError } = await adminClient
       .from('profiles')
-      .select('id, user_id, country, province, life_phase, created_at');
+      .select('id, user_id, country, province, life_phase, gender, created_at');
 
     if (profilesError) {
       console.error('Profiles error:', profilesError);
@@ -116,10 +116,10 @@ Deno.serve(async (req) => {
       .from('mentor_conversations')
       .select('id, user_id, created_at, title');
 
-    // Mentor messages count
+    // Mentor messages count and content for topic analysis
     const { data: mentorMessages, error: mentorMessagesError } = await adminClient
       .from('mentor_messages')
-      .select('id, conversation_id, created_at');
+      .select('id, conversation_id, created_at, role, content');
 
     // Process data
     const totalUsers = profiles?.length || 0;
@@ -251,6 +251,13 @@ Deno.serve(async (req) => {
       postsCount: posts?.filter(po => po.user_id === p.user_id).length || 0,
     }));
 
+    // Gender breakdown
+    const genderBreakdown: Record<string, number> = {};
+    profiles?.forEach(p => {
+      const gender = (p as any).gender || 'Not specified';
+      genderBreakdown[gender] = (genderBreakdown[gender] || 0) + 1;
+    });
+
     // Mentor statistics
     const mentorStats = {
       totalConversations: mentorConvos?.length || 0,
@@ -260,11 +267,71 @@ Deno.serve(async (req) => {
         title: c.title || 'Untitled',
         messageCount: mentorMessages?.filter(m => m.conversation_id === c.id).length || 0,
         createdAt: c.created_at
-      })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || []
+      })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [],
+      topicInsights: null as any,
     };
 
-    // Moderation logs (for now, we'll simulate flagged content - in production this would come from actual moderation data)
-    // This is a placeholder - actual implementation would track flagged content
+    // Analyze mentor chat topics using AI (only user messages, anonymized)
+    try {
+      const userMessages = mentorMessages?.filter(m => (m as any).role === 'user') || [];
+      if (userMessages.length > 0) {
+        // Sample up to 200 recent user messages for analysis (anonymized - no user IDs)
+        const sampleMessages = userMessages
+          .sort((a, b) => new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime())
+          .slice(0, 200)
+          .map(m => (m as any).content?.slice(0, 200) || '');
+
+        const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+        if (LOVABLE_API_KEY && sampleMessages.length >= 5) {
+          const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemini-2.5-flash-lite",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are an analytics assistant. Analyze these anonymized mentor chat messages and extract insights for advertisers while preserving user privacy. Return ONLY valid JSON with this exact structure:
+{
+  "topTopics": [{"topic": "string", "percentage": number, "description": "string"}],
+  "sentimentBreakdown": {"positive": number, "neutral": number, "negative": number},
+  "advertiserInsights": ["string"],
+  "keyThemes": ["string"]
+}
+- topTopics: top 8 discussion topics with estimated percentage and brief description
+- sentimentBreakdown: percentage breakdown (must sum to 100)
+- advertiserInsights: 5 actionable insights for advertisers (privacy-preserving, aggregate-level)
+- keyThemes: 5-8 recurring themes/keywords`
+                },
+                {
+                  role: "user",
+                  content: `Analyze these ${sampleMessages.length} anonymized user messages from a life coaching mentor chat app:\n\n${sampleMessages.join('\n---\n')}`
+                }
+              ],
+            }),
+          });
+
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            const content = aiData.choices?.[0]?.message?.content || '';
+            // Extract JSON from response
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              try {
+                mentorStats.topicInsights = JSON.parse(jsonMatch[0]);
+              } catch { /* ignore parse error */ }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Topic analysis error:', e);
+    }
+
+    // Moderation logs
     const moderation = {
       flaggedPosts: [],
       flaggedJournals: []
@@ -276,6 +343,7 @@ Deno.serve(async (req) => {
         byCountry: countryBreakdown,
         byProvince: provinceBreakdown,
         byLifePhase: lifePhaseBreakdown,
+        byGender: genderBreakdown,
         growth: userGrowth,
         details: userDetails,
       },
