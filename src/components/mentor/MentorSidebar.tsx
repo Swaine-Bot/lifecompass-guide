@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquare, Plus, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -49,30 +49,17 @@ export function MentorSidebar({
     setDeletingId(null);
   };
 
-  if (!isOpen) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggle}
-        className="shrink-0 ml-2 mt-2 bg-background/80 backdrop-blur-sm border border-border/30"
-      >
-        <ChevronRight className="w-4 h-4" />
-      </Button>
-    );
-  }
-
   return (
-    <div className="w-64 border-r border-border/30 flex flex-col bg-card/50 backdrop-blur-sm">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-3 border-b border-border/30 flex items-center justify-between">
+      <div className="p-3 border-b border-border/30 flex items-center justify-between shrink-0">
         <h3 className="font-medium text-sm">Chat History</h3>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNewConversation}>
             <Plus className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggle}>
-            <ChevronLeft className="w-4 h-4" />
+            <X className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -126,7 +113,7 @@ export function MentorSidebar({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will permanently delete this conversation and all its messages. This action cannot be undone.
+                        This will permanently delete this conversation and all its messages.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
