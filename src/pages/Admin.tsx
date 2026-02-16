@@ -51,6 +51,7 @@ interface Analytics {
     byCountry: Record<string, number>;
     byProvince: Record<string, number>;
     byLifePhase: Record<string, number>;
+    byGender: Record<string, number>;
     growth: { date: string; count: number }[];
     details: {
       id: string;
@@ -95,6 +96,12 @@ interface Analytics {
     totalConversations: number;
     totalMessages: number;
     recentConversations: { id: string; title: string; messageCount: number; createdAt: string }[];
+    topicInsights: {
+      topTopics: { topic: string; percentage: number; description: string }[];
+      sentimentBreakdown: { positive: number; neutral: number; negative: number };
+      advertiserInsights: string[];
+      keyThemes: string[];
+    } | null;
   };
 }
 
@@ -242,6 +249,7 @@ export default function Admin() {
   }
 
   const countryData = Object.entries(analytics?.users.byCountry || {}).map(([name, value]) => ({ name, value }));
+  const genderData = Object.entries(analytics?.users.byGender || {}).map(([name, value]) => ({ name, value }));
   const lifePhaseData = Object.entries(analytics?.users.byLifePhase || {}).map(([name, value]) => ({ 
     name: lifePhaseLabels[name] || name, 
     value 
@@ -252,6 +260,15 @@ export default function Admin() {
   }));
   const featureData = analytics?.features.mostUsed || [];
   const goalCategoryData = Object.entries(analytics?.features.goalCategories || {}).map(([name, value]) => ({ name, value }));
+  const topicInsights = analytics?.mentorStats?.topicInsights;
+  const topicData = topicInsights?.topTopics?.map(t => ({ name: t.topic, value: t.percentage })) || [];
+  const sentimentData = topicInsights?.sentimentBreakdown 
+    ? [
+        { name: 'Positive', value: topicInsights.sentimentBreakdown.positive },
+        { name: 'Neutral', value: topicInsights.sentimentBreakdown.neutral },
+        { name: 'Negative', value: topicInsights.sentimentBreakdown.negative },
+      ]
+    : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -462,6 +479,46 @@ export default function Admin() {
                       )}
                     </div>
                   </ScrollArea>
+                </CardContent>
+              </Card>
+
+              {/* Gender Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Users by Gender
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    {genderData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={genderData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            paddingAngle={5}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                          >
+                            {genderData.map((_, index) => (
+                              <Cell key={`cell-gender-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                        No gender data available yet
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -839,6 +896,116 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Mentor Topic Insights */}
+            {topicInsights && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top Discussion Topics */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5" />
+                      Top Discussion Topics
+                    </CardTitle>
+                    <CardDescription>AI-analyzed conversation subjects (anonymized, aggregate data)</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={topicData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" unit="%" />
+                          <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+                          <Tooltip formatter={(value: number) => `${value}%`} />
+                          <Bar dataKey="value" fill="hsl(var(--primary))" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Sentiment Breakdown */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Sentiment</CardTitle>
+                    <CardDescription>Overall sentiment from mentor conversations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={sentimentData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}%`}
+                          >
+                            <Cell fill="#6B8E23" />
+                            <Cell fill="#4682B4" />
+                            <Cell fill="#CD853F" />
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Advertiser Insights */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Advertiser Insights
+                    </CardTitle>
+                    <CardDescription>Privacy-preserving, aggregate-level insights for marketing</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-64">
+                      <div className="space-y-3">
+                        {topicInsights.advertiserInsights?.map((insight, i) => (
+                          <div key={i} className="flex gap-3 p-3 rounded-lg bg-muted/50">
+                            <span className="text-primary font-bold">{i + 1}.</span>
+                            <p className="text-sm">{insight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+
+                {/* Key Themes */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Key Themes</CardTitle>
+                    <CardDescription>Recurring topics and keywords</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {topicInsights.keyThemes?.map((theme, i) => (
+                        <Badge key={i} variant="secondary" className="text-sm px-3 py-1">
+                          {theme}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {!topicInsights && (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">Topic Analysis Unavailable</p>
+                  <p className="text-sm">Need at least 5 mentor chat messages to generate topic insights</p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Mood by Country */}
             <Card>

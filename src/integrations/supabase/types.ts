@@ -672,6 +672,7 @@ export type Database = {
           country: string | null
           created_at: string | null
           focus_areas: Json | null
+          gender: string | null
           guide_completed: boolean | null
           id: string
           is_verified: boolean | null
@@ -699,6 +700,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
+          gender?: string | null
           guide_completed?: boolean | null
           id?: string
           is_verified?: boolean | null
@@ -726,6 +728,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           focus_areas?: Json | null
+          gender?: string | null
           guide_completed?: boolean | null
           id?: string
           is_verified?: boolean | null
