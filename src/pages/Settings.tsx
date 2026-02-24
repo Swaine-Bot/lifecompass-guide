@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X
+  Bell, BellOff, X, Download, FileDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -36,6 +36,8 @@ interface PrivacySettings {
   notifications_nudges: boolean;
   show_ai_insights_to_friends: boolean;
 }
+
+type ExportStatus = 'idle' | 'loading' | 'done';
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
@@ -63,6 +65,7 @@ export default function Settings() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -225,6 +228,38 @@ export default function Settings() {
       toast.error('Failed to update privacy settings');
     } else {
       toast.success('Privacy settings updated');
+    }
+  };
+
+  const exportUserData = async () => {
+    if (!user) return;
+    setExportStatus('loading');
+    try {
+      const tables = ['profiles', 'goals', 'habits', 'habit_logs', 'tasks', 'milestones', 
+        'journal_entries', 'daily_checkins', 'life_events', 'mentor_conversations', 'mentor_messages',
+        'posts', 'comments', 'privacy_settings'] as const;
+      
+      const exportData: Record<string, unknown> = { exported_at: new Date().toISOString(), user_email: user.email };
+      
+      for (const table of tables) {
+        const { data } = await supabase.from(table).select('*');
+        exportData[table] = data || [];
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lifestack-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Data exported successfully');
+      setExportStatus('done');
+    } catch {
+      toast.error('Failed to export data');
+      setExportStatus('idle');
     }
   };
 
@@ -618,6 +653,59 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Data Rights - GDPR/POPIA */}
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileDown className="w-5 h-5" />
+                Your Data Rights (GDPR / POPIA)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Under GDPR and POPIA, you have the right to access, export, and delete your personal data at any time.
+              </p>
+              
+              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    Export My Data
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Download all your personal data in JSON format (Right to Data Portability)
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={exportUserData} 
+                  disabled={exportStatus === 'loading'}
+                >
+                  {exportStatus === 'loading' ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Exporting...</>
+                  ) : exportStatus === 'done' ? (
+                    'Downloaded ✓'
+                  ) : (
+                    <><Download className="w-4 h-4 mr-2" />Export</>
+                  )}
+                </Button>
+              </div>
+
+              <div className="text-xs text-muted-foreground p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <p className="font-medium mb-1">Your rights include:</p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  <li>Right of access — request a copy of your data</li>
+                  <li>Right to rectification — update inaccurate data via your profile</li>
+                  <li>Right to erasure — delete your account and all data</li>
+                  <li>Right to data portability — export data in machine-readable format</li>
+                  <li>Right to withdraw consent — toggle off any optional feature below</li>
+                  <li>Right to lodge a complaint — contact your local Data Protection Authority or the SA Information Regulator</li>
+                </ul>
+                <p className="mt-2">Contact: <strong>privacy@lifestack.app</strong> or <strong>dpo@lifestack.app</strong></p>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card variant="glass">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -651,11 +739,11 @@ export default function Settings() {
                     onCheckedChange={(v) => updatePrivacy({ terms_accepted: v })}
                   />
                   <div>
-                    <Label>Terms & Conditions</Label>
+                    <Label>Terms &amp; Conditions</Label>
                     <p className="text-sm text-muted-foreground">
                       I accept the{' '}
                       <Link to="/terms" className="text-primary hover:underline">
-                        Terms & Conditions
+                        Terms &amp; Conditions
                       </Link>
                     </p>
                   </div>

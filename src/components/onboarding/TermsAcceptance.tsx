@@ -127,17 +127,17 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   <FileText className="w-4 h-4 text-primary" />
                   <span className="font-medium">Terms of Service</span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <Link 
-                    to="/terms" 
-                    className="text-primary hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Terms of Service
-                  </Link>
-                  {' '}governing the use of LifeStack
-                </p>
+                 <p className="text-sm text-muted-foreground">
+                   I have read and agree to the{' '}
+                   <Link 
+                     to="/terms" 
+                     className="text-primary hover:underline"
+                     onClick={(e) => e.stopPropagation()}
+                   >
+                     Terms of Service
+                   </Link>
+                   , including the content licence and acceptable use policy
+                 </p>
               </div>
             </div>
           </motion.div>
@@ -165,7 +165,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   <span className="font-medium">Privacy Policy</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  I agree to the{' '}
+                  I have read and agree to the{' '}
                   <Link 
                     to="/privacy" 
                     className="text-primary hover:underline"
@@ -173,7 +173,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   >
                     Privacy Policy
                   </Link>
-                  {' '}and understand how my data is used
+                  {' '}and consent to the processing of my personal data as described therein (GDPR Art. 6(1)(a) / POPIA §11)
                 </p>
               </div>
             </div>
@@ -192,8 +192,9 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
             <div>
               <p className="text-sm font-medium mb-1">Your data is protected</p>
               <p className="text-xs text-muted-foreground">
-                We use industry-standard encryption and never sell your personal information. 
-                Your journal entries and conversations with your AI mentor are private and secure.
+                We comply with GDPR (EU), POPIA (South Africa) and apply HIPAA-aligned security safeguards. 
+                Your data is encrypted with AES-256, we never sell your personal information, and you retain 
+                full ownership of your content. You can export or delete your data at any time via Settings.
               </p>
             </div>
           </div>

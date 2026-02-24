@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, Scale, AlertTriangle, Users, Heart } from 'lucide-react';
+import { ArrowLeft, FileText, Scale, AlertTriangle, Users, Heart, Shield, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import lifestackLogo from '@/assets/lifestack-logo.png';
 
@@ -23,8 +23,8 @@ export default function Terms() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <FileText className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="font-serif text-4xl font-bold mb-4">Terms & Conditions</h1>
-          <p className="text-muted-foreground">Last updated: January 29, 2026</p>
+          <h1 className="font-serif text-4xl font-bold mb-4">Terms &amp; Conditions</h1>
+          <p className="text-muted-foreground">Last updated: February 24, 2026</p>
         </div>
 
         <div className="space-y-8">
@@ -37,12 +37,11 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                By accessing or using LifeStack ("the Service"), you agree to be bound by these Terms and 
-                Conditions ("Terms"). If you disagree with any part of these terms, you may not access the Service.
+                By accessing or using LifeStack ("the Service"), operated by <strong>Pragmatic Analytics Solutions (Pty) Ltd</strong>, you agree to be bound by these Terms and Conditions ("Terms"). If you disagree with any part of these terms, you may not access the Service.
               </p>
               <p>
-                These Terms apply to all visitors, users, and others who access or use the Service. You must 
-                be at least 16 years old to use this Service.
+                These Terms apply to all visitors, users, and others who access or use the Service. You must
+                be at least <strong>16 years old</strong> (or 18 where required by local law) to use this Service.
               </p>
             </CardContent>
           </Card>
@@ -55,7 +54,7 @@ export default function Terms() {
               <ul>
                 <li>You are responsible for safeguarding your account credentials</li>
                 <li>You must provide accurate and complete registration information</li>
-                <li>You may not share your account with others or allow unauthorized access</li>
+                <li>You may not share your account with others or allow unauthorised access</li>
                 <li>You must notify us immediately of any security breach</li>
                 <li>You are responsible for all activities under your account</li>
               </ul>
@@ -75,7 +74,7 @@ export default function Terms() {
                 <li>Use the Service for any unlawful purpose</li>
                 <li>Harass, abuse, or harm other users</li>
                 <li>Post content that is offensive, defamatory, or infringes intellectual property rights</li>
-                <li>Attempt to gain unauthorized access to any part of the Service</li>
+                <li>Attempt to gain unauthorised access to any part of the Service</li>
                 <li>Interfere with or disrupt the Service or its infrastructure</li>
                 <li>Use automated systems (bots, scrapers) without permission</li>
                 <li>Impersonate any person or entity</li>
@@ -85,32 +84,41 @@ export default function Terms() {
             </CardContent>
           </Card>
 
+          {/* FIXED: Content ownership - GDPR/POPIA compliant */}
           <Card variant="glass">
             <CardHeader>
-              <CardTitle>Content Ownership & License</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
+                Content Ownership &amp; License
+              </CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                <strong>Transfer of Ownership:</strong> By uploading, submitting, or posting any content 
-                (including but not limited to text, images, videos, audio recordings, journal entries, and 
-                any other materials) to LifeStack, you hereby irrevocably transfer and assign all rights, 
-                title, and interest in such content to <strong>Pragmatic Analytics Solutions (Pty) Ltd</strong>. 
-                This includes all intellectual property rights, copyrights, and any derivative works.
+                <strong>You retain ownership of your content.</strong> All content you upload, submit, or post to LifeStack (including text, images, videos, audio recordings, journal entries, and any other materials) remains <strong>your intellectual property</strong>.
               </p>
               <p>
-                <strong>License Grant:</strong> You grant Pragmatic Analytics Solutions (Pty) Ltd a perpetual, 
-                worldwide, royalty-free, non-exclusive license to use, reproduce, modify, adapt, publish, 
-                translate, distribute, and display such content for any purpose, including but not limited 
-                to improving the Service, training AI models, marketing, and research purposes.
+                <strong>Limited License Grant:</strong> By using LifeStack, you grant Pragmatic Analytics Solutions (Pty) Ltd a limited, non-exclusive, revocable licence to use your content <strong>solely for the purpose of providing and improving the Service to you</strong>. This includes:
+              </p>
+              <ul>
+                <li>Displaying your content back to you within the app</li>
+                <li>Processing your content through AI features <strong>you have opted into</strong></li>
+                <li>Sharing content with friends/connections <strong>you have explicitly chosen</strong></li>
+                <li>Creating anonymised, aggregated analytics that cannot identify you</li>
+              </ul>
+              <p>
+                <strong>What we will NOT do with your content:</strong>
+              </p>
+              <ul>
+                <li>We will NOT use your personal content to train public AI models</li>
+                <li>We will NOT sell or licence your content to third parties</li>
+                <li>We will NOT use your content for marketing without your explicit consent</li>
+                <li>We will NOT retain your content after you delete it (subject to backup retention periods stated in our Privacy Policy)</li>
+              </ul>
+              <p>
+                <strong>Revocation:</strong> You may revoke this licence at any time by deleting your content or your account. Upon account deletion, we will delete your content within 30 days from all systems, including backups within 90 days.
               </p>
               <p>
-                <strong>Waiver of Moral Rights:</strong> To the extent permitted by applicable law, you waive 
-                any moral rights you may have in the content you upload.
-              </p>
-              <p>
-                <strong>Responsibility:</strong> You are solely responsible for ensuring that any content 
-                you upload does not infringe upon the intellectual property rights or privacy rights of 
-                any third party, and that it complies with all applicable laws.
+                <strong>Responsibility:</strong> You are solely responsible for ensuring that any content you upload does not infringe upon the intellectual property rights or privacy rights of any third party.
               </p>
             </CardContent>
           </Card>
@@ -131,6 +139,7 @@ export default function Terms() {
                 <li><strong>Emergency Situations:</strong> If you're experiencing a crisis or emergency, please contact appropriate emergency services immediately</li>
                 <li><strong>Human Professionals:</strong> For serious concerns, we encourage you to consult qualified human professionals</li>
                 <li><strong>Limitations:</strong> AI responses may not always be accurate or appropriate for your specific situation</li>
+                <li><strong>Data Usage:</strong> Your conversations with the AI Mentor are processed to provide responses and are <strong>not used for model training</strong>. You may delete conversation history at any time</li>
               </ul>
             </CardContent>
           </Card>
@@ -145,7 +154,7 @@ export default function Terms() {
                 <li>Content shared with friends should respect their privacy</li>
                 <li>You may block or remove connections at any time</li>
                 <li>We may remove content or accounts that violate community standards</li>
-                <li>Report abusive behavior through our reporting tools</li>
+                <li>Report abusive behaviour through our reporting tools</li>
               </ul>
             </CardContent>
           </Card>
@@ -156,9 +165,8 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                The Service, including its design, features, code, and content (excluding user content), 
-                is owned by LifeStack and protected by copyright, trademark, and other laws. You may not 
-                copy, modify, distribute, or create derivative works without permission.
+                The Service, including its design, features, code, and content (excluding user content),
+                is owned by Pragmatic Analytics Solutions (Pty) Ltd and protected by copyright, trademark, and other laws. You may not copy, modify, distribute, or create derivative works without permission.
               </p>
             </CardContent>
           </Card>
@@ -167,33 +175,25 @@ export default function Terms() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-primary" />
-                Disclaimers & Limitations of Liability
+                Disclaimers &amp; Limitations of Liability
               </CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                <strong>AS-IS Basis:</strong> THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT 
-                WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED 
-                WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+                <strong>AS-IS Basis:</strong> THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT
+                WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
               </p>
               <p>
-                <strong>No Guarantee:</strong> PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD DOES NOT WARRANT 
-                THAT THE SERVICE WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE, OR THAT ANY DEFECTS 
-                WILL BE CORRECTED.
+                <strong>Limitation of Liability:</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW
+                (including the Consumer Protection Act 68 of 2008 in South Africa and mandatory EU consumer protection laws),
+                IN NO EVENT SHALL PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+                CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE.
               </p>
               <p>
-                <strong>Limitation of Liability:</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, 
-                IN NO EVENT SHALL PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD, ITS DIRECTORS, OFFICERS, EMPLOYEES, 
-                AFFILIATES, AGENTS, CONTRACTORS, OR LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, 
-                CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS 
-                OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR IN CONNECTION 
-                WITH YOUR ACCESS TO OR USE OF (OR INABILITY TO ACCESS OR USE) THE SERVICE.
+                <strong>Maximum Liability:</strong> OUR TOTAL AGGREGATE LIABILITY SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNTS PAID BY YOU IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED US DOLLARS (USD $100).
               </p>
               <p>
-                <strong>Maximum Liability:</strong> OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ALL CLAIMS 
-                ARISING FROM OR RELATED TO THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNTS 
-                PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED 
-                US DOLLARS (USD $100).
+                <strong>Note:</strong> Nothing in these Terms excludes or limits liability for death or personal injury caused by negligence, fraud, or any other liability that cannot be excluded under applicable law including GDPR, POPIA, or the South African Consumer Protection Act.
               </p>
             </CardContent>
           </Card>
@@ -201,80 +201,20 @@ export default function Terms() {
           <Card variant="glass">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-destructive" />
-                Data Loss & Security Breach Disclaimer
+                <Globe className="w-5 h-5 text-primary" />
+                Data Storage &amp; Your Rights
               </CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                <strong>No Liability for Data Loss:</strong> PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD SHALL 
-                NOT BE LIABLE FOR ANY LOSS, CORRUPTION, OR DESTRUCTION OF DATA, WHETHER CAUSED BY SYSTEM 
-                FAILURES, SECURITY BREACHES, UNAUTHORIZED ACCESS, NATURAL DISASTERS, ACTS OF WAR, TERRORISM, 
-                CIVIL UNREST, OR ANY OTHER CAUSE BEYOND OUR REASONABLE CONTROL.
+                <strong>Data Storage Location:</strong> Your data is stored on secure cloud infrastructure with primary data centres in the <strong>United States</strong> and <strong>European Union</strong>, with appropriate cross-border transfer safeguards (Standard Contractual Clauses).
               </p>
               <p>
-                <strong>Security Breach Disclaimer:</strong> WHILE WE IMPLEMENT INDUSTRY-STANDARD SECURITY 
-                MEASURES, NO SYSTEM IS COMPLETELY SECURE. WE DISCLAIM ALL LIABILITY FOR ANY UNAUTHORIZED 
-                ACCESS, DATA BREACHES, HACKING, CYBERATTACKS, PHISHING, RANSOMWARE, OR OTHER SECURITY 
-                INCIDENTS THAT MAY RESULT IN THE EXPOSURE, THEFT, MODIFICATION, OR DELETION OF YOUR DATA.
+                <strong>Your Data Rights:</strong> You have comprehensive rights over your data as detailed in our{' '}
+                <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>, including access, rectification, erasure, portability, and the right to withdraw consent.
               </p>
               <p>
-                <strong>Force Majeure:</strong> We shall not be liable for any failure or delay in performing 
-                our obligations due to circumstances beyond our reasonable control, including but not limited 
-                to natural disasters, pandemics, war, terrorism, riots, government actions, power outages, 
-                internet service provider failures, or third-party service disruptions.
-              </p>
-              <p>
-                <strong>User Responsibility:</strong> You are responsible for maintaining your own backups 
-                of any critical data and for implementing appropriate security measures on your devices. 
-                You acknowledge that you use the Service at your own risk.
-              </p>
-              <p>
-                <strong>Indemnification:</strong> You agree to indemnify, defend, and hold harmless 
-                Pragmatic Analytics Solutions (Pty) Ltd and its affiliates from any claims, damages, 
-                losses, or expenses arising from your use of the Service, your violation of these Terms, 
-                or your infringement of any third-party rights.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card variant="glass">
-            <CardHeader>
-              <CardTitle>Data Storage & Encryption</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-invert max-w-none">
-              <p>
-                <strong>Data Storage Location:</strong> Your data is stored on secure cloud infrastructure 
-                provided by our hosting partners, with primary data centers located in the <strong>United States</strong> and 
-                <strong> European Union</strong>. Data may be replicated across multiple geographic regions for 
-                redundancy and performance optimization.
-              </p>
-              <p>
-                <strong>Encryption Standards:</strong> We implement the following encryption measures to protect your data:
-              </p>
-              <ul>
-                <li><strong>Data in Transit:</strong> All data transmitted between your device and our servers 
-                is encrypted using TLS 1.3 (Transport Layer Security) with AES-256-GCM cipher suites</li>
-                <li><strong>Data at Rest:</strong> All stored data is encrypted using AES-256 (Advanced Encryption 
-                Standard with 256-bit keys), an industry-standard encryption algorithm approved for classified 
-                government information</li>
-                <li><strong>Database Encryption:</strong> Database-level encryption using transparent data 
-                encryption (TDE) with AES-256</li>
-                <li><strong>Backup Encryption:</strong> All database backups and replicas are encrypted using 
-                AES-256 encryption</li>
-                <li><strong>Key Management:</strong> Encryption keys are managed through secure key management 
-                systems with regular key rotation and access controls</li>
-              </ul>
-              <p>
-                <strong>Compliance:</strong> Our security practices are designed to align with internationally 
-                recognized standards including SOC 2 Type II, ISO 27001, and GDPR requirements. However, 
-                as stated in our disclaimers, no security measures can guarantee absolute protection against 
-                all threats.
-              </p>
-              <p>
-                <strong>Third-Party Processors:</strong> We may use third-party service providers for data 
-                processing, storage, and analytics. These providers are contractually obligated to maintain 
-                appropriate security measures and confidentiality of your data.
+                <strong>Data Export:</strong> You may request a full export of your data in machine-readable format (JSON) at any time via Settings → Privacy or by contacting privacy@lifestack.app.
               </p>
             </CardContent>
           </Card>
@@ -285,12 +225,14 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                We may terminate or suspend your account immediately, without prior notice, for conduct that 
-                violates these Terms or is harmful to other users or the Service.
+                We may terminate or suspend your account for conduct that violates these Terms or is harmful to other users. Where possible, we will provide <strong>14 days' notice</strong> before termination, except in cases of severe violations.
               </p>
               <p>
-                You may delete your account at any time through Settings. Upon deletion, your data will be 
-                removed according to our Privacy Policy.
+                You may delete your account at any time through Settings. Upon deletion, your data will be
+                permanently removed within 30 days, with backups purged within 90 days, as detailed in our Privacy Policy.
+              </p>
+              <p>
+                Upon termination, you may request a <strong>full data export</strong> before your data is deleted.
               </p>
             </CardContent>
           </Card>
@@ -301,39 +243,37 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                We reserve the right to modify these Terms at any time. We will notify you of material 
-                changes via email or in-app notification at least 30 days before they take effect.
+                We reserve the right to modify these Terms. For material changes, we will:
               </p>
-              <p>
-                Your continued use of the Service after changes constitutes acceptance of the new Terms.
-              </p>
+              <ul>
+                <li>Notify you via email and/or in-app notification at least <strong>30 days</strong> before changes take effect</li>
+                <li>Clearly describe what has changed</li>
+                <li>Give you the opportunity to review and accept or reject the new terms</li>
+                <li>Allow you to export and delete your data if you disagree</li>
+              </ul>
             </CardContent>
           </Card>
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle>Governing Law & Jurisdiction</CardTitle>
+              <CardTitle>Governing Law &amp; Jurisdiction</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-invert max-w-none">
               <p>
-                These Terms shall be governed by and construed in accordance with the laws of the 
-                <strong> Republic of South Africa</strong>, without regard to its conflict of law provisions.
+                These Terms shall be governed by and construed in accordance with the laws of the
+                <strong> Republic of South Africa</strong>, including the Protection of Personal Information Act (POPIA) and the Consumer Protection Act.
               </p>
               <p>
-                <strong>Jurisdiction:</strong> You agree to submit to the exclusive jurisdiction of the 
-                courts located in Johannesburg, South Africa for the resolution of any disputes arising 
-                from these Terms or your use of the Service.
+                <strong>EU Users:</strong> If you are located in the European Union, you retain all mandatory protections afforded by the laws of your country of residence, including GDPR. Nothing in these Terms restricts your rights under mandatory EU consumer protection or data protection law.
               </p>
               <p>
-                <strong>Arbitration:</strong> Any disputes arising from these Terms will first be subject 
-                to good faith negotiation. If unresolved within 30 days, disputes will be resolved through 
-                binding arbitration administered by the Arbitration Foundation of Southern Africa (AFSA), 
-                except where prohibited by law.
+                <strong>Jurisdiction:</strong> You agree to submit to the exclusive jurisdiction of the courts located in Johannesburg, South Africa, except where mandatory local law requires otherwise.
               </p>
               <p>
-                <strong>Class Action Waiver:</strong> TO THE EXTENT PERMITTED BY APPLICABLE LAW, YOU WAIVE 
-                ANY RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION AGAINST 
-                PRAGMATIC ANALYTICS SOLUTIONS (PTY) LTD.
+                <strong>Dispute Resolution:</strong> Any disputes will first be subject to good faith negotiation. If unresolved within 30 days, disputes will be resolved through binding arbitration administered by the Arbitration Foundation of Southern Africa (AFSA), except where prohibited by applicable law.
+              </p>
+              <p>
+                <strong>Note:</strong> EU consumers retain their right to bring proceedings in the courts of their member state under EU Regulation 1215/2012.
               </p>
             </CardContent>
           </Card>
@@ -345,7 +285,9 @@ export default function Terms() {
             <CardContent className="prose prose-invert max-w-none">
               <p>For questions about these Terms, contact us at:</p>
               <ul>
-                <li>Email: legal@lifestack.app</li>
+                <li><strong>General:</strong> legal@lifestack.app</li>
+                <li><strong>Privacy / Data Rights:</strong> privacy@lifestack.app</li>
+                <li><strong>Data Protection Officer:</strong> dpo@lifestack.app</li>
               </ul>
             </CardContent>
           </Card>
