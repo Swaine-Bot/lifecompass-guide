@@ -41,8 +41,13 @@ export default function Mentor() {
     }
   }, [permission, requestLocation]);
 
+  // Only auto-scroll when a new message is added (not on initial load of history)
+  const prevMessageCount = useRef(0);
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > prevMessageCount.current) {
+      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMessageCount.current = messages.length;
   }, [messages]);
 
   // Auto-resize textarea
@@ -94,12 +99,8 @@ export default function Mentor() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
+  // Enter now creates a new line (default textarea behavior)
+  // No special key handler needed
 
   const professionalLinks = [
     { label: 'Find a Therapist', query: 'therapist near me' },
@@ -243,12 +244,11 @@ export default function Mentor() {
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
-                    onKeyDown={handleKeyDown}
                     placeholder="Message your mentor..."
                     disabled={loading}
                     maxLength={MAX_MESSAGE_LENGTH}
-                    rows={1}
-                    className="min-h-[44px] max-h-[160px] resize-none rounded-xl bg-secondary/50 border-border/50 pr-14 py-3 text-sm leading-relaxed"
+                    rows={2}
+                    className="min-h-[60px] max-h-[160px] resize-none rounded-xl bg-secondary/50 border-border/50 pr-14 py-3 text-sm leading-relaxed"
                   />
                   <span className="absolute right-3 bottom-2 text-[10px] text-muted-foreground/50">
                     {input.length}/{MAX_MESSAGE_LENGTH}

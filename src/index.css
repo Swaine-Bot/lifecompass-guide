@@ -251,7 +251,45 @@
   
   .chat-bubble-assistant {
     @apply bg-secondary/70 text-foreground rounded-2xl rounded-bl-md;
-    @apply px-4 py-3 max-w-[85%];
+    @apply px-5 py-4 max-w-[85%];
+  }
+
+  /* Mentor markdown prose overrides */
+  .chat-bubble-assistant .prose h1,
+  .chat-bubble-assistant .prose h2,
+  .chat-bubble-assistant .prose h3 {
+    @apply text-foreground font-semibold mt-4 mb-2;
+  }
+  .chat-bubble-assistant .prose h3 { @apply text-sm; }
+  .chat-bubble-assistant .prose h2 { @apply text-base; }
+
+  .chat-bubble-assistant .prose p {
+    @apply my-2 leading-relaxed;
+  }
+
+  .chat-bubble-assistant .prose ul,
+  .chat-bubble-assistant .prose ol {
+    @apply my-2 pl-5 space-y-1;
+  }
+
+  .chat-bubble-assistant .prose li {
+    @apply leading-relaxed;
+  }
+
+  .chat-bubble-assistant .prose strong {
+    @apply text-foreground font-semibold;
+  }
+
+  .chat-bubble-assistant .prose blockquote {
+    @apply border-l-2 border-primary/40 pl-3 my-3 italic text-muted-foreground;
+  }
+
+  .chat-bubble-assistant .prose hr {
+    @apply my-4 border-border/50;
+  }
+
+  .chat-bubble-assistant .prose code {
+    @apply bg-muted/50 px-1.5 py-0.5 rounded text-xs;
   }
   
   /* Playbook card */

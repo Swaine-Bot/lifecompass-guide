@@ -33,7 +33,7 @@ export function MentorMessage({ role, content }: MentorMessageProps) {
           {isHidden ? (
             <p className="text-muted-foreground text-sm italic">Response hidden</p>
           ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5">
+            <div className="prose prose-sm dark:prose-invert max-w-none break-words">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           )}
