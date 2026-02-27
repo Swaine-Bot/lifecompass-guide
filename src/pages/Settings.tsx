@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X, Download, FileDown
+  Bell, BellOff, X, Download, FileDown, Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -35,6 +35,7 @@ interface PrivacySettings {
   notifications_social: boolean;
   notifications_nudges: boolean;
   show_ai_insights_to_friends: boolean;
+  curated_suggestions_enabled: boolean;
 }
 
 type ExportStatus = 'idle' | 'loading' | 'done';
@@ -58,6 +59,7 @@ export default function Settings() {
     notifications_social: true,
     notifications_nudges: true,
     show_ai_insights_to_friends: true,
+    curated_suggestions_enabled: false,
   });
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -186,6 +188,7 @@ export default function Settings() {
         notifications_social: data.notifications_social ?? true,
         notifications_nudges: data.notifications_nudges ?? true,
         show_ai_insights_to_friends: data.show_ai_insights_to_friends ?? true,
+        curated_suggestions_enabled: (data as any).curated_suggestions_enabled ?? false,
       });
     }
   };
@@ -533,6 +536,22 @@ export default function Settings() {
                 <Switch
                   checked={privacySettings.show_ai_insights_to_friends}
                   onCheckedChange={(v) => updatePrivacy({ show_ai_insights_to_friends: v })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Curated Suggestions
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Show curated product and service recommendations in AI insights on your feed posts
+                  </p>
+                </div>
+                <Switch
+                  checked={privacySettings.curated_suggestions_enabled}
+                  onCheckedChange={(v) => updatePrivacy({ curated_suggestions_enabled: v })}
                 />
               </div>
 

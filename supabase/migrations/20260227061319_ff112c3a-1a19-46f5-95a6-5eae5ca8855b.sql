@@ -1,0 +1,1 @@
+ALTER TABLE public.privacy_settings ADD COLUMN IF NOT EXISTS curated_suggestions_enabled boolean DEFAULT false;

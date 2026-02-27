@@ -604,6 +604,7 @@ export type Database = {
         Row: {
           allow_friend_requests: boolean | null
           created_at: string | null
+          curated_suggestions_enabled: boolean | null
           id: string
           location_permission: string | null
           notifications_goals: boolean | null
@@ -624,6 +625,7 @@ export type Database = {
         Insert: {
           allow_friend_requests?: boolean | null
           created_at?: string | null
+          curated_suggestions_enabled?: boolean | null
           id?: string
           location_permission?: string | null
           notifications_goals?: boolean | null
@@ -644,6 +646,7 @@ export type Database = {
         Update: {
           allow_friend_requests?: boolean | null
           created_at?: string | null
+          curated_suggestions_enabled?: boolean | null
           id?: string
           location_permission?: string | null
           notifications_goals?: boolean | null

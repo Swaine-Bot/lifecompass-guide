@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Home, Compass, Heart } from 'lucide-react';
+import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Home, Compass, Heart, Sparkles, ShoppingBag } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Shield } from 'lucide-react';
 import { IntroVideo } from '@/components/onboarding/IntroVideo';
 import { UserGuide } from '@/components/onboarding/UserGuide';
 import { TermsAcceptance } from '@/components/onboarding/TermsAcceptance';
@@ -48,6 +50,7 @@ export default function Onboarding() {
     focus_areas: ['health', 'career', 'mindset'],
     account_type: 'individual' as 'individual' | 'page',
     page_category: '' as string,
+    curated_suggestions_enabled: false,
   });
 
   const { user, refreshProfile } = useAuth();
@@ -76,6 +79,7 @@ export default function Onboarding() {
     { title: 'Life Phase', subtitle: 'Where are you in your journey?' },
     { title: 'Focus Areas', subtitle: 'What matters most right now?' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
+    { title: 'Smart Suggestions', subtitle: 'Personalize your AI experience' },
   ];
 
   const handleAccountTypeComplete = async (data: { accountType: 'individual' | 'page'; pageCategory?: string }) => {
@@ -162,6 +166,14 @@ export default function Onboarding() {
         .eq('user_id', user.id);
 
       if (error) throw error;
+
+      // Save curated suggestions preference
+      await supabase
+        .from('privacy_settings')
+        .upsert({
+          user_id: user.id,
+          curated_suggestions_enabled: formData.curated_suggestions_enabled,
+        });
 
       await refreshProfile();
       // Show the user guide after profile is saved
@@ -362,6 +374,55 @@ export default function Onboarding() {
                       <span>Flexible</span>
                       <span>Structured</span>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Curated Suggestions Opt-in */}
+              {step === 4 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Our AI mentor can include curated suggestions for products, services, and resources that match your goals and interests.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-border/50 bg-secondary/20 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <ShoppingBag className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">What you'll see</p>
+                        <p className="text-xs text-muted-foreground">
+                          Relevant product recommendations, service suggestions, and curated resources within AI insights on your feed posts and mentor conversations.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Shield className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">Your control</p>
+                        <p className="text-xs text-muted-foreground">
+                          This is completely optional. You can turn it off anytime in Settings → Privacy.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
+                    <div>
+                      <Label className="text-sm font-medium">Enable Curated Suggestions</Label>
+                      <p className="text-xs text-muted-foreground">Show me relevant recommendations</p>
+                    </div>
+                    <Switch
+                      checked={formData.curated_suggestions_enabled}
+                      onCheckedChange={(v) => setFormData({ ...formData, curated_suggestions_enabled: v })}
+                    />
                   </div>
                 </div>
               )}
