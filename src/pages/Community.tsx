@@ -1244,7 +1244,7 @@ export default function Community() {
           )}
         </TabsContent>
 
-        <TabsContent value="friends" className="space-y-3">
+        <TabsContent value="friends" className="space-y-3 overflow-visible">
           {/* Invite Friends */}
           <Card variant="glass">
             <CardContent className="p-4">
@@ -1260,7 +1260,7 @@ export default function Community() {
           </Card>
 
           {/* Add Friend */}
-          <Card variant="glass" className="overflow-visible">
+          <Card variant="glass" className="relative z-20 overflow-visible">
             <CardContent className="p-4 overflow-visible">
               <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
                 <UserPlus className="w-4 h-4" />
@@ -1287,7 +1287,7 @@ export default function Community() {
                   
                   {/* Search Results Dropdown */}
                   {showSearchResults && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto animate-fade-in">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-[80] max-h-64 overflow-y-auto animate-fade-in">
                       {isSearching ? (
                         <div className="p-4 text-center text-muted-foreground">
                           <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
