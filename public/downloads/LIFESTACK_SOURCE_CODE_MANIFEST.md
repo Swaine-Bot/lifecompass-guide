@@ -3,7 +3,7 @@
 
 **Owner:** Pragmatic Analytics Solutions (Pty) Ltd  
 **Date:** February 2, 2026  
-**Version:** 3.0 (Final)  
+**Version:** 4.0 (Final)  
 **Status:** FINAL - Ready for Patent Filing
 
 ---
@@ -38,14 +38,14 @@
 | `src/pages/Onboarding.tsx` | Setup wizard | ~360 |
 | `src/pages/NewGoal.tsx` | Goal creation form | ~200 |
 | `src/pages/NewHabit.tsx` | Habit creation form | ~200 |
-| `src/pages/Settings.tsx` | User preferences | ~350 |
+| `src/pages/Settings.tsx` | User preferences & data export | ~860 |
 | `src/pages/Admin.tsx` | Admin analytics dashboard | ~450 |
 | `src/pages/Auth.tsx` | Authentication | ~150 |
 | `src/pages/ResetPassword.tsx` | Password reset request | ~150 |
 | `src/pages/UpdatePassword.tsx` | Password update form | ~120 |
 | `src/pages/Pricing.tsx` | Subscription pricing | ~200 |
-| `src/pages/Terms.tsx` | Terms & Conditions | ~360 |
-| `src/pages/PrivacyPolicy.tsx` | Privacy policy | ~300 |
+| `src/pages/Terms.tsx` | Terms & Conditions (GDPR/POPIA compliant) | ~300 |
+| `src/pages/PrivacyPolicy.tsx` | Privacy policy (GDPR/POPIA/HIPAA) | ~370 |
 | `src/pages/Landing.tsx` | Marketing page | ~400 |
 | `src/pages/LaunchVideo.tsx` | Launch video page | ~100 |
 | `src/pages/Index.tsx` | Landing redirect | ~20 |
@@ -85,7 +85,7 @@
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
 | `src/components/onboarding/IntroVideo.tsx` | Intro video player | ~80 |
-| `src/components/onboarding/TermsAcceptance.tsx` | Terms acceptance | ~100 |
+| `src/components/onboarding/TermsAcceptance.tsx` | Terms acceptance (GDPR/POPIA consent) | ~120 |
 | `src/components/onboarding/UserGuide.tsx` | Interactive guide | ~200 |
 
 ### Subscription Components
@@ -212,6 +212,7 @@
 | `supabase/functions/push-vapid-keys/index.ts` | VAPID key management for Web Push | ~80 |
 | `supabase/functions/send-push-notification/index.ts` | Push notification delivery | ~120 |
 | `supabase/functions/check-journal-reminders/index.ts` | Scheduled playback reminder checker | ~100 |
+| `supabase/functions/admin-delete-user/index.ts` | Admin user deletion (GDPR Art. 17) | ~80 |
 
 ### Configuration
 
@@ -277,16 +278,16 @@
 
 | Category | Files | Approx. Lines of Code |
 |----------|-------|----------------------|
-| Pages | 26 | ~7,500 |
-| Components | 70+ | ~5,200 |
+| Pages | 26 | ~9,200 |
+| Components | 70+ | ~5,500 |
 | Contexts | 3 | ~400 |
 | Hooks | 7 | ~520 |
 | Utilities | 3 | ~280 |
-| Edge Functions | 7 | ~1,065 |
+| Edge Functions | 8 | ~1,200 |
 | Configuration | 12 | ~350 |
 | Service Workers | 1 | ~90 |
 | Tests | 2 | ~30 |
-| **TOTAL** | **128+** | **~15,500** |
+| **TOTAL** | **130+** | **~17,600** |
 
 ---
 

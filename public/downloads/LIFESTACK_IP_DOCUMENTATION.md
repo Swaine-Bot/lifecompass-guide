@@ -3,9 +3,9 @@
 
 ---
 
-**Document Version:** 3.0 (Final)  
+**Document Version:** 4.0 (Final)  
 **Compilation Date:** February 2, 2026  
-**Last Updated:** February 2, 2026  
+**Last Updated:** February 27, 2026  
 **Prepared For:** Patent Application & IP Protection (South Africa and International)  
 **Status:** FINAL - Ready for Patent Filing
 
@@ -43,8 +43,11 @@
 - Subscription tier management with progressive paywall
 - Admin analytics dashboard with role-based access
 - IP documentation and patent protection portal
+- **Multi-regulatory compliance framework (GDPR, POPIA, HIPAA)**
+- **GDPR Article 20 data portability with full data export**
+- **Granular consent management with regulatory article references**
 
-**Key Innovation:** A unified "Life Operating System" that adapts to the user's current life phase and provides personalized guidance through an AI mentor that understands the user's goals, habits, mood patterns, and social connections—with unique temporal messaging features allowing users to send messages to their future selves.
+**Key Innovation:** A unified "Life Operating System" that adapts to the user's current life phase and provides personalized guidance through an AI mentor that understands the user's goals, habits, mood patterns, and social connections—with unique temporal messaging features allowing users to send messages to their future selves. The platform implements a comprehensive multi-regulatory compliance framework spanning GDPR (EU), POPIA (South Africa), and HIPAA-aligned security practices, with built-in data portability, granular consent management, and user rights enforcement.
 
 ---
 
@@ -54,8 +57,13 @@
 **Jurisdiction:** Republic of South Africa  
 **Governing Law:** South African Law (Johannesburg Courts)
 
-**Content Ownership:** Per Terms & Conditions dated January 29, 2026:
-> "By uploading, submitting, or posting any content to LifeStack, you hereby irrevocably transfer and assign all rights, title, and interest in such content to Pragmatic Analytics Solutions (Pty) Ltd."
+**Content Ownership:** Per Terms & Conditions dated February 24, 2026:
+> "You retain full ownership of all content you create and upload to LifeStack. By using the Service, you grant us a limited, non-exclusive, revocable, royalty-free license to use, store, display, and process your content solely for the purpose of providing and improving the Service."
+
+**Regulatory Compliance:**
+- **GDPR (EU):** Full compliance with General Data Protection Regulation including lawful basis under Article 6, data subject rights (Articles 15-22), Data Protection Officer appointment, and data portability (Article 20)
+- **POPIA (South Africa):** Compliance with Protection of Personal Information Act including Information Officer designation, Section 11 consent requirements, and data subject participation rights (Section 23-25)
+- **HIPAA (US):** HIPAA-aligned security practices including encryption at rest (AES-256) and in transit (TLS 1.3), access controls, audit logging, and data minimization for health-related data (mood, energy, wellness tracking)
 
 ---
 
@@ -374,6 +382,35 @@ AI Models Used:
 - Language selection
 - Timezone configuration
 - Account management
+- **GDPR Article 20 data portability (full JSON export of all user data)**
+- **Granular consent management with regulatory references**
+- **Data subject rights summary panel**
+
+### 18. Multi-Regulatory Compliance Framework (NEW)
+**Files:** `src/pages/PrivacyPolicy.tsx`, `src/pages/Terms.tsx`, `src/pages/Settings.tsx`, `src/components/onboarding/TermsAcceptance.tsx`
+
+- **Privacy Policy** aligned with GDPR, POPIA, and HIPAA:
+  - Data Controller / Information Officer identification (GDPR Art. 13, POPIA §18)
+  - Lawful basis for processing (GDPR Art. 6, POPIA §11)
+  - Special category data handling for health/wellness data (GDPR Art. 9)
+  - Data subject rights enumeration (GDPR Art. 15-22, POPIA §23-25)
+  - Data retention policies and deletion procedures
+  - Cross-border transfer safeguards
+  - Cookie and tracking transparency
+- **Terms & Conditions** with user-protective content licensing:
+  - Users retain full content ownership (revocable license model)
+  - 14-day notice period for account termination
+  - Clear dispute resolution procedures
+  - Age verification requirements (16+ / 18+ where required)
+- **Data Export System** (GDPR Art. 20 compliance):
+  - Aggregates data from all user tables (profiles, goals, habits, journal entries, mentor conversations, tasks, life events, daily check-ins, privacy settings, subscriptions)
+  - Generates downloadable JSON blob with timestamp
+  - Accessible via Settings → Privacy tab
+- **Consent Management**:
+  - Explicit consent language referencing GDPR Art. 6(1)(a) and POPIA §11
+  - Separate checkboxes for Terms and Privacy Policy acceptance
+  - Consent timestamps recorded in database
+  - Granular notification consent toggles
 
 ### 17. Responsive Navigation
 **Files:** `src/components/layout/Sidebar.tsx`, `src/components/layout/BottomNav.tsx`
@@ -841,18 +878,24 @@ All tables protected with RLS policies:
 - Social data respects visibility settings
 - Admin roles have elevated access for analytics
 
-### Data Protection
+### Data Protection (HIPAA-Aligned)
 - TLS 1.3 encryption in transit (AES-256-GCM)
 - AES-256 encryption at rest
 - Secure file storage with signed URLs
 - Input validation with Zod schemas
+- Data minimization for health-related fields
+- Access controls via Row Level Security
 
-### Privacy Controls
+### Privacy Controls (GDPR/POPIA Compliant)
 - Granular privacy settings per user
-- Terms and privacy policy acceptance tracking
+- Terms and privacy policy acceptance tracking with timestamps
+- Explicit consent with regulatory article references (GDPR Art. 6(1)(a), POPIA §11)
 - Location permission management
 - Profile visibility controls
 - AI insights visibility toggle
+- **Full data portability export (GDPR Art. 20)**
+- **Right to erasure support (GDPR Art. 17, POPIA §24)**
+- **Data subject access request capability (GDPR Art. 15, POPIA §23)**
 
 ---
 
@@ -909,15 +952,15 @@ All tables protected with RLS policies:
 
 | Category | Files | Approx. Lines |
 |----------|-------|---------------|
-| Pages | 26 | ~7,500 |
-| Components | 70+ | ~5,200 |
+| Pages | 26 | ~9,200 |
+| Components | 70+ | ~5,500 |
 | Contexts | 3 | ~400 |
-| Hooks | 6 | ~480 |
+| Hooks | 7 | ~520 |
 | Utilities | 3 | ~300 |
-| Edge Functions | 7 | ~1,100 |
+| Edge Functions | 8 | ~1,200 |
 | Configuration | 12 | ~400 |
 | Service Workers | 1 | ~90 |
-| **TOTAL** | **128+** | **~15,500** |
+| **TOTAL** | **130+** | **~17,600** |
 
 ---
 
@@ -938,6 +981,12 @@ All tables protected with RLS policies:
 | January 31, 2026 | Message to Future Self feature |
 | January 31, 2026 | Journal Playback with automated reminders |
 | January 31, 2026 | Version 2.2 documentation update |
+| February 2, 2026 | Version 3.0 finalized for patent filing |
+| February 24, 2026 | GDPR/POPIA/HIPAA compliance overhaul |
+| February 24, 2026 | User content ownership model (revocable license) |
+| February 24, 2026 | Data portability export system (GDPR Art. 20) |
+| February 24, 2026 | Granular consent management with regulatory references |
+| February 27, 2026 | Version 4.0 documentation update |
 
 ---
 
@@ -962,6 +1011,9 @@ All tables protected with RLS policies:
 6. Social accountability with AI moderation
 7. **Message to Future Self with automated reminders**
 8. **Dual account types (Individual and Page/Organization)**
+9. **Multi-regulatory compliance framework (GDPR, POPIA, HIPAA)**
+10. **Built-in data portability with full user data export**
+11. **Granular consent management with regulatory article references**
 
 ---
 
@@ -973,11 +1025,12 @@ See companion document: `LIFESTACK_PATENT_CLAIMS.md`
 1. Life-Phase Adaptive Personal Management System
 2. Multi-Modal Journal Analysis Method
 3. AI Mentor with Professional Boundary Enforcement
-4. Temporal Self-Messaging System with Automated Reminders (NEW)
+4. Temporal Self-Messaging System with Automated Reminders
+5. Multi-Regulatory Compliance and Data Portability System (NEW)
 
-**Dependent Claims:** 17 additional claims covering specific implementations
+**Dependent Claims:** 22 additional claims covering specific implementations
 
 ---
 
 *Document prepared for Pragmatic Analytics Solutions (Pty) Ltd*
-*Version 2.2 - January 31, 2026*
+*Version 4.0 - February 27, 2026*
