@@ -934,31 +934,28 @@ export default function Community() {
   const acceptedFriends = friends.filter(f => f.status === 'accepted');
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-serif font-bold">Community</h1>
-          <p className="text-muted-foreground">Connect with friends and family</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowShareGoal(true)}>
-            <Target className="w-4 h-4 mr-2" />
-            Share Goal
+    <div className="space-y-4 pb-20 md:pb-0">
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-xl font-serif font-bold shrink-0">Community</h1>
+        <div className="flex gap-1.5 shrink-0">
+          <Button variant="outline" size="sm" onClick={() => setShowShareGoal(true)} className="h-8 px-2.5 text-xs">
+            <Target className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden xs:inline">Share</span> Goal
           </Button>
-          <Button variant="gold" onClick={() => setShowNewPost(true)}>
-            <Share2 className="w-4 h-4 mr-2" />
-            New Post
+          <Button variant="gold" size="sm" onClick={() => setShowNewPost(true)} className="h-8 px-2.5 text-xs">
+            <Share2 className="w-3.5 h-3.5 mr-1" />
+            Post
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="feed" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="feed">Feed</TabsTrigger>
-          <TabsTrigger value="friends" className="relative">
+      <Tabs defaultValue="feed" className="space-y-3">
+        <TabsList className="w-full">
+          <TabsTrigger value="feed" className="flex-1">Feed</TabsTrigger>
+          <TabsTrigger value="friends" className="relative flex-1">
             Friends
             {pendingRequests.length > 0 && (
-              <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 text-xs">
+              <Badge variant="destructive" className="ml-1.5 px-1 py-0 text-[10px] min-w-[18px] h-[18px]">
                 {pendingRequests.length}
               </Badge>
             )}
@@ -1247,32 +1244,28 @@ export default function Community() {
           )}
         </TabsContent>
 
-        <TabsContent value="friends" className="space-y-4">
-          {/* Invite Friends - Not on the app yet */}
+        <TabsContent value="friends" className="space-y-3">
+          {/* Invite Friends */}
           <Card variant="glass">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Mail className="w-5 h-5 text-primary" />
+            <CardContent className="p-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
+                <Mail className="w-4 h-4 text-primary" />
                 Invite Friends
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Know someone who would love LifeStack? Invite them via email or WhatsApp!
+              </h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Invite someone via email or WhatsApp!
               </p>
               <InviteFriends userName={profile?.name || 'A friend'} />
             </CardContent>
           </Card>
 
-          {/* Add Friend - Already on the app */}
+          {/* Add Friend */}
           <Card variant="glass">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <UserPlus className="w-5 h-5" />
-                Find Friends on LifeStack
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
+                <UserPlus className="w-4 h-4" />
+                Find Friends
+              </h3>
               <div className="flex gap-2">
                 <div className="relative flex-1" ref={searchContainerRef}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -1385,51 +1378,49 @@ export default function Community() {
           {/* Pending Requests */}
           {pendingRequests.length > 0 && (
             <Card variant="glass">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
+              <CardContent className="p-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                  <Clock className="w-4 h-4" />
                   Pending Requests
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {pendingRequests.map((friend) => (
-                  <div key={friend.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={friend.avatar_url || undefined} />
-                        <AvatarFallback>{friend.name?.charAt(0) || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{friend.name}</span>
+                </h3>
+                <div className="space-y-2">
+                  {pendingRequests.map((friend) => (
+                    <div key={friend.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={friend.avatar_url || undefined} />
+                          <AvatarFallback className="text-xs">{friend.name?.charAt(0) || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium text-sm">{friend.name}</span>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="gold" className="h-7 w-7 p-0" onClick={() => respondToRequest(friend.id, true)}>
+                          <Check className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => respondToRequest(friend.id, false)}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="gold" onClick={() => respondToRequest(friend.id, true)}>
-                        <Check className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => respondToRequest(friend.id, false)}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
 
           {/* Friends List */}
           <Card variant="glass">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="w-5 h-5" />
+            <CardContent className="p-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                <Users className="w-4 h-4" />
                 Friends ({acceptedFriends.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
               {acceptedFriends.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
-                  No friends yet. Start by sending a friend request!
+                <p className="text-muted-foreground text-center py-6 text-sm">
+                  No friends yet. Send a friend request above!
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {acceptedFriends.map((friend) => (
                     <button
                       key={friend.id}
@@ -1440,16 +1431,16 @@ export default function Community() {
                         bio: friend.bio,
                         life_phase: friend.life_phase
                       })}
-                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left"
                     >
-                      <Avatar>
+                      <Avatar className="w-8 h-8">
                         <AvatarImage src={friend.avatar_url || undefined} />
-                        <AvatarFallback>{friend.name?.charAt(0) || 'U'}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{friend.name?.charAt(0) || 'U'}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <span className="font-medium block">{friend.name}</span>
+                        <span className="font-medium text-sm block">{friend.name}</span>
                         {friend.life_phase && (
-                          <span className="text-xs text-muted-foreground capitalize">
+                          <span className="text-[11px] text-muted-foreground capitalize">
                             {friend.life_phase.replace(/_/g, ' ')}
                           </span>
                         )}
