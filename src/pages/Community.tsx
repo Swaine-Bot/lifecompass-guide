@@ -1260,8 +1260,8 @@ export default function Community() {
           </Card>
 
           {/* Add Friend */}
-          <Card variant="glass">
-            <CardContent className="p-4">
+          <Card variant="glass" className="overflow-visible">
+            <CardContent className="p-4 overflow-visible">
               <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
                 <UserPlus className="w-4 h-4" />
                 Find Friends

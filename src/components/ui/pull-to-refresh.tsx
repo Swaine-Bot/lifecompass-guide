@@ -21,6 +21,16 @@ export const PullToRefresh = ({ children, onRefresh, className }: PullToRefreshP
   const MAX_PULL = 120;
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // Check if the touch target is inside a nested scrollable element
+    const target = e.target as HTMLElement;
+    let el: HTMLElement | null = target;
+    while (el && el !== containerRef.current) {
+      // If any ancestor (before our container) is independently scrollable, don't intercept
+      if (el.scrollHeight > el.clientHeight + 1) {
+        return; // Let the nested scrollable handle it
+      }
+      el = el.parentElement;
+    }
     if (containerRef.current?.scrollTop === 0) {
       startY.current = e.touches[0].clientY;
       setIsPulling(true);
