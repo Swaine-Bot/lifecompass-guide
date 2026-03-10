@@ -776,6 +776,10 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="engagement" className="space-y-4">
+          <NotificationPreferencesCard />
+        </TabsContent>
+
         <TabsContent value="account" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
