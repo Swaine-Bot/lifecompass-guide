@@ -242,6 +242,9 @@ export default function ShareStudio() {
             privacy={privacy}
             phrase={phrase}
             userName={privacy.includeName ? 'You' : undefined}
+            includeImage={hasPostImage && includePostImage}
+            imageLayoutOverride={imageLayout}
+            showImageCount={showImageCount}
           />
 
           {/* Format chips */}
