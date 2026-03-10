@@ -98,7 +98,9 @@ export default function NewGoal() {
       }
 
       toast.success('Goal created successfully!');
-      navigate('/goals');
+      setSavedGoalTitle(formData.title);
+      setSavedGoalCategory(formData.category);
+      setShowDeclaration(true);
     } catch (err) {
       toast.error('Failed to create goal. Please try again.');
     } finally {
