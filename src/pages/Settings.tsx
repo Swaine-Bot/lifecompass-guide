@@ -24,6 +24,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/lib/translations';
 import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -313,6 +314,10 @@ export default function Settings() {
             Subscription
           </TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4" />
+            Engagement
+          </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
@@ -770,6 +775,10 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="engagement" className="space-y-4">
+          <NotificationPreferencesCard />
         </TabsContent>
 
         <TabsContent value="account" className="space-y-4">

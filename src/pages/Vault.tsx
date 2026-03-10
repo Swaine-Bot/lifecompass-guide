@@ -1,23 +1,29 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Heart, Share2, Sparkles, Film, Image, Archive, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Heart, Sparkles, Film, Image } from 'lucide-react';
 import { format } from 'date-fns';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
-import { toast } from 'sonner';
+import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
+import { engagementEventService } from '@/services/engagementEventService';
 
 export default function Vault() {
+  const navigate = useNavigate();
   const {
     mirrorMoments, cinematicReports, shareCards,
     toggleFavorite, archiveItem,
   } = useViralEngagement();
 
+  useEffect(() => {
+    engagementEventService.log('vault_visited', 'vault');
+  }, []);
+
   const favoriteMoments = mirrorMoments.filter(m => m.is_favorite);
   const favoriteReports = cinematicReports.filter(r => r.is_favorite);
+  const hasFavorites = favoriteMoments.length > 0 || favoriteReports.length > 0;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -47,8 +53,14 @@ export default function Vault() {
 
         {/* Favorites */}
         <TabsContent value="favorites" className="space-y-4 mt-4">
-          {favoriteMoments.length === 0 && favoriteReports.length === 0 ? (
-            <EmptyState icon={Heart} text="Save your favorite moments and chapters here" />
+          {!hasFavorites ? (
+            <EmptyStatePanel
+              icon={Heart}
+              title="No favorites yet"
+              description="Favorite reflections, save cinematic chapters, and create share cards to build your archive."
+              primaryCta={{ label: 'Open Mirror', onClick: () => navigate('/mirror') }}
+              secondaryCta={{ label: 'View Chapters', onClick: () => navigate('/cinematics') }}
+            />
           ) : (
             <>
               {favoriteMoments.map(m => (
@@ -73,7 +85,12 @@ export default function Vault() {
         {/* All Moments */}
         <TabsContent value="moments" className="space-y-3 mt-4">
           {mirrorMoments.length === 0 ? (
-            <EmptyState icon={Sparkles} text="Your Mirror Moments will appear here" />
+            <EmptyStatePanel
+              icon={Sparkles}
+              title="Your reflection is still forming"
+              description="Mirror Moments will appear here as you build your LifeStack journey."
+              primaryCta={{ label: 'Go to Mirror', onClick: () => navigate('/mirror') }}
+            />
           ) : (
             mirrorMoments.map(m => (
               <MirrorMomentCard
@@ -90,7 +107,12 @@ export default function Vault() {
         {/* All Chapters */}
         <TabsContent value="chapters" className="space-y-4 mt-4">
           {cinematicReports.length === 0 ? (
-            <EmptyState icon={Film} text="Your life chapters will appear here" />
+            <EmptyStatePanel
+              icon={Film}
+              title="No chapters yet"
+              description="Your life chapters will unfold here once you've built enough momentum."
+              primaryCta={{ label: 'Go to Cinematics', onClick: () => navigate('/cinematics') }}
+            />
           ) : (
             cinematicReports.map(r => (
               <CinematicChapterCard
@@ -106,7 +128,11 @@ export default function Vault() {
         {/* Share Cards */}
         <TabsContent value="cards" className="space-y-3 mt-4">
           {shareCards.length === 0 ? (
-            <EmptyState icon={Image} text="Your share cards will appear here when you share progress" />
+            <EmptyStatePanel
+              icon={Image}
+              title="Your Vault is empty"
+              description="Share cards will appear here when you share your milestones and achievements."
+            />
           ) : (
             shareCards.map(card => (
               <Card key={card.id} variant="glass" className="p-4">
@@ -141,15 +167,6 @@ export default function Vault() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function EmptyState({ icon: Icon, text }: { icon: any; text: string }) {
-  return (
-    <div className="text-center py-12">
-      <Icon className="w-10 h-10 text-primary/20 mx-auto mb-3" />
-      <p className="text-sm text-muted-foreground">{text}</p>
     </div>
   );
 }

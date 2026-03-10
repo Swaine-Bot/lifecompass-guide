@@ -19,6 +19,8 @@ import { useEngagement } from '@/hooks/useEngagement';
 import { DailySignalCard } from '@/components/engagement/DailySignalCard';
 import { XPDomainBars } from '@/components/engagement/XPDomainBars';
 import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
+import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
+import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 
 interface Task {
   id: string;
@@ -71,6 +73,7 @@ export default function Home() {
     domainXP, streak, dailySignal, signalLoading, 
     awardXP, markSignalRead, xpForLevel, xpForNextLevel, totalXP, overallLevel
   } = useEngagement();
+  const milestonePrompt = useMilestonePrompt();
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
@@ -175,7 +178,12 @@ export default function Home() {
       if (completed) {
         triggerReward();
         toast.success('🎉 Task completed! Keep it up!');
-        awardXP('mind', 20, 'task_completed', taskId);
+        const result = await awardXP('mind', 20, 'task_completed', taskId);
+        if (result?.leveled_up && user) {
+          milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
+        }
+        // Check streak after XP award
+        if (user) milestonePrompt.checkStreak(streak.current_streak + 1, user.id);
       }
     }
   };
@@ -233,7 +241,10 @@ export default function Home() {
 
     if (newCompleted) {
       toast.success('✨ Habit completed!');
-      awardXP('physical', 20, 'habit_completed', habitId);
+      const result = await awardXP('physical', 20, 'habit_completed', habitId);
+      if (result?.leveled_up && user) {
+        milestonePrompt.checkLevelUp('physical', result.new_level, true, user.id);
+      }
     }
   };
 
@@ -550,6 +561,14 @@ export default function Home() {
           <span className="text-xs text-muted-foreground">AI Mentor</span>
         </Link>
       </div>
+
+      {milestonePrompt.milestone && (
+        <MilestonePromptModal
+          milestone={milestonePrompt.milestone}
+          open={milestonePrompt.open}
+          onClose={milestonePrompt.close}
+        />
+      )}
     </div>
   );
 }

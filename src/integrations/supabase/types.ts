@@ -193,6 +193,33 @@ export type Database = {
         }
         Relationships: []
       }
+      engagement_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          source_engine: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          source_engine: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          source_engine?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string
@@ -655,6 +682,45 @@ export type Database = {
           shield_used_date?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          cinematic_reports: boolean
+          created_at: string | null
+          drift_warnings: boolean
+          frequency: string
+          id: string
+          milestone_alerts: boolean
+          mirror_moments: boolean
+          updated_at: string | null
+          user_id: string
+          weekly_recap: boolean
+        }
+        Insert: {
+          cinematic_reports?: boolean
+          created_at?: string | null
+          drift_warnings?: boolean
+          frequency?: string
+          id?: string
+          milestone_alerts?: boolean
+          mirror_moments?: boolean
+          updated_at?: string | null
+          user_id: string
+          weekly_recap?: boolean
+        }
+        Update: {
+          cinematic_reports?: boolean
+          created_at?: string | null
+          drift_warnings?: boolean
+          frequency?: string
+          id?: string
+          milestone_alerts?: boolean
+          mirror_moments?: boolean
+          updated_at?: string | null
+          user_id?: string
+          weekly_recap?: boolean
         }
         Relationships: []
       }

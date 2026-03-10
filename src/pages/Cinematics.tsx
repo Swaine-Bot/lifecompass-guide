@@ -1,12 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Film, BookOpen } from 'lucide-react';
+import { Loader2, Film } from 'lucide-react';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
+import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
 import { toast } from 'sonner';
 
 export default function Cinematics() {
+  const navigate = useNavigate();
   const {
     cinematicReports, cinematicLoading,
     generateCinematicReport, toggleFavorite, markRead, archiveItem,
@@ -64,7 +67,7 @@ export default function Cinematics() {
         </TabsList>
       </Tabs>
 
-      {/* Reports */}
+      {/* Loading */}
       {cinematicLoading && cinematicReports.length === 0 && (
         <div className="text-center py-12">
           <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
@@ -72,6 +75,7 @@ export default function Cinematics() {
         </div>
       )}
 
+      {/* Reports */}
       <div className="space-y-4">
         {filtered.map((report, idx) => (
           <CinematicChapterCard
@@ -87,15 +91,12 @@ export default function Cinematics() {
 
       {/* Empty State */}
       {filtered.length === 0 && !cinematicLoading && (
-        <div className="text-center py-12">
-          <Film className="w-10 h-10 text-primary/30 mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm">
-            Your life chapters will unfold here.
-          </p>
-          <p className="text-muted-foreground text-xs mt-1">
-            Generate your first chapter above to begin your narrative.
-          </p>
-        </div>
+        <EmptyStatePanel
+          icon={Film}
+          title="No chapter yet"
+          description="When your activity forms a meaningful pattern, LifeStack will turn it into a story. Generate your first chapter above to begin."
+          primaryCta={{ label: 'Start Journaling', onClick: () => navigate('/journal') }}
+        />
       )}
     </div>
   );

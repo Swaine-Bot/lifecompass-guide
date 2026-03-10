@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
+import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 
 interface Goal {
   id: string;
@@ -36,11 +39,13 @@ const statusColors: Record<string, string> = {
 const categories = ['All', 'Health', 'Career', 'Money', 'Relationships', 'Mindset', 'Legacy'];
 
 export default function Goals() {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
+  const milestonePrompt = useMilestonePrompt();
 
   useEffect(() => {
     fetchGoals();
@@ -67,6 +72,13 @@ export default function Goals() {
       .eq('id', goalId);
     
     setGoals(prev => prev.map(g => g.id === goalId ? { ...g, status } : g));
+
+    if (status === 'completed' && user) {
+      const goal = goals.find(g => g.id === goalId);
+      if (goal) {
+        milestonePrompt.checkGoalComplete(goalId, goal.title, user.id);
+      }
+    }
   };
 
   const filteredGoals = goals.filter(goal => {
@@ -244,6 +256,13 @@ export default function Goals() {
             ))}
           </div>
         </div>
+      )}
+      {milestonePrompt.milestone && (
+        <MilestonePromptModal
+          milestone={milestonePrompt.milestone}
+          open={milestonePrompt.open}
+          onClose={milestonePrompt.close}
+        />
       )}
     </div>
   );
