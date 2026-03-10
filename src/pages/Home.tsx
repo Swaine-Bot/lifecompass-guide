@@ -178,7 +178,12 @@ export default function Home() {
       if (completed) {
         triggerReward();
         toast.success('🎉 Task completed! Keep it up!');
-        awardXP('mind', 20, 'task_completed', taskId);
+        const result = await awardXP('mind', 20, 'task_completed', taskId);
+        if (result?.leveled_up && user) {
+          milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
+        }
+        // Check streak after XP award
+        if (user) milestonePrompt.checkStreak(streak.current_streak + 1, user.id);
       }
     }
   };
