@@ -10,8 +10,9 @@ import {
   PenLine, Image, Video, Mic, MicOff, Send, X, Loader2,
   Bot, Lightbulb, AlertTriangle, ExternalLink, ChevronUp, ChevronDown,
   Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles,
-  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock, Mail, Eye, History
+  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock, Mail, Eye, History, Share2
 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Popover,
