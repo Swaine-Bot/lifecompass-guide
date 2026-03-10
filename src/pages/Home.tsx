@@ -175,6 +175,7 @@ export default function Home() {
       if (completed) {
         triggerReward();
         toast.success('🎉 Task completed! Keep it up!');
+        awardXP('mind', 20, 'task_completed', taskId);
       }
     }
   };
