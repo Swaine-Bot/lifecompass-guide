@@ -28,6 +28,12 @@ export interface ShareSource {
   quote?: string;       // for mentor insights
   excerpt?: string;     // for journal (max 120 chars)
   contextTag?: string;  // for mentor insight context
+  // Feed post specific
+  authorName?: string;
+  postCategory?: string;
+  insightSnippet?: string;
+  offerTitle?: string;
+  suggestionLabels?: string[];
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
