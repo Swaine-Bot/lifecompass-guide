@@ -75,7 +75,7 @@ export const ShareCardTemplate = forwardRef<HTMLDivElement, ShareCardTemplatePro
             'text-[9px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border',
             t.pillBg, t.pillBorder, t.accent
           )}>
-            {CARD_TYPE_LABELS[data.cardType]}
+            {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
         </div>
 
