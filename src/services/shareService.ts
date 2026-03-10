@@ -2,8 +2,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // ─── Types ────────────────────────────────────────────────────────────
 export type CardType = 'streak' | 'milestone' | 'mentor_insight' | 'progress' | 'weekly_recap' | 'level_up';
-export type ShareFormat = 'story' | 'feed' | 'square' | 'linkedin';
-export type ShareTheme = 'obsidian_gold' | 'graphite_glass' | 'midnight_blue' | 'clean_platinum' | 'ember_focus';
+export type ShareFormat = 'story' | 'feed' | 'square' | 'linkedin' | 'tiktok';
+export type ShareTheme = 'obsidian_gold' | 'midnight_sage' | 'graphite_platinum' | 'ember_focus' | 'clean_silver';
 export type VisualModule = 'flame' | 'ring' | 'radar' | 'badge' | 'chart' | 'quote' | 'none';
 
 export interface ShareCardData {
@@ -51,15 +51,59 @@ export const FORMAT_DIMENSIONS: Record<ShareFormat, { w: number; h: number; labe
   feed:     { w: 1080, h: 1350, label: 'Feed 4:5' },
   square:   { w: 1080, h: 1080, label: 'Square 1:1' },
   linkedin: { w: 1080, h: 1350, label: 'LinkedIn 4:5' },
+  tiktok:   { w: 1080, h: 1920, label: 'TikTok 9:16' },
 };
+
+// ─── Design Tokens ──────────────────────────────────────────────────
+export const SHARE_TOKENS = {
+  spacing: {
+    cardPadding: '24px',
+    cardPaddingSm: '20px',
+    sectionGap: '16px',
+    elementGap: '8px',
+    topBandHeight: '32px',
+  },
+  radius: {
+    card: '16px',
+    pill: '100px',
+    module: '12px',
+    metric: '12px',
+  },
+  typography: {
+    heroSize: 'clamp(2rem, 5vw, 3.5rem)',
+    heroWeight: '700',
+    heroLetterSpacing: '-0.02em',
+    metricSize: '0.75rem',
+    metricWeight: '600',
+    metricLetterSpacing: '0.06em',
+    narrativeSize: '0.75rem',
+    narrativeWeight: '400',
+    narrativeLetterSpacing: '0.04em',
+    footerSize: '0.5625rem',
+    footerWeight: '500',
+    footerLetterSpacing: '0.1em',
+    pillSize: '0.5625rem',
+    pillWeight: '600',
+    pillLetterSpacing: '0.15em',
+  },
+  elevation: {
+    cardShadow: '0 0 80px -20px',
+    moduleShadow: '0 4px 24px -8px',
+    pillShadow: '0 1px 4px 0',
+  },
+} as const;
 
 // ─── Theme Definitions ──────────────────────────────────────────────
 export interface ThemeDefinition {
   id: ShareTheme;
   label: string;
-  bg: string;
+  // Inline style gradients for reliable rendering
+  bgGradient: string;
   accent: string;
   accentHex: string;
+  headlineHex: string;
+  metricHex: string;
+  footerHex: string;
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
@@ -69,15 +113,20 @@ export interface ThemeDefinition {
   metricBorder: string;
   borderLine: string;
   dotPattern: string;
+  // Module track color
+  trackHex: string;
 }
 
 export const THEMES: Record<ShareTheme, ThemeDefinition> = {
   obsidian_gold: {
     id: 'obsidian_gold',
     label: 'Obsidian Gold',
-    bg: 'bg-gradient-to-br from-[hsl(220,20%,6%)] via-[hsl(220,18%,9%)] to-[hsl(220,20%,12%)]',
+    bgGradient: 'linear-gradient(145deg, hsl(220,20%,5%) 0%, hsl(220,18%,8%) 40%, hsl(225,20%,11%) 100%)',
     accent: 'text-[hsl(43,74%,52%)]',
     accentHex: 'hsl(43,74%,52%)',
+    headlineHex: 'hsl(40,15%,92%)',
+    metricHex: 'hsl(43,74%,52%)',
+    footerHex: 'hsl(220,10%,40%)',
     textPrimary: 'text-[hsl(40,15%,92%)]',
     textSecondary: 'text-[hsl(220,10%,50%)]',
     textMuted: 'text-[hsl(220,10%,40%)]',
@@ -86,63 +135,59 @@ export const THEMES: Record<ShareTheme, ThemeDefinition> = {
     metricBg: 'bg-[hsl(220,15%,10%)]',
     metricBorder: 'border-[hsl(220,15%,18%)]',
     borderLine: 'border-[hsl(220,15%,15%)]',
-    dotPattern: 'white',
+    dotPattern: 'hsl(43,74%,52%)',
+    trackHex: 'hsl(220,15%,15%)',
   },
-  graphite_glass: {
-    id: 'graphite_glass',
-    label: 'Graphite Glass',
-    bg: 'bg-gradient-to-br from-[hsl(220,10%,8%)] via-[hsl(220,8%,12%)] to-[hsl(220,10%,16%)]',
-    accent: 'text-[hsl(210,15%,75%)]',
-    accentHex: 'hsl(210,15%,75%)',
-    textPrimary: 'text-[hsl(210,10%,90%)]',
-    textSecondary: 'text-[hsl(220,8%,50%)]',
-    textMuted: 'text-[hsl(220,8%,38%)]',
-    pillBg: 'bg-[hsl(220,10%,16%)]',
-    pillBorder: 'border-[hsl(220,10%,24%)]',
-    metricBg: 'bg-[hsl(220,10%,12%)]',
-    metricBorder: 'border-[hsl(220,10%,20%)]',
-    borderLine: 'border-[hsl(220,10%,18%)]',
-    dotPattern: 'hsl(210,15%,75%)',
+  midnight_sage: {
+    id: 'midnight_sage',
+    label: 'Midnight Sage',
+    bgGradient: 'linear-gradient(145deg, hsl(160,15%,5%) 0%, hsl(165,12%,8%) 40%, hsl(170,15%,12%) 100%)',
+    accent: 'text-[hsl(155,35%,55%)]',
+    accentHex: 'hsl(155,35%,55%)',
+    headlineHex: 'hsl(160,10%,90%)',
+    metricHex: 'hsl(155,35%,55%)',
+    footerHex: 'hsl(160,8%,38%)',
+    textPrimary: 'text-[hsl(160,10%,90%)]',
+    textSecondary: 'text-[hsl(160,8%,48%)]',
+    textMuted: 'text-[hsl(160,8%,38%)]',
+    pillBg: 'bg-[hsl(160,12%,14%)]',
+    pillBorder: 'border-[hsl(160,12%,22%)]',
+    metricBg: 'bg-[hsl(160,12%,10%)]',
+    metricBorder: 'border-[hsl(160,12%,18%)]',
+    borderLine: 'border-[hsl(160,12%,16%)]',
+    dotPattern: 'hsl(155,35%,55%)',
+    trackHex: 'hsl(160,12%,16%)',
   },
-  midnight_blue: {
-    id: 'midnight_blue',
-    label: 'Midnight Blue',
-    bg: 'bg-gradient-to-br from-[hsl(230,30%,8%)] via-[hsl(225,25%,12%)] to-[hsl(220,30%,16%)]',
-    accent: 'text-[hsl(210,80%,60%)]',
-    accentHex: 'hsl(210,80%,60%)',
-    textPrimary: 'text-[hsl(210,30%,92%)]',
-    textSecondary: 'text-[hsl(225,15%,50%)]',
-    textMuted: 'text-[hsl(225,15%,38%)]',
-    pillBg: 'bg-[hsl(225,25%,16%)]',
-    pillBorder: 'border-[hsl(225,25%,24%)]',
-    metricBg: 'bg-[hsl(225,25%,12%)]',
-    metricBorder: 'border-[hsl(225,25%,20%)]',
-    borderLine: 'border-[hsl(225,25%,18%)]',
-    dotPattern: 'hsl(210,80%,60%)',
-  },
-  clean_platinum: {
-    id: 'clean_platinum',
-    label: 'Clean Platinum',
-    bg: 'bg-gradient-to-br from-[hsl(220,5%,10%)] via-[hsl(220,4%,14%)] to-[hsl(220,5%,18%)]',
-    accent: 'text-[hsl(0,0%,85%)]',
-    accentHex: 'hsl(0,0%,85%)',
-    textPrimary: 'text-[hsl(0,0%,92%)]',
-    textSecondary: 'text-[hsl(220,5%,50%)]',
+  graphite_platinum: {
+    id: 'graphite_platinum',
+    label: 'Graphite Platinum',
+    bgGradient: 'linear-gradient(145deg, hsl(220,8%,7%) 0%, hsl(220,6%,11%) 40%, hsl(220,8%,15%) 100%)',
+    accent: 'text-[hsl(220,8%,78%)]',
+    accentHex: 'hsl(220,8%,78%)',
+    headlineHex: 'hsl(220,5%,92%)',
+    metricHex: 'hsl(220,8%,78%)',
+    footerHex: 'hsl(220,5%,38%)',
+    textPrimary: 'text-[hsl(220,5%,92%)]',
+    textSecondary: 'text-[hsl(220,6%,50%)]',
     textMuted: 'text-[hsl(220,5%,38%)]',
-    pillBg: 'bg-[hsl(220,5%,16%)]',
-    pillBorder: 'border-[hsl(220,5%,24%)]',
-    metricBg: 'bg-[hsl(220,5%,12%)]',
-    metricBorder: 'border-[hsl(220,5%,20%)]',
-    borderLine: 'border-[hsl(220,5%,18%)]',
-    dotPattern: 'hsl(0,0%,85%)',
+    pillBg: 'bg-[hsl(220,8%,15%)]',
+    pillBorder: 'border-[hsl(220,8%,23%)]',
+    metricBg: 'bg-[hsl(220,8%,11%)]',
+    metricBorder: 'border-[hsl(220,8%,19%)]',
+    borderLine: 'border-[hsl(220,8%,17%)]',
+    dotPattern: 'hsl(220,8%,78%)',
+    trackHex: 'hsl(220,8%,17%)',
   },
   ember_focus: {
     id: 'ember_focus',
     label: 'Ember Focus',
-    bg: 'bg-gradient-to-br from-[hsl(0,12%,7%)] via-[hsl(10,10%,10%)] to-[hsl(15,12%,14%)]',
-    accent: 'text-[hsl(20,85%,55%)]',
-    accentHex: 'hsl(20,85%,55%)',
-    textPrimary: 'text-[hsl(30,15%,90%)]',
+    bgGradient: 'linear-gradient(145deg, hsl(0,12%,6%) 0%, hsl(8,10%,9%) 40%, hsl(12,12%,13%) 100%)',
+    accent: 'text-[hsl(18,85%,55%)]',
+    accentHex: 'hsl(18,85%,55%)',
+    headlineHex: 'hsl(25,12%,90%)',
+    metricHex: 'hsl(18,85%,55%)',
+    footerHex: 'hsl(15,8%,36%)',
+    textPrimary: 'text-[hsl(25,12%,90%)]',
     textSecondary: 'text-[hsl(15,8%,48%)]',
     textMuted: 'text-[hsl(15,8%,36%)]',
     pillBg: 'bg-[hsl(10,10%,14%)]',
@@ -150,7 +195,28 @@ export const THEMES: Record<ShareTheme, ThemeDefinition> = {
     metricBg: 'bg-[hsl(10,10%,10%)]',
     metricBorder: 'border-[hsl(10,10%,18%)]',
     borderLine: 'border-[hsl(10,10%,16%)]',
-    dotPattern: 'hsl(20,85%,55%)',
+    dotPattern: 'hsl(18,85%,55%)',
+    trackHex: 'hsl(10,10%,16%)',
+  },
+  clean_silver: {
+    id: 'clean_silver',
+    label: 'Clean Silver',
+    bgGradient: 'linear-gradient(145deg, hsl(0,0%,7%) 0%, hsl(0,0%,10%) 40%, hsl(0,0%,14%) 100%)',
+    accent: 'text-[hsl(0,0%,80%)]',
+    accentHex: 'hsl(0,0%,80%)',
+    headlineHex: 'hsl(0,0%,93%)',
+    metricHex: 'hsl(0,0%,80%)',
+    footerHex: 'hsl(0,0%,38%)',
+    textPrimary: 'text-[hsl(0,0%,93%)]',
+    textSecondary: 'text-[hsl(0,0%,50%)]',
+    textMuted: 'text-[hsl(0,0%,38%)]',
+    pillBg: 'bg-[hsl(0,0%,14%)]',
+    pillBorder: 'border-[hsl(0,0%,22%)]',
+    metricBg: 'bg-[hsl(0,0%,10%)]',
+    metricBorder: 'border-[hsl(0,0%,18%)]',
+    borderLine: 'border-[hsl(0,0%,16%)]',
+    dotPattern: 'hsl(0,0%,80%)',
+    trackHex: 'hsl(0,0%,16%)',
   },
 };
 
@@ -293,7 +359,7 @@ export async function renderCardToCanvas(
   element: HTMLElement,
   format: ShareFormat
 ): Promise<HTMLCanvasElement> {
-  const { w, h } = FORMAT_DIMENSIONS[format];
+  const { w } = FORMAT_DIMENSIONS[format];
   const html2canvas = (await import('html2canvas')).default;
   const canvas = await html2canvas(element, {
     width: element.offsetWidth,

@@ -137,7 +137,7 @@ export default function ShareStudio() {
 
           {/* Format chips */}
           <div className="flex gap-2 justify-center flex-wrap">
-            {(['square', 'feed', 'story', 'linkedin'] as ShareFormat[]).map(f => (
+            {(['square', 'feed', 'story', 'linkedin', 'tiktok'] as ShareFormat[]).map(f => (
               <button key={f} onClick={() => setFormat(f)}
                 className={cn(
                   'px-3 py-1 rounded-full text-xs font-medium border transition-all',

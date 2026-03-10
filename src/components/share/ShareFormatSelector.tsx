@@ -6,13 +6,21 @@ interface ShareFormatSelectorProps {
   onChange: (format: ShareFormat) => void;
 }
 
-const formats: ShareFormat[] = ['square', 'feed', 'story', 'linkedin'];
+const formats: ShareFormat[] = ['square', 'feed', 'story', 'linkedin', 'tiktok'];
+
+const formatLabels: Record<ShareFormat, string> = {
+  square: 'Square',
+  feed: 'Feed',
+  story: 'Story',
+  linkedin: 'LinkedIn',
+  tiktok: 'TikTok',
+};
 
 export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorProps) {
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Format</span>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-1.5">
         {formats.map((f) => {
           const dim = FORMAT_DIMENSIONS[f];
           const ratio = dim.w / dim.h;
@@ -32,9 +40,9 @@ export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorPro
                   'rounded border',
                   format === f ? 'border-primary bg-primary/20' : 'border-border/50 bg-secondary/50'
                 )}
-                style={{ width: 24, height: 24 / ratio }}
+                style={{ width: 20, height: 20 / ratio }}
               />
-              <span className="text-[9px] font-medium capitalize">{f}</span>
+              <span className="text-[8px] font-medium">{formatLabels[f]}</span>
             </button>
           );
         })}
