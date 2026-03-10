@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, Target, CheckCircle2, Pause, Play, Archive, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Target, CheckCircle2, Pause, Play, Archive, Edit, Trash2, Share2 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
