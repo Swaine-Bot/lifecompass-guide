@@ -394,9 +394,10 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-5 bg-secondary/50">
+          <TabsList className={cn("w-full bg-secondary/50", hasPostImage ? "grid grid-cols-6" : "grid grid-cols-5")}>
             <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
+            {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
             <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
             <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
             <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
