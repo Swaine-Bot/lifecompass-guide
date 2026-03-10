@@ -1,6 +1,19 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const PRIVACY_THRESHOLD = 5; // Minimum cohort size to display
+const PRIVACY_THRESHOLD = 5;
+
+export interface ShareAnalyticsData {
+  totalCardsGenerated: number;
+  totalSharesInitiated: number;
+  topCardType: string;
+  topPlatform: string;
+  topDomains: { domain: string; count: number }[];
+  cardTypeBreakdown: { type: string; count: number }[];
+  dailyTrend: { date: string; generated: number; shared: number }[];
+  privacyModeUsage: { mode: string; count: number }[];
+  formatBreakdown: { format: string; count: number }[];
+  themeBreakdown: { theme: string; count: number }[];
+}
 
 export interface AdminAnalytics {
   overview: {
@@ -15,6 +28,10 @@ export interface AdminAnalytics {
     totalFeedPosts: number;
     conversionRate: number;
     monthlyRevenue: number;
+    bannedUsers?: number;
+    shareCardsGenerated?: number;
+    sharesInitiated?: number;
+    reportsPending?: number;
   };
   userGrowth: { date: string; count: number }[];
   behavioral: {
@@ -46,6 +63,7 @@ export interface AdminAnalytics {
     subscriptionBreakdown: { tier: string; count: number }[];
     countryDistribution: { name: string; count: number }[];
   };
+  shareAnalytics?: ShareAnalyticsData;
   users: {
     details: {
       id: string;

@@ -20,10 +20,8 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify user identity using service role client
     const token = authHeader.replace('Bearer ', '');
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
     
@@ -34,7 +32,6 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
-
     const { data: roleData, error: roleError } = await adminClient
       .from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle();
 
@@ -51,7 +48,6 @@ Deno.serve(async (req) => {
     const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
     const monthAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-    // Parallel data fetch
     const [
       { data: profiles },
       { data: subscriptions },
@@ -63,6 +59,7 @@ Deno.serve(async (req) => {
       { data: mentorConvos },
       { data: mentorMessages },
       { data: shareEvents },
+      { data: contentReports },
     ] = await Promise.all([
       adminClient.from('profiles').select('id, user_id, country, province, life_phase, gender, created_at'),
       adminClient.from('user_subscriptions').select('*'),
@@ -74,6 +71,7 @@ Deno.serve(async (req) => {
       adminClient.from('mentor_conversations').select('id, user_id, created_at, title'),
       adminClient.from('mentor_messages').select('id, conversation_id, created_at, role, content'),
       adminClient.from('share_events').select('id, card_type, share_target, format, privacy_level, created_at'),
+      adminClient.from('content_reports').select('id, status'),
     ]);
 
     const totalUsers = profiles?.length || 0;
@@ -83,18 +81,16 @@ Deno.serve(async (req) => {
       sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(today)).map(s => s.user_id)
     );
     const activeToday = usersWithRecentSessions.size;
-
     const activeWeekUsers = new Set(
       sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(weekAgo)).map(s => s.user_id)
     );
     const activeWeek = activeWeekUsers.size;
-
     const activeMonthUsers = new Set(
       sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(monthAgo)).map(s => s.user_id)
     );
     const activeMonth = activeMonthUsers.size;
 
-    // Avg sessions per user
+    // Avg sessions
     const sessionsByUser: Record<string, number> = {};
     sessions?.forEach(s => { sessionsByUser[s.user_id] = (sessionsByUser[s.user_id] || 0) + 1; });
     const avgSessions = totalUsers > 0 ? Object.values(sessionsByUser).reduce((a, b) => a + b, 0) / totalUsers : 0;
@@ -119,11 +115,9 @@ Deno.serve(async (req) => {
       { feature: 'Mentor', users: new Set(mentorConvos?.map(m => m.user_id)).size, total: mentorConvos?.length || 0 },
     ];
 
-    // Feature adoption percentages
     const featureAdoption: Record<string, number> = {};
     featureUsage.forEach(f => { featureAdoption[f.feature.toLowerCase()] = totalUsers > 0 ? (f.users / totalUsers) * 100 : 0; });
 
-    // Active vs passive
     const usersWithActivity = new Set([
       ...(goals?.map(g => g.user_id) || []),
       ...(habits?.map(h => h.user_id) || []),
@@ -133,7 +127,7 @@ Deno.serve(async (req) => {
     ]);
     const activeUsers = usersWithActivity.size;
 
-    // Session depth buckets
+    // Session depth
     const userSessionDurations: Record<string, number> = {};
     sessions?.forEach(s => {
       userSessionDurations[s.user_id] = (userSessionDurations[s.user_id] || 0) + (s.duration_seconds || 0);
@@ -167,7 +161,6 @@ Deno.serve(async (req) => {
     const goalCategoryData = Object.entries(goalCategories).map(([name, d]) => ({
       name, count: d.count, completionRate: d.count > 0 ? (d.completed / d.count) * 100 : 0
     })).sort((a, b) => b.count - a.count);
-
     const goalStatusDist: Record<string, number> = {};
     goals?.forEach(g => { const s = g.status || 'active'; goalStatusDist[s] = (goalStatusDist[s] || 0) + 1; });
 
@@ -180,17 +173,15 @@ Deno.serve(async (req) => {
       userGrowth.push({ date: dateStr, count });
     }
 
-    // Retention data
+    // Retention
     const countryBreakdown: Record<string, number> = {};
     const lifePhaseBreakdown: Record<string, number> = {};
     profiles?.forEach(p => {
-      const c = p.country || 'Unknown';
-      const lp = p.life_phase || 'Unknown';
-      countryBreakdown[c] = (countryBreakdown[c] || 0) + 1;
-      lifePhaseBreakdown[lp] = (lifePhaseBreakdown[lp] || 0) + 1;
+      countryBreakdown[p.country || 'Unknown'] = (countryBreakdown[p.country || 'Unknown'] || 0) + 1;
+      lifePhaseBreakdown[p.life_phase || 'Unknown'] = (lifePhaseBreakdown[p.life_phase || 'Unknown'] || 0) + 1;
     });
 
-    // User details for moderation
+    // User details
     const userDetails = profiles?.map(p => ({
       id: p.user_id,
       country: p.country || 'Unknown',
@@ -205,7 +196,7 @@ Deno.serve(async (req) => {
       postsCount: posts?.filter(po => po.user_id === p.user_id).length || 0,
     }));
 
-    // Mentor topic analysis
+    // Mentor topics
     let mentorTopics = null;
     try {
       const userMsgs = mentorMessages?.filter(m => m.role === 'user') || [];
@@ -230,12 +221,9 @@ Deno.serve(async (req) => {
   "topTopics": [{"topic": "string", "percentage": number, "description": "string"}],
   "sentimentBreakdown": {"positive": number, "neutral": number, "negative": number},
   "keyThemes": ["string"]
-}
-- topTopics: top 8 discussion topic categories with estimated percentage
-- sentimentBreakdown: percentage breakdown summing to 100
-- keyThemes: 5-8 recurring theme keywords`
+}`
                 },
-                { role: "user", content: `Analyze these ${sample.length} anonymized messages from a life coaching app:\n\n${sample.join('\n---\n')}` }
+                { role: "user", content: `Analyze these ${sample.length} anonymized messages:\n\n${sample.join('\n---\n')}` }
               ],
             }),
           });
@@ -246,9 +234,8 @@ Deno.serve(async (req) => {
             const jsonMatch = content.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               try {
-                const parsed = JSON.parse(jsonMatch[0]);
                 mentorTopics = {
-                  ...parsed,
+                  ...JSON.parse(jsonMatch[0]),
                   totalConversations: mentorConvos?.length || 0,
                   totalMessages: mentorMessages?.length || 0,
                 };
@@ -257,40 +244,60 @@ Deno.serve(async (req) => {
           }
         }
       }
-    } catch (e) {
-      console.error('Topic analysis error:', e);
-    }
+    } catch (e) { console.error('Topic analysis error:', e); }
 
     if (!mentorTopics && (mentorConvos?.length || 0) > 0) {
       mentorTopics = {
-        topTopics: [],
-        sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
-        keyThemes: [],
-        totalConversations: mentorConvos?.length || 0,
-        totalMessages: mentorMessages?.length || 0,
+        topTopics: [], sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 }, keyThemes: [],
+        totalConversations: mentorConvos?.length || 0, totalMessages: mentorMessages?.length || 0,
       };
     }
 
-    // Share analytics
+    // ─── Share Analytics (enhanced) ───
     const allShareEvents = shareEvents || [];
     const cardTypeCounts: Record<string, number> = {};
     const platformCounts: Record<string, number> = {};
+    const formatCounts: Record<string, number> = {};
+    const privacyCounts: Record<string, number> = {};
+    const dailyGenMap: Record<string, { generated: number; shared: number }> = {};
+
     allShareEvents.forEach((e: any) => {
       cardTypeCounts[e.card_type] = (cardTypeCounts[e.card_type] || 0) + 1;
       platformCounts[e.share_target || 'native'] = (platformCounts[e.share_target || 'native'] || 0) + 1;
+      formatCounts[e.format || 'square'] = (formatCounts[e.format || 'square'] || 0) + 1;
+      privacyCounts[e.privacy_level || 'public'] = (privacyCounts[e.privacy_level || 'public'] || 0) + 1;
+
+      const day = (e.created_at || '').split('T')[0];
+      if (day) {
+        if (!dailyGenMap[day]) dailyGenMap[day] = { generated: 0, shared: 0 };
+        dailyGenMap[day].generated++;
+        if (e.share_target !== 'save_only') dailyGenMap[day].shared++;
+      }
     });
+
     const cardTypeBreakdown = Object.entries(cardTypeCounts).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count);
-    const topCardType = cardTypeBreakdown[0]?.type || 'N/A';
+    const topCardType = cardTypeBreakdown[0]?.type?.replace(/_/g, ' ') || 'N/A';
     const topPlatform = Object.entries(platformCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+    const dailyTrend = Object.entries(dailyGenMap)
+      .map(([date, v]) => ({ date, ...v }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-30);
 
     const shareAnalytics = {
       totalCardsGenerated: allShareEvents.length,
       totalSharesInitiated: allShareEvents.filter((e: any) => e.share_target !== 'save_only').length,
-      topCardType: topCardType.replace(/_/g, ' '),
+      topCardType,
       topPlatform,
       topDomains: [],
       cardTypeBreakdown,
+      dailyTrend,
+      privacyModeUsage: Object.entries(privacyCounts).map(([mode, count]) => ({ mode, count })),
+      formatBreakdown: Object.entries(formatCounts).map(([format, count]) => ({ format, count })),
+      themeBreakdown: [],
     };
+
+    const pendingReports = contentReports?.filter((r: any) => r.status === 'pending').length || 0;
 
     const analytics = {
       overview: {
@@ -305,6 +312,10 @@ Deno.serve(async (req) => {
         totalFeedPosts: posts?.length || 0,
         conversionRate,
         monthlyRevenue,
+        bannedUsers: 0,
+        shareCardsGenerated: shareAnalytics.totalCardsGenerated,
+        sharesInitiated: shareAnalytics.totalSharesInitiated,
+        reportsPending: pendingReports,
       },
       userGrowth,
       behavioral: {

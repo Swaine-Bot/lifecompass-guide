@@ -1,4 +1,4 @@
-import { Users, TrendingUp, Clock, Target, MessageSquare, Sparkles, DollarSign, Activity } from 'lucide-react';
+import { Users, TrendingUp, Clock, Target, MessageSquare, Sparkles, DollarSign, Activity, Share2, Flag, Ban } from 'lucide-react';
 import { StatCard } from '../StatCard';
 import { SectionHeader } from '../SectionHeader';
 import { AdminAnalytics } from '@/services/adminAnalyticsService';
@@ -22,6 +22,7 @@ export function ExecutiveOverview({ data }: { data: AdminAnalytics }) {
         privacyLevel="aggregated"
       />
 
+      {/* Primary Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Users" value={overview.totalUsers} subtitle={`${overview.activeUsersMonth} active this month`} icon={Users} />
         <StatCard title="Monthly Revenue" value={`$${overview.monthlyRevenue.toFixed(2)}`} subtitle={`${overview.conversionRate.toFixed(1)}% conversion`} icon={DollarSign} trend="up" />
@@ -29,11 +30,19 @@ export function ExecutiveOverview({ data }: { data: AdminAnalytics }) {
         <StatCard title="Feature Engagement" value={overview.totalMentorChats + overview.totalFeedPosts} subtitle={`${overview.totalMentorChats} chats · ${overview.totalFeedPosts} posts`} icon={Activity} />
       </div>
 
+      {/* Secondary Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="DAU" value={overview.activeUsersToday} icon={TrendingUp} />
         <StatCard title="WAU" value={overview.activeUsersWeek} icon={TrendingUp} />
+        <StatCard title="Share Cards" value={overview.shareCardsGenerated || 0} icon={Share2} />
+        <StatCard title="Reports Pending" value={overview.reportsPending || 0} icon={Flag} />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Avg Goals/User" value={overview.avgGoalsPerUser.toFixed(1)} icon={Target} />
         <StatCard title="Avg Habits/User" value={overview.avgHabitsPerUser.toFixed(1)} icon={MessageSquare} />
+        <StatCard title="Shares Initiated" value={overview.sharesInitiated || 0} icon={Share2} />
+        <StatCard title="Banned Users" value={overview.bannedUsers || 0} icon={Ban} />
       </div>
 
       {/* Growth Chart */}

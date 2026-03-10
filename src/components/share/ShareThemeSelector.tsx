@@ -1,24 +1,19 @@
 import { cn } from '@/lib/utils';
-import { ShareTheme } from '@/services/shareService';
+import { ShareTheme, THEMES } from '@/services/shareService';
 
 interface ShareThemeSelectorProps {
   theme: ShareTheme;
   onChange: (theme: ShareTheme) => void;
 }
 
-const themes: { id: ShareTheme; label: string; colors: string[] }[] = [
-  { id: 'executive', label: 'Executive', colors: ['hsl(43,74%,52%)', 'hsl(220,20%,8%)'] },
-  { id: 'warrior', label: 'Warrior', colors: ['hsl(0,70%,50%)', 'hsl(0,15%,8%)'] },
-  { id: 'minimal', label: 'Minimal', colors: ['hsl(0,0%,92%)', 'hsl(220,20%,5%)'] },
-  { id: 'cinematic', label: 'Cinematic', colors: ['hsl(260,50%,60%)', 'hsl(260,20%,8%)'] },
-];
+const themeList = Object.values(THEMES);
 
 export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps) {
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Theme</span>
-      <div className="grid grid-cols-4 gap-2">
-        {themes.map((t) => (
+      <div className="grid grid-cols-5 gap-1.5">
+        {themeList.map((t) => (
           <button
             key={t.id}
             onClick={() => onChange(t.id)}
@@ -29,16 +24,15 @@ export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps)
                 : 'border-border/50 hover:border-border'
             )}
           >
-            <div className="flex gap-0.5">
-              {t.colors.map((c, i) => (
-                <div key={i} className="w-4 h-4 rounded-full border border-border/30" style={{ backgroundColor: c }} />
-              ))}
-            </div>
+            <div
+              className="w-6 h-6 rounded-full border border-border/30 shadow-inner"
+              style={{ backgroundColor: t.accentHex }}
+            />
             <span className={cn(
-              'text-[9px] font-medium',
+              'text-[8px] font-medium leading-tight text-center',
               theme === t.id ? 'text-primary' : 'text-muted-foreground'
             )}>
-              {t.label}
+              {t.label.split(' ')[0]}
             </span>
           </button>
         ))}

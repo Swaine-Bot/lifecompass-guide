@@ -1,6 +1,6 @@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Shield, User, Hash, MessageSquare, Clock, Type } from 'lucide-react';
+import { Shield, User, Hash, MessageSquare, Clock, Type, EyeOff } from 'lucide-react';
 import { PrivacySettings } from '@/services/shareService';
 
 interface SharePrivacyControlsProps {
@@ -18,20 +18,6 @@ const controls = [
 ];
 
 export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControlsProps) {
-  const privateMode = !privacy.includeName && !privacy.includeExactNumbers && !privacy.includePhoto;
-
-  const toggleAll = (on: boolean) => {
-    onChange({
-      includeName: on,
-      includeUsername: on,
-      includePhoto: on,
-      includeExactNumbers: on,
-      includeMentorQuote: on,
-      includeDateTime: on,
-      includeFooter: true,
-    });
-  };
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -39,13 +25,25 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
           <Shield className="w-4 h-4 text-primary" />
           <span className="text-sm font-medium text-foreground">Privacy Controls</span>
         </div>
-        <button
-          onClick={() => toggleAll(privateMode)}
-          className="text-[10px] uppercase tracking-wider text-primary font-semibold hover:text-primary/80 transition-colors"
-        >
-          {privateMode ? 'Show All' : 'Private Mode'}
-        </button>
       </div>
+
+      {/* Private Aesthetic Mode */}
+      <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-secondary/40 border border-border/30">
+        <div className="flex items-center gap-2">
+          <EyeOff className="w-3.5 h-3.5 text-primary" />
+          <Label className="text-xs font-medium text-foreground cursor-pointer">Private Aesthetic Mode</Label>
+        </div>
+        <Switch
+          checked={privacy.privateAestheticMode}
+          onCheckedChange={(checked) => onChange({ ...privacy, privateAestheticMode: checked })}
+          className="scale-75"
+        />
+      </div>
+      {privacy.privateAestheticMode && (
+        <p className="text-[10px] text-muted-foreground px-1">
+          Hides name, photo, and exact numbers automatically
+        </p>
+      )}
 
       <div className="space-y-2">
         {controls.map(({ key, label, icon: Icon }) => (
@@ -56,6 +54,7 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
             </div>
             <Switch
               checked={privacy[key]}
+              disabled={privacy.privateAestheticMode && ['includeName', 'includePhoto', 'includeExactNumbers'].includes(key)}
               onCheckedChange={(checked) => onChange({ ...privacy, [key]: checked })}
               className="scale-75"
             />
