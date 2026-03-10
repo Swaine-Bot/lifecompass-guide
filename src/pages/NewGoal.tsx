@@ -32,6 +32,9 @@ const priorities = [
 
 export default function NewGoal() {
   const [loading, setLoading] = useState(false);
+  const [showDeclaration, setShowDeclaration] = useState(false);
+  const [savedGoalTitle, setSavedGoalTitle] = useState('');
+  const [savedGoalCategory, setSavedGoalCategory] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     category: '',
