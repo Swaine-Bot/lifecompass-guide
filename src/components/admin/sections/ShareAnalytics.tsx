@@ -1,4 +1,4 @@
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Share2, Layers, Award, Globe } from 'lucide-react';
 import { SectionHeader } from '../SectionHeader';
 import { StatCard } from '../StatCard';
 
