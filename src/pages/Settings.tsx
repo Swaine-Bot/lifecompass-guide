@@ -49,6 +49,7 @@ export default function Settings() {
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const { language, setLanguage, t, languageNames } = useLanguage();
   const pushNotifications = usePushNotifications();
+  const { openShareStudio } = useUniversalShare();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
