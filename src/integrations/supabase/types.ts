@@ -41,6 +41,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cinematic_reports: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_archived: boolean
+          is_favorite: boolean
+          is_read: boolean
+          key_stats: Json | null
+          lessons: Json | null
+          major_wins: Json | null
+          narrative: string | null
+          period_end: string
+          period_start: string
+          report_type: string
+          title: string
+          turning_points: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          is_read?: boolean
+          key_stats?: Json | null
+          lessons?: Json | null
+          major_wins?: Json | null
+          narrative?: string | null
+          period_end: string
+          period_start: string
+          report_type: string
+          title: string
+          turning_points?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          is_read?: boolean
+          key_stats?: Json | null
+          lessons?: Json | null
+          major_wins?: Json | null
+          narrative?: string | null
+          period_end?: string
+          period_start?: string
+          report_type?: string
+          title?: string
+          turning_points?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -529,6 +583,48 @@ export type Database = {
           },
         ]
       }
+      mirror_moments: {
+        Row: {
+          category: string
+          confidence_score: number
+          content: string
+          created_at: string | null
+          id: string
+          is_archived: boolean
+          is_favorite: boolean
+          is_read: boolean
+          moment_date: string
+          source_categories: Json | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          confidence_score?: number
+          content: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          is_read?: boolean
+          moment_date?: string
+          source_categories?: Json | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          confidence_score?: number
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          is_read?: boolean
+          moment_date?: string
+          source_categories?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       momentum_streaks: {
         Row: {
           current_streak: number
@@ -890,6 +986,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reflection_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          item_type: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_type: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      share_cards: {
+        Row: {
+          card_type: string
+          created_at: string | null
+          id: string
+          is_archived: boolean
+          is_shared: boolean
+          privacy_level: string
+          signature_phrase: string | null
+          source_id: string | null
+          source_type: string | null
+          stat_label: string | null
+          stat_value: string | null
+          subtitle: string | null
+          theme: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          card_type: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_shared?: boolean
+          privacy_level?: string
+          signature_phrase?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          stat_label?: string | null
+          stat_value?: string | null
+          subtitle?: string | null
+          theme?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          card_type?: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean
+          is_shared?: boolean
+          privacy_level?: string
+          signature_phrase?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          stat_label?: string | null
+          stat_value?: string | null
+          subtitle?: string | null
+          theme?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       tasks: {
         Row: {
