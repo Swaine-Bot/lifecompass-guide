@@ -83,6 +83,9 @@ const App = () => (
                   <Route path="/library" element={<Library />} />
                   <Route path="/community" element={<Community />} />
                   <Route path="/life-events" element={<LifeEvents />} />
+                  <Route path="/mirror" element={<Mirror />} />
+                  <Route path="/cinematics" element={<Cinematics />} />
+                  <Route path="/vault" element={<Vault />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 

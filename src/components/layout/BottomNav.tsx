@@ -8,7 +8,7 @@ const navItems = [
   { path: '/home', label: 'Home', icon: Home },
   { path: '/goals', label: 'Plan', icon: Target },
   { path: '/habits', label: 'Track', icon: BarChart3 },
-  { path: '/mentor', label: 'Mentor', icon: MessageCircle },
+  { path: '/mirror', label: 'Mirror', icon: Sparkles },
   { path: '/community', label: 'Connect', icon: Users },
 ];
 

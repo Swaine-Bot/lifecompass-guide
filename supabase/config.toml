@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.generate-daily-signal]
 verify_jwt = false
+
+[functions.generate-mirror-moment]
+verify_jwt = false
+
+[functions.generate-cinematic-report]
+verify_jwt = false

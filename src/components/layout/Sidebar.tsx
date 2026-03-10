@@ -14,6 +14,9 @@ const mainNavItems = [
   { path: '/life-events', label: 'Life Events', icon: Gift },
   { path: '/mentor', label: 'AI Mentor', icon: MessageCircle },
   { path: '/community', label: 'Community', icon: Users, showBadge: true },
+  { path: '/mirror', label: 'Mirror', icon: Sparkles },
+  { path: '/cinematics', label: 'Cinematics', icon: Film },
+  { path: '/vault', label: 'Vault', icon: Archive },
   { path: '/library', label: 'Library', icon: BookOpen },
 ];
 
