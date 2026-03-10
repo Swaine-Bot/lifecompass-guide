@@ -62,6 +62,7 @@ Deno.serve(async (req) => {
       { data: posts },
       { data: mentorConvos },
       { data: mentorMessages },
+      { data: shareEvents },
     ] = await Promise.all([
       adminClient.from('profiles').select('id, user_id, country, province, life_phase, gender, created_at'),
       adminClient.from('user_subscriptions').select('*'),
@@ -72,6 +73,7 @@ Deno.serve(async (req) => {
       adminClient.from('posts').select('id, user_id, created_at'),
       adminClient.from('mentor_conversations').select('id, user_id, created_at, title'),
       adminClient.from('mentor_messages').select('id, conversation_id, created_at, role, content'),
+      adminClient.from('share_events').select('id, card_type, share_target, format, privacy_level, created_at'),
     ]);
 
     const totalUsers = profiles?.length || 0;
