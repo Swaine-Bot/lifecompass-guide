@@ -110,6 +110,16 @@ export default function NewGoal() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+      {/* Declaration Prompt */}
+      {showDeclaration && (
+        <GoalDeclarationPrompt
+          goalTitle={savedGoalTitle}
+          goalCategory={savedGoalCategory}
+          targetDate={formData.target_date}
+          onDismiss={() => { setShowDeclaration(false); navigate('/goals'); }}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>

@@ -89,6 +89,7 @@ const App = () => (
                   <Route path="/cinematics" element={<Cinematics />} />
                   <Route path="/vault" element={<Vault />} />
                   <Route path="/share-studio" element={<ShareStudio />} />
+                  <Route path="/insights" element={<InsightLibrary />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 
