@@ -430,10 +430,19 @@ export default function Settings() {
                 </Select>
               </div>
 
-              <Button variant="gold" onClick={updateProfile} disabled={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                {t('settings.saveChanges')}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="gold" onClick={updateProfile} disabled={loading} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  {t('settings.saveChanges')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => openShareStudio({ type: 'app_invite', title: 'Invite to LifeStack' })}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Invite
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
