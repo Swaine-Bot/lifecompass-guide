@@ -42,6 +42,7 @@ import Cinematics from "./pages/Cinematics";
 import Vault from "./pages/Vault";
 import ShareStudio from "./pages/ShareStudio";
 import InsightLibrary from "./pages/InsightLibrary";
+import SharedContent from "./pages/SharedContent";
 
 const queryClient = new QueryClient();
 
