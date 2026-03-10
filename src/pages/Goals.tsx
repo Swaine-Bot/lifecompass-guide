@@ -72,6 +72,13 @@ export default function Goals() {
       .eq('id', goalId);
     
     setGoals(prev => prev.map(g => g.id === goalId ? { ...g, status } : g));
+
+    if (status === 'completed' && user) {
+      const goal = goals.find(g => g.id === goalId);
+      if (goal) {
+        milestonePrompt.checkGoalComplete(goalId, goal.title, user.id);
+      }
+    }
   };
 
   const filteredGoals = goals.filter(goal => {
