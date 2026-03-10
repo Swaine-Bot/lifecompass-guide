@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Calendar, PenLine, Users, Gift, Crown, Sparkles, Film, Archive } from 'lucide-react';
+import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Calendar, PenLine, Users, Gift, Crown, Sparkles, Film, Archive, Lightbulb } from 'lucide-react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
