@@ -41,6 +41,7 @@ import Mirror from "./pages/Mirror";
 import Cinematics from "./pages/Cinematics";
 import Vault from "./pages/Vault";
 import ShareStudio from "./pages/ShareStudio";
+import InsightLibrary from "./pages/InsightLibrary";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const App = () => (
                   <Route path="/cinematics" element={<Cinematics />} />
                   <Route path="/vault" element={<Vault />} />
                   <Route path="/share-studio" element={<ShareStudio />} />
+                  <Route path="/insights" element={<InsightLibrary />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 

@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { ShareButton } from '@/components/share/ShareButton';
+import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
   content: string;
+  conversationId?: string;
 }
 
-export function MentorMessage({ role, content }: MentorMessageProps) {
+export function MentorMessage({ role, content, conversationId }: MentorMessageProps) {
   const [isHidden, setIsHidden] = useState(false);
 
   if (role === 'user') {
@@ -39,7 +41,7 @@ export function MentorMessage({ role, content }: MentorMessageProps) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-1">
+        <div className="flex items-center gap-1 mt-1 flex-wrap">
           <Button
             variant="ghost"
             size="sm"
@@ -59,14 +61,21 @@ export function MentorMessage({ role, content }: MentorMessageProps) {
             )}
           </Button>
           {!isHidden && (
-            <ShareButton
-              source={{
-                type: 'mentor_insight',
-                title: 'Mentor Insight',
-                quote: content.length > 120 ? content.slice(0, 117) + '...' : content,
-                contextTag: 'Life Strategy',
-              }}
-            />
+            <>
+              <KeepInsightAction
+                quote={content}
+                contextTag="Life Strategy"
+                conversationId={conversationId}
+              />
+              <ShareButton
+                source={{
+                  type: 'mentor_insight',
+                  title: 'Mentor Insight',
+                  quote: content.length > 120 ? content.slice(0, 117) + '...' : content,
+                  contextTag: 'Life Strategy',
+                }}
+              />
+            </>
           )}
         </div>
       </div>

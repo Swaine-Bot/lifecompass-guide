@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Target, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SHORT_TEXT_LENGTH } from '@/lib/validation';
+import { GoalDeclarationPrompt } from '@/components/viral/GoalDeclarationPrompt';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
@@ -31,6 +32,9 @@ const priorities = [
 
 export default function NewGoal() {
   const [loading, setLoading] = useState(false);
+  const [showDeclaration, setShowDeclaration] = useState(false);
+  const [savedGoalTitle, setSavedGoalTitle] = useState('');
+  const [savedGoalCategory, setSavedGoalCategory] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -94,7 +98,9 @@ export default function NewGoal() {
       }
 
       toast.success('Goal created successfully!');
-      navigate('/goals');
+      setSavedGoalTitle(formData.title);
+      setSavedGoalCategory(formData.category);
+      setShowDeclaration(true);
     } catch (err) {
       toast.error('Failed to create goal. Please try again.');
     } finally {
@@ -104,6 +110,16 @@ export default function NewGoal() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+      {/* Declaration Prompt */}
+      {showDeclaration && (
+        <GoalDeclarationPrompt
+          goalTitle={savedGoalTitle}
+          goalCategory={savedGoalCategory}
+          targetDate={formData.target_date}
+          onDismiss={() => { setShowDeclaration(false); navigate('/goals'); }}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>

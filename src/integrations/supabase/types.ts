@@ -1155,6 +1155,36 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_insights: {
+        Row: {
+          context_tag: string | null
+          created_at: string | null
+          id: string
+          personal_note: string | null
+          quote: string
+          source_conversation_id: string | null
+          user_id: string
+        }
+        Insert: {
+          context_tag?: string | null
+          created_at?: string | null
+          id?: string
+          personal_note?: string | null
+          quote: string
+          source_conversation_id?: string | null
+          user_id: string
+        }
+        Update: {
+          context_tag?: string | null
+          created_at?: string | null
+          id?: string
+          personal_note?: string | null
+          quote?: string
+          source_conversation_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       share_cards: {
         Row: {
           card_type: string

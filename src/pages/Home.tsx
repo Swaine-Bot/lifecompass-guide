@@ -22,6 +22,7 @@ import { XPDomainBars } from '@/components/engagement/XPDomainBars';
 import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
 import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
 import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
+import { InvitePrompt } from '@/components/viral/InvitePrompt';
 
 interface Task {
   id: string;
@@ -69,6 +70,7 @@ export default function Home() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
 
   const { 
     domainXP, streak, dailySignal, signalLoading, 
@@ -584,8 +586,15 @@ export default function Home() {
         <MilestonePromptModal
           milestone={milestonePrompt.milestone}
           open={milestonePrompt.open}
-          onClose={milestonePrompt.close}
+          onClose={() => {
+            milestonePrompt.close();
+            setShowInvite(true);
+          }}
         />
+      )}
+
+      {showInvite && (
+        <InvitePrompt context="post_milestone" onDismiss={() => setShowInvite(false)} />
       )}
     </div>
   );
