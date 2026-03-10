@@ -5,6 +5,7 @@ export type CardType = 'streak' | 'milestone' | 'mentor_insight' | 'progress' | 
 export type ShareFormat = 'story' | 'feed' | 'square' | 'linkedin' | 'tiktok';
 export type ShareTheme = 'obsidian_gold' | 'midnight_sage' | 'graphite_platinum' | 'ember_focus' | 'clean_silver';
 export type VisualModule = 'flame' | 'ring' | 'radar' | 'badge' | 'chart' | 'quote' | 'none';
+export type ImageLayout = 'hero_image' | 'split_image' | 'background_image' | 'none';
 
 export interface ShareCardData {
   cardType: CardType;
