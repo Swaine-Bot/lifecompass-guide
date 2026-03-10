@@ -18,6 +18,10 @@ const SOURCE_PREFIX: Record<string, string> = {
   achievement: 'achievement',
   weekly_recap: 'recap',
   app_invite: 'invite',
+  feed_post: 'feed',
+  feed_post_insight: 'feed-insight',
+  feed_post_offer: 'feed-offer',
+  feed_post_suggestions: 'feed-suggestions',
 };
 
 // ─── Slug Generation ────────────────────────────────────────────────

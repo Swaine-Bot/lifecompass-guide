@@ -1233,6 +1233,14 @@ export default function Community() {
                           <MessageCircle className="w-4 h-4" />
                           <span className="text-xs">{post.comments_count}</span>
                         </button>
+
+                        <button
+                          onClick={() => handleSharePost(post)}
+                          className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors ml-auto"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          <span className="text-xs">Share</span>
+                        </button>
                       </div>
                     </div>
                   </div>
