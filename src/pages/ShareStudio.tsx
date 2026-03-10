@@ -505,6 +505,7 @@ export default function ShareStudio() {
             </TabsContent>
           )}
 
+          <TabsContent value="privacy" className="mt-3">
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
               <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
             </Card>
