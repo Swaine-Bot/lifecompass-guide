@@ -110,7 +110,7 @@ export function useEngagement() {
       return null;
     }
     
-    const result = data?.[0] || data;
+    const result = Array.isArray(data) ? data[0] : data;
     if (result?.leveled_up) {
       toast.success(`🎉 Level Up! ${domain.charAt(0).toUpperCase() + domain.slice(1)} is now Level ${result.new_level}!`);
     } else if (result) {
