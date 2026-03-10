@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star
+  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star, Share2
 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
