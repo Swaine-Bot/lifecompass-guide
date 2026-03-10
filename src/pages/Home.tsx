@@ -241,7 +241,10 @@ export default function Home() {
 
     if (newCompleted) {
       toast.success('✨ Habit completed!');
-      awardXP('physical', 20, 'habit_completed', habitId);
+      const result = await awardXP('physical', 20, 'habit_completed', habitId);
+      if (result?.leveled_up && user) {
+        milestonePrompt.checkLevelUp('physical', result.new_level, true, user.id);
+      }
     }
   };
 
