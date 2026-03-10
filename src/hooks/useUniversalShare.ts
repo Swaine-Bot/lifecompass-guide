@@ -127,6 +127,9 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       sourceType: source.type,
       sourceId: source.id,
       domain: source.domain || 'mind',
+      imageUrl: source.imageUrl,
+      imageUrls: source.imageUrls,
+      imageLayout: source.imageUrl ? 'hero_image' as const : undefined,
     };
   }
 
