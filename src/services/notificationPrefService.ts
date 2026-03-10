@@ -37,11 +37,11 @@ export const notificationPrefService = {
       };
     }
 
-    // Lazy create defaults
-    await supabase.from('notification_preferences' as any).insert({
-      user_id: userId,
-      ...defaults,
-    });
+    // Lazy create defaults — use upsert to avoid duplicate row on race condition
+    await supabase.from('notification_preferences' as any).upsert(
+      { user_id: userId, ...defaults },
+      { onConflict: 'user_id' }
+    );
 
     return { ...defaults };
   },
