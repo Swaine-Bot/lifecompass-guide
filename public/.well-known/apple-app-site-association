@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.app.lifestack",
+        "paths": [
+          "/s/*",
+          "/invite/*",
+          "/goal/*",
+          "/insight/*",
+          "/achievement/*",
+          "/recap/*",
+          "/reflection/*"
+        ]
+      }
+    ]
+  }
+}

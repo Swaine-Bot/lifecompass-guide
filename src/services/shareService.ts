@@ -322,10 +322,11 @@ export async function saveShareCard(
   return { error };
 }
 
-export async function nativeShare(text: string, title: string, imageBlob?: Blob): Promise<boolean> {
+export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string): Promise<boolean> {
   if (navigator.share) {
     try {
       const shareData: ShareData = { title, text };
+      if (url) shareData.url = url;
       if (imageBlob && navigator.canShare?.({ files: [new File([imageBlob], 'share.png', { type: 'image/png' })] })) {
         shareData.files = [new File([imageBlob], 'lifestack-share.png', { type: 'image/png' })];
       }
