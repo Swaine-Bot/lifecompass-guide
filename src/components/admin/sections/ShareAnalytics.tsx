@@ -1,6 +1,7 @@
 import { BarChart3, Share2, Layers, Award, Globe } from 'lucide-react';
 import { SectionHeader } from '../SectionHeader';
 import { StatCard } from '../StatCard';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface ShareAnalyticsData {
   totalCardsGenerated: number;
@@ -9,6 +10,10 @@ interface ShareAnalyticsData {
   topPlatform: string;
   topDomains: { domain: string; count: number }[];
   cardTypeBreakdown: { type: string; count: number }[];
+  dailyTrend?: { date: string; generated: number; shared: number }[];
+  privacyModeUsage?: { mode: string; count: number }[];
+  formatBreakdown?: { format: string; count: number }[];
+  themeBreakdown?: { theme: string; count: number }[];
 }
 
 export function ShareAnalytics({ data }: { data?: ShareAnalyticsData | null }) {
@@ -19,6 +24,10 @@ export function ShareAnalytics({ data }: { data?: ShareAnalyticsData | null }) {
     topPlatform: 'N/A',
     topDomains: [],
     cardTypeBreakdown: [],
+    dailyTrend: [],
+    privacyModeUsage: [],
+    formatBreakdown: [],
+    themeBreakdown: [],
   };
 
   return (
@@ -35,6 +44,25 @@ export function ShareAnalytics({ data }: { data?: ShareAnalyticsData | null }) {
         <StatCard title="Top Card Type" value={d.topCardType} icon={Award} />
         <StatCard title="Top Platform" value={d.topPlatform} icon={Globe} />
       </div>
+
+      {/* Daily Trend */}
+      {d.dailyTrend && d.dailyTrend.length > 0 && (
+        <div className="rounded-xl border border-border/50 bg-card/70 backdrop-blur-xl p-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">GENERATION & SHARE TRENDS</h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={d.dailyTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} stroke="hsl(var(--border))" />
+                <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} stroke="hsl(var(--border))" />
+                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))' }} />
+                <Line type="monotone" dataKey="generated" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="Generated" />
+                <Line type="monotone" dataKey="shared" stroke="hsl(var(--success))" strokeWidth={2} dot={false} name="Shared" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {d.cardTypeBreakdown.length > 0 && (
         <div className="rounded-xl border border-border/50 bg-card/70 backdrop-blur-xl p-6">
@@ -55,6 +83,48 @@ export function ShareAnalytics({ data }: { data?: ShareAnalyticsData | null }) {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Format & Theme Breakdown */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {d.formatBreakdown && d.formatBreakdown.length > 0 && (
+          <div className="rounded-xl border border-border/50 bg-card/70 backdrop-blur-xl p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">FORMAT USAGE</h3>
+            <div className="flex flex-wrap gap-2">
+              {d.formatBreakdown.map((f) => (
+                <span key={f.format} className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium">
+                  {f.format} · {f.count}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {d.themeBreakdown && d.themeBreakdown.length > 0 && (
+          <div className="rounded-xl border border-border/50 bg-card/70 backdrop-blur-xl p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">THEME USAGE</h3>
+            <div className="flex flex-wrap gap-2">
+              {d.themeBreakdown.map((t) => (
+                <span key={t.theme} className="text-xs bg-accent/10 text-accent px-3 py-1.5 rounded-full font-medium capitalize">
+                  {t.theme.replace(/_/g, ' ')} · {t.count}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Privacy Mode Distribution */}
+      {d.privacyModeUsage && d.privacyModeUsage.length > 0 && (
+        <div className="rounded-xl border border-border/50 bg-card/70 backdrop-blur-xl p-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">PRIVACY MODE DISTRIBUTION</h3>
+          <div className="flex flex-wrap gap-2">
+            {d.privacyModeUsage.map((pm) => (
+              <span key={pm.mode} className="text-xs bg-secondary text-foreground px-3 py-1.5 rounded-full font-medium capitalize">
+                {pm.mode} · {pm.count}
+              </span>
+            ))}
           </div>
         </div>
       )}
