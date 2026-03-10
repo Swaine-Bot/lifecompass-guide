@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Target, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SHORT_TEXT_LENGTH } from '@/lib/validation';
+import { GoalDeclarationPrompt } from '@/components/viral/GoalDeclarationPrompt';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
