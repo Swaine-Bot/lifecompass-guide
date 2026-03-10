@@ -14,8 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X, Download, FileDown, Sparkles
+  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus
 } from 'lucide-react';
+import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import lifestackLogo from '@/assets/lifestack-logo.png';
