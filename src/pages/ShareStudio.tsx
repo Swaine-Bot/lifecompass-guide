@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode } from 'lucide-react';
+import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -17,7 +17,7 @@ import {
   DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase,
   nativeShare, copyToClipboard, trackShareEvent, saveShareCard,
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
-  CardType,
+  CardType, ImageLayout,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink, buildSmartUrl } from '@/services/smartLinkService';
@@ -51,6 +51,12 @@ export default function ShareStudio() {
     shareOrigin === 'app_invite' // default ON for invites
   );
   const [generatedSmartUrl, setGeneratedSmartUrl] = useState<string | null>(null);
+
+  // Image settings (for feed posts with images)
+  const hasPostImage = !!(selectedCard.imageUrl || (selectedCard.imageUrls && selectedCard.imageUrls.length > 0));
+  const [includePostImage, setIncludePostImage] = useState(true);
+  const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
+  const [showImageCount, setShowImageCount] = useState(true);
 
   // Saved cards
   const [savedCards, setSavedCards] = useState<any[]>([]);
@@ -236,6 +242,9 @@ export default function ShareStudio() {
             privacy={privacy}
             phrase={phrase}
             userName={privacy.includeName ? 'You' : undefined}
+            includeImage={hasPostImage && includePostImage}
+            imageLayoutOverride={imageLayout}
+            showImageCount={showImageCount}
           />
 
           {/* Format chips */}
@@ -364,6 +373,9 @@ export default function ShareStudio() {
               privacy={privacy}
               phrase={phrase}
               userName={privacy.includeName ? 'You' : undefined}
+              includeImage={hasPostImage && includePostImage}
+              imageLayoutOverride={imageLayout}
+              showImageCount={showImageCount}
             />
           </div>
         </div>
@@ -382,9 +394,10 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-5 bg-secondary/50">
+          <TabsList className={cn("w-full bg-secondary/50", hasPostImage ? "grid grid-cols-6" : "grid grid-cols-5")}>
             <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
+            {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
             <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
             <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
             <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
@@ -423,6 +436,74 @@ export default function ShareStudio() {
               <ShareThemeSelector theme={theme} onChange={setTheme} />
             </Card>
           </TabsContent>
+
+          {hasPostImage && (
+            <TabsContent value="image" className="mt-3">
+              <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Post Image</span>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Control how the post image appears on your share card.
+                  </p>
+                </div>
+
+                {/* Include image toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                      Include post image
+                    </Label>
+                    <p className="text-[10px] text-muted-foreground">Show the attached image on your card.</p>
+                  </div>
+                  <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
+                </div>
+
+                {includePostImage && (
+                  <>
+                    {/* Layout selector */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Layout</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {([
+                          { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image on top' },
+                          { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: 'Side by side' },
+                          { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Blurred behind' },
+                        ]).map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => setImageLayout(opt.value)}
+                            className={cn(
+                              'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
+                              imageLayout === opt.value
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border/30 text-muted-foreground hover:border-border/60'
+                            )}
+                          >
+                            {opt.icon}
+                            <span className="text-[10px] font-medium">{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Image count indicator */}
+                    {(selectedCard.imageUrls?.length || 0) > 1 && (
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label className="text-sm font-medium text-foreground">Show image count</Label>
+                          <p className="text-[10px] text-muted-foreground">
+                            Display "+{(selectedCard.imageUrls?.length || 1) - 1} more" indicator.
+                          </p>
+                        </div>
+                        <Switch checked={showImageCount} onCheckedChange={setShowImageCount} />
+                      </div>
+                    )}
+                  </>
+                )}
+              </Card>
+            </TabsContent>
+          )}
 
           <TabsContent value="privacy" className="mt-3">
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">

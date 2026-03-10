@@ -935,6 +935,8 @@ export default function Community() {
   const handleSharePost = useCallback((post: Post) => {
     const postExcerpt = (post.content || '').slice(0, 120);
     const hasFeedback = postFeedbacks[post.id];
+    const imageUrls = post.media_urls || [];
+    const primaryImage = imageUrls.length > 0 ? imageUrls[0] : undefined;
     
     openShareStudio({
       type: hasFeedback ? 'feed_post_insight' : 'feed_post',
@@ -943,6 +945,8 @@ export default function Community() {
       subtitle: post.user_name ? `By ${post.user_name}` : undefined,
       insightSnippet: hasFeedback?.mentorComment?.slice(0, 200),
       postCategory: post.post_type === 'goal' ? 'Goal' : post.post_type === 'micro_move' ? 'Micro Move' : 'Post',
+      imageUrl: primaryImage,
+      imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
     });
   }, [openShareStudio, postFeedbacks]);
 
