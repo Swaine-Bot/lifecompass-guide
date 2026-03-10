@@ -156,12 +156,12 @@ export const THEMES: Record<ShareTheme, ThemeDefinition> = {
 
 // ─── Labels ─────────────────────────────────────────────────────────
 export const CARD_TYPE_LABELS: Record<CardType, string> = {
-  streak: 'Momentum Streak',
-  milestone: 'Milestone Achieved',
+  streak: 'Consistency',
+  milestone: 'Milestone',
   mentor_insight: 'Mentor Insight',
-  progress: 'Progress Update',
-  weekly_recap: 'Weekly Recap',
-  level_up: 'Domain Level Up',
+  progress: 'Progress',
+  weekly_recap: 'Weekly Reflection',
+  level_up: 'Level Up',
 };
 
 export const CARD_TYPE_ICONS: Record<CardType, string> = {
