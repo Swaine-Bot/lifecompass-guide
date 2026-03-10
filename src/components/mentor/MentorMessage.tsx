@@ -3,6 +3,7 @@ import { Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
