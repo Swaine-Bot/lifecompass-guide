@@ -1134,6 +1134,36 @@ export type Database = {
         }
         Relationships: []
       }
+      share_events: {
+        Row: {
+          card_type: string
+          created_at: string | null
+          format: string | null
+          id: string
+          privacy_level: string | null
+          share_target: string | null
+          user_id: string
+        }
+        Insert: {
+          card_type: string
+          created_at?: string | null
+          format?: string | null
+          id?: string
+          privacy_level?: string | null
+          share_target?: string | null
+          user_id: string
+        }
+        Update: {
+          card_type?: string
+          created_at?: string | null
+          format?: string | null
+          id?: string
+          privacy_level?: string | null
+          share_target?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           created_at: string | null
