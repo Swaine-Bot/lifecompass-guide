@@ -102,6 +102,31 @@ function sourceToCardData(source: ShareSource): ShareCardData {
     };
   }
 
+  // Feed post types
+  if (source.type.startsWith('feed_post')) {
+    const subtitle = source.type === 'feed_post_insight'
+      ? source.insightSnippet || source.subtitle
+      : source.type === 'feed_post_offer'
+        ? source.offerTitle || source.subtitle
+        : source.type === 'feed_post_suggestions'
+          ? (source.suggestionLabels?.slice(0, 3).join(' · ') || source.subtitle)
+          : source.subtitle;
+
+    return {
+      cardType: mapping.cardType,
+      title: source.title,
+      subtitle: subtitle?.slice(0, 200),
+      statValue: source.statValue,
+      statLabel: source.statLabel || source.postCategory,
+      philosophy: '',
+      visualType: mapping.visualType,
+      identityLabel: mapping.identityLabel,
+      sourceType: source.type,
+      sourceId: source.id,
+      domain: source.domain || 'mind',
+    };
+  }
+
   return {
     cardType: mapping.cardType,
     title: source.title,
