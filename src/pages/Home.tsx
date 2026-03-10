@@ -73,6 +73,7 @@ export default function Home() {
     domainXP, streak, dailySignal, signalLoading, 
     awardXP, markSignalRead, xpForLevel, xpForNextLevel, totalXP, overallLevel
   } = useEngagement();
+  const milestonePrompt = useMilestonePrompt();
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
