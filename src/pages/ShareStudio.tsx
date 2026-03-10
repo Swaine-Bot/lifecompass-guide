@@ -27,10 +27,15 @@ type FlowStep = 'studio' | 'preview' | 'success';
 export default function ShareStudio() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const cardRef = useRef<HTMLDivElement>(null);
   const demoCards = useMemo(() => generateDemoCards(), []);
 
-  const [selectedCard, setSelectedCard] = useState<ShareCardData>(demoCards[0]);
+  // Accept prefilled card data from universal share routing
+  const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
+  const shareOrigin = (location.state as any)?.origin as string | undefined;
+
+  const [selectedCard, setSelectedCard] = useState<ShareCardData>(prefill || demoCards[0]);
   const [theme, setTheme] = useState<ShareTheme>('obsidian_gold');
   const [format, setFormat] = useState<ShareFormat>('square');
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
