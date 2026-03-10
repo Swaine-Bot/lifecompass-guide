@@ -257,6 +257,13 @@ export default function Goals() {
           </div>
         </div>
       )}
+      {milestonePrompt.milestone && (
+        <MilestonePromptModal
+          milestone={milestonePrompt.milestone}
+          open={milestonePrompt.open}
+          onClose={milestonePrompt.close}
+        />
+      )}
     </div>
   );
 }
