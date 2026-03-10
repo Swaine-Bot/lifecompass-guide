@@ -67,6 +67,11 @@ export default function Home() {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [showReward, setShowReward] = useState(false);
 
+  const { 
+    domainXP, streak, dailySignal, signalLoading, 
+    awardXP, markSignalRead, xpForLevel, xpForNextLevel, totalXP, overallLevel
+  } = useEngagement();
+
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
 
