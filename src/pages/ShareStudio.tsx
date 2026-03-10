@@ -93,6 +93,18 @@ export default function ShareStudio() {
     else toast.error('Copy failed');
   }, [selectedCard, phrase]);
 
+  const handleDownload = useCallback(async () => {
+    if (!cardRef.current) return;
+    try {
+      const { renderCardToCanvas, downloadImage } = await import('@/services/shareService');
+      const canvas = await renderCardToCanvas(cardRef.current, format);
+      await downloadImage(canvas, `lifestack-${selectedCard.cardType}-${Date.now()}.png`);
+      toast.success('Image saved');
+    } catch {
+      toast.error('Download failed');
+    }
+  }, [format, selectedCard.cardType]);
+
   const handleSave = useCallback(async () => {
     if (!user) return;
     const { error } = await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
