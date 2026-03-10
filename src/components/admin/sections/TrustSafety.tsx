@@ -28,10 +28,10 @@ export function TrustSafety() {
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Open Reports" value={reports.filter(r => r.status === 'pending').length} />
-        <StatCard label="Reviewed Today" value={reports.filter(r => r.status === 'reviewed').length} />
-        <StatCard label="Actions Taken" value={reports.filter(r => r.status === 'actioned').length} />
-        <StatCard label="Total Reports" value={reports.length} />
+        <StatCard title="Open Reports" value={reports.filter(r => r.status === 'pending').length} icon={AlertTriangle} />
+        <StatCard title="Reviewed Today" value={reports.filter(r => r.status === 'reviewed').length} icon={Eye} />
+        <StatCard title="Actions Taken" value={reports.filter(r => r.status === 'actioned').length} icon={Gavel} />
+        <StatCard title="Total Reports" value={reports.length} icon={Flag} />
       </div>
 
       {/* Reports Queue */}

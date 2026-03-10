@@ -30,10 +30,10 @@ export function ShareAnalytics({ data }: { data?: ShareAnalyticsData | null }) {
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Cards Generated" value={d.totalCardsGenerated} />
-        <StatCard label="Shares Initiated" value={d.totalSharesInitiated} />
-        <StatCard label="Top Card Type" value={d.topCardType} />
-        <StatCard label="Top Platform" value={d.topPlatform} />
+        <StatCard title="Cards Generated" value={d.totalCardsGenerated} icon={Layers} />
+        <StatCard title="Shares Initiated" value={d.totalSharesInitiated} icon={Share2} />
+        <StatCard title="Top Card Type" value={d.topCardType} icon={Award} />
+        <StatCard title="Top Platform" value={d.topPlatform} icon={Globe} />
       </div>
 
       {d.cardTypeBreakdown.length > 0 && (
