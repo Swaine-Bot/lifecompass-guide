@@ -22,6 +22,7 @@ import { XPDomainBars } from '@/components/engagement/XPDomainBars';
 import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
 import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
 import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
+import { InvitePrompt } from '@/components/viral/InvitePrompt';
 
 interface Task {
   id: string;
