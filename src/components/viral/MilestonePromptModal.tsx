@@ -1,9 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trophy, Flame, Target, Share2, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Trophy, Flame, Target, Share2 } from 'lucide-react';
 import { ShareCardPreview } from '@/components/viral/ShareCardPreview';
 import { MilestonePayload, dismissMilestone } from '@/services/milestoneDetection';
 import { engagementEventService } from '@/services/engagementEventService';
@@ -31,7 +29,26 @@ const subtitlePhrases = [
 export function MilestonePromptModal({ milestone, open, onClose }: MilestonePromptModalProps) {
   const [showShareFlow, setShowShareFlow] = useState(false);
   const Icon = milestoneIcons[milestone.type] || Trophy;
-  const phrase = subtitlePhrases[Math.floor(Math.random() * subtitlePhrases.length)];
+  // Stable phrase per triggerKey — doesn't re-randomize on re-render
+  const phrase = useMemo(
+    () => subtitlePhrases[Math.floor(Math.random() * subtitlePhrases.length)],
+    [milestone.triggerKey]
+  );
+
+  // Log milestone_prompt_shown exactly once per open cycle
+  const loggedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (open && milestone.triggerKey !== loggedRef.current) {
+      loggedRef.current = milestone.triggerKey;
+      engagementEventService.log('milestone_prompt_shown', 'broadcast', {
+        type: milestone.type,
+        triggerKey: milestone.triggerKey,
+      });
+    }
+    if (!open) {
+      loggedRef.current = null;
+    }
+  }, [open, milestone.triggerKey, milestone.type]);
 
   const handleDismiss = () => {
     dismissMilestone(milestone.triggerKey);
@@ -51,14 +68,6 @@ export function MilestonePromptModal({ milestone, open, onClose }: MilestoneProm
     setShowShareFlow(true);
     onClose();
   };
-
-  // Log when shown
-  if (open) {
-    engagementEventService.log('milestone_prompt_shown', 'broadcast', {
-      type: milestone.type,
-      triggerKey: milestone.triggerKey,
-    });
-  }
 
   return (
     <>
