@@ -475,6 +475,13 @@ export default function Home() {
         </Card>
       )}
 
+      {/* Life Domains XP */}
+      <XPDomainBars
+        domains={domainXP}
+        xpForNextLevel={xpForNextLevel}
+        xpForLevel={xpForLevel}
+      />
+
       {/* Mood & Energy */}
       <div className="grid md:grid-cols-2 gap-4">
         <Card variant="glass">
