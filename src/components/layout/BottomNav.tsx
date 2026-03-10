@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, MessageCircle, Users, Crown } from 'lucide-react';
+import { Home, Target, BarChart3, Sparkles, Users, Crown } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
