@@ -437,7 +437,74 @@ export default function ShareStudio() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="privacy" className="mt-3">
+          {hasPostImage && (
+            <TabsContent value="image" className="mt-3">
+              <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Post Image</span>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Control how the post image appears on your share card.
+                  </p>
+                </div>
+
+                {/* Include image toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                      Include post image
+                    </Label>
+                    <p className="text-[10px] text-muted-foreground">Show the attached image on your card.</p>
+                  </div>
+                  <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
+                </div>
+
+                {includePostImage && (
+                  <>
+                    {/* Layout selector */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Layout</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {([
+                          { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image on top' },
+                          { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: 'Side by side' },
+                          { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Blurred behind' },
+                        ]).map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => setImageLayout(opt.value)}
+                            className={cn(
+                              'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
+                              imageLayout === opt.value
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border/30 text-muted-foreground hover:border-border/60'
+                            )}
+                          >
+                            {opt.icon}
+                            <span className="text-[10px] font-medium">{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Image count indicator */}
+                    {(selectedCard.imageUrls?.length || 0) > 1 && (
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label className="text-sm font-medium text-foreground">Show image count</Label>
+                          <p className="text-[10px] text-muted-foreground">
+                            Display "+{(selectedCard.imageUrls?.length || 1) - 1} more" indicator.
+                          </p>
+                        </div>
+                        <Switch checked={showImageCount} onCheckedChange={setShowImageCount} />
+                      </div>
+                    )}
+                  </>
+                )}
+              </Card>
+            </TabsContent>
+          )}
+
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
               <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
             </Card>
