@@ -38,14 +38,18 @@ export interface ShareSource {
 
 // ─── Source → Card mapping ──────────────────────────────────────────
 const SOURCE_TO_CARD: Record<ShareSourceType, { cardType: CardType; visualType: VisualModule; identityLabel: string }> = {
-  mentor_insight:       { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'INSIGHT' },
-  goal_created:         { cardType: 'milestone', visualType: 'badge', identityLabel: 'DECLARATION' },
-  goal_progress:        { cardType: 'progress', visualType: 'ring', identityLabel: 'PROGRESS' },
-  micro_move_completed: { cardType: 'streak', visualType: 'flame', identityLabel: 'MOMENTUM' },
-  journal_reflection:   { cardType: 'milestone', visualType: 'quote', identityLabel: 'REFLECTION' },
-  achievement:          { cardType: 'level_up', visualType: 'badge', identityLabel: 'ACHIEVEMENT' },
-  weekly_recap:         { cardType: 'weekly_recap', visualType: 'chart', identityLabel: 'WEEKLY REFLECTION' },
-  app_invite:           { cardType: 'milestone', visualType: 'badge', identityLabel: 'INVITATION' },
+  mentor_insight:         { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'INSIGHT' },
+  goal_created:           { cardType: 'milestone', visualType: 'badge', identityLabel: 'DECLARATION' },
+  goal_progress:          { cardType: 'progress', visualType: 'ring', identityLabel: 'PROGRESS' },
+  micro_move_completed:   { cardType: 'streak', visualType: 'flame', identityLabel: 'MOMENTUM' },
+  journal_reflection:     { cardType: 'milestone', visualType: 'quote', identityLabel: 'REFLECTION' },
+  achievement:            { cardType: 'level_up', visualType: 'badge', identityLabel: 'ACHIEVEMENT' },
+  weekly_recap:           { cardType: 'weekly_recap', visualType: 'chart', identityLabel: 'WEEKLY REFLECTION' },
+  app_invite:             { cardType: 'milestone', visualType: 'badge', identityLabel: 'INVITATION' },
+  feed_post:              { cardType: 'milestone', visualType: 'none', identityLabel: 'POST' },
+  feed_post_insight:      { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'POST · INSIGHT' },
+  feed_post_offer:        { cardType: 'level_up', visualType: 'badge', identityLabel: 'POST · OFFER' },
+  feed_post_suggestions:  { cardType: 'progress', visualType: 'chart', identityLabel: 'POST · SUGGESTIONS' },
 };
 
 function sourceToCardData(source: ShareSource): ShareCardData {
