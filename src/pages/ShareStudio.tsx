@@ -50,12 +50,26 @@ export default function ShareStudio() {
 
   const privacyLevel = getPrivacyLevel(privacy);
 
+  const renderCardBlob = useCallback(async (): Promise<Blob | null> => {
+    if (!cardRef.current) return null;
+    try {
+      const { renderCardToCanvas } = await import('@/services/shareService');
+      const canvas = await renderCardToCanvas(cardRef.current, format);
+      return await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((blob) => resolve(blob), 'image/png')
+      );
+    } catch {
+      return null;
+    }
+  }, [format]);
+
   const handleShare = useCallback(async () => {
     if (!user) return;
     setSharing(true);
     try {
       const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}\n\nlifestack.app`;
-      const shared = await nativeShare(text, `LifeStack — ${selectedCard.title}`);
+      const blob = await renderCardBlob();
+      const shared = await nativeShare(text, `LifeStack — ${selectedCard.title}`, blob ?? undefined);
 
       await trackShareEvent(user.id, selectedCard.cardType, shared ? 'native' : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
@@ -70,7 +84,7 @@ export default function ShareStudio() {
     } finally {
       setSharing(false);
     }
-  }, [user, selectedCard, phrase, format, privacyLevel, theme]);
+  }, [user, selectedCard, phrase, format, privacyLevel, theme, renderCardBlob]);
 
   const handleCopy = useCallback(async () => {
     const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}\n\nlifestack.app`;
@@ -78,6 +92,18 @@ export default function ShareStudio() {
     if (ok) toast.success('Copied to clipboard');
     else toast.error('Copy failed');
   }, [selectedCard, phrase]);
+
+  const handleDownload = useCallback(async () => {
+    if (!cardRef.current) return;
+    try {
+      const { renderCardToCanvas, downloadImage } = await import('@/services/shareService');
+      const canvas = await renderCardToCanvas(cardRef.current, format);
+      await downloadImage(canvas, `lifestack-${selectedCard.cardType}-${Date.now()}.png`);
+      toast.success('Image saved');
+    } catch {
+      toast.error('Download failed');
+    }
+  }, [format, selectedCard.cardType]);
 
   const handleSave = useCallback(async () => {
     if (!user) return;
@@ -163,7 +189,7 @@ export default function ShareStudio() {
               {sharing ? 'Sharing...' : 'Share Now'}
             </Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button onClick={handleSave} variant="outline" size="sm">
+              <Button onClick={handleDownload} variant="outline" size="sm">
                 <Download className="w-4 h-4 mr-1.5" />Save to Device
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm">
