@@ -313,6 +313,10 @@ export default function Settings() {
             Subscription
           </TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4" />
+            Engagement
+          </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
