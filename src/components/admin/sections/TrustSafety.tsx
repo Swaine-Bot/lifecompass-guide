@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldAlert, Flag, Ban, CheckCircle } from 'lucide-react';
+import { ShieldAlert, Flag, Ban, CheckCircle, AlertTriangle, Eye, Gavel } from 'lucide-react';
 import { SectionHeader } from '../SectionHeader';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
