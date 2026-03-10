@@ -11,7 +11,11 @@ export type ShareSourceType =
   | 'journal_reflection'
   | 'achievement'
   | 'weekly_recap'
-  | 'app_invite';
+  | 'app_invite'
+  | 'feed_post'
+  | 'feed_post_insight'
+  | 'feed_post_offer'
+  | 'feed_post_suggestions';
 
 export interface ShareSource {
   type: ShareSourceType;
