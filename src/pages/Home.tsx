@@ -233,6 +233,7 @@ export default function Home() {
 
     if (newCompleted) {
       toast.success('✨ Habit completed!');
+      awardXP('physical', 20, 'habit_completed', habitId);
     }
   };
 
