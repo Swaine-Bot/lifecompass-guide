@@ -70,6 +70,7 @@ export default function Home() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
 
   const { 
     domainXP, streak, dailySignal, signalLoading, 
