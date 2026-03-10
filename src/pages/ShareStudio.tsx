@@ -18,6 +18,7 @@ import {
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
   CardType,
 } from '@/services/shareService';
+import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
