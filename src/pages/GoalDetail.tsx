@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, Target, CheckCircle2, Pause, Play, Archive, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Target, CheckCircle2, Pause, Play, Archive, Edit, Trash2, Share2 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -196,6 +197,18 @@ export default function GoalDetail() {
         </div>
         
         <div className="flex items-center gap-2">
+          <ShareButton
+            source={{
+              type: goal.status === 'active' ? 'goal_progress' : 'goal_created',
+              id: goal.id,
+              title: goal.title,
+              subtitle: goal.why || undefined,
+              statValue: goal.status === 'completed' ? '✓' : undefined,
+              statLabel: goal.category || undefined,
+              domain: goal.category || 'mind',
+            }}
+            variant="button"
+          />
           {goal.status === 'active' && (
             <>
               <Button 

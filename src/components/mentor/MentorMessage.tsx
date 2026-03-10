@@ -3,6 +3,7 @@ import { Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
@@ -38,24 +39,36 @@ export function MentorMessage({ role, content }: MentorMessageProps) {
             </div>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 px-2 mt-1 text-xs text-muted-foreground hover:text-foreground"
-          onClick={() => setIsHidden(!isHidden)}
-        >
-          {isHidden ? (
-            <>
-              <ChevronDown className="w-3 h-3 mr-1" />
-              Show response
-            </>
-          ) : (
-            <>
-              <ChevronUp className="w-3 h-3 mr-1" />
-              Hide response
-            </>
+        <div className="flex items-center gap-1 mt-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => setIsHidden(!isHidden)}
+          >
+            {isHidden ? (
+              <>
+                <ChevronDown className="w-3 h-3 mr-1" />
+                Show response
+              </>
+            ) : (
+              <>
+                <ChevronUp className="w-3 h-3 mr-1" />
+                Hide response
+              </>
+            )}
+          </Button>
+          {!isHidden && (
+            <ShareButton
+              source={{
+                type: 'mentor_insight',
+                title: 'Mentor Insight',
+                quote: content.length > 120 ? content.slice(0, 117) + '...' : content,
+                contextTag: 'Life Strategy',
+              }}
+            />
           )}
-        </Button>
+        </div>
       </div>
     </div>
   );

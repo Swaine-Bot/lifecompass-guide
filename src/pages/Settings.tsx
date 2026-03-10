@@ -14,8 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X, Download, FileDown, Sparkles
+  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus
 } from 'lucide-react';
+import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import lifestackLogo from '@/assets/lifestack-logo.png';
@@ -48,6 +49,7 @@ export default function Settings() {
   const { permission: locationPermission, updatePermission, latitude, longitude, error: locationError } = useLocation();
   const { language, setLanguage, t, languageNames } = useLanguage();
   const pushNotifications = usePushNotifications();
+  const { openShareStudio } = useUniversalShare();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
@@ -428,10 +430,19 @@ export default function Settings() {
                 </Select>
               </div>
 
-              <Button variant="gold" onClick={updateProfile} disabled={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                {t('settings.saveChanges')}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="gold" onClick={updateProfile} disabled={loading} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  {t('settings.saveChanges')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => openShareStudio({ type: 'app_invite', title: 'Invite to LifeStack' })}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Invite
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

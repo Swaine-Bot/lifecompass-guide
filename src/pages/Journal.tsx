@@ -10,8 +10,9 @@ import {
   PenLine, Image, Video, Mic, MicOff, Send, X, Loader2,
   Bot, Lightbulb, AlertTriangle, ExternalLink, ChevronUp, ChevronDown,
   Camera, Play, Pause, Calendar, Sun, Moon, Cloud, Zap, Sparkles,
-  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock, Mail, Eye, History
+  Edit, Trash2, MoreVertical, Clock, Bell, CalendarClock, Mail, Eye, History, Share2
 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Popover,
@@ -1149,6 +1150,16 @@ export default function Journal() {
                           Energy: {energyOptions.find(e => e.value === entry.energy)?.label}
                         </span>
                       )}
+                      <ShareButton
+                        source={{
+                          type: 'journal_reflection',
+                          id: entry.id,
+                          title: 'Reflection',
+                          excerpt: (entry.content || entry.reflection || entry.gratitude || '').slice(0, 120),
+                          statLabel: format(new Date(entry.date), 'MMM d, yyyy'),
+                          domain: 'mind',
+                        }}
+                      />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                           <Button variant="ghost" size="icon" className="h-7 w-7">

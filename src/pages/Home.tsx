@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star
+  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star, Share2
 } from 'lucide-react';
+import { ShareButton } from '@/components/share/ShareButton';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -324,6 +325,23 @@ export default function Home() {
           shieldAvailable={streak.shield_available}
         />
       </div>
+
+      {/* Share Streak */}
+      {streak.current_streak >= 3 && (
+        <div className="flex justify-end -mt-3">
+          <ShareButton
+            source={{
+              type: 'achievement',
+              title: `${streak.current_streak} Day Streak`,
+              subtitle: 'Momentum maintained through daily action.',
+              statValue: String(streak.current_streak),
+              statLabel: 'Consecutive Days',
+              domain: 'discipline',
+            }}
+            variant="button"
+          />
+        </div>
+      )}
 
       {/* Daily Signal */}
       <DailySignalCard
