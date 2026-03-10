@@ -126,6 +126,7 @@ const REACTION_TYPES = [
 
 export default function Community() {
   const { user, profile } = useAuth();
+  const { openShareStudio } = useUniversalShare();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
