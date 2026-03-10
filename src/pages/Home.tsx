@@ -19,6 +19,8 @@ import { useEngagement } from '@/hooks/useEngagement';
 import { DailySignalCard } from '@/components/engagement/DailySignalCard';
 import { XPDomainBars } from '@/components/engagement/XPDomainBars';
 import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
+import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
+import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 
 interface Task {
   id: string;
