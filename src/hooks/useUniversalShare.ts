@@ -34,6 +34,9 @@ export interface ShareSource {
   insightSnippet?: string;
   offerTitle?: string;
   suggestionLabels?: string[];
+  // Image support
+  imageUrl?: string;
+  imageUrls?: string[];
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
