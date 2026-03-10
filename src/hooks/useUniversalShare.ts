@@ -11,7 +11,11 @@ export type ShareSourceType =
   | 'journal_reflection'
   | 'achievement'
   | 'weekly_recap'
-  | 'app_invite';
+  | 'app_invite'
+  | 'feed_post'
+  | 'feed_post_insight'
+  | 'feed_post_offer'
+  | 'feed_post_suggestions';
 
 export interface ShareSource {
   type: ShareSourceType;
@@ -24,18 +28,28 @@ export interface ShareSource {
   quote?: string;       // for mentor insights
   excerpt?: string;     // for journal (max 120 chars)
   contextTag?: string;  // for mentor insight context
+  // Feed post specific
+  authorName?: string;
+  postCategory?: string;
+  insightSnippet?: string;
+  offerTitle?: string;
+  suggestionLabels?: string[];
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
 const SOURCE_TO_CARD: Record<ShareSourceType, { cardType: CardType; visualType: VisualModule; identityLabel: string }> = {
-  mentor_insight:       { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'INSIGHT' },
-  goal_created:         { cardType: 'milestone', visualType: 'badge', identityLabel: 'DECLARATION' },
-  goal_progress:        { cardType: 'progress', visualType: 'ring', identityLabel: 'PROGRESS' },
-  micro_move_completed: { cardType: 'streak', visualType: 'flame', identityLabel: 'MOMENTUM' },
-  journal_reflection:   { cardType: 'milestone', visualType: 'quote', identityLabel: 'REFLECTION' },
-  achievement:          { cardType: 'level_up', visualType: 'badge', identityLabel: 'ACHIEVEMENT' },
-  weekly_recap:         { cardType: 'weekly_recap', visualType: 'chart', identityLabel: 'WEEKLY REFLECTION' },
-  app_invite:           { cardType: 'milestone', visualType: 'badge', identityLabel: 'INVITATION' },
+  mentor_insight:         { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'INSIGHT' },
+  goal_created:           { cardType: 'milestone', visualType: 'badge', identityLabel: 'DECLARATION' },
+  goal_progress:          { cardType: 'progress', visualType: 'ring', identityLabel: 'PROGRESS' },
+  micro_move_completed:   { cardType: 'streak', visualType: 'flame', identityLabel: 'MOMENTUM' },
+  journal_reflection:     { cardType: 'milestone', visualType: 'quote', identityLabel: 'REFLECTION' },
+  achievement:            { cardType: 'level_up', visualType: 'badge', identityLabel: 'ACHIEVEMENT' },
+  weekly_recap:           { cardType: 'weekly_recap', visualType: 'chart', identityLabel: 'WEEKLY REFLECTION' },
+  app_invite:             { cardType: 'milestone', visualType: 'badge', identityLabel: 'INVITATION' },
+  feed_post:              { cardType: 'milestone', visualType: 'none', identityLabel: 'POST' },
+  feed_post_insight:      { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'POST · INSIGHT' },
+  feed_post_offer:        { cardType: 'level_up', visualType: 'badge', identityLabel: 'POST · OFFER' },
+  feed_post_suggestions:  { cardType: 'progress', visualType: 'chart', identityLabel: 'POST · SUGGESTIONS' },
 };
 
 function sourceToCardData(source: ShareSource): ShareCardData {
@@ -79,6 +93,31 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       subtitle: excerpt,
       statValue: source.statValue,
       statLabel: source.statLabel,
+      philosophy: '',
+      visualType: mapping.visualType,
+      identityLabel: mapping.identityLabel,
+      sourceType: source.type,
+      sourceId: source.id,
+      domain: source.domain || 'mind',
+    };
+  }
+
+  // Feed post types
+  if (source.type.startsWith('feed_post')) {
+    const subtitle = source.type === 'feed_post_insight'
+      ? source.insightSnippet || source.subtitle
+      : source.type === 'feed_post_offer'
+        ? source.offerTitle || source.subtitle
+        : source.type === 'feed_post_suggestions'
+          ? (source.suggestionLabels?.slice(0, 3).join(' · ') || source.subtitle)
+          : source.subtitle;
+
+    return {
+      cardType: mapping.cardType,
+      title: source.title,
+      subtitle: subtitle?.slice(0, 200),
+      statValue: source.statValue,
+      statLabel: source.statLabel || source.postCategory,
       philosophy: '',
       visualType: mapping.visualType,
       identityLabel: mapping.identityLabel,

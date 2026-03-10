@@ -172,6 +172,54 @@ export type Database = {
         }
         Relationships: []
       }
+      curated_offering_blocks: {
+        Row: {
+          access_model: string | null
+          created_at: string | null
+          description: string | null
+          destination_type: string | null
+          destination_url: string | null
+          ends_at: string | null
+          id: string
+          is_public_shareable: boolean | null
+          starts_at: string | null
+          teaser: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_model?: string | null
+          created_at?: string | null
+          description?: string | null
+          destination_type?: string | null
+          destination_url?: string | null
+          ends_at?: string | null
+          id?: string
+          is_public_shareable?: boolean | null
+          starts_at?: string | null
+          teaser: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_model?: string | null
+          created_at?: string | null
+          description?: string | null
+          destination_type?: string | null
+          destination_url?: string | null
+          ends_at?: string | null
+          id?: string
+          is_public_shareable?: boolean | null
+          starts_at?: string | null
+          teaser?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       daily_checkins: {
         Row: {
           created_at: string | null
@@ -261,6 +309,153 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      feed_post_ai_insights: {
+        Row: {
+          context_tag: string | null
+          created_at: string | null
+          id: string
+          insight_text: string
+          is_shareable: boolean | null
+          post_id: string
+          share_excerpt: string | null
+        }
+        Insert: {
+          context_tag?: string | null
+          created_at?: string | null
+          id?: string
+          insight_text: string
+          is_shareable?: boolean | null
+          post_id: string
+          share_excerpt?: string | null
+        }
+        Update: {
+          context_tag?: string | null
+          created_at?: string | null
+          id?: string
+          insight_text?: string
+          is_shareable?: boolean | null
+          post_id?: string
+          share_excerpt?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_post_ai_insights_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_post_suggestion_links: {
+        Row: {
+          created_at: string | null
+          id: string
+          insight_id: string | null
+          is_public_shareable: boolean | null
+          label: string
+          link_type: string | null
+          post_id: string
+          sort_order: number | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          insight_id?: string | null
+          is_public_shareable?: boolean | null
+          label: string
+          link_type?: string | null
+          post_id: string
+          sort_order?: number | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          insight_id?: string | null
+          is_public_shareable?: boolean | null
+          label?: string
+          link_type?: string | null
+          post_id?: string
+          sort_order?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_post_suggestion_links_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "feed_post_ai_insights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_post_suggestion_links_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_share_configs: {
+        Row: {
+          created_at: string | null
+          created_by_user_id: string
+          id: string
+          included_insight_id: string | null
+          included_link_ids: Json | null
+          included_offering_id: string | null
+          post_id: string
+          share_mode: string
+          visibility_mode: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_user_id: string
+          id?: string
+          included_insight_id?: string | null
+          included_link_ids?: Json | null
+          included_offering_id?: string | null
+          post_id: string
+          share_mode?: string
+          visibility_mode?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by_user_id?: string
+          id?: string
+          included_insight_id?: string | null
+          included_link_ids?: Json | null
+          included_offering_id?: string | null
+          post_id?: string
+          share_mode?: string
+          visibility_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_share_configs_included_insight_id_fkey"
+            columns: ["included_insight_id"]
+            isOneToOne: false
+            referencedRelation: "feed_post_ai_insights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_share_configs_included_offering_id_fkey"
+            columns: ["included_offering_id"]
+            isOneToOne: false
+            referencedRelation: "curated_offering_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_share_configs_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       follows: {
         Row: {

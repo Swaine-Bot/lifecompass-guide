@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -125,6 +126,7 @@ const REACTION_TYPES = [
 
 export default function Community() {
   const { user, profile } = useAuth();
+  const { openShareStudio } = useUniversalShare();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -930,6 +932,20 @@ export default function Community() {
     }
   };
 
+  const handleSharePost = useCallback((post: Post) => {
+    const postExcerpt = (post.content || '').slice(0, 120);
+    const hasFeedback = postFeedbacks[post.id];
+    
+    openShareStudio({
+      type: hasFeedback ? 'feed_post_insight' : 'feed_post',
+      id: post.id,
+      title: postExcerpt || 'Community Post',
+      subtitle: post.user_name ? `By ${post.user_name}` : undefined,
+      insightSnippet: hasFeedback?.mentorComment?.slice(0, 200),
+      postCategory: post.post_type === 'goal' ? 'Goal' : post.post_type === 'micro_move' ? 'Micro Move' : 'Post',
+    });
+  }, [openShareStudio, postFeedbacks]);
+
   const pendingRequests = friends.filter(f => f.status === 'pending' && !f.is_requester);
   const acceptedFriends = friends.filter(f => f.status === 'accepted');
 
@@ -1232,6 +1248,14 @@ export default function Community() {
                         >
                           <MessageCircle className="w-4 h-4" />
                           <span className="text-xs">{post.comments_count}</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleSharePost(post)}
+                          className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors ml-auto"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          <span className="text-xs">Share</span>
                         </button>
                       </div>
                     </div>
