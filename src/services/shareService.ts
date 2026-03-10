@@ -305,87 +305,8 @@ export async function renderCardToCanvas(
   return canvas;
 }
 
-// ─── Demo Data ──────────────────────────────────────────────────────
-export function generateDemoCards(): ShareCardData[] {
-  return [
-    {
-      cardType: 'streak',
-      title: '90-Day Discipline Streak',
-      subtitle: 'Three months of unbroken consistency.',
-      statValue: '90',
-      statLabel: 'Consecutive Days',
-      secondaryValue: '347',
-      secondaryLabel: 'Total Actions Logged',
-      timeAnchor: 'Since Dec 10, 2025',
-      philosophy: 'Discipline is the bridge between goals and accomplishment.',
-      visualType: 'flame',
-      domain: 'physical',
-    },
-    {
-      cardType: 'milestone',
-      title: 'Wealth Milestone Reached',
-      subtitle: 'Emergency fund target achieved ahead of schedule.',
-      statValue: '✓',
-      statLabel: 'Emergency Fund Goal',
-      secondaryValue: '63',
-      secondaryLabel: 'Days to Completion',
-      timeAnchor: 'Completed Mar 8, 2026',
-      philosophy: 'Finished > Perfect.',
-      visualType: 'badge',
-      domain: 'wealth',
-    },
-    {
-      cardType: 'mentor_insight',
-      title: 'Pattern Detected',
-      subtitle: 'Your energy peaks when you journal in the morning. Consider making it a keystone habit.',
-      statValue: '87%',
-      statLabel: 'Confidence Score',
-      timeAnchor: 'Insight from Mar 8, 2026',
-      philosophy: 'Self-awareness is the highest form of intelligence.',
-      visualType: 'quote',
-      domain: 'mind',
-    },
-    {
-      cardType: 'progress',
-      title: 'Physical Domain Progress',
-      subtitle: 'Consistent gains across all tracked metrics.',
-      statValue: '2,450',
-      statLabel: 'Total XP Earned',
-      secondaryValue: 'Level 6',
-      secondaryLabel: 'Current Level',
-      timeAnchor: 'This month',
-      philosophy: 'The body keeps the score.',
-      visualType: 'ring',
-      domain: 'physical',
-    },
-    {
-      cardType: 'weekly_recap',
-      title: 'Week of Mar 3 – Mar 9',
-      subtitle: 'A week of breakthroughs and steady momentum.',
-      statValue: '24',
-      statLabel: 'Actions Completed',
-      secondaryValue: '4.2',
-      secondaryLabel: 'Avg Mood Score',
-      timeAnchor: 'Weekly Summary',
-      philosophy: 'Every week is a chapter in your story.',
-      visualType: 'chart',
-      domain: 'mind',
-    },
-    {
-      cardType: 'level_up',
-      title: 'Health Level 8 Achieved',
-      subtitle: 'Growth has evidence.',
-      statValue: 'Level 8',
-      statLabel: 'Physical Domain',
-      secondaryValue: '1,200',
-      secondaryLabel: 'XP This Quarter',
-      timeAnchor: 'Leveled up Mar 10, 2026',
-      philosophy: 'Levels are earned, never given.',
-      visualType: 'radar',
-      domain: 'physical',
-    },
-  ];
-}
+// ─── Demo Data (re-exported from language-engine powered module) ────
+export { generateDemoCards } from './shareDemoData';
 
 // ─── Platform Adapters (stubs for future) ───────────────────────────
 export const platformAdapters = {
