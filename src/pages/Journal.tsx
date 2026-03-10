@@ -1150,6 +1150,16 @@ export default function Journal() {
                           Energy: {energyOptions.find(e => e.value === entry.energy)?.label}
                         </span>
                       )}
+                      <ShareButton
+                        source={{
+                          type: 'journal_reflection',
+                          id: entry.id,
+                          title: 'Reflection',
+                          excerpt: (entry.content || entry.reflection || entry.gratitude || '').slice(0, 120),
+                          statLabel: format(new Date(entry.date), 'MMM d, yyyy'),
+                          domain: 'mind',
+                        }}
+                      />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                           <Button variant="ghost" size="icon" className="h-7 w-7">
