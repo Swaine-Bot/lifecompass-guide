@@ -40,6 +40,7 @@ import PlayStoreSubmission from "./pages/PlayStoreSubmission";
 import Mirror from "./pages/Mirror";
 import Cinematics from "./pages/Cinematics";
 import Vault from "./pages/Vault";
+import ShareStudio from "./pages/ShareStudio";
 
 const queryClient = new QueryClient();
 
