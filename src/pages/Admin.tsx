@@ -99,7 +99,16 @@ export default function Admin() {
     );
   }
 
-  if (!analytics) return null;
+  if (!analytics) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="max-w-7xl mx-auto text-center py-20">
+          <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">No analytics data available.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
