@@ -932,6 +932,20 @@ export default function Community() {
     }
   };
 
+  const handleSharePost = useCallback((post: Post) => {
+    const postExcerpt = (post.content || '').slice(0, 120);
+    const hasFeedback = postFeedbacks[post.id];
+    
+    openShareStudio({
+      type: hasFeedback ? 'feed_post_insight' : 'feed_post',
+      id: post.id,
+      title: postExcerpt || 'Community Post',
+      subtitle: post.user_name ? `By ${post.user_name}` : undefined,
+      insightSnippet: hasFeedback?.mentorComment?.slice(0, 200),
+      postCategory: post.post_type === 'goal' ? 'Goal' : post.post_type === 'micro_move' ? 'Micro Move' : 'Post',
+    });
+  }, [openShareStudio, postFeedbacks]);
+
   const pendingRequests = friends.filter(f => f.status === 'pending' && !f.is_requester);
   const acceptedFriends = friends.filter(f => f.status === 'accepted');
 
