@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Calendar, PenLine, Users, Gift, Crown } from 'lucide-react';
+import { Home, Target, BarChart3, MessageCircle, BookOpen, Settings, LogOut, Calendar, PenLine, Users, Gift, Crown, Sparkles, Film, Archive } from 'lucide-react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,9 @@ const mainNavItems = [
   { path: '/life-events', label: 'Life Events', icon: Gift },
   { path: '/mentor', label: 'AI Mentor', icon: MessageCircle },
   { path: '/community', label: 'Community', icon: Users, showBadge: true },
+  { path: '/mirror', label: 'Mirror', icon: Sparkles },
+  { path: '/cinematics', label: 'Cinematics', icon: Film },
+  { path: '/vault', label: 'Vault', icon: Archive },
   { path: '/library', label: 'Library', icon: BookOpen },
 ];
 

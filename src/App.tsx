@@ -37,6 +37,9 @@ import IPDocumentation from "./pages/IPDocumentation";
 import LaunchVideo from "./pages/LaunchVideo";
 import AppStoreSubmission from "./pages/AppStoreSubmission";
 import PlayStoreSubmission from "./pages/PlayStoreSubmission";
+import Mirror from "./pages/Mirror";
+import Cinematics from "./pages/Cinematics";
+import Vault from "./pages/Vault";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +83,9 @@ const App = () => (
                   <Route path="/library" element={<Library />} />
                   <Route path="/community" element={<Community />} />
                   <Route path="/life-events" element={<LifeEvents />} />
+                  <Route path="/mirror" element={<Mirror />} />
+                  <Route path="/cinematics" element={<Cinematics />} />
+                  <Route path="/vault" element={<Vault />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 
