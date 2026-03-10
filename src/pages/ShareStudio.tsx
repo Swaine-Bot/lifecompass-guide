@@ -52,6 +52,12 @@ export default function ShareStudio() {
   );
   const [generatedSmartUrl, setGeneratedSmartUrl] = useState<string | null>(null);
 
+  // Image settings (for feed posts with images)
+  const hasPostImage = !!(selectedCard.imageUrl || (selectedCard.imageUrls && selectedCard.imageUrls.length > 0));
+  const [includePostImage, setIncludePostImage] = useState(true);
+  const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
+  const [showImageCount, setShowImageCount] = useState(true);
+
   // Saved cards
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
