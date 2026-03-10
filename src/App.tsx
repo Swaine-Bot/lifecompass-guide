@@ -87,6 +87,7 @@ const App = () => (
                   <Route path="/mirror" element={<Mirror />} />
                   <Route path="/cinematics" element={<Cinematics />} />
                   <Route path="/vault" element={<Vault />} />
+                  <Route path="/share-studio" element={<ShareStudio />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 

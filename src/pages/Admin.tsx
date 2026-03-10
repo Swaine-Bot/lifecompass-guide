@@ -4,9 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText } from 'lucide-react';
+import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 // Section components
@@ -18,6 +18,8 @@ import { MentorTopicIntelligence } from '@/components/admin/sections/MentorTopic
 import { RetentionSignals } from '@/components/admin/sections/RetentionSignals';
 import { ModerationControls } from '@/components/admin/sections/ModerationControls';
 import { DocumentCenter } from '@/components/admin/sections/DocumentCenter';
+import { ShareAnalytics } from '@/components/admin/sections/ShareAnalytics';
+import { TrustSafety } from '@/components/admin/sections/TrustSafety';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -26,6 +28,8 @@ const NAV_ITEMS = [
   { id: 'goals', label: 'Goals', icon: Target },
   { id: 'mentor', label: 'Mentor', icon: MessageSquare },
   { id: 'retention', label: 'Retention', icon: Activity },
+  { id: 'shares', label: 'Shares', icon: Share2 },
+  { id: 'safety', label: 'Safety', icon: ShieldAlert },
   { id: 'moderation', label: 'Users', icon: Users },
   { id: 'documents', label: 'Docs', icon: FileText },
 ];
@@ -162,6 +166,8 @@ export default function Admin() {
         {activeSection === 'goals' && <GoalIntelligence data={analytics} />}
         {activeSection === 'mentor' && <MentorTopicIntelligence data={analytics} />}
         {activeSection === 'retention' && <RetentionSignals data={analytics} />}
+        {activeSection === 'shares' && <ShareAnalytics data={(analytics as any).shareAnalytics} />}
+        {activeSection === 'safety' && <TrustSafety />}
         {activeSection === 'moderation' && <ModerationControls data={analytics} onUserDeleted={handleUserDeleted} />}
         {activeSection === 'documents' && <DocumentCenter />}
       </div>
