@@ -20,6 +20,10 @@ const CARD_TYPE_EMOJI: Record<string, string> = {
   progress: '📈',
   weekly_recap: '📅',
   level_up: '⚡',
+  feed_post: '📝',
+  feed_post_insight: '🧠',
+  feed_post_offer: '💎',
+  feed_post_suggestions: '💡',
 };
 
 export default function SharedContent() {
