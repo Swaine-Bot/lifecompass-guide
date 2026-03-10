@@ -14,8 +14,7 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
@@ -23,7 +22,6 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Verify user is admin
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
@@ -33,296 +31,229 @@ Deno.serve(async (req) => {
     
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
     const userId = claimsData.claims.sub;
-
-    // Use service role to check admin status
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: roleData, error: roleError } = await adminClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
+      .from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle();
 
     if (roleError || !roleData) {
-      return new Response(JSON.stringify({ error: 'Forbidden - Admin access required' }), { 
-        status: 403, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { 
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
     console.log('Admin verified, fetching analytics...');
 
-    // Fetch all analytics data using service role
     const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const today = now.toISOString().split('T')[0];
+    const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+    const monthAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-    // User count and details
-    const { data: profiles, error: profilesError } = await adminClient
-      .from('profiles')
-      .select('id, user_id, country, province, life_phase, gender, created_at');
+    // Parallel data fetch
+    const [
+      { data: profiles },
+      { data: subscriptions },
+      { data: sessions },
+      { data: habits },
+      { data: goals },
+      { data: journals },
+      { data: posts },
+      { data: mentorConvos },
+      { data: mentorMessages },
+    ] = await Promise.all([
+      adminClient.from('profiles').select('id, user_id, country, province, life_phase, gender, created_at'),
+      adminClient.from('user_subscriptions').select('*'),
+      adminClient.from('app_sessions').select('user_id, duration_seconds, started_at'),
+      adminClient.from('habits').select('id, user_id, created_at'),
+      adminClient.from('goals').select('id, user_id, created_at, category, status'),
+      adminClient.from('journal_entries').select('id, user_id, created_at, mood, energy'),
+      adminClient.from('posts').select('id, user_id, created_at'),
+      adminClient.from('mentor_conversations').select('id, user_id, created_at, title'),
+      adminClient.from('mentor_messages').select('id, conversation_id, created_at, role, content'),
+    ]);
 
-    if (profilesError) {
-      console.error('Profiles error:', profilesError);
-    }
-
-    // Subscriptions
-    const { data: subscriptions, error: subscriptionsError } = await adminClient
-      .from('user_subscriptions')
-      .select('*');
-
-    if (subscriptionsError) {
-      console.error('Subscriptions error:', subscriptionsError);
-    }
-
-    // App sessions for screen time
-    const { data: sessions, error: sessionsError } = await adminClient
-      .from('app_sessions')
-      .select('user_id, duration_seconds, started_at');
-
-    if (sessionsError) {
-      console.error('Sessions error:', sessionsError);
-    }
-
-    // Feature usage - habits
-    const { data: habits, error: habitsError } = await adminClient
-      .from('habits')
-      .select('id, user_id, created_at');
-
-    // Feature usage - goals
-    const { data: goals, error: goalsError } = await adminClient
-      .from('goals')
-      .select('id, user_id, created_at, category');
-
-    // Feature usage - journal entries with mood
-    const { data: journals, error: journalsError } = await adminClient
-      .from('journal_entries')
-      .select('id, user_id, created_at, mood, energy, tags');
-
-    // Feature usage - posts (feed)
-    const { data: posts, error: postsError } = await adminClient
-      .from('posts')
-      .select('id, user_id, created_at, content');
-
-    // Feature usage - mentor conversations
-    const { data: mentorConvos, error: mentorError } = await adminClient
-      .from('mentor_conversations')
-      .select('id, user_id, created_at, title');
-
-    // Mentor messages count and content for topic analysis
-    const { data: mentorMessages, error: mentorMessagesError } = await adminClient
-      .from('mentor_messages')
-      .select('id, conversation_id, created_at, role, content');
-
-    // Process data
     const totalUsers = profiles?.length || 0;
 
-    // Country breakdown
-    const countryBreakdown: Record<string, number> = {};
-    profiles?.forEach(p => {
-      const country = p.country || 'Unknown';
-      countryBreakdown[country] = (countryBreakdown[country] || 0) + 1;
-    });
+    // Active users
+    const usersWithRecentSessions = new Set(
+      sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(today)).map(s => s.user_id)
+    );
+    const activeToday = usersWithRecentSessions.size;
 
-    // Province breakdown
-    const provinceBreakdown: Record<string, number> = {};
-    profiles?.forEach(p => {
-      if (p.province) {
-        provinceBreakdown[p.province] = (provinceBreakdown[p.province] || 0) + 1;
-      }
-    });
+    const activeWeekUsers = new Set(
+      sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(weekAgo)).map(s => s.user_id)
+    );
+    const activeWeek = activeWeekUsers.size;
 
-    // Life phase breakdown
-    const lifePhaseBreakdown: Record<string, number> = {};
-    profiles?.forEach(p => {
-      const phase = p.life_phase || 'Unknown';
-      lifePhaseBreakdown[phase] = (lifePhaseBreakdown[phase] || 0) + 1;
-    });
+    const activeMonthUsers = new Set(
+      sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(monthAgo)).map(s => s.user_id)
+    );
+    const activeMonth = activeMonthUsers.size;
 
-    // Subscription breakdown
-    const subscriptionBreakdown: Record<string, number> = { free: 0, pro: 0, founder: 0 };
+    // Avg sessions per user
+    const sessionsByUser: Record<string, number> = {};
+    sessions?.forEach(s => { sessionsByUser[s.user_id] = (sessionsByUser[s.user_id] || 0) + 1; });
+    const avgSessions = totalUsers > 0 ? Object.values(sessionsByUser).reduce((a, b) => a + b, 0) / totalUsers : 0;
+
+    // Subscriptions
     const activeSubscriptions = subscriptions?.filter(s => s.is_active) || [];
-    activeSubscriptions.forEach(s => {
-      subscriptionBreakdown[s.tier] = (subscriptionBreakdown[s.tier] || 0) + 1;
+    const subBreakdown: Record<string, number> = { free: 0, pro: 0, founder: 0 };
+    const subscribedSet = new Set<string>();
+    activeSubscriptions.forEach(s => { subBreakdown[s.tier] = (subBreakdown[s.tier] || 0) + 1; subscribedSet.add(s.user_id); });
+    subBreakdown['free'] = totalUsers - subscribedSet.size;
+    const proCount = subBreakdown['pro'] || 0;
+    const founderCount = subBreakdown['founder'] || 0;
+    const monthlyRevenue = (proCount * 9.99) + (founderCount * 6.58);
+    const conversionRate = totalUsers > 0 ? (subscribedSet.size / totalUsers) * 100 : 0;
+
+    // Feature usage
+    const featureUsage = [
+      { feature: 'Goals', users: new Set(goals?.map(g => g.user_id)).size, total: goals?.length || 0 },
+      { feature: 'Habits', users: new Set(habits?.map(h => h.user_id)).size, total: habits?.length || 0 },
+      { feature: 'Journal', users: new Set(journals?.map(j => j.user_id)).size, total: journals?.length || 0 },
+      { feature: 'Feed', users: new Set(posts?.map(p => p.user_id)).size, total: posts?.length || 0 },
+      { feature: 'Mentor', users: new Set(mentorConvos?.map(m => m.user_id)).size, total: mentorConvos?.length || 0 },
+    ];
+
+    // Feature adoption percentages
+    const featureAdoption: Record<string, number> = {};
+    featureUsage.forEach(f => { featureAdoption[f.feature.toLowerCase()] = totalUsers > 0 ? (f.users / totalUsers) * 100 : 0; });
+
+    // Active vs passive
+    const usersWithActivity = new Set([
+      ...(goals?.map(g => g.user_id) || []),
+      ...(habits?.map(h => h.user_id) || []),
+      ...(journals?.map(j => j.user_id) || []),
+      ...(posts?.map(p => p.user_id) || []),
+      ...(mentorConvos?.map(m => m.user_id) || []),
+    ]);
+    const activeUsers = usersWithActivity.size;
+
+    // Session depth buckets
+    const userSessionDurations: Record<string, number> = {};
+    sessions?.forEach(s => {
+      userSessionDurations[s.user_id] = (userSessionDurations[s.user_id] || 0) + (s.duration_seconds || 0);
+    });
+    const sessionBuckets = { '<1m': 0, '1-5m': 0, '5-15m': 0, '15-30m': 0, '30m+': 0 };
+    Object.values(userSessionDurations).forEach(secs => {
+      if (secs < 60) sessionBuckets['<1m']++;
+      else if (secs < 300) sessionBuckets['1-5m']++;
+      else if (secs < 900) sessionBuckets['5-15m']++;
+      else if (secs < 1800) sessionBuckets['15-30m']++;
+      else sessionBuckets['30m+']++;
     });
 
-    // Users without active subscription are "free"
-    const usersWithSubscription = new Set(activeSubscriptions.map(s => s.user_id));
-    const freeUsers = (profiles?.filter(p => !usersWithSubscription.has(p.user_id)).length || 0);
-    subscriptionBreakdown['free'] = freeUsers;
+    // Sentiment
+    const moodCounts: Record<number, number> = {};
+    let moodSum = 0, moodTotal = 0, energySum = 0, energyTotal = 0;
+    journals?.forEach(j => {
+      if (j.mood != null) { moodCounts[j.mood] = (moodCounts[j.mood] || 0) + 1; moodSum += j.mood; moodTotal++; }
+      if (j.energy != null) { energySum += j.energy; energyTotal++; }
+    });
+    const moodDistribution = Object.entries(moodCounts).map(([mood, count]) => ({ mood: parseInt(mood), count })).sort((a, b) => a.mood - b.mood);
 
-    // Monthly revenue calculation (assuming Pro = $9.99/mo, Founder = $79/yr = $6.58/mo)
-    const proCount = subscriptionBreakdown['pro'] || 0;
-    const founderCount = subscriptionBreakdown['founder'] || 0;
-    const monthlyRevenue = (proCount * 9.99) + (founderCount * 6.58);
+    // Goals
+    const goalCategories: Record<string, { count: number; completed: number }> = {};
+    goals?.forEach(g => {
+      const cat = g.category || 'Uncategorized';
+      if (!goalCategories[cat]) goalCategories[cat] = { count: 0, completed: 0 };
+      goalCategories[cat].count++;
+      if (g.status === 'completed') goalCategories[cat].completed++;
+    });
+    const goalCategoryData = Object.entries(goalCategories).map(([name, d]) => ({
+      name, count: d.count, completionRate: d.count > 0 ? (d.completed / d.count) * 100 : 0
+    })).sort((a, b) => b.count - a.count);
 
-    // Feature usage trends
-    const featureUsage = {
-      habits: habits?.length || 0,
-      goals: goals?.length || 0,
-      journal: journals?.length || 0,
-      posts: posts?.length || 0,
-      mentor: mentorConvos?.length || 0,
-    };
+    const goalStatusDist: Record<string, number> = {};
+    goals?.forEach(g => { const s = g.status || 'active'; goalStatusDist[s] = (goalStatusDist[s] || 0) + 1; });
 
-    // Most used features (sorted)
-    const sortedFeatures = Object.entries(featureUsage)
-      .sort(([, a], [, b]) => b - a)
-      .map(([feature, count]) => ({ feature, count }));
-
-    // User growth over last 30 days
+    // User growth
     const userGrowth: { date: string; count: number }[] = [];
     for (let i = 29; i >= 0; i--) {
-      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const date = new Date(now.getTime() - i * 86400000);
       const dateStr = date.toISOString().split('T')[0];
-      const count = profiles?.filter(p => {
-        const createdDate = new Date(p.created_at).toISOString().split('T')[0];
-        return createdDate <= dateStr;
-      }).length || 0;
+      const count = profiles?.filter(p => new Date(p.created_at).toISOString().split('T')[0] <= dateStr).length || 0;
       userGrowth.push({ date: dateStr, count });
     }
 
-    // Screen time analytics
-    const totalScreenTime = sessions?.reduce((acc, s) => acc + (s.duration_seconds || 0), 0) || 0;
-    const avgScreenTimePerUser = totalUsers > 0 ? totalScreenTime / totalUsers : 0;
-
-    // Journal mood trends
-    const moodTrends: { mood: number; count: number }[] = [];
-    const moodCounts: Record<number, number> = {};
-    journals?.forEach(j => {
-      if (j.mood !== null && j.mood !== undefined) {
-        moodCounts[j.mood] = (moodCounts[j.mood] || 0) + 1;
-      }
-    });
-    Object.entries(moodCounts).forEach(([mood, count]) => {
-      moodTrends.push({ mood: parseInt(mood), count });
-    });
-    moodTrends.sort((a, b) => a.mood - b.mood);
-
-    // Mood by country
-    const moodByCountry: Record<string, { totalMood: number; count: number }> = {};
-    journals?.forEach(j => {
-      if (j.mood !== null && j.mood !== undefined) {
-        const userProfile = profiles?.find(p => p.user_id === j.user_id);
-        const country = userProfile?.country || 'Unknown';
-        if (!moodByCountry[country]) {
-          moodByCountry[country] = { totalMood: 0, count: 0 };
-        }
-        moodByCountry[country].totalMood += j.mood;
-        moodByCountry[country].count += 1;
-      }
-    });
-    const moodByCountryAvg: Record<string, { avgMood: number; count: number }> = {};
-    Object.entries(moodByCountry).forEach(([country, data]) => {
-      moodByCountryAvg[country] = {
-        avgMood: data.count > 0 ? data.totalMood / data.count : 0,
-        count: data.count
-      };
+    // Retention data
+    const countryBreakdown: Record<string, number> = {};
+    const lifePhaseBreakdown: Record<string, number> = {};
+    profiles?.forEach(p => {
+      const c = p.country || 'Unknown';
+      const lp = p.life_phase || 'Unknown';
+      countryBreakdown[c] = (countryBreakdown[c] || 0) + 1;
+      lifePhaseBreakdown[lp] = (lifePhaseBreakdown[lp] || 0) + 1;
     });
 
-    // Goal category trends
-    const goalCategories: Record<string, number> = {};
-    goals?.forEach(g => {
-      const cat = g.category || 'Uncategorized';
-      goalCategories[cat] = (goalCategories[cat] || 0) + 1;
-    });
-
-    // User details (excluding personal info like email)
+    // User details for moderation
     const userDetails = profiles?.map(p => ({
       id: p.user_id,
       country: p.country || 'Unknown',
       province: p.province || 'Unknown',
       lifePhase: p.life_phase || 'Unknown',
-      isSubscribed: usersWithSubscription.has(p.user_id),
       subscriptionTier: subscriptions?.find(s => s.user_id === p.user_id && s.is_active)?.tier || 'free',
       joinedAt: p.created_at,
-      totalScreenTimeSeconds: sessions?.filter(s => s.user_id === p.user_id)
-        .reduce((acc, s) => acc + (s.duration_seconds || 0), 0) || 0,
+      totalScreenTimeSeconds: sessions?.filter(s => s.user_id === p.user_id).reduce((a, s) => a + (s.duration_seconds || 0), 0) || 0,
       habitsCount: habits?.filter(h => h.user_id === p.user_id).length || 0,
       goalsCount: goals?.filter(g => g.user_id === p.user_id).length || 0,
       journalCount: journals?.filter(j => j.user_id === p.user_id).length || 0,
       postsCount: posts?.filter(po => po.user_id === p.user_id).length || 0,
     }));
 
-    // Gender breakdown
-    const genderBreakdown: Record<string, number> = {};
-    profiles?.forEach(p => {
-      const gender = (p as any).gender || 'Not specified';
-      genderBreakdown[gender] = (genderBreakdown[gender] || 0) + 1;
-    });
-
-    // Mentor statistics
-    const mentorStats = {
-      totalConversations: mentorConvos?.length || 0,
-      totalMessages: mentorMessages?.length || 0,
-      recentConversations: mentorConvos?.slice(0, 20).map(c => ({
-        id: c.id,
-        title: c.title || 'Untitled',
-        messageCount: mentorMessages?.filter(m => m.conversation_id === c.id).length || 0,
-        createdAt: c.created_at
-      })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [],
-      topicInsights: null as any,
-    };
-
-    // Analyze mentor chat topics using AI (only user messages, anonymized)
+    // Mentor topic analysis
+    let mentorTopics = null;
     try {
-      const userMessages = mentorMessages?.filter(m => (m as any).role === 'user') || [];
-      if (userMessages.length > 0) {
-        // Sample up to 200 recent user messages for analysis (anonymized - no user IDs)
-        const sampleMessages = userMessages
+      const userMsgs = mentorMessages?.filter(m => m.role === 'user') || [];
+      if (userMsgs.length >= 5) {
+        const sample = userMsgs
           .sort((a, b) => new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime())
           .slice(0, 200)
-          .map(m => (m as any).content?.slice(0, 200) || '');
+          .map(m => m.content?.slice(0, 200) || '');
 
         const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-        if (LOVABLE_API_KEY && sampleMessages.length >= 5) {
-          const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        if (LOVABLE_API_KEY) {
+          const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${LOVABLE_API_KEY}`,
-              "Content-Type": "application/json",
-            },
+            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
               model: "google/gemini-2.5-flash-lite",
               messages: [
                 {
                   role: "system",
-                  content: `You are an analytics assistant. Analyze these anonymized mentor chat messages and extract insights for advertisers while preserving user privacy. Return ONLY valid JSON with this exact structure:
+                  content: `You are a privacy-first analytics assistant. Analyze anonymized mentor chat messages and extract ONLY aggregate topic-level insights. Never include any user-identifiable information. Return ONLY valid JSON:
 {
   "topTopics": [{"topic": "string", "percentage": number, "description": "string"}],
   "sentimentBreakdown": {"positive": number, "neutral": number, "negative": number},
-  "advertiserInsights": ["string"],
   "keyThemes": ["string"]
 }
-- topTopics: top 8 discussion topics with estimated percentage and brief description
-- sentimentBreakdown: percentage breakdown (must sum to 100)
-- advertiserInsights: 5 actionable insights for advertisers (privacy-preserving, aggregate-level)
-- keyThemes: 5-8 recurring themes/keywords`
+- topTopics: top 8 discussion topic categories with estimated percentage
+- sentimentBreakdown: percentage breakdown summing to 100
+- keyThemes: 5-8 recurring theme keywords`
                 },
-                {
-                  role: "user",
-                  content: `Analyze these ${sampleMessages.length} anonymized user messages from a life coaching mentor chat app:\n\n${sampleMessages.join('\n---\n')}`
-                }
+                { role: "user", content: `Analyze these ${sample.length} anonymized messages from a life coaching app:\n\n${sample.join('\n---\n')}` }
               ],
             }),
           });
 
-          if (aiResponse.ok) {
-            const aiData = await aiResponse.json();
+          if (aiResp.ok) {
+            const aiData = await aiResp.json();
             const content = aiData.choices?.[0]?.message?.content || '';
-            // Extract JSON from response
             const jsonMatch = content.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               try {
-                mentorStats.topicInsights = JSON.parse(jsonMatch[0]);
-              } catch { /* ignore parse error */ }
+                const parsed = JSON.parse(jsonMatch[0]);
+                mentorTopics = {
+                  ...parsed,
+                  totalConversations: mentorConvos?.length || 0,
+                  totalMessages: mentorMessages?.length || 0,
+                };
+              } catch { /* ignore */ }
             }
           }
         }
@@ -331,48 +262,58 @@ Deno.serve(async (req) => {
       console.error('Topic analysis error:', e);
     }
 
-    // Moderation logs
-    const moderation = {
-      flaggedPosts: [],
-      flaggedJournals: []
-    };
+    if (!mentorTopics && (mentorConvos?.length || 0) > 0) {
+      mentorTopics = {
+        topTopics: [],
+        sentimentBreakdown: { positive: 0, neutral: 0, negative: 0 },
+        keyThemes: [],
+        totalConversations: mentorConvos?.length || 0,
+        totalMessages: mentorMessages?.length || 0,
+      };
+    }
 
     const analytics = {
-      users: {
-        total: totalUsers,
-        byCountry: countryBreakdown,
-        byProvince: provinceBreakdown,
-        byLifePhase: lifePhaseBreakdown,
-        byGender: genderBreakdown,
-        growth: userGrowth,
-        details: userDetails,
+      overview: {
+        totalUsers,
+        activeUsersToday: activeToday,
+        activeUsersWeek: activeWeek,
+        activeUsersMonth: activeMonth,
+        avgSessionsPerUser: avgSessions,
+        avgGoalsPerUser: totalUsers > 0 ? (goals?.length || 0) / totalUsers : 0,
+        avgHabitsPerUser: totalUsers > 0 ? (habits?.length || 0) / totalUsers : 0,
+        totalMentorChats: mentorConvos?.length || 0,
+        totalFeedPosts: posts?.length || 0,
+        conversionRate,
+        monthlyRevenue,
       },
-      subscriptions: {
-        breakdown: subscriptionBreakdown,
-        totalActive: activeSubscriptions.length,
+      userGrowth,
+      behavioral: {
+        featureUsage,
+        sessionDepth: Object.entries(sessionBuckets).map(([bucket, count]) => ({ bucket, count })),
+        activeVsPassive: { active: activeUsers, passive: totalUsers - activeUsers },
+        featureAdoption,
       },
-      revenue: {
-        monthly: monthlyRevenue,
-        proRevenue: proCount * 9.99,
-        founderRevenue: founderCount * 6.58,
+      sentiment: {
+        moodDistribution,
+        avgMood: moodTotal > 0 ? moodSum / moodTotal : 0,
+        energyAvg: energyTotal > 0 ? energySum / energyTotal : 0,
+        sampleSize: moodTotal,
       },
-      features: {
-        usage: featureUsage,
-        mostUsed: sortedFeatures,
-        goalCategories,
+      goals: {
+        categories: goalCategoryData,
+        statusDistribution: Object.entries(goalStatusDist).map(([status, count]) => ({ status, count })),
+        totalGoals: goals?.length || 0,
       },
-      engagement: {
-        totalScreenTimeSeconds: totalScreenTime,
-        avgScreenTimePerUserSeconds: avgScreenTimePerUser,
-        moodTrends,
-        moodByCountry: moodByCountryAvg,
+      mentorTopics,
+      retention: {
+        lifePhaseDistribution: Object.entries(lifePhaseBreakdown).map(([name, count]) => ({ name, count })),
+        subscriptionBreakdown: Object.entries(subBreakdown).map(([tier, count]) => ({ tier, count })),
+        countryDistribution: Object.entries(countryBreakdown).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
       },
-      moderation,
-      mentorStats,
+      users: { details: userDetails },
     };
 
     console.log('Analytics compiled successfully');
-
     return new Response(JSON.stringify(analytics), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -381,8 +322,7 @@ Deno.serve(async (req) => {
     console.error('Error in admin-analytics:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
