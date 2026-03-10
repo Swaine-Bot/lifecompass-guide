@@ -81,7 +81,8 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalytics> {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message || 'Failed to fetch analytics');
+  if (data?.error) throw new Error(data.error);
   return data as AdminAnalytics;
 }
 
