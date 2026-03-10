@@ -1269,6 +1269,100 @@ export type Database = {
         }
         Relationships: []
       }
+      share_link_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          platform_detected: string | null
+          share_link_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          platform_detected?: string | null
+          share_link_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          platform_detected?: string | null
+          share_link_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_link_events_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_links: {
+        Row: {
+          card_type: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_revoked: boolean
+          landing_page_type: string
+          share_card_id: string | null
+          slug: string
+          source_id: string | null
+          source_type: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+          visibility_mode: string
+        }
+        Insert: {
+          card_type?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_revoked?: boolean
+          landing_page_type?: string
+          share_card_id?: string | null
+          slug: string
+          source_id?: string | null
+          source_type: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+          visibility_mode?: string
+        }
+        Update: {
+          card_type?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_revoked?: boolean
+          landing_page_type?: string
+          share_card_id?: string | null
+          slug?: string
+          source_id?: string | null
+          source_type?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+          visibility_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_links_share_card_id_fkey"
+            columns: ["share_card_id"]
+            isOneToOne: false
+            referencedRelation: "share_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           created_at: string | null
