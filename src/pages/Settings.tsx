@@ -24,6 +24,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/lib/translations';
 import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 
 interface PrivacySettings {
   terms_accepted: boolean;

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, PenLine, Flame } from 'lucide-react';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
+import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
+import { engagementEventService } from '@/services/engagementEventService';
 import { toast } from 'sonner';
 
 export default function Mirror() {
@@ -84,15 +86,13 @@ export default function Mirror() {
 
       {/* Empty State */}
       {mirrorMoments.length === 0 && !mirrorLoading && (
-        <div className="text-center py-12">
-          <Sparkles className="w-10 h-10 text-primary/30 mx-auto mb-4" />
-          <p className="text-muted-foreground text-sm">
-            Your Mirror Moments will appear here as you build your LifeStack journey.
-          </p>
-          <p className="text-muted-foreground text-xs mt-1">
-            Keep journaling, tracking habits, and setting goals.
-          </p>
-        </div>
+        <EmptyStatePanel
+          icon={Sparkles}
+          title="Your reflection is still forming"
+          description="Keep journaling, tracking habits, and completing goals. Once LifeStack has enough signal, your first Mirror Moment will appear."
+          primaryCta={{ label: 'Write in Journal', onClick: () => navigate('/journal') }}
+          secondaryCta={{ label: 'Log a Habit', onClick: () => navigate('/habits') }}
+        />
       )}
     </div>
   );
