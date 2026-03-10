@@ -20,6 +20,7 @@ export interface ShareCardData {
   sourceId?: string;
   visualType?: VisualModule;
   domain?: string;
+  identityLabel?: string;
 }
 
 export interface PrivacySettings {
