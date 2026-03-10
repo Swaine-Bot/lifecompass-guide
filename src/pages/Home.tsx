@@ -561,6 +561,14 @@ export default function Home() {
           <span className="text-xs text-muted-foreground">AI Mentor</span>
         </Link>
       </div>
+
+      {milestonePrompt.milestone && (
+        <MilestonePromptModal
+          milestone={milestonePrompt.milestone}
+          open={milestonePrompt.open}
+          onClose={milestonePrompt.close}
+        />
+      )}
     </div>
   );
 }
