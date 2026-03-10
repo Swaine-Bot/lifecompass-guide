@@ -17,6 +17,7 @@ const mainNavItems = [
   { path: '/mirror', label: 'Mirror', icon: Sparkles },
   { path: '/cinematics', label: 'Cinematics', icon: Film },
   { path: '/vault', label: 'Vault', icon: Archive },
+  { path: '/insights', label: 'Insight Library', icon: Lightbulb },
   { path: '/library', label: 'Library', icon: BookOpen },
 ];
 

@@ -586,8 +586,15 @@ export default function Home() {
         <MilestonePromptModal
           milestone={milestonePrompt.milestone}
           open={milestonePrompt.open}
-          onClose={milestonePrompt.close}
+          onClose={() => {
+            milestonePrompt.close();
+            setShowInvite(true);
+          }}
         />
+      )}
+
+      {showInvite && (
+        <InvitePrompt context="post_milestone" onDismiss={() => setShowInvite(false)} />
       )}
     </div>
   );
