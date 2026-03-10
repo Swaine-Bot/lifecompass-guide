@@ -39,11 +39,13 @@ const statusColors: Record<string, string> = {
 const categories = ['All', 'Health', 'Career', 'Money', 'Relationships', 'Mindset', 'Legacy'];
 
 export default function Goals() {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
+  const milestonePrompt = useMilestonePrompt();
 
   useEffect(() => {
     fetchGoals();
