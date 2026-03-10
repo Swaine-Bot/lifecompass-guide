@@ -189,7 +189,7 @@ export default function ShareStudio() {
               {sharing ? 'Sharing...' : 'Share Now'}
             </Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button onClick={handleSave} variant="outline" size="sm">
+              <Button onClick={handleDownload} variant="outline" size="sm">
                 <Download className="w-4 h-4 mr-1.5" />Save to Device
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm">
