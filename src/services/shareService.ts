@@ -22,6 +22,10 @@ export interface ShareCardData {
   visualType?: VisualModule;
   domain?: string;
   identityLabel?: string;
+  // Image support for feed posts
+  imageUrl?: string;
+  imageUrls?: string[];
+  imageLayout?: ImageLayout;
 }
 
 export interface PrivacySettings {
