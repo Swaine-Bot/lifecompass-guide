@@ -256,8 +256,13 @@ export default function ShareStudio() {
 
         {/* Regenerate */}
         <div className="flex justify-center">
-          <Button variant="ghost" size="sm" onClick={() => setPhrase(getRandomPhrase())} className="text-xs text-muted-foreground">
-            <RefreshCw className="w-3 h-3 mr-1.5" />Regenerate phrase
+          <Button variant="ghost" size="sm" onClick={() => {
+            const domain = mapLifeDomain(selectedCard.domain);
+            const newPhilosophy = getPhilosophyLine(domain);
+            setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
+            setPhrase(getRandomPhrase());
+          }} className="text-xs text-muted-foreground">
+            <RefreshCw className="w-3 h-3 mr-1.5" />Regenerate language
           </Button>
         </div>
 
