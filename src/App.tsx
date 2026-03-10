@@ -70,6 +70,7 @@ const App = () => (
                 <Route path="/launch-video" element={<LaunchVideo />} />
                 <Route path="/app-store-submission" element={<AppStoreSubmission />} />
                 <Route path="/play-store-submission" element={<PlayStoreSubmission />} />
+                <Route path="/s/:slug" element={<SharedContent />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>

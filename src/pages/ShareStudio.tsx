@@ -1,9 +1,10 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ import {
   CardType,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
+import { createShareLink, buildSmartUrl } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -31,7 +33,6 @@ export default function ShareStudio() {
   const cardRef = useRef<HTMLDivElement>(null);
   const demoCards = useMemo(() => generateDemoCards(), []);
 
-  // Accept prefilled card data from universal share routing
   const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
   const shareOrigin = (location.state as any)?.origin as string | undefined;
 
@@ -43,6 +44,13 @@ export default function ShareStudio() {
   const [sharing, setSharing] = useState(false);
   const [step, setStep] = useState<FlowStep>('studio');
   const [activeTab, setActiveTab] = useState('template');
+
+  // Link & QR settings
+  const [includeSmartLink, setIncludeSmartLink] = useState(true);
+  const [includeQrCode, setIncludeQrCode] = useState(
+    shareOrigin === 'app_invite' // default ON for invites
+  );
+  const [generatedSmartUrl, setGeneratedSmartUrl] = useState<string | null>(null);
 
   // Saved cards
   const [savedCards, setSavedCards] = useState<any[]>([]);
@@ -63,19 +71,58 @@ export default function ShareStudio() {
     }
   }, [format]);
 
+  const generateSmartLink = useCallback(async (): Promise<string | null> => {
+    if (!user || !includeSmartLink) return null;
+    try {
+      const result = await createShareLink({
+        userId: user.id,
+        sourceType: selectedCard.sourceType || selectedCard.cardType,
+        sourceId: selectedCard.sourceId,
+        title: selectedCard.title,
+        subtitle: selectedCard.subtitle,
+        cardType: selectedCard.cardType,
+        landingPageType: selectedCard.sourceType === 'app_invite' ? 'invite' : 'generic',
+        visibilityMode: privacyLevel === 'anonymous' ? 'private' : 'public',
+      });
+      if (result.error) return null;
+      setGeneratedSmartUrl(result.smartUrl);
+      return result.smartUrl;
+    } catch {
+      return null;
+    }
+  }, [user, includeSmartLink, selectedCard, privacyLevel]);
+
   const handleShare = useCallback(async () => {
     if (!user) return;
     setSharing(true);
     try {
-      const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}\n\nlifestack.app`;
+      // Generate smart link
+      const smartUrl = await generateSmartLink();
+
+      // Build caption
+      const captionParts = [
+        `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}`,
+        phrase,
+      ];
+      const text = captionParts.join('\n\n');
+
+      // Render card image
       const blob = await renderCardBlob();
-      const shared = await nativeShare(text, `LifeStack — ${selectedCard.title}`, blob ?? undefined);
+
+      // Share with image + URL
+      const shared = await nativeShare(
+        text,
+        `LifeStack — ${selectedCard.title}`,
+        blob ?? undefined,
+        smartUrl ?? undefined
+      );
 
       await trackShareEvent(user.id, selectedCard.cardType, shared ? 'native' : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (!shared) {
-        await copyToClipboard(text);
+        const clipText = smartUrl ? `${text}\n\n${smartUrl}` : text;
+        await copyToClipboard(clipText);
         toast.success('Copied to clipboard & saved');
       }
       setStep('success');
@@ -84,14 +131,27 @@ export default function ShareStudio() {
     } finally {
       setSharing(false);
     }
-  }, [user, selectedCard, phrase, format, privacyLevel, theme, renderCardBlob]);
+  }, [user, selectedCard, phrase, format, privacyLevel, theme, renderCardBlob, generateSmartLink]);
 
   const handleCopy = useCallback(async () => {
-    const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}\n\nlifestack.app`;
-    const ok = await copyToClipboard(text);
+    const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}`;
+    const smartUrl = generatedSmartUrl || (await generateSmartLink());
+    const fullText = smartUrl ? `${text}\n\n${smartUrl}` : `${text}\n\nlifestack.app`;
+    const ok = await copyToClipboard(fullText);
     if (ok) toast.success('Copied to clipboard');
     else toast.error('Copy failed');
-  }, [selectedCard, phrase]);
+  }, [selectedCard, phrase, generatedSmartUrl, generateSmartLink]);
+
+  const handleCopyLink = useCallback(async () => {
+    let url = generatedSmartUrl;
+    if (!url) url = await generateSmartLink();
+    if (url) {
+      await copyToClipboard(url);
+      toast.success('Share link copied');
+    } else {
+      toast.error('Could not generate link');
+    }
+  }, [generatedSmartUrl, generateSmartLink]);
 
   const handleDownload = useCallback(async () => {
     if (!cardRef.current) return;
@@ -134,8 +194,20 @@ export default function ShareStudio() {
           </div>
           <h2 className="text-2xl font-serif font-bold text-foreground">Shared Successfully</h2>
           <p className="text-sm text-muted-foreground">Your card has been saved and shared. You're in control of what the world sees.</p>
+          {generatedSmartUrl && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Your share link:</p>
+              <button
+                onClick={() => { copyToClipboard(generatedSmartUrl); toast.success('Link copied'); }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border/50 text-xs text-foreground hover:bg-secondary transition-colors"
+              >
+                <Link2 className="w-3 h-3" />
+                {generatedSmartUrl}
+              </button>
+            </div>
+          )}
           <div className="space-y-2">
-            <Button onClick={() => setStep('studio')} className="w-full">Create Another</Button>
+            <Button onClick={() => { setStep('studio'); setGeneratedSmartUrl(null); }} className="w-full">Create Another</Button>
             <Button onClick={() => navigate(-1)} variant="outline" className="w-full">Done</Button>
           </div>
         </div>
@@ -179,6 +251,14 @@ export default function ShareStudio() {
             ))}
           </div>
 
+          {/* Link info */}
+          {includeSmartLink && (
+            <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
+              <Link2 className="w-3 h-3" />
+              Smart link will be generated and attached on share
+            </div>
+          )}
+
           <p className="text-[10px] text-center text-muted-foreground">
             Sharing is user-controlled. Nothing is posted without your action.
           </p>
@@ -188,12 +268,15 @@ export default function ShareStudio() {
               <Share2 className="w-4 h-4 mr-2" />
               {sharing ? 'Sharing...' : 'Share Now'}
             </Button>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button onClick={handleDownload} variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-1.5" />Save to Device
+                <Download className="w-4 h-4 mr-1.5" />Save
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm">
-                <Copy className="w-4 h-4 mr-1.5" />Copy Text
+                <Copy className="w-4 h-4 mr-1.5" />Copy
+              </Button>
+              <Button onClick={handleCopyLink} variant="outline" size="sm">
+                <Link2 className="w-4 h-4 mr-1.5" />Link
               </Button>
             </div>
             <Button onClick={() => setStep('studio')} variant="ghost" size="sm" className="w-full text-muted-foreground">
@@ -299,11 +382,12 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-4 bg-secondary/50">
+          <TabsList className="w-full grid grid-cols-5 bg-secondary/50">
             <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
             <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
             <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
+            <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
           </TabsList>
 
           <TabsContent value="template" className="mt-3">
@@ -349,6 +433,59 @@ export default function ShareStudio() {
           <TabsContent value="format" className="mt-3">
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
               <ShareFormatSelector format={format} onChange={setFormat} />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="link" className="mt-3">
+            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+              <div>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Link & Destination</span>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Smart links route viewers to the app or store based on their device.
+                </p>
+              </div>
+
+              {/* Smart Link toggle */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Link2 className="w-3.5 h-3.5 text-primary" />
+                    Include smart link
+                  </Label>
+                  <p className="text-[10px] text-muted-foreground">
+                    Attach a shareable URL that opens the app or redirects to the store.
+                  </p>
+                </div>
+                <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
+              </div>
+
+              {/* QR Code toggle */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <QrCode className="w-3.5 h-3.5 text-primary" />
+                    Show QR code on card
+                  </Label>
+                  <p className="text-[10px] text-muted-foreground">
+                    Best for screenshots, reposts, and printed formats.
+                  </p>
+                </div>
+                <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
+              </div>
+
+              {/* Copy link button */}
+              {includeSmartLink && (
+                <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full">
+                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
+                </Button>
+              )}
+
+              {generatedSmartUrl && (
+                <p className="text-[10px] text-muted-foreground text-center break-all">
+                  {generatedSmartUrl}
+                </p>
+              )}
             </Card>
           </TabsContent>
         </Tabs>
