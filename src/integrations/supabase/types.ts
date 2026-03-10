@@ -106,6 +106,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_signals: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean
+          signal_date: string
+          signal_type: string
+          suggested_action: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean
+          signal_date?: string
+          signal_type: string
+          suggested_action?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean
+          signal_date?: string
+          signal_type?: string
+          suggested_action?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string
@@ -495,6 +528,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      momentum_streaks: {
+        Row: {
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          shield_available: boolean
+          shield_used_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          shield_available?: boolean
+          shield_used_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          shield_available?: boolean
+          shield_used_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       page_dismissals: {
         Row: {
@@ -948,6 +1014,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_xp: {
+        Row: {
+          domain: Database["public"]["Enums"]["life_domain"]
+          id: string
+          level: number
+          total_xp: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          domain: Database["public"]["Enums"]["life_domain"]
+          id?: string
+          level?: number
+          total_xp?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          domain?: Database["public"]["Enums"]["life_domain"]
+          id?: string
+          level?: number
+          total_xp?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xp_events: {
+        Row: {
+          created_at: string | null
+          domain: Database["public"]["Enums"]["life_domain"]
+          id: string
+          source_id: string | null
+          source_type: string
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          created_at?: string | null
+          domain: Database["public"]["Enums"]["life_domain"]
+          id?: string
+          source_id?: string | null
+          source_type: string
+          user_id: string
+          xp_amount: number
+        }
+        Update: {
+          created_at?: string | null
+          domain?: Database["public"]["Enums"]["life_domain"]
+          id?: string
+          source_id?: string | null
+          source_type?: string
+          user_id?: string
+          xp_amount?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       profiles_public: {
@@ -1067,6 +1190,20 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
       }
+      award_xp: {
+        Args: {
+          _domain: Database["public"]["Enums"]["life_domain"]
+          _source_id?: string
+          _source_type: string
+          _user_id: string
+          _xp_amount: number
+        }
+        Returns: {
+          leveled_up: boolean
+          new_level: number
+          new_total_xp: number
+        }[]
+      }
       get_profile_for_viewer: {
         Args: { target_user_id: string }
         Returns: {
@@ -1094,6 +1231,13 @@ export type Database = {
         Args: { follower: string; target: string }
         Returns: boolean
       }
+      update_momentum_streak: {
+        Args: { _user_id: string }
+        Returns: {
+          current_streak: number
+          shield_used: boolean
+        }[]
+      }
     }
     Enums: {
       account_type: "individual" | "page"
@@ -1107,6 +1251,7 @@ export type Database = {
       friendship_status: "pending" | "accepted" | "declined" | "blocked"
       goal_status: "active" | "completed" | "paused" | "archived"
       habit_frequency: "daily" | "weekly" | "custom"
+      life_domain: "physical" | "mind" | "wealth" | "relationships" | "legacy"
       life_phase:
         | "student_early_career"
         | "builder"
@@ -1257,6 +1402,7 @@ export const Constants = {
       friendship_status: ["pending", "accepted", "declined", "blocked"],
       goal_status: ["active", "completed", "paused", "archived"],
       habit_frequency: ["daily", "weekly", "custom"],
+      life_domain: ["physical", "mind", "wealth", "relationships", "legacy"],
       life_phase: [
         "student_early_career",
         "builder",

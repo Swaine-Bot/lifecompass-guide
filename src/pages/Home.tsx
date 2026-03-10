@@ -15,6 +15,10 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { useEngagement } from '@/hooks/useEngagement';
+import { DailySignalCard } from '@/components/engagement/DailySignalCard';
+import { XPDomainBars } from '@/components/engagement/XPDomainBars';
+import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
 
 interface Task {
   id: string;
@@ -62,6 +66,11 @@ export default function Home() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [showReward, setShowReward] = useState(false);
+
+  const { 
+    domainXP, streak, dailySignal, signalLoading, 
+    awardXP, markSignalRead, xpForLevel, xpForNextLevel, totalXP, overallLevel
+  } = useEngagement();
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const greeting = getGreeting();
@@ -166,6 +175,7 @@ export default function Home() {
       if (completed) {
         triggerReward();
         toast.success('🎉 Task completed! Keep it up!');
+        awardXP('mind', 20, 'task_completed', taskId);
       }
     }
   };
@@ -223,6 +233,7 @@ export default function Home() {
 
     if (newCompleted) {
       toast.success('✨ Habit completed!');
+      awardXP('physical', 20, 'habit_completed', habitId);
     }
   };
 
@@ -296,13 +307,19 @@ export default function Home() {
           <div className="text-2xl font-bold text-primary">{habitsCompleted}/{habits.length}</div>
           <div className="text-xs text-muted-foreground">Habits</div>
         </Card>
-        <Card variant="glass" className="p-4 text-center">
-          <div className="text-2xl font-bold text-primary">
-            <Flame className="w-6 h-6 inline text-primary" />
-          </div>
-          <div className="text-xs text-muted-foreground">7 Day Streak</div>
-        </Card>
+        <MomentumStreakCard
+          currentStreak={streak.current_streak}
+          longestStreak={streak.longest_streak}
+          shieldAvailable={streak.shield_available}
+        />
       </div>
+
+      {/* Daily Signal */}
+      <DailySignalCard
+        signal={dailySignal}
+        loading={signalLoading}
+        onReveal={markSignalRead}
+      />
 
       {/* The One Thing */}
       {oneThingTask && (
@@ -457,6 +474,13 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
+
+      {/* Life Domains XP */}
+      <XPDomainBars
+        domains={domainXP}
+        xpForNextLevel={xpForNextLevel}
+        xpForLevel={xpForLevel}
+      />
 
       {/* Mood & Energy */}
       <div className="grid md:grid-cols-2 gap-4">
