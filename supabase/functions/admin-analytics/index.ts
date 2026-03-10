@@ -271,6 +271,27 @@ Deno.serve(async (req) => {
       };
     }
 
+    // Share analytics
+    const allShareEvents = shareEvents || [];
+    const cardTypeCounts: Record<string, number> = {};
+    const platformCounts: Record<string, number> = {};
+    allShareEvents.forEach((e: any) => {
+      cardTypeCounts[e.card_type] = (cardTypeCounts[e.card_type] || 0) + 1;
+      platformCounts[e.share_target || 'native'] = (platformCounts[e.share_target || 'native'] || 0) + 1;
+    });
+    const cardTypeBreakdown = Object.entries(cardTypeCounts).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count);
+    const topCardType = cardTypeBreakdown[0]?.type || 'N/A';
+    const topPlatform = Object.entries(platformCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+    const shareAnalytics = {
+      totalCardsGenerated: allShareEvents.length,
+      totalSharesInitiated: allShareEvents.filter((e: any) => e.share_target !== 'save_only').length,
+      topCardType: topCardType.replace(/_/g, ' '),
+      topPlatform,
+      topDomains: [],
+      cardTypeBreakdown,
+    };
+
     const analytics = {
       overview: {
         totalUsers,
@@ -309,6 +330,7 @@ Deno.serve(async (req) => {
         subscriptionBreakdown: Object.entries(subBreakdown).map(([tier, count]) => ({ tier, count })),
         countryDistribution: Object.entries(countryBreakdown).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
       },
+      shareAnalytics,
       users: { details: userDetails },
     };
 
