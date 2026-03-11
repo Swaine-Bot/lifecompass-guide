@@ -26,6 +26,8 @@ export interface ShareCardData {
   imageUrl?: string;
   imageUrls?: string[];
   imageLayout?: ImageLayout;
+  // AI insight links
+  aiInsightLinks?: { label: string; url: string }[];
 }
 
 export interface PrivacySettings {
@@ -102,7 +104,6 @@ export const SHARE_TOKENS = {
 export interface ThemeDefinition {
   id: ShareTheme;
   label: string;
-  // Inline style gradients for reliable rendering
   bgGradient: string;
   accent: string;
   accentHex: string;
@@ -118,7 +119,6 @@ export interface ThemeDefinition {
   metricBorder: string;
   borderLine: string;
   dotPattern: string;
-  // Module track color
   trackHex: string;
 }
 
@@ -327,26 +327,57 @@ export async function saveShareCard(
   return { error };
 }
 
+/**
+ * Platform-aware native share — always tries to share the rendered card image first.
+ * Falls back to text+url if image sharing is not supported.
+ */
 export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string): Promise<boolean> {
-  if (navigator.share) {
-    try {
-      const shareData: ShareData = { title, text };
-      if (url) shareData.url = url;
-      if (imageBlob && navigator.canShare?.({ files: [new File([imageBlob], 'share.png', { type: 'image/png' })] })) {
-        shareData.files = [new File([imageBlob], 'lifestack-share.png', { type: 'image/png' })];
+  if (!navigator.share) return false;
+
+  try {
+    // Always try to share with the image file first
+    if (imageBlob) {
+      const file = new File([imageBlob], 'lifestack-share.png', { type: 'image/png' });
+      const shareDataWithFile: ShareData = { files: [file] };
+
+      // Check if the platform can share files
+      if (navigator.canShare?.(shareDataWithFile)) {
+        // Include text as caption for platforms that support it (WhatsApp, etc.)
+        shareDataWithFile.title = title;
+        shareDataWithFile.text = text;
+        if (url) shareDataWithFile.url = url;
+        await navigator.share(shareDataWithFile);
+        return true;
       }
-      await navigator.share(shareData);
-      return true;
-    } catch {
-      return false;
     }
+
+    // Fallback: share as text + url (no image)
+    const shareData: ShareData = { title, text };
+    if (url) shareData.url = url;
+    await navigator.share(shareData);
+    return true;
+  } catch {
+    return false;
   }
-  return false;
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Copy rendered card image to clipboard as PNG (for paste into social media)
+ */
+export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob }),
+    ]);
     return true;
   } catch {
     return false;
@@ -373,14 +404,56 @@ export async function renderCardToCanvas(
     scale: w / element.offsetWidth,
     backgroundColor: null,
     useCORS: true,
+    allowTaint: false,
+    logging: false,
   });
   return canvas;
+}
+
+/**
+ * Build platform-optimized caption text including AI insight links
+ */
+export function buildShareCaption(
+  data: ShareCardData,
+  phrase: string,
+  aiInsight?: string | null,
+  aiInsightEnabled?: boolean,
+  smartUrl?: string | null,
+): string {
+  const parts: string[] = [];
+
+  // Title + subtitle
+  parts.push(data.title);
+  if (data.subtitle) parts.push(data.subtitle);
+
+  // AI insight
+  if (aiInsight && aiInsightEnabled) {
+    parts.push(`\n💡 ${aiInsight}`);
+  }
+
+  // AI insight links as visible URLs in caption
+  if (data.aiInsightLinks?.length) {
+    const linkLines = data.aiInsightLinks.map(l => `🔗 ${l.label}: ${l.url}`);
+    parts.push(linkLines.join('\n'));
+  }
+
+  // Signature phrase
+  parts.push(`\n${phrase}`);
+
+  // Smart link
+  if (smartUrl) {
+    parts.push(smartUrl);
+  } else {
+    parts.push('lifestack.app');
+  }
+
+  return parts.join('\n');
 }
 
 // ─── Demo Data (re-exported from language-engine powered module) ────
 export { generateDemoCards } from './shareDemoData';
 
-// ─── Platform Adapters (stubs for future) ───────────────────────────
+// ─── Platform Adapters ──────────────────────────────────────────────
 export const platformAdapters = {
   instagram_stories: { available: false, label: 'Instagram Stories' },
   facebook_stories: { available: false, label: 'Facebook Stories' },
