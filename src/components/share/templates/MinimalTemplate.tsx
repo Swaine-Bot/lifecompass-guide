@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp }: ShareTemplateProps) {
@@ -8,16 +8,18 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
   const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
 
   const isBackground = hasImage && layout === 'background_image';
-  const isHero = hasImage && (layout === 'hero_image' || layout === 'split_image'); // Minimal maps split→hero
+  const isSplit = hasImage && layout === 'split_image';
+  const isHero = hasImage && layout === 'hero_image';
 
   return (
-    <div className="relative flex flex-col h-full w-full overflow-hidden select-none"
+    <div className={cn('relative h-full w-full overflow-hidden select-none', isSplit ? 'flex flex-row' : 'flex flex-col')}
       style={{ background: t.bgGradient }}>
 
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
+      {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className={cn('relative flex-1 flex flex-col justify-center items-center text-center', animate && 'share-hero-fade')}
+      <div className={cn('relative flex flex-col justify-center items-center text-center', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
         style={{ padding: '40px 28px', gap: 24 }}>
         {/* Quote marks */}
         <div style={{ fontSize: 48, lineHeight: 1, color: t.accentHex, opacity: 0.3, fontFamily: 'serif' }}>"</div>

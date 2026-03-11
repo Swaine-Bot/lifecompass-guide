@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy } from '@/services/shareService';
-import { HeroImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp }: ShareTemplateProps) {
@@ -8,23 +8,26 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
   const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
 
   const isBackground = hasImage && layout === 'background_image';
-  const isHero = hasImage && (layout === 'hero_image' || layout === 'split_image'); // Reflection maps split→hero
+  const isSplit = hasImage && layout === 'split_image';
+  const isHero = hasImage && layout === 'hero_image';
 
   return (
-    <div className="relative flex flex-col h-full w-full overflow-hidden select-none"
+    <div className={cn('relative h-full w-full overflow-hidden select-none', isSplit ? 'flex flex-row' : 'flex flex-col')}
       style={{ background: t.bgGradient }}>
 
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
+      {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
       {/* Subtle gradient orb */}
-      {!isBackground && (
+      {!isBackground && !isSplit && (
         <div className="absolute bottom-0 left-0 w-full h-1/2 pointer-events-none opacity-[0.06]"
           style={{ background: `radial-gradient(ellipse at 30% 80%, ${t.accentHex}, transparent 60%)` }} />
       )}
 
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className="relative flex-1 flex flex-col justify-between" style={{ padding: '32px 28px' }}>
+      <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{ padding: '32px 28px' }}>
         {/* Top identifier */}
         <div>
           <div className="flex items-center gap-2">
@@ -49,6 +52,15 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
               <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5 }}>
                 {aiInsight}
               </p>
+              {data.aiInsightLinks?.length ? (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {data.aiInsightLinks.slice(0, 2).map((link, i) => (
+                    <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
+                      🔗 {link.label}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
           )}
 

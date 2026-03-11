@@ -1,22 +1,21 @@
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { applyPrivacy, SHARE_TOKENS } from '@/services/shareService';
-import { PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, PlayOverlay, MediaTypeBadge, detectMediaType, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
   const privacy = applyPrivacy(rawPrivacy);
-  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed, mediaType } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
 
-  const isSplit = layout === 'split_image';
-  const isBackground = layout === 'background_image';
+  const isSplit = hasImage && layout === 'split_image';
+  const isBackground = hasImage && layout === 'background_image';
+  const isHero = hasImage && !isSplit && !isBackground;
 
-  // Media Spotlight always shows image prominently regardless of layout mode
   return (
     <div className={cn('relative flex h-full w-full overflow-hidden select-none', isSplit ? 'flex-row' : 'flex-col')}
       style={{ background: t.bgGradient }}>
 
-      {/* Background mode: full bleed with readable overlay */}
+      {/* Background mode */}
       {hasImage && isBackground && (
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
@@ -25,10 +24,12 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
             crossOrigin="anonymous" />
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: 'linear-gradient(180deg, hsla(0,0%,0%,0.3) 0%, hsla(0,0%,0%,0.15) 40%, hsla(0,0%,0%,0.7) 100%)' }} />
+          {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
+          {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
         </div>
       )}
 
-      {/* Split mode: image left */}
+      {/* Split mode: image left 50% */}
       {hasImage && isSplit && (
         <div className="relative overflow-hidden flex-shrink-0" style={{ width: '50%', minHeight: 0 }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
@@ -36,6 +37,8 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
             style={{ objectFit: 'cover', objectPosition: 'center', display: 'block' }}
             crossOrigin="anonymous" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 pointer-events-none" />
+          {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="sm" />}
+          {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
           {showCount && imageCount > 1 && (
             <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full z-10"
               style={{ background: 'hsla(0,0%,0%,0.6)', color: 'hsla(0,0%,100%,0.9)', fontSize: 10, fontWeight: 600, backdropFilter: 'blur(4px)' }}>
@@ -45,14 +48,16 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
       )}
 
-      {/* Hero mode (default): image top 55% */}
-      {hasImage && !isSplit && !isBackground && (
+      {/* Hero mode: image top 55% */}
+      {hasImage && isHero && (
         <div className="relative" style={{ flex: '0 0 55%', overflow: 'hidden', minHeight: 0 }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
             className="w-full h-full"
             style={{ objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
             crossOrigin="anonymous" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
+          {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
           {showCount && imageCount > 1 && (
             <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full z-10"
               style={{ background: 'hsla(0,0%,0%,0.6)', color: 'hsla(0,0%,100%,0.9)', fontSize: 10, fontWeight: 600, backdropFilter: 'blur(4px)' }}>
@@ -66,7 +71,7 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
       {!hasImage && (
         <div className="relative flex items-center justify-center" style={{ flex: '0 0 55%', background: 'hsla(0,0%,100%,0.03)' }}>
           {data.secondaryValue ? (
-            <div className="text-center" style={{ gap: 8 }}>
+            <div className="text-center flex flex-col items-center" style={{ gap: 8 }}>
               <p style={{ fontSize: 32, opacity: 0.6 }}>
                 {data.secondaryValue.includes('🎬') ? '🎬' : data.secondaryValue.includes('🎙') ? '🎙️' : '📷'}
               </p>
@@ -91,7 +96,7 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
           </h2>
           {data.subtitle && (
             <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5 }}>
-              {data.subtitle.slice(0, 100)}{data.subtitle.length > 100 ? '…' : ''}
+              {data.subtitle.slice(0, 120)}{data.subtitle.length > 120 ? '…' : ''}
             </p>
           )}
           {aiInsight && (

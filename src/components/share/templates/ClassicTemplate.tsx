@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, LifePhaseBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
@@ -21,7 +21,7 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
       {/* Background image mode */}
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
 
-      {/* Split image left */}
+      {/* Split image left — true 50/50 */}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
       {/* Dot texture */}
@@ -89,6 +89,15 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
             <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.5, textAlign: 'center' }}>
               {aiInsight}
             </p>
+            {data.aiInsightLinks?.length ? (
+              <div className="flex flex-wrap gap-1 justify-center mt-2">
+                {data.aiInsightLinks.slice(0, 2).map((link, i) => (
+                  <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
+                    🔗 {link.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         )}
 

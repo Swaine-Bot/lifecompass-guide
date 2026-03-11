@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, LifePhaseBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
@@ -73,6 +73,15 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
             <p className={t.textSecondary} style={{ fontSize: '0.8125rem', fontStyle: 'italic', lineHeight: 1.5 }}>
               {aiInsight}
             </p>
+            {data.aiInsightLinks?.length ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {data.aiInsightLinks.slice(0, 2).map((link, i) => (
+                  <span key={i} style={{ fontSize: 9, color: t.accentHex, opacity: 0.7 }}>
+                    🔗 {link.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         )}
 
