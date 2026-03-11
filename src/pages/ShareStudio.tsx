@@ -35,6 +35,7 @@ export default function ShareStudio() {
 
   const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
   const shareOrigin = (location.state as any)?.origin as string | undefined;
+  const hasPrefill = !!prefill;
 
   const [selectedCard, setSelectedCard] = useState<ShareCardData>(prefill || demoCards[0]);
   const [theme, setTheme] = useState<ShareTheme>('obsidian_gold');
