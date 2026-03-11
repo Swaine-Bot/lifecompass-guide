@@ -1,19 +1,36 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight }: ShareTemplateProps) {
+export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
   const privacy = applyPrivacy(rawPrivacy);
   const displayValue = privacy.includeExactNumbers ? data.statValue : '•••';
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+
+  const isSplit = hasImage && layout === 'split_image';
+  const isBackground = hasImage && layout === 'background_image';
+  const isHero = hasImage && layout === 'hero_image';
 
   return (
-    <div className="relative flex flex-col h-full w-full overflow-hidden"
-      style={{ background: t.bgGradient }}>
-      {/* Large accent gradient splash */}
-      <div className="absolute top-0 left-0 w-full h-1/3 pointer-events-none opacity-[0.12]"
-        style={{ background: `radial-gradient(ellipse at 20% 0%, ${t.accentHex}, transparent 70%)` }} />
+    <div
+      className={cn('relative overflow-hidden h-full w-full select-none', isSplit ? 'flex flex-row' : 'flex flex-col')}
+      style={{ background: t.bgGradient }}
+    >
+      {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
+      {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className="relative flex flex-col justify-between h-full" style={{ padding: '28px 24px' }}>
+      {/* Large accent gradient splash */}
+      {!isBackground && (
+        <div className="absolute top-0 left-0 w-full h-1/3 pointer-events-none opacity-[0.12]"
+          style={{ background: `radial-gradient(ellipse at 20% 0%, ${t.accentHex}, transparent 70%)` }} />
+      )}
+
+      {/* Hero image */}
+      {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+
+      <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{ padding: '28px 24px' }}>
         {/* Top label */}
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center"
@@ -69,6 +86,8 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
           )}
         </div>
       </div>
+
+      <PostedFromBadge footerHex={t.footerHex} />
     </div>
   );
 }

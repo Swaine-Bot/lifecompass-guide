@@ -216,6 +216,9 @@ export default function ShareStudio() {
         userName={privacy.includeName ? 'You' : undefined}
         animate={true}
         aiInsight={aiInsightEnabled ? aiInsight : null}
+        includeImage={includePostImage}
+        imageLayout={imageLayout}
+        showImageCount={showImageCount}
       />
     </div>
   );
