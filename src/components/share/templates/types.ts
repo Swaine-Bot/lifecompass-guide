@@ -1,4 +1,4 @@
-import type { ShareCardData, PrivacySettings, ShareTheme, ShareFormat, ThemeDefinition } from '@/services/shareService';
+import type { ShareCardData, PrivacySettings, ShareTheme, ShareFormat, ThemeDefinition, ImageLayout } from '@/services/shareService';
 
 export type ShareTemplateName = 'classic' | 'story' | 'minimal' | 'momentum' | 'media_spotlight' | 'reflection';
 
@@ -11,6 +11,12 @@ export interface ShareTemplateProps {
   userName?: string;
   animate?: boolean;
   aiInsight?: string | null;
+  /** Whether to show the post image */
+  includeImage?: boolean;
+  /** Image display mode */
+  imageLayout?: ImageLayout;
+  /** Show "+N more" badge */
+  showImageCount?: boolean;
 }
 
 export interface TemplateMetadata {
