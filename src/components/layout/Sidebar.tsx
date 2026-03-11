@@ -9,16 +9,20 @@ import { usePendingFriendRequests } from '@/hooks/usePendingFriendRequests';
 const mainNavItems = [
   { path: '/home', label: 'Home', icon: Home },
   { path: '/goals', label: 'Goals & Plans', icon: Target },
-  { path: '/calendar', label: 'Calendar', icon: Calendar },
   { path: '/habits', label: 'Habits', icon: BarChart3 },
-  { path: '/life-events', label: 'Life Events', icon: Gift },
+  { path: '/journal', label: 'Journal', icon: PenLine },
   { path: '/mentor', label: 'AI Mentor', icon: MessageCircle },
   { path: '/community', label: 'Community', icon: Users, showBadge: true },
   { path: '/mirror', label: 'Mirror', icon: Sparkles },
+];
+
+const secondaryNavItems = [
+  { path: '/calendar', label: 'Calendar', icon: Calendar },
+  { path: '/life-events', label: 'Life Events', icon: Gift },
   { path: '/cinematics', label: 'Cinematics', icon: Film },
   { path: '/vault', label: 'Vault', icon: Archive },
   { path: '/insights', label: 'Insight Library', icon: Lightbulb },
-  { path: '/library', label: 'Library', icon: BookOpen },
+  { path: '/library', label: 'Playbooks', icon: BookOpen },
 ];
 
 const phaseLabels: Record<string, string> = {
@@ -38,6 +42,30 @@ export const Sidebar = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const renderNavItem = (item: typeof mainNavItems[0]) => {
+    const isActive = location.pathname === item.path || 
+      (item.path !== '/home' && location.pathname.startsWith(item.path));
+    const showBadge = (item as any).showBadge && pendingCount > 0;
+    
+    return (
+      <Link
+        key={item.path}
+        to={item.path}
+        className={cn("nav-item", isActive && "active")}
+      >
+        <div className="relative">
+          <item.icon className="w-5 h-5" />
+          {showBadge && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
+              {pendingCount > 9 ? '9+' : pendingCount}
+            </span>
+          )}
+        </div>
+        <span>{item.label}</span>
+      </Link>
+    );
   };
 
   return (
@@ -61,29 +89,13 @@ export const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-        {mainNavItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-            (item.path !== '/home' && location.pathname.startsWith(item.path));
-          const showBadge = item.showBadge && pendingCount > 0;
-          
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn("nav-item", isActive && "active")}
-            >
-              <div className="relative">
-                <item.icon className="w-5 h-5" />
-                {showBadge && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
-                    {pendingCount > 9 ? '9+' : pendingCount}
-                  </span>
-                )}
-              </div>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+        {/* Primary features */}
+        {mainNavItems.map(renderNavItem)}
+
+        {/* Divider */}
+        <div className="h-px bg-border/50 my-3" />
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 px-4 mb-1">More</p>
+        {secondaryNavItems.map(renderNavItem)}
 
         {isAdmin && (
           <>

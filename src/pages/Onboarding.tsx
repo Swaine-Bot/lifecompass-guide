@@ -7,11 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Home, Compass, Heart, Sparkles, ShoppingBag } from 'lucide-react';
+import { Crown, ArrowRight, ArrowLeft, Check, Loader2, GraduationCap, Rocket, Home, Compass, Heart, Sparkles, ShoppingBag, Bell, Shield, Settings, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { Shield } from 'lucide-react';
 import { IntroVideo } from '@/components/onboarding/IntroVideo';
 import { UserGuide } from '@/components/onboarding/UserGuide';
 import { TermsAcceptance } from '@/components/onboarding/TermsAcceptance';
@@ -51,6 +50,11 @@ export default function Onboarding() {
     account_type: 'individual' as 'individual' | 'page',
     page_category: '' as string,
     curated_suggestions_enabled: false,
+    // Notification opt-ins
+    notifications_goals: true,
+    notifications_social: true,
+    notifications_nudges: true,
+    show_ai_insights_to_friends: true,
   });
 
   const { user, refreshProfile } = useAuth();
@@ -59,7 +63,6 @@ export default function Onboarding() {
   const handleTermsAccept = async () => {
     if (!user) return;
     
-    // Save terms acceptance to database
     await supabase
       .from('privacy_settings')
       .upsert({
@@ -79,6 +82,7 @@ export default function Onboarding() {
     { title: 'Life Phase', subtitle: 'Where are you in your journey?' },
     { title: 'Focus Areas', subtitle: 'What matters most right now?' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
+    { title: 'Notifications & Privacy', subtitle: 'Choose what works for you' },
     { title: 'Smart Suggestions', subtitle: 'Personalize your AI experience' },
   ];
 
@@ -92,12 +96,10 @@ export default function Onboarding() {
     setShowIntro(true);
   };
 
-  // Show terms acceptance first
   if (showTerms) {
     return <TermsAcceptance onAccept={handleTermsAccept} />;
   }
 
-  // Show account type selection after terms
   if (showAccountType) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
@@ -167,16 +169,19 @@ export default function Onboarding() {
 
       if (error) throw error;
 
-      // Save curated suggestions preference
+      // Save all privacy / notification preferences
       await supabase
         .from('privacy_settings')
         .upsert({
           user_id: user.id,
           curated_suggestions_enabled: formData.curated_suggestions_enabled,
+          notifications_goals: formData.notifications_goals,
+          notifications_social: formData.notifications_social,
+          notifications_nudges: formData.notifications_nudges,
+          show_ai_insights_to_friends: formData.show_ai_insights_to_friends,
         });
 
       await refreshProfile();
-      // Show the user guide after profile is saved
       setShowGuide(true);
     } catch (err) {
       toast.error('Failed to save preferences. Please try again.');
@@ -186,7 +191,6 @@ export default function Onboarding() {
   };
 
   const handleGuideComplete = async () => {
-    // Mark guide as completed
     if (user) {
       await supabase
         .from('profiles')
@@ -198,7 +202,6 @@ export default function Onboarding() {
   };
 
   const handleGuideSkip = async () => {
-    // Still mark as completed when skipped
     if (user) {
       await supabase
         .from('profiles')
@@ -209,7 +212,6 @@ export default function Onboarding() {
     navigate('/home');
   };
 
-  // Show user guide after onboarding wizard
   if (showGuide) {
     return <UserGuide onComplete={handleGuideComplete} onSkip={handleGuideSkip} />;
   }
@@ -378,8 +380,77 @@ export default function Onboarding() {
                 </div>
               )}
 
-              {/* Step 4: Curated Suggestions Opt-in */}
+              {/* Step 4: Notifications & Privacy */}
               {step === 4 && (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Bell className="w-7 h-7 text-primary" />
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground text-center">
+                    Choose which notifications and sharing options you'd like. All are optional.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <Label className="text-sm">Goal & task reminders</Label>
+                        <p className="text-xs text-muted-foreground">Deadline and progress nudges</p>
+                      </div>
+                      <Switch
+                        checked={formData.notifications_goals}
+                        onCheckedChange={(v) => setFormData({ ...formData, notifications_goals: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <Label className="text-sm">Social activity</Label>
+                        <p className="text-xs text-muted-foreground">Reactions, comments, friend requests</p>
+                      </div>
+                      <Switch
+                        checked={formData.notifications_social}
+                        onCheckedChange={(v) => setFormData({ ...formData, notifications_social: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <Label className="text-sm">Daily nudges & check-ins</Label>
+                        <p className="text-xs text-muted-foreground">Habit reminders and journaling prompts</p>
+                      </div>
+                      <Switch
+                        checked={formData.notifications_nudges}
+                        onCheckedChange={(v) => setFormData({ ...formData, notifications_nudges: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <Label className="text-sm">Share AI insights with friends</Label>
+                        <p className="text-xs text-muted-foreground">Friends can see mentor feedback on your posts</p>
+                      </div>
+                      <Switch
+                        checked={formData.show_ai_insights_to_friends}
+                        onCheckedChange={(v) => setFormData({ ...formData, show_ai_insights_to_friends: v })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Change-later message */}
+                  <div className="p-3 rounded-xl bg-secondary/50 border border-border/30 flex items-start gap-2.5">
+                    <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      You can change all of these anytime in <span className="text-foreground font-medium">Settings → Privacy & Notifications</span>.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Curated Suggestions Opt-in */}
+              {step === 5 && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-center">
                     <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -423,6 +494,14 @@ export default function Onboarding() {
                       checked={formData.curated_suggestions_enabled}
                       onCheckedChange={(v) => setFormData({ ...formData, curated_suggestions_enabled: v })}
                     />
+                  </div>
+
+                  {/* Final change-later message */}
+                  <div className="p-3 rounded-xl bg-secondary/50 border border-border/30 flex items-start gap-2.5">
+                    <Settings className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      All your choices can be updated anytime in <span className="text-foreground font-medium">Settings → Privacy & Notifications</span>.
+                    </p>
                   </div>
                 </div>
               )}

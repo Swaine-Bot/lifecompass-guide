@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, Sparkles, Users, Crown } from 'lucide-react';
+import { Home, Target, BarChart3, Sparkles, Users, Crown, PenLine, MessageCircle } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,8 +7,8 @@ import { usePendingFriendRequests } from '@/hooks/usePendingFriendRequests';
 const navItems = [
   { path: '/home', label: 'Home', icon: Home },
   { path: '/goals', label: 'Plan', icon: Target },
-  { path: '/habits', label: 'Track', icon: BarChart3 },
-  { path: '/mirror', label: 'Mirror', icon: Sparkles },
+  { path: '/journal', label: 'Journal', icon: PenLine },
+  { path: '/mentor', label: 'Mentor', icon: MessageCircle },
   { path: '/community', label: 'Connect', icon: Users },
 ];
 
