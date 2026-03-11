@@ -37,6 +37,8 @@ export interface ShareSource {
   // Image support
   imageUrl?: string;
   imageUrls?: string[];
+  // All media (images, video, audio) for journal entries
+  mediaUrls?: string[];
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
