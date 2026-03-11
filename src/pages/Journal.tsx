@@ -1158,6 +1158,9 @@ export default function Journal() {
                           excerpt: (entry.content || entry.reflection || entry.gratitude || '').slice(0, 120),
                           statLabel: format(new Date(entry.date), 'MMM d, yyyy'),
                           domain: 'mind',
+                          imageUrl: entry.media_urls?.find(u => /\.(jpg|jpeg|png|gif|webp)/i.test(u)),
+                          imageUrls: entry.media_urls?.filter(u => /\.(jpg|jpeg|png|gif|webp)/i.test(u)),
+                          mediaUrls: entry.media_urls,
                         }}
                       />
                       <DropdownMenu>

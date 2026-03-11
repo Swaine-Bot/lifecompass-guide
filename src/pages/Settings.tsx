@@ -309,13 +309,13 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy & Notifications</TabsTrigger>
           <TabsTrigger value="subscription" className="flex items-center gap-1.5">
             <Crown className="w-4 h-4" />
-            Subscription
+            Plan
           </TabsTrigger>
-          <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="engagement" className="flex items-center gap-1.5">
             <Sparkles className="w-4 h-4" />
             Engagement

@@ -37,6 +37,8 @@ export interface ShareSource {
   // Image support
   imageUrl?: string;
   imageUrls?: string[];
+  // All media (images, video, audio) for journal entries
+  mediaUrls?: string[];
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
@@ -90,6 +92,12 @@ function sourceToCardData(source: ShareSource): ShareCardData {
 
   if (source.type === 'journal_reflection') {
     const excerpt = (source.excerpt || source.subtitle || '').slice(0, 120);
+    // Detect media types from mediaUrls
+    const imageUrls = source.mediaUrls?.filter(u => /\.(jpg|jpeg|png|gif|webp)/i.test(u)) || source.imageUrls;
+    const videoUrls = source.mediaUrls?.filter(u => /\.(mp4|mov|webm)/i.test(u));
+    const audioUrls = source.mediaUrls?.filter(u => /\.(mp3|wav|webm|ogg)/i.test(u));
+    const firstImage = imageUrls?.[0] || source.imageUrl;
+
     return {
       cardType: mapping.cardType,
       title: 'Reflection',
@@ -102,6 +110,12 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       sourceType: source.type,
       sourceId: source.id,
       domain: source.domain || 'mind',
+      imageUrl: firstImage,
+      imageUrls: imageUrls,
+      imageLayout: firstImage ? 'hero_image' as const : undefined,
+      // Store video/audio info for share output
+      secondaryValue: videoUrls?.length ? `🎬 ${videoUrls.length} video${videoUrls.length > 1 ? 's' : ''}` : audioUrls?.length ? `🎙️ ${audioUrls.length} voice note${audioUrls.length > 1 ? 's' : ''}` : undefined,
+      secondaryLabel: videoUrls?.length ? 'attached' : audioUrls?.length ? 'attached' : undefined,
     };
   }
 

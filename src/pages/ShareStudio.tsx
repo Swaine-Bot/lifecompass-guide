@@ -35,6 +35,7 @@ export default function ShareStudio() {
 
   const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
   const shareOrigin = (location.state as any)?.origin as string | undefined;
+  const hasPrefill = !!prefill;
 
   const [selectedCard, setSelectedCard] = useState<ShareCardData>(prefill || demoCards[0]);
   const [theme, setTheme] = useState<ShareTheme>('obsidian_gold');
@@ -405,29 +406,46 @@ export default function ShareStudio() {
 
           <TabsContent value="template" className="mt-3">
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                {demoCards.map((card) => (
-                  <button
-                    key={card.cardType}
-                    onClick={() => setSelectedCard(card)}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
-                      selectedCard.cardType === card.cardType
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border/30 hover:border-border/60'
-                    )}
-                  >
-                    <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+              {hasPrefill ? (
+                <div className="space-y-2">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your Card</span>
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-primary bg-primary/10">
+                    <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
                     <div>
-                      <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
-                        {CARD_TYPE_LABELS[card.cardType as CardType]}
+                      <p className="text-xs font-medium text-primary">
+                        {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
                       </p>
-                      <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
+                      <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{selectedCard.title}</p>
                     </div>
-                  </button>
-                ))}
-              </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    {demoCards.map((card) => (
+                      <button
+                        key={card.cardType}
+                        onClick={() => setSelectedCard(card)}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
+                          selectedCard.cardType === card.cardType
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border/30 hover:border-border/60'
+                        )}
+                      >
+                        <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+                        <div>
+                          <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
+                            {CARD_TYPE_LABELS[card.cardType as CardType]}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </Card>
           </TabsContent>
 
