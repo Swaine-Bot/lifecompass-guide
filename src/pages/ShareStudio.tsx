@@ -8,23 +8,33 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { ShareCardTemplate } from '@/components/share/ShareCardTemplate';
 import { SharePrivacyControls } from '@/components/share/SharePrivacyControls';
 import { ShareFormatSelector } from '@/components/share/ShareFormatSelector';
 import { ShareThemeSelector } from '@/components/share/ShareThemeSelector';
+import { TemplateSelector } from '@/components/share/TemplateSelector';
+import { AIInsightControls, type InsightStyle } from '@/components/share/AIInsightControls';
+import { TEMPLATE_COMPONENTS, suggestTemplate, type ShareTemplateName } from '@/components/share/templates';
 import {
   ShareCardData, PrivacySettings, ShareFormat, ShareTheme,
-  DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase,
+  DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase, THEMES,
   nativeShare, copyToClipboard, trackShareEvent, saveShareCard,
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
   CardType, ImageLayout,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
-import { createShareLink, buildSmartUrl } from '@/services/smartLinkService';
+import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
 type FlowStep = 'studio' | 'preview' | 'success';
+
+const formatAspect: Record<ShareFormat, string> = {
+  story: 'aspect-[9/16]',
+  feed: 'aspect-[4/5]',
+  square: 'aspect-square',
+  linkedin: 'aspect-[4/5]',
+  tiktok: 'aspect-[9/16]',
+};
 
 export default function ShareStudio() {
   const { user } = useAuth();
@@ -36,6 +46,7 @@ export default function ShareStudio() {
   const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
   const shareOrigin = (location.state as any)?.origin as string | undefined;
   const hasPrefill = !!prefill;
+  const hasMedia = !!(prefill?.imageUrl || (prefill?.imageUrls && prefill.imageUrls.length > 0));
 
   const [selectedCard, setSelectedCard] = useState<ShareCardData>(prefill || demoCards[0]);
   const [theme, setTheme] = useState<ShareTheme>('obsidian_gold');
@@ -46,14 +57,22 @@ export default function ShareStudio() {
   const [step, setStep] = useState<FlowStep>('studio');
   const [activeTab, setActiveTab] = useState('template');
 
-  // Link & QR settings
-  const [includeSmartLink, setIncludeSmartLink] = useState(true);
-  const [includeQrCode, setIncludeQrCode] = useState(
-    shareOrigin === 'app_invite' // default ON for invites
+  // Template
+  const [selectedTemplate, setSelectedTemplate] = useState<ShareTemplateName>(
+    suggestTemplate(shareOrigin, hasMedia)
   );
+
+  // AI Insight
+  const [aiInsightEnabled, setAiInsightEnabled] = useState(false);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [insightStyle, setInsightStyle] = useState<InsightStyle>('reflective');
+
+  // Link & QR
+  const [includeSmartLink, setIncludeSmartLink] = useState(true);
+  const [includeQrCode, setIncludeQrCode] = useState(shareOrigin === 'app_invite');
   const [generatedSmartUrl, setGeneratedSmartUrl] = useState<string | null>(null);
 
-  // Image settings (for feed posts with images)
+  // Image settings
   const hasPostImage = !!(selectedCard.imageUrl || (selectedCard.imageUrls && selectedCard.imageUrls.length > 0));
   const [includePostImage, setIncludePostImage] = useState(true);
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
@@ -64,6 +83,8 @@ export default function ShareStudio() {
   const [showSaved, setShowSaved] = useState(false);
 
   const privacyLevel = getPrivacyLevel(privacy);
+  const themeObj = THEMES[theme];
+  const TemplateComponent = TEMPLATE_COMPONENTS[selectedTemplate];
 
   const renderCardBlob = useCallback(async (): Promise<Blob | null> => {
     if (!cardRef.current) return null;
@@ -103,26 +124,16 @@ export default function ShareStudio() {
     if (!user) return;
     setSharing(true);
     try {
-      // Generate smart link
       const smartUrl = await generateSmartLink();
-
-      // Build caption
       const captionParts = [
         `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}`,
         phrase,
       ];
+      if (aiInsight && aiInsightEnabled) captionParts.splice(1, 0, aiInsight);
       const text = captionParts.join('\n\n');
 
-      // Render card image
       const blob = await renderCardBlob();
-
-      // Share with image + URL
-      const shared = await nativeShare(
-        text,
-        `LifeStack — ${selectedCard.title}`,
-        blob ?? undefined,
-        smartUrl ?? undefined
-      );
+      const shared = await nativeShare(text, `LifeStack — ${selectedCard.title}`, blob ?? undefined, smartUrl ?? undefined);
 
       await trackShareEvent(user.id, selectedCard.cardType, shared ? 'native' : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
@@ -138,7 +149,7 @@ export default function ShareStudio() {
     } finally {
       setSharing(false);
     }
-  }, [user, selectedCard, phrase, format, privacyLevel, theme, renderCardBlob, generateSmartLink]);
+  }, [user, selectedCard, phrase, format, privacyLevel, theme, aiInsight, aiInsightEnabled, renderCardBlob, generateSmartLink]);
 
   const handleCopy = useCallback(async () => {
     const text = `${selectedCard.title}${selectedCard.subtitle ? '\n' + selectedCard.subtitle : ''}\n\n${phrase}`;
@@ -191,6 +202,24 @@ export default function ShareStudio() {
     setShowSaved(true);
   }, [user]);
 
+  // ─── Card Preview Component ───
+  const CardPreview = ({ className }: { className?: string }) => (
+    <div ref={cardRef}
+      className={cn('share-card relative overflow-hidden select-none', formatAspect[format], className)}
+      style={{ borderRadius: '16px', border: '1px solid hsla(0,0%,100%,0.04)', boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)' }}>
+      <TemplateComponent
+        data={selectedCard}
+        theme={themeObj}
+        format={format}
+        privacy={privacy}
+        phrase={phrase}
+        userName={privacy.includeName ? 'You' : undefined}
+        animate={true}
+        aiInsight={aiInsightEnabled ? aiInsight : null}
+      />
+    </div>
+  );
+
   // ─── Success Screen ───
   if (step === 'success') {
     return (
@@ -200,16 +229,13 @@ export default function ShareStudio() {
             <Check className="w-8 h-8 text-[hsl(var(--success))]" />
           </div>
           <h2 className="text-2xl font-serif font-bold text-foreground">Shared Successfully</h2>
-          <p className="text-sm text-muted-foreground">Your card has been saved and shared. You're in control of what the world sees.</p>
+          <p className="text-sm text-muted-foreground">Your card has been saved and shared.</p>
           {generatedSmartUrl && (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">Your share link:</p>
-              <button
-                onClick={() => { copyToClipboard(generatedSmartUrl); toast.success('Link copied'); }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border/50 text-xs text-foreground hover:bg-secondary transition-colors"
-              >
-                <Link2 className="w-3 h-3" />
-                {generatedSmartUrl}
+              <button onClick={() => { copyToClipboard(generatedSmartUrl); toast.success('Link copied'); }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border/50 text-xs text-foreground hover:bg-secondary transition-colors">
+                <Link2 className="w-3 h-3" />{generatedSmartUrl}
               </button>
             </div>
           )}
@@ -235,18 +261,7 @@ export default function ShareStudio() {
           </div>
         </div>
         <div className="max-w-md mx-auto px-4 py-6 space-y-6 pb-32">
-          <ShareCardTemplate
-            ref={cardRef}
-            data={selectedCard}
-            theme={theme}
-            format={format}
-            privacy={privacy}
-            phrase={phrase}
-            userName={privacy.includeName ? 'You' : undefined}
-            includeImage={hasPostImage && includePostImage}
-            imageLayoutOverride={imageLayout}
-            showImageCount={showImageCount}
-          />
+          <CardPreview />
 
           {/* Format chips */}
           <div className="flex gap-2 justify-center flex-wrap">
@@ -261,22 +276,19 @@ export default function ShareStudio() {
             ))}
           </div>
 
-          {/* Link info */}
           {includeSmartLink && (
             <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
-              <Link2 className="w-3 h-3" />
-              Smart link will be generated and attached on share
+              <Link2 className="w-3 h-3" />Smart link will be generated on share
             </div>
           )}
 
           <p className="text-[10px] text-center text-muted-foreground">
-            Sharing is user-controlled. Nothing is posted without your action.
+            Nothing is posted without your action.
           </p>
 
           <div className="space-y-2">
             <Button onClick={handleShare} disabled={sharing} className="w-full">
-              <Share2 className="w-4 h-4 mr-2" />
-              {sharing ? 'Sharing...' : 'Share Now'}
+              <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Sharing...' : 'Share Now'}
             </Button>
             <div className="grid grid-cols-3 gap-2">
               <Button onClick={handleDownload} variant="outline" size="sm">
@@ -298,7 +310,7 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── My Saved Cards ───
+  // ─── Saved Cards ───
   if (showSaved) {
     return (
       <div className="min-h-screen bg-background">
@@ -366,18 +378,7 @@ export default function ShareStudio() {
         {/* Card Preview */}
         <div className="flex justify-center">
           <div className="w-full max-w-xs">
-            <ShareCardTemplate
-              ref={cardRef}
-              data={selectedCard}
-              theme={theme}
-              format={format}
-              privacy={privacy}
-              phrase={phrase}
-              userName={privacy.includeName ? 'You' : undefined}
-              includeImage={hasPostImage && includePostImage}
-              imageLayoutOverride={imageLayout}
-              showImageCount={showImageCount}
-            />
+            <CardPreview />
           </div>
         </div>
 
@@ -395,8 +396,9 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={cn("w-full bg-secondary/50", hasPostImage ? "grid grid-cols-6" : "grid grid-cols-5")}>
+          <TabsList className={cn("w-full bg-secondary/50", "grid", hasPostImage ? "grid-cols-7" : "grid-cols-6")}>
             <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
+            <TabsTrigger value="ai" className="text-xs">AI</TabsTrigger>
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
             {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
             <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
@@ -404,11 +406,39 @@ export default function ShareStudio() {
             <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
           </TabsList>
 
+          {/* Template Tab */}
           <TabsContent value="template" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
-              {hasPrefill ? (
-                <div className="space-y-2">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your Card</span>
+            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-4">
+              <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
+
+              {!hasPrefill && (
+                <>
+                  <div className="border-t border-border/30 pt-3">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      {demoCards.map((card) => (
+                        <button key={card.cardType} onClick={() => setSelectedCard(card)}
+                          className={cn(
+                            'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
+                            selectedCard.cardType === card.cardType
+                              ? 'border-primary bg-primary/10' : 'border-border/30 hover:border-border/60'
+                          )}>
+                          <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+                          <div>
+                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
+                              {CARD_TYPE_LABELS[card.cardType as CardType]}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {hasPrefill && (
+                <div className="border-t border-border/30 pt-3">
                   <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-primary bg-primary/10">
                     <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
                     <div>
@@ -419,33 +449,24 @@ export default function ShareStudio() {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <>
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
-                  <div className="grid grid-cols-2 gap-2 mt-3">
-                    {demoCards.map((card) => (
-                      <button
-                        key={card.cardType}
-                        onClick={() => setSelectedCard(card)}
-                        className={cn(
-                          'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
-                          selectedCard.cardType === card.cardType
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border/30 hover:border-border/60'
-                        )}
-                      >
-                        <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
-                        <div>
-                          <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
-                            {CARD_TYPE_LABELS[card.cardType as CardType]}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </>
               )}
+            </Card>
+          </TabsContent>
+
+          {/* AI Insight Tab */}
+          <TabsContent value="ai" className="mt-3">
+            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
+              <AIInsightControls
+                enabled={aiInsightEnabled}
+                onToggle={setAiInsightEnabled}
+                insight={aiInsight}
+                onInsightChange={setAiInsight}
+                style={insightStyle}
+                onStyleChange={setInsightStyle}
+                contentTitle={selectedCard.title}
+                contentSubtitle={selectedCard.subtitle}
+                contentType={selectedCard.sourceType || selectedCard.cardType}
+              />
             </Card>
           </TabsContent>
 
@@ -460,64 +481,38 @@ export default function ShareStudio() {
               <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
                 <div>
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Post Image</span>
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    Control how the post image appears on your share card.
-                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Control how the image appears on your share card.</p>
                 </div>
-
-                {/* Include image toggle */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <ImageIcon className="w-3.5 h-3.5 text-primary" />
-                      Include post image
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
                     </Label>
-                    <p className="text-[10px] text-muted-foreground">Show the attached image on your card.</p>
                   </div>
                   <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
                 </div>
-
                 {includePostImage && (
-                  <>
-                    {/* Layout selector */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Layout</Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {([
-                          { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image on top' },
-                          { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: 'Side by side' },
-                          { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Blurred behind' },
-                        ]).map((opt) => (
-                          <button
-                            key={opt.value}
-                            onClick={() => setImageLayout(opt.value)}
-                            className={cn(
-                              'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
-                              imageLayout === opt.value
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'border-border/30 text-muted-foreground hover:border-border/60'
-                            )}
-                          >
-                            {opt.icon}
-                            <span className="text-[10px] font-medium">{opt.label}</span>
-                          </button>
-                        ))}
-                      </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Layout</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" /> },
+                        { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" /> },
+                        { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" /> },
+                      ]).map((opt) => (
+                        <button key={opt.value} onClick={() => setImageLayout(opt.value)}
+                          className={cn(
+                            'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
+                            imageLayout === opt.value
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border/30 text-muted-foreground hover:border-border/60'
+                          )}>
+                          {opt.icon}
+                          <span className="text-[10px] font-medium">{opt.label}</span>
+                        </button>
+                      ))}
                     </div>
-
-                    {/* Image count indicator */}
-                    {(selectedCard.imageUrls?.length || 0) > 1 && (
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <Label className="text-sm font-medium text-foreground">Show image count</Label>
-                          <p className="text-[10px] text-muted-foreground">
-                            Display "+{(selectedCard.imageUrls?.length || 1) - 1} more" indicator.
-                          </p>
-                        </div>
-                        <Switch checked={showImageCount} onCheckedChange={setShowImageCount} />
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
               </Card>
             </TabsContent>
@@ -539,51 +534,32 @@ export default function ShareStudio() {
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
               <div>
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Link & Destination</span>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Smart links route viewers to the app or store based on their device.
-                </p>
+                <p className="text-[10px] text-muted-foreground mt-1">Smart links route viewers to the app or store.</p>
               </div>
-
-              {/* Smart Link toggle */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Link2 className="w-3.5 h-3.5 text-primary" />
-                    Include smart link
+                    <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
                   </Label>
-                  <p className="text-[10px] text-muted-foreground">
-                    Attach a shareable URL that opens the app or redirects to the store.
-                  </p>
                 </div>
                 <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
               </div>
-
-              {/* QR Code toggle */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <QrCode className="w-3.5 h-3.5 text-primary" />
-                    Show QR code on card
+                    <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
                   </Label>
-                  <p className="text-[10px] text-muted-foreground">
-                    Best for screenshots, reposts, and printed formats.
-                  </p>
                 </div>
                 <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
               </div>
-
-              {/* Copy link button */}
               {includeSmartLink && (
                 <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full">
                   <Copy className="w-3.5 h-3.5 mr-1.5" />
                   {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
                 </Button>
               )}
-
               {generatedSmartUrl && (
-                <p className="text-[10px] text-muted-foreground text-center break-all">
-                  {generatedSmartUrl}
-                </p>
+                <p className="text-[10px] text-muted-foreground text-center break-all">{generatedSmartUrl}</p>
               )}
             </Card>
           </TabsContent>
