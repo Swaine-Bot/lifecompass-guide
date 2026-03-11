@@ -1,15 +1,24 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, SHARE_TOKENS } from '@/services/shareService';
+import { HeroImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight }: ShareTemplateProps) {
+export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp }: ShareTemplateProps) {
   const privacy = applyPrivacy(rawPrivacy);
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+
+  const isBackground = hasImage && layout === 'background_image';
+  const isHero = hasImage && (layout === 'hero_image' || layout === 'split_image'); // Minimal maps split→hero
 
   return (
-    <div className="relative flex flex-col justify-center h-full w-full overflow-hidden"
-      style={{ background: t.bgGradient, padding: '40px 28px' }}>
+    <div className="relative flex flex-col h-full w-full overflow-hidden select-none"
+      style={{ background: t.bgGradient }}>
 
-      <div className={cn('flex flex-col items-center text-center', animate && 'share-hero-fade')} style={{ gap: 24 }}>
+      {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
+      {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+
+      <div className={cn('relative flex-1 flex flex-col justify-center items-center text-center', animate && 'share-hero-fade')}
+        style={{ padding: '40px 28px', gap: 24 }}>
         {/* Quote marks */}
         <div style={{ fontSize: 48, lineHeight: 1, color: t.accentHex, opacity: 0.3, fontFamily: 'serif' }}>"</div>
         
@@ -29,13 +38,9 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
         <p className={t.accent} style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           {phrase}
         </p>
-
-        {privacy.includeFooter && (
-          <span style={{ fontSize: 8, letterSpacing: '0.12em', color: t.footerHex, textTransform: 'uppercase' }}>
-            LifeStack
-          </span>
-        )}
       </div>
+
+      <PostedFromBadge footerHex={t.footerHex} />
     </div>
   );
 }
