@@ -15,28 +15,27 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
     <div className={cn('relative flex h-full w-full overflow-hidden select-none', isSplit ? 'flex-row' : 'flex-col')}
       style={{ background: t.bgGradient }}>
 
-      {/* Background mode */}
+      {/* Background mode — blurred atmospheric, no text on the raw media */}
       {hasImage && isBackground && (
         <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
             className="w-full h-full"
-            style={{ objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+            style={{ objectFit: 'cover', objectPosition: 'center', display: 'block',
+              filter: 'blur(14px) brightness(0.28) saturate(1.3)', transform: 'scale(1.15)' }}
             crossOrigin="anonymous" />
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(180deg, hsla(0,0%,0%,0.3) 0%, hsla(0,0%,0%,0.15) 40%, hsla(0,0%,0%,0.7) 100%)' }} />
-          {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
-          {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
+            style={{ background: 'linear-gradient(180deg, hsla(0,0%,0%,0.5) 0%, hsla(0,0%,0%,0.35) 50%, hsla(0,0%,0%,0.6) 100%)' }} />
         </div>
       )}
 
-      {/* Split mode: image left 50% */}
+      {/* Split mode: image left 50%, no overlay on media */}
       {hasImage && isSplit && (
-        <div className="relative overflow-hidden flex-shrink-0" style={{ width: '50%', minHeight: 0 }}>
+        <div className="relative overflow-hidden flex-shrink-0 flex items-center justify-center"
+          style={{ width: '50%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
             className="w-full h-full"
-            style={{ objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+            style={{ objectFit: 'contain', display: 'block' }}
             crossOrigin="anonymous" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 pointer-events-none" />
           {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="sm" />}
           {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
           {showCount && imageCount > 1 && (
@@ -48,14 +47,14 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
       )}
 
-      {/* Hero mode: image top 55% */}
+      {/* Hero mode: image top 55%, no overlay on media */}
       {hasImage && isHero && (
-        <div className="relative" style={{ flex: '0 0 55%', overflow: 'hidden', minHeight: 0 }}>
+        <div className="relative flex items-center justify-center"
+          style={{ flex: '0 0 55%', overflow: 'hidden', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
             className="w-full h-full"
-            style={{ objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+            style={{ objectFit: 'contain', display: 'block' }}
             crossOrigin="anonymous" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
           {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
           {showCount && imageCount > 1 && (
@@ -88,32 +87,34 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
 
       {/* Content area */}
       <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
-        style={{ padding: '20px 24px' }}>
-        <div style={{ gap: 8 }} className="flex flex-col">
+        style={{ padding: '20px 24px', overflow: 'hidden' }}>
+        <div style={{ gap: 8 }} className="flex flex-col flex-1 min-h-0">
           <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3 }}>
+            fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
+            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {data.title}
           </h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5 }}>
-              {data.subtitle.slice(0, 120)}{data.subtitle.length > 120 ? '…' : ''}
+            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+              {data.subtitle}
             </p>
           )}
           {aiInsight && (
-            <p style={{ fontSize: '0.6875rem', lineHeight: 1.4, color: t.accentHex, fontStyle: 'italic', marginTop: 4 }}>
+            <p style={{ fontSize: '0.6875rem', lineHeight: 1.4, color: t.accentHex, fontStyle: 'italic', marginTop: 4,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
           )}
         </div>
 
-        <div style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10 }}>
+        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10 }}>
           <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {phrase}
           </p>
+          <PostedFromBadge footerHex={t.footerHex} />
         </div>
       </div>
-
-      <PostedFromBadge footerHex={t.footerHex} />
     </div>
   );
 }

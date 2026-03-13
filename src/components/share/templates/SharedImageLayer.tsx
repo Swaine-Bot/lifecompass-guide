@@ -98,23 +98,26 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
 }
 
 /**
- * Hero: fills a top region with smart cover crop
+ * Hero: media displayed with preserved aspect ratio, no cropping, no overlays on media.
+ * Uses object-fit:contain so the full image is always visible.
  */
 export function HeroImage({ url, imageCount, showCount, onError }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void;
 }) {
   const mediaType = detectMediaType(url);
   return (
-    <div className="relative w-full overflow-hidden" style={{ flex: '0 0 48%', minHeight: 0 }}>
+    <div
+      className="relative w-full overflow-hidden flex items-center justify-center"
+      style={{ flex: '0 0 48%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}
+    >
       <img
         src={url}
         alt=""
         onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+        style={{ objectFit: 'contain', display: 'block' }}
         crossOrigin="anonymous"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 pointer-events-none" />
       {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
       {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
       {showCount && <CountBadge count={imageCount} />}
@@ -123,23 +126,25 @@ export function HeroImage({ url, imageCount, showCount, onError }: {
 }
 
 /**
- * Split: image on the left, content on the right — true 50/50
+ * Split: image on the left — true 50/50, aspect ratio preserved, no overlays on media.
  */
 export function SplitImage({ url, imageCount, showCount, onError }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void;
 }) {
   const mediaType = detectMediaType(url);
   return (
-    <div className="relative overflow-hidden flex-shrink-0" style={{ width: '50%', minHeight: 0 }}>
+    <div
+      className="relative overflow-hidden flex-shrink-0 flex items-center justify-center"
+      style={{ width: '50%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}
+    >
       <img
         src={url}
         alt=""
         onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+        style={{ objectFit: 'contain', display: 'block' }}
         crossOrigin="anonymous"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/25 pointer-events-none" />
       {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="sm" />}
       {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
       {showCount && <CountBadge count={imageCount} />}
@@ -148,7 +153,8 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
 }
 
 /**
- * Background: full bleed behind all content with readability overlay
+ * Background: full bleed behind all content with readability overlay.
+ * Media is intentionally blurred/atmospheric — this is the design intent for background mode.
  */
 export function BackgroundImage({ url, onError }: {
   url: string; onError: () => void;
@@ -185,7 +191,7 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
   const label = labels[lifePhase] || lifePhase;
   return (
     <span
-      className="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full"
+      className="inline-flex px-2 py-0.5 rounded-full"
       style={{
         fontSize: 8,
         fontWeight: 600,
@@ -203,12 +209,13 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
 }
 
 /**
- * "Posted from LifeStack" brand badge — always bottom-right, above all layers
+ * "Posted from LifeStack" brand badge — inline flow element (not absolute positioned).
+ * Place this inside a text/footer container, not overlapping media.
  */
 export function PostedFromBadge({ footerHex }: { footerHex: string }) {
   return (
     <div
-      className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5"
+      className="inline-flex items-center gap-1.5"
       style={{
         padding: '4px 10px 4px 6px',
         borderRadius: 100,

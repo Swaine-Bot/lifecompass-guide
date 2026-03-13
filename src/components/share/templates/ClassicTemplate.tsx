@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, LifePhaseBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
@@ -18,10 +18,7 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
       className={cn('relative overflow-hidden h-full w-full select-none', isSplit ? 'flex flex-row' : 'flex flex-col justify-between')}
       style={{ background: t.bgGradient, padding: isSplit ? 0 : tokens.spacing.cardPadding }}
     >
-      {/* Background image mode */}
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
-
-      {/* Split image left — true 50/50 */}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
       {/* Dot texture */}
@@ -33,10 +30,10 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
       )}
 
       <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: isSplit ? tokens.spacing.cardPadding : undefined }}>
+        style={{ padding: isSplit ? tokens.spacing.cardPadding : undefined, overflow: 'hidden' }}>
 
         {/* Top band */}
-        <div className="relative flex items-center justify-between" style={{ minHeight: tokens.spacing.topBandHeight }}>
+        <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight }}>
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center"
               style={{ width: 28, height: 28, borderRadius: 8,
@@ -61,9 +58,9 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
 
         {/* Hero content */}
         <div className={cn('relative flex-1 flex flex-col justify-center text-center', animate && 'share-hero-fade')}
-          style={{ gap: tokens.spacing.sectionGap }}>
+          style={{ gap: tokens.spacing.sectionGap, minHeight: 0, overflow: 'hidden' }}>
           {displayValue && (
-            <div>
+            <div className="flex-shrink-0">
               <div style={{ fontSize: tokens.typography.heroSize, fontWeight: 700, letterSpacing: '-0.02em',
                 lineHeight: 1.1, color: t.headlineHex, fontFamily: '"Playfair Display", serif' }}>
                 {displayValue}
@@ -74,19 +71,22 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
               )}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1.125rem, 3.5vw, 1.5rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3 }}>{data.title}</h2>
+          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3vw, 1.375rem)', fontWeight: 600,
+            fontFamily: '"Playfair Display", serif', lineHeight: 1.3, overflow: 'hidden',
+            display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{data.title}</h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.8125rem', lineHeight: 1.6, maxWidth: '85%', margin: '0 auto' }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.8125rem', lineHeight: 1.6, maxWidth: '85%', margin: '0 auto',
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {data.subtitle}
             </p>
           )}
         </div>
 
-        {/* AI Insight footer */}
+        {/* AI Insight */}
         {aiInsight && (
-          <div className="relative" style={{ paddingTop: 10, paddingBottom: 6, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.5, textAlign: 'center' }}>
+          <div className="relative flex-shrink-0" style={{ paddingTop: 10, paddingBottom: 6, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.5, textAlign: 'center',
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
@@ -101,15 +101,13 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
           </div>
         )}
 
-        {/* Footer */}
-        <div className="relative" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 12 }}>
+        {/* Footer with badge in flow */}
+        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 12 }}>
           <p className={t.accent} style={{ fontSize: tokens.typography.footerSize, fontWeight: 500,
             letterSpacing: '0.1em', textTransform: 'uppercase' }}>{phrase}</p>
+          <PostedFromBadge footerHex={t.footerHex} />
         </div>
       </div>
-
-      {/* Posted from LifeStack — always bottom-right */}
-      <PostedFromBadge footerHex={t.footerHex} />
     </div>
   );
 }
