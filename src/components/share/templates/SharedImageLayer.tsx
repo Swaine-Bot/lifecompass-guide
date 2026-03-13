@@ -216,29 +216,58 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
 export function PostedFromBadge({ footerHex }: { footerHex: string }) {
   return (
     <div
-      className="inline-flex items-center gap-1.5"
+      className="inline-flex items-center gap-1.5 flex-shrink-0"
       style={{
-        padding: '4px 10px 4px 6px',
+        padding: '3px 10px 3px 4px',
         borderRadius: 100,
         background: 'hsla(0,0%,0%,0.5)',
         backdropFilter: 'blur(10px)',
         border: '1px solid hsla(0,0%,100%,0.1)',
+        whiteSpace: 'nowrap',
       }}
     >
-      <div
-        className="flex items-center justify-center flex-shrink-0"
+      <img
+        src={lifestackLogo}
+        alt="LifeStack"
+        className="flex-shrink-0"
         style={{
-          width: 14,
-          height: 14,
+          width: 18,
+          height: 18,
           borderRadius: 4,
-          background: 'linear-gradient(135deg, hsl(43,74%,55%), hsl(43,65%,38%))',
+          objectFit: 'contain',
         }}
-      >
-        <span style={{ fontSize: 5.5, fontWeight: 700, color: 'hsl(220,20%,6%)', letterSpacing: '0.05em' }}>LS</span>
-      </div>
+        crossOrigin="anonymous"
+      />
       <span style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.08em', color: 'hsla(0,0%,100%,0.8)', whiteSpace: 'nowrap' }}>
         Posted from LifeStack
       </span>
+    </div>
+  );
+}
+
+/**
+ * Small LifeStack logo mark for template headers
+ */
+export function BrandLogoMark({ size = 28 }: { size?: number }) {
+  return (
+    <div
+      className="flex items-center justify-center flex-shrink-0"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size * 0.28,
+        background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
+        boxShadow: '0 2px 12px -2px hsla(43,74%,52%,0.3)',
+        overflow: 'hidden',
+        padding: 3,
+      }}
+    >
+      <img
+        src={lifestackLogo}
+        alt="LS"
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        crossOrigin="anonymous"
+      />
     </div>
   );
 }
