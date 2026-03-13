@@ -35,12 +35,7 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         {/* Top band — fixed */}
         <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight, marginBottom: 12 }}>
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center"
-              style={{ width: 28, height: 28, borderRadius: 8,
-                background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
-                boxShadow: '0 2px 12px -2px hsla(43,74%,52%,0.3)' }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'hsl(220,20%,6%)', letterSpacing: '0.08em' }}>LS</span>
-            </div>
+            <BrandLogoMark size={28} />
             {privacy.includeName && userName && (
               <span className={cn('font-medium', t.textSecondary)} style={{ fontSize: 11 }}>{userName}</span>
             )}
