@@ -86,8 +86,8 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
         )}
 
         {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
-          <div>
+        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto', paddingBottom: 2 }}>
+          <div className="min-w-0 flex-1">
             <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {phrase}
             </p>

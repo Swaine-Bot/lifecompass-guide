@@ -97,9 +97,9 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         )}
 
         {/* Footer — fixed, anchored to bottom */}
-        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
+        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto', paddingBottom: 2 }}>
           <p className={t.accent} style={{ fontSize: tokens.typography.footerSize, fontWeight: 500,
-            letterSpacing: '0.1em', textTransform: 'uppercase' }}>{phrase}</p>
+            letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0 }}>{phrase}</p>
           <PostedFromBadge footerHex={t.footerHex} />
         </div>
       </div>
