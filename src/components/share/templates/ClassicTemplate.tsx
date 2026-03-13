@@ -15,7 +15,7 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
 
   return (
     <div
-      className={cn('relative overflow-hidden h-full w-full select-none', isSplit ? 'flex flex-row' : 'flex flex-col justify-between')}
+      className={cn('relative overflow-hidden h-full w-full select-none', isSplit ? 'flex flex-row' : 'flex flex-col')}
       style={{ background: t.bgGradient, padding: isSplit ? 0 : tokens.spacing.cardPadding }}
     >
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
@@ -29,11 +29,11 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         }} />
       )}
 
-      <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: isSplit ? tokens.spacing.cardPadding : undefined, overflow: 'hidden' }}>
+      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{ padding: isSplit ? tokens.spacing.cardPadding : undefined }}>
 
-        {/* Top band */}
-        <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight }}>
+        {/* Top band — fixed */}
+        <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight, marginBottom: 12 }}>
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center"
               style={{ width: 28, height: 28, borderRadius: 8,
@@ -56,9 +56,9 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         {/* Hero image */}
         {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-        {/* Hero content */}
-        <div className={cn('relative flex-1 flex flex-col justify-center text-center', animate && 'share-hero-fade')}
-          style={{ gap: tokens.spacing.sectionGap, minHeight: 0, overflow: 'hidden' }}>
+        {/* Hero content — flexible, takes remaining space */}
+        <div className={cn('relative flex-1 min-h-0 flex flex-col justify-center text-center', animate && 'share-hero-fade')}
+          style={{ gap: 12, paddingTop: 8, paddingBottom: 8 }}>
           {displayValue && (
             <div className="flex-shrink-0">
               <div style={{ fontSize: tokens.typography.heroSize, fontWeight: 700, letterSpacing: '-0.02em',
@@ -71,26 +71,26 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
               )}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3vw, 1.375rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3, overflow: 'hidden',
-            display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{data.title}</h2>
+          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.9375rem, 2.8vw, 1.25rem)', fontWeight: 600,
+            fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
+            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{data.title}</h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.8125rem', lineHeight: 1.6, maxWidth: '85%', margin: '0 auto',
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5, maxWidth: '85%', margin: '0 auto',
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {data.subtitle}
             </p>
           )}
         </div>
 
-        {/* AI Insight */}
+        {/* AI Insight — fixed */}
         {aiInsight && (
-          <div className="relative flex-shrink-0" style={{ paddingTop: 10, paddingBottom: 6, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.5, textAlign: 'center',
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+          <div className="relative flex-shrink-0" style={{ paddingTop: 8, paddingBottom: 6, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.45, textAlign: 'center',
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
-              <div className="flex flex-wrap gap-1 justify-center mt-2">
+              <div className="flex flex-wrap gap-1 justify-center mt-1.5">
                 {data.aiInsightLinks.slice(0, 2).map((link, i) => (
                   <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
                     🔗 {link.label}
@@ -101,8 +101,8 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
           </div>
         )}
 
-        {/* Footer with badge in flow */}
-        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 12 }}>
+        {/* Footer — fixed, anchored to bottom */}
+        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
           <p className={t.accent} style={{ fontSize: tokens.typography.footerSize, fontWeight: 500,
             letterSpacing: '0.1em', textTransform: 'uppercase' }}>{phrase}</p>
           <PostedFromBadge footerHex={t.footerHex} />
