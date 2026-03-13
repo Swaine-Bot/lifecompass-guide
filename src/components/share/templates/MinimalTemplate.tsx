@@ -44,7 +44,7 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
         <div className="flex-shrink-0" style={{ width: 32, height: 1, background: t.accentHex, opacity: 0.3 }} />
 
         {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex flex-col items-center gap-2.5" style={{ marginTop: 'auto' }}>
+        <div className="flex-shrink-0 flex flex-col items-center gap-2.5" style={{ marginTop: 'auto', paddingBottom: 2 }}>
           <p className={t.accent} style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {phrase}
           </p>

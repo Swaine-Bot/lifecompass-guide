@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, BrandLogoMark, useTemplateImage } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
@@ -35,12 +35,7 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         {/* Top band — fixed */}
         <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight, marginBottom: 12 }}>
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center"
-              style={{ width: 28, height: 28, borderRadius: 8,
-                background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
-                boxShadow: '0 2px 12px -2px hsla(43,74%,52%,0.3)' }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'hsl(220,20%,6%)', letterSpacing: '0.08em' }}>LS</span>
-            </div>
+            <BrandLogoMark size={28} />
             {privacy.includeName && userName && (
               <span className={cn('font-medium', t.textSecondary)} style={{ fontSize: 11 }}>{userName}</span>
             )}
@@ -102,9 +97,9 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         )}
 
         {/* Footer — fixed, anchored to bottom */}
-        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
+        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto', paddingBottom: 2 }}>
           <p className={t.accent} style={{ fontSize: tokens.typography.footerSize, fontWeight: 500,
-            letterSpacing: '0.1em', textTransform: 'uppercase' }}>{phrase}</p>
+            letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0 }}>{phrase}</p>
           <PostedFromBadge footerHex={t.footerHex} />
         </div>
       </div>
