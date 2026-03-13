@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ImageLayout } from '@/services/shareService';
+import lifestackLogo from '@/assets/lifestack-logo-mark.png';
 
 interface SharedImageLayerProps {
   url: string;
