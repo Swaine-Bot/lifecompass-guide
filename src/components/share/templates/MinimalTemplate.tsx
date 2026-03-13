@@ -17,16 +17,17 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
 
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className={cn('relative flex flex-col justify-center items-center text-center', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
-        style={{ padding: '28px 24px', gap: 16 }}>
+      <div className={cn('relative flex flex-col justify-center items-center text-center overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
+        style={{ padding: '24px 22px 16px', gap: 14 }}>
 
         {/* Quote mark — fixed */}
-        <div className="flex-shrink-0" style={{ fontSize: 36, lineHeight: 1, color: t.accentHex, opacity: 0.3, fontFamily: 'serif' }}>"</div>
+        <div className="flex-shrink-0" style={{ fontSize: 32, lineHeight: 1, color: t.accentHex, opacity: 0.3, fontFamily: 'serif' }}>"</div>
 
         {/* Main quote — flexible with clamping */}
-        <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.9375rem, 2.8vw, 1.25rem)', fontWeight: 600,
+        <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', fontWeight: 600,
           fontFamily: '"Playfair Display", serif', lineHeight: 1.4, letterSpacing: '-0.01em', maxWidth: '90%',
           overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
           {data.subtitle || data.title}
@@ -34,7 +35,7 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
 
         {/* AI insight — fixed */}
         {aiInsight && (
-          <p className={cn('flex-shrink-0', t.textSecondary)} style={{ fontSize: '0.6875rem', lineHeight: 1.45, maxWidth: '80%', fontStyle: 'italic',
+          <p className={cn('flex-shrink-0', t.textSecondary)} style={{ fontSize: '0.625rem', lineHeight: 1.4, maxWidth: '80%', fontStyle: 'italic',
             overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {aiInsight}
           </p>
@@ -44,7 +45,7 @@ export function MinimalTemplate({ data, theme: t, privacy: rawPrivacy, phrase, a
         <div className="flex-shrink-0" style={{ width: 32, height: 1, background: t.accentHex, opacity: 0.3 }} />
 
         {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex flex-col items-center gap-2.5" style={{ marginTop: 'auto', paddingBottom: 2 }}>
+        <div className="flex-shrink-0 flex flex-col items-center gap-2" style={{ marginTop: 'auto' }}>
           <p className={t.accent} style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {phrase}
           </p>
