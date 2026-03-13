@@ -21,7 +21,6 @@ export function MomentumTemplate({ data, theme: t, privacy: rawPrivacy, phrase, 
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      {/* Radial accent glow */}
       {!isBackground && (
         <div className="absolute top-0 right-0 w-2/3 h-2/3 pointer-events-none opacity-[0.08]"
           style={{ background: `radial-gradient(ellipse at 80% 20%, ${t.accentHex}, transparent 70%)` }} />
@@ -30,10 +29,10 @@ export function MomentumTemplate({ data, theme: t, privacy: rawPrivacy, phrase, 
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
       <div className={cn('relative flex flex-col justify-between', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: isSplit ? '24px' : undefined }}>
+        style={{ padding: isSplit ? '24px' : undefined, overflow: 'hidden' }}>
 
         {/* Top */}
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex items-center justify-between flex-shrink-0">
           <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
@@ -44,33 +43,34 @@ export function MomentumTemplate({ data, theme: t, privacy: rawPrivacy, phrase, 
           </div>
         </div>
 
-        {/* Center - big number + context */}
-        <div className={cn('relative flex-1 flex flex-col justify-center', animate && 'share-hero-fade')} style={{ gap: 16 }}>
+        {/* Center */}
+        <div className={cn('relative flex-1 flex flex-col justify-center', animate && 'share-hero-fade')}
+          style={{ gap: 12, minHeight: 0, overflow: 'hidden' }}>
           {displayValue && (
-            <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', fontWeight: 800, color: t.accentHex,
+            <div className="flex-shrink-0" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 800, color: t.accentHex,
               fontFamily: '"Playfair Display", serif', lineHeight: 0.9, letterSpacing: '-0.04em' }}>
               {displayValue}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3vw, 1.375rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3 }}>
+          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)', fontWeight: 600,
+            fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
+            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
             {data.title}
           </h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5 }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {data.subtitle}
             </p>
           )}
 
-          {/* Progress bar visual */}
-          <div style={{ height: 4, borderRadius: 2, background: t.trackHex, overflow: 'hidden', marginTop: 4 }}>
-            <div style={{ width: '72%', height: '100%', borderRadius: 2, background: t.accentHex,
-              transition: 'width 1s ease' }} />
+          {/* Progress bar */}
+          <div className="flex-shrink-0" style={{ height: 4, borderRadius: 2, background: t.trackHex, overflow: 'hidden', marginTop: 4 }}>
+            <div style={{ width: '72%', height: '100%', borderRadius: 2, background: t.accentHex }} />
           </div>
 
-          {/* Secondary metric */}
           {displaySecondary && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <span style={{ fontSize: '1rem', fontWeight: 700, color: t.metricHex, fontFamily: '"Playfair Display", serif' }}>
                 {displaySecondary}
               </span>
@@ -83,25 +83,25 @@ export function MomentumTemplate({ data, theme: t, privacy: rawPrivacy, phrase, 
           )}
         </div>
 
-        {/* AI Insight note */}
+        {/* AI Insight */}
         {aiInsight && (
-          <div className="relative" style={{ padding: '10px 12px', borderRadius: 8,
-            background: 'hsla(0,0%,100%,0.04)', border: '1px solid hsla(0,0%,100%,0.06)', marginBottom: 12 }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.4 }}>
+          <div className="relative flex-shrink-0" style={{ padding: '8px 12px', borderRadius: 8,
+            background: 'hsla(0,0%,100%,0.04)', border: '1px solid hsla(0,0%,100%,0.06)', marginBottom: 8 }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.4,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
           </div>
         )}
 
-        {/* Footer */}
-        <div className="relative" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 12 }}>
+        {/* Footer with badge in flow */}
+        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 12 }}>
           <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {phrase}
           </p>
+          <PostedFromBadge footerHex={t.footerHex} />
         </div>
       </div>
-
-      <PostedFromBadge footerHex={t.footerHex} />
     </div>
   );
 }
