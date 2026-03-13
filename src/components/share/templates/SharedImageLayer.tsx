@@ -99,8 +99,9 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
 }
 
 /**
- * Hero: media displayed with preserved aspect ratio, no cropping, no overlays on media.
+ * Hero: media displayed with preserved aspect ratio, capped height.
  * Uses object-fit:contain so the full image is always visible.
+ * Max 38% of card height to leave room for text + footer.
  */
 export function HeroImage({ url, imageCount, showCount, onError }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void;
@@ -108,15 +109,15 @@ export function HeroImage({ url, imageCount, showCount, onError }: {
   const mediaType = detectMediaType(url);
   return (
     <div
-      className="relative w-full overflow-hidden flex items-center justify-center"
-      style={{ flex: '0 0 48%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}
+      className="relative w-full overflow-hidden flex items-center justify-center flex-shrink-0"
+      style={{ flex: '0 0 auto', maxHeight: '38%', minHeight: 60, background: 'hsla(0,0%,0%,0.15)' }}
     >
       <img
         src={url}
         alt=""
         onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'contain', display: 'block' }}
+        style={{ objectFit: 'contain', display: 'block', maxHeight: '100%' }}
         crossOrigin="anonymous"
       />
       {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
@@ -127,7 +128,7 @@ export function HeroImage({ url, imageCount, showCount, onError }: {
 }
 
 /**
- * Split: image on the left — true 50/50, aspect ratio preserved, no overlays on media.
+ * Split: image on the left — true 50/50, aspect ratio preserved.
  */
 export function SplitImage({ url, imageCount, showCount, onError }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void;
@@ -155,7 +156,6 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
 
 /**
  * Background: full bleed behind all content with readability overlay.
- * Media is intentionally blurred/atmospheric — this is the design intent for background mode.
  */
 export function BackgroundImage({ url, onError }: {
   url: string; onError: () => void;
@@ -178,7 +178,7 @@ export function BackgroundImage({ url, onError }: {
 }
 
 /**
- * Life phase pill — small identifier
+ * Life phase pill
  */
 export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; accentHex: string }) {
   if (!lifePhase) return null;
@@ -192,7 +192,7 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
   const label = labels[lifePhase] || lifePhase;
   return (
     <span
-      className="inline-flex px-2 py-0.5 rounded-full"
+      className="inline-flex px-2 py-0.5 rounded-full flex-shrink-0"
       style={{
         fontSize: 8,
         fontWeight: 600,
@@ -210,15 +210,15 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
 }
 
 /**
- * "Posted from LifeStack" brand badge — inline flow element (not absolute positioned).
- * Place this inside a text/footer container, not overlapping media.
+ * "Posted from LifeStack" brand badge — inline flow element.
+ * Guaranteed visible with nowrap and flex-shrink-0.
  */
 export function PostedFromBadge({ footerHex }: { footerHex: string }) {
   return (
     <div
       className="inline-flex items-center gap-1.5 flex-shrink-0"
       style={{
-        padding: '3px 10px 3px 4px',
+        padding: '3px 10px 3px 5px',
         borderRadius: 100,
         background: 'hsla(0,0%,0%,0.5)',
         backdropFilter: 'blur(10px)',
@@ -231,9 +231,9 @@ export function PostedFromBadge({ footerHex }: { footerHex: string }) {
         alt="LifeStack"
         className="flex-shrink-0"
         style={{
-          width: 18,
-          height: 18,
-          borderRadius: 4,
+          width: 16,
+          height: 16,
+          borderRadius: 3,
           objectFit: 'contain',
         }}
         crossOrigin="anonymous"

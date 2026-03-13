@@ -25,13 +25,13 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
 
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: '24px 24px 20px' }}>
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{ padding: '20px 22px 16px' }}>
 
         {/* Top identifier — fixed */}
-        <div className="flex-shrink-0" style={{ marginBottom: 12 }}>
+        <div className="flex-shrink-0" style={{ marginBottom: 10 }}>
           <div className="flex items-center gap-2">
-            <div style={{ width: 3, height: 16, borderRadius: 2, background: t.accentHex }} />
+            <div style={{ width: 3, height: 14, borderRadius: 2, background: t.accentHex }} />
             <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
               {data.identityLabel || 'Reflection'}
             </span>
@@ -39,18 +39,18 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
         </div>
 
         {/* Main reflection content — flexible */}
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center', animate && 'share-hero-fade')}
-          style={{ gap: 12 }}>
-          <div className="flex-shrink-0" style={{ fontSize: 40, lineHeight: 0.6, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>"</div>
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
+          style={{ gap: 10 }}>
+          <div className="flex-shrink-0" style={{ fontSize: 36, lineHeight: 0.6, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>"</div>
 
-          <p className={t.textPrimary} style={{ fontSize: 'clamp(0.9375rem, 2.8vw, 1.125rem)', fontWeight: 500,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.45, fontStyle: 'italic',
+          <p className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)', fontWeight: 500,
+            fontFamily: '"Playfair Display", serif', lineHeight: 1.4, fontStyle: 'italic',
             overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
             {data.subtitle || data.title}
           </p>
 
           {data.title !== data.subtitle && data.subtitle && (
-            <p className={cn('flex-shrink-0', t.accent)} style={{ fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <p className={cn('flex-shrink-0', t.accent)} style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               — {data.title}
             </p>
           )}
@@ -58,13 +58,13 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
 
         {/* AI insight — fixed */}
         {aiInsight && (
-          <div className="flex-shrink-0" style={{ paddingLeft: 14, borderLeft: `2px solid ${t.accentHex}40`, marginTop: 8 }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.45,
+          <div className="flex-shrink-0" style={{ paddingLeft: 12, borderLeft: `2px solid ${t.accentHex}40`, marginTop: 6 }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.625rem', lineHeight: 1.4,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
-              <div className="flex flex-wrap gap-1 mt-1.5">
+              <div className="flex flex-wrap gap-1 mt-1">
                 {data.aiInsightLinks.slice(0, 2).map((link, i) => (
                   <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
                     🔗 {link.label}
@@ -76,8 +76,9 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
         )}
 
         {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto', paddingBottom: 2 }}>
-          <p className={t.accent} style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0 }}>
+        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
+          <p className={t.accent} style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {phrase}
           </p>
           <PostedFromBadge footerHex={t.footerHex} />

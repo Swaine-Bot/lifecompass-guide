@@ -28,39 +28,39 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
 
       {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: '24px 24px 20px' }}>
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{ padding: '20px 22px 16px' }}>
 
         {/* Top label — fixed */}
-        <div className="flex items-center gap-2 flex-shrink-0" style={{ marginBottom: 12 }}>
-          <BrandLogoMark size={24} />
+        <div className="flex items-center gap-2 flex-shrink-0" style={{ marginBottom: 10 }}>
+          <BrandLogoMark size={22} />
           <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
         </div>
 
         {/* Hero content — flexible */}
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center', animate && 'share-hero-fade')}
-          style={{ gap: 12 }}>
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
+          style={{ gap: 10 }}>
           {displayValue && (
-            <div className="flex-shrink-0" style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)', fontWeight: 700, color: t.accentHex,
+            <div className="flex-shrink-0" style={{ fontSize: 'clamp(1.75rem, 6vw, 3rem)', fontWeight: 700, color: t.accentHex,
               fontFamily: '"Playfair Display", serif', lineHeight: 1, letterSpacing: '-0.03em' }}>
               {displayValue}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(1rem, 3.2vw, 1.375rem)', fontWeight: 700,
+          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.8vw, 1.25rem)', fontWeight: 700,
             fontFamily: '"Playfair Display", serif', lineHeight: 1.25, letterSpacing: '-0.01em',
             overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
             {data.title}
           </h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.75rem', lineHeight: 1.5,
+            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.45,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {data.subtitle}
             </p>
           )}
           {data.statLabel && (
-            <p className={t.textMuted} style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <p className={t.textMuted} style={{ fontSize: '0.625rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
               {data.statLabel}
             </p>
           )}
@@ -68,15 +68,15 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
 
         {/* AI Insight pull-quote — fixed */}
         {aiInsight && (
-          <div className="flex-shrink-0" style={{ padding: '10px 0 10px 14px', borderLeft: `3px solid ${t.accentHex}`, marginTop: 8 }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', fontStyle: 'italic', lineHeight: 1.45,
+          <div className="flex-shrink-0" style={{ padding: '8px 0 8px 12px', borderLeft: `3px solid ${t.accentHex}`, marginTop: 6 }}>
+            <p className={t.textSecondary} style={{ fontSize: '0.625rem', fontStyle: 'italic', lineHeight: 1.4,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
-              <div className="flex flex-wrap gap-2 mt-1.5">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {data.aiInsightLinks.slice(0, 2).map((link, i) => (
-                  <span key={i} style={{ fontSize: 9, color: t.accentHex, opacity: 0.7 }}>
+                  <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
                     🔗 {link.label}
                   </span>
                 ))}
@@ -86,13 +86,14 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
         )}
 
         {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto', paddingBottom: 2 }}>
+        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
           <div className="min-w-0 flex-1">
-            <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {phrase}
             </p>
             {privacy.includeName && userName && (
-              <p className={t.textMuted} style={{ fontSize: 10, marginTop: 3 }}>{userName}</p>
+              <p className={t.textMuted} style={{ fontSize: 9, marginTop: 2 }}>{userName}</p>
             )}
           </div>
           <PostedFromBadge footerHex={t.footerHex} />

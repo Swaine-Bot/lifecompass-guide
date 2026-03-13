@@ -237,8 +237,14 @@ export default function ShareStudio() {
   // ─── Card Preview Component ───
   const CardPreview = ({ className }: { className?: string }) => (
     <div ref={cardRef}
-      className={cn('share-card relative overflow-hidden select-none', formatAspect[format], className)}
-      style={{ borderRadius: '16px', border: '1px solid hsla(0,0%,100%,0.04)', boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)' }}>
+      className={cn('share-card relative select-none', formatAspect[format], className)}
+      style={{
+        borderRadius: '16px',
+        border: '1px solid hsla(0,0%,100%,0.04)',
+        boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)',
+        overflow: 'hidden',
+        /* Ensure the container has a fixed aspect-ratio-based height and clips all overflow */
+      }}>
       <TemplateComponent
         data={selectedCard}
         theme={themeObj}

@@ -47,13 +47,13 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
       )}
 
-      {/* Hero mode */}
+      {/* Hero mode — capped at 50% */}
       {hasImage && isHero && (
-        <div className="relative flex items-center justify-center"
-          style={{ flex: '0 0 55%', overflow: 'hidden', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
+        <div className="relative flex items-center justify-center flex-shrink-0"
+          style={{ flex: '0 0 auto', maxHeight: '50%', overflow: 'hidden', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
           <img src={url} alt="" onError={() => setImgFailed(true)}
             className="w-full h-full"
-            style={{ objectFit: 'contain', display: 'block' }}
+            style={{ objectFit: 'contain', display: 'block', maxHeight: '100%' }}
             crossOrigin="anonymous" />
           {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
           {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
@@ -68,7 +68,7 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
 
       {/* No image fallback */}
       {!hasImage && (
-        <div className="relative flex items-center justify-center" style={{ flex: '0 0 50%', background: 'hsla(0,0%,100%,0.03)' }}>
+        <div className="relative flex items-center justify-center flex-shrink-0" style={{ flex: '0 0 40%', background: 'hsla(0,0%,100%,0.03)' }}>
           {data.secondaryValue ? (
             <div className="text-center flex flex-col items-center" style={{ gap: 8 }}>
               <p style={{ fontSize: 32, opacity: 0.6 }}>
@@ -86,24 +86,24 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
       )}
 
       {/* Content area */}
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
-        style={{ padding: '16px 20px 16px' }}>
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
+        style={{ padding: '14px 18px 14px' }}>
 
         {/* Text content — flexible */}
-        <div style={{ gap: 6 }} className="flex flex-col flex-1 min-h-0 justify-center">
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', fontWeight: 600,
+        <div style={{ gap: 5 }} className="flex flex-col flex-1 min-h-0 justify-center overflow-hidden">
+          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.8125rem, 2.2vw, 1rem)', fontWeight: 600,
             fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
             overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {data.title}
           </h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.45,
+            <p className={t.textSecondary} style={{ fontSize: '0.625rem', lineHeight: 1.4,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {data.subtitle}
             </p>
           )}
           {aiInsight && (
-            <p style={{ fontSize: '0.625rem', lineHeight: 1.4, color: t.accentHex, fontStyle: 'italic', marginTop: 2,
+            <p style={{ fontSize: '0.5625rem', lineHeight: 1.35, color: t.accentHex, fontStyle: 'italic', marginTop: 2,
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {aiInsight}
             </p>
@@ -111,8 +111,9 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
 
         {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 8, marginTop: 'auto', paddingBottom: 2 }}>
-          <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0 }}>
+        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 8, marginTop: 'auto' }}>
+          <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {phrase}
           </p>
           <PostedFromBadge footerHex={t.footerHex} />

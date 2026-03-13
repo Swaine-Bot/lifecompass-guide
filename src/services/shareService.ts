@@ -396,16 +396,24 @@ export async function renderCardToCanvas(
   element: HTMLElement,
   format: ShareFormat
 ): Promise<HTMLCanvasElement> {
-  const { w } = FORMAT_DIMENSIONS[format];
+  const { w, h } = FORMAT_DIMENSIONS[format];
+  const scale = w / element.offsetWidth;
   const html2canvas = (await import('html2canvas')).default;
   const canvas = await html2canvas(element, {
     width: element.offsetWidth,
     height: element.offsetHeight,
-    scale: w / element.offsetWidth,
+    scale,
     backgroundColor: null,
     useCORS: true,
     allowTaint: false,
     logging: false,
+    // Clip to exact element bounds to prevent overflow content from rendering
+    x: 0,
+    y: 0,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: element.offsetWidth,
+    windowHeight: element.offsetHeight,
   });
   return canvas;
 }
