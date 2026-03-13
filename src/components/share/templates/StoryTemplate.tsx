@@ -33,11 +33,7 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
 
         {/* Top label — fixed */}
         <div className="flex items-center gap-2 flex-shrink-0" style={{ marginBottom: 12 }}>
-          <div className="flex items-center justify-center"
-            style={{ width: 24, height: 24, borderRadius: 6,
-              background: 'linear-gradient(135deg, hsl(43,74%,55%), hsl(43,65%,38%))' }}>
-            <span style={{ fontSize: 8, fontWeight: 700, color: 'hsl(220,20%,6%)' }}>LS</span>
-          </div>
+          <BrandLogoMark size={24} />
           <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
