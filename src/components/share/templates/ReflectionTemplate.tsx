@@ -7,10 +7,7 @@ export function ReflectionTemplate({ data, theme: t, format, phrase, animate, ai
   const preset = getRenderPreset(format);
   const { safeArea } = preset;
   const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({
-    data,
-    includeImage,
-    imageLayout: imageLayoutProp,
-    showImageCount,
+    data, includeImage, imageLayout: imageLayoutProp, showImageCount,
   });
 
   const isBackground = hasImage && layout === 'background_image';
@@ -29,24 +26,22 @@ export function ReflectionTemplate({ data, theme: t, format, phrase, animate, ai
           style={{ background: `radial-gradient(ellipse at 30% 80%, ${t.accentHex}, transparent 60%)` }} />
       )}
 
+      {/* MEDIA REGION */}
       {isHero && (
-        <HeroImage
-          url={url}
-          imageCount={imageCount}
-          showCount={showCount}
-          onError={() => setImgFailed(true)}
-          heroRatio={preset.heroImageRatio}
-        />
+        <HeroImage url={url} imageCount={imageCount} showCount={showCount}
+          onError={() => setImgFailed(true)} heroRatio={preset.heroImageRatio} />
       )}
 
-      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+      {/* CONTENT COLUMN */}
+      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
             : `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
         }}>
 
-        <div className="flex-shrink-0" style={{ marginBottom: 10 }}>
+        {/* HEADER */}
+        <div className="flex-shrink-0" style={{ marginBottom: 12 }}>
           <div className="flex items-center gap-2 min-w-0">
             <div style={{ width: 3, height: 14, borderRadius: 2, background: t.accentHex }} />
             <span className={cn('truncate', t.textMuted)} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
@@ -55,52 +50,56 @@ export function ReflectionTemplate({ data, theme: t, format, phrase, animate, ai
           </div>
         </div>
 
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
-          style={{ gap: 10 }}>
-          <div className="flex-shrink-0" style={{ fontSize: 32, lineHeight: 0.8, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>
+        {/* TEXT REGION */}
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center', animate && 'share-hero-fade')}
+          style={{ gap: 12 }}>
+          <div className="flex-shrink-0" style={{ fontSize: 34, lineHeight: 0.8, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>
             "
           </div>
 
           <p className={t.textPrimary} style={{
-            ...getClampStyle(5, 1.42),
-            fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)',
-            fontWeight: 500,
-            fontFamily: '"Playfair Display", serif',
+            ...getClampStyle(6, 1.45),
+            fontSize: 'clamp(0.9375rem, 2.8vw, 1.1875rem)',
+            fontWeight: 500, fontFamily: '"Playfair Display", serif',
             fontStyle: 'italic',
           }}>
             {data.subtitle || data.title}
           </p>
 
           {data.title !== data.subtitle && data.subtitle && (
-            <p className={t.accent} style={{ ...getClampStyle(1, 1.3), fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <p className={t.accent} style={{
+              ...getClampStyle(1, 1.3),
+              fontSize: '0.6875rem', fontWeight: 600,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+            }}>
               — {data.title}
             </p>
           )}
         </div>
 
+        {/* INSIGHT REGION */}
         {aiInsight && (
-          <div className="flex-shrink-0" style={{ paddingLeft: 12, borderLeft: `2px solid ${t.accentHex}40`, marginTop: 6 }}>
-            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.42), fontSize: '0.625rem' }}>
+          <div className="flex-shrink-0" style={{ paddingLeft: 12, borderLeft: `2px solid ${t.accentHex}40`, marginTop: 8 }}>
+            <p className={t.textSecondary} style={{
+              ...getClampStyle(3, 1.45),
+              fontSize: 'clamp(0.625rem, 1.8vw, 0.75rem)',
+            }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
               <div className="flex flex-wrap gap-1 mt-1">
                 {data.aiInsightLinks.slice(0, 2).map((link, i) => (
-                  <span key={i} style={{ fontSize: 8, color: t.accentHex, opacity: 0.7 }}>
-                    🔗 {link.label}
-                  </span>
+                  <span key={i} style={{ fontSize: 9, color: t.accentHex, opacity: 0.7 }}>🔗 {link.label}</span>
                 ))}
               </div>
             ) : null}
           </div>
         )}
 
+        {/* FOOTER REGION */}
         <TemplateFooter
-          phrase={phrase}
-          accentHex={t.accentHex}
-          footerHex={t.footerHex}
-          footerMinHeight={safeArea.footerMinHeight}
-          compact={isSplit}
+          phrase={phrase} accentHex={t.accentHex} footerHex={t.footerHex}
+          footerMinHeight={safeArea.footerMinHeight} compact={isSplit}
         />
       </div>
     </div>

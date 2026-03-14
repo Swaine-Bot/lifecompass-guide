@@ -23,11 +23,9 @@ export interface ShareCardData {
   visualType?: VisualModule;
   domain?: string;
   identityLabel?: string;
-  // Image support for feed posts
   imageUrl?: string;
   imageUrls?: string[];
   imageLayout?: ImageLayout;
-  // AI insight links
   aiInsightLinks?: { label: string; url: string }[];
 }
 
@@ -42,6 +40,11 @@ export interface PrivacySettings {
   privateAestheticMode: boolean;
 }
 
+/**
+ * DETERMINISTIC SAFE ZONES — measured in pixels at 1080-wide export scale.
+ * These are proportional: the CSS values are scaled down for preview,
+ * but the ratios remain constant.
+ */
 export interface ShareSafeArea {
   top: number;
   right: number;
@@ -52,8 +55,11 @@ export interface ShareSafeArea {
 
 export interface ShareRenderPreset {
   destination: NativeSharePreset;
+  /** Safe area in CSS pixels (for preview container) */
   safeArea: ShareSafeArea;
+  /** Proportion of card height for hero media (0-1) */
   heroImageRatio: number;
+  /** Padding for split layout text column */
   splitContentPadding: number;
 }
 
@@ -68,45 +74,53 @@ export const DEFAULT_PRIVACY: PrivacySettings = {
   privateAestheticMode: false,
 };
 
-// ─── Format Dimensions ───────────────────────────────────────────────
+// ─── FIXED EXPORT CANVASES ───────────────────────────────────────────
 export const FORMAT_DIMENSIONS: Record<ShareFormat, { w: number; h: number; label: string }> = {
-  story: { w: 1080, h: 1920, label: 'Story 9:16' },
-  feed: { w: 1080, h: 1350, label: 'Feed 4:5' },
-  square: { w: 1080, h: 1080, label: 'Square 1:1' },
+  story:    { w: 1080, h: 1920, label: 'Story 9:16' },
+  feed:     { w: 1080, h: 1350, label: 'Feed 4:5' },
+  square:   { w: 1080, h: 1080, label: 'Square 1:1' },
   linkedin: { w: 1080, h: 1350, label: 'LinkedIn 4:5' },
-  tiktok: { w: 1080, h: 1920, label: 'TikTok 9:16' },
+  tiktok:   { w: 1080, h: 1920, label: 'TikTok 9:16' },
 };
 
+/**
+ * PLATFORM-SAFE RENDER PRESETS
+ * Safe zones sized to prevent platform UI overlays from clipping content.
+ * Values are in CSS pixels for preview; the export renderer scales proportionally.
+ *
+ * Story/Reel: extra top (status bar, close button) and bottom (reply bar, swipe-up)
+ * Post/Feed: moderate safe areas
+ */
 export const FORMAT_RENDER_PRESETS: Record<ShareFormat, ShareRenderPreset> = {
   story: {
     destination: 'story',
-    safeArea: { top: 24, right: 20, bottom: 34, left: 20, footerMinHeight: 44 },
-    heroImageRatio: 0.5,
-    splitContentPadding: 14,
+    safeArea: { top: 48, right: 32, bottom: 56, left: 32, footerMinHeight: 52 },
+    heroImageRatio: 0.50,
+    splitContentPadding: 20,
   },
   feed: {
     destination: 'post',
-    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
-    heroImageRatio: 0.46,
-    splitContentPadding: 16,
+    safeArea: { top: 32, right: 32, bottom: 40, left: 32, footerMinHeight: 48 },
+    heroImageRatio: 0.48,
+    splitContentPadding: 22,
   },
   square: {
     destination: 'post',
-    safeArea: { top: 16, right: 18, bottom: 20, left: 18, footerMinHeight: 36 },
-    heroImageRatio: 0.44,
-    splitContentPadding: 14,
+    safeArea: { top: 28, right: 28, bottom: 36, left: 28, footerMinHeight: 46 },
+    heroImageRatio: 0.45,
+    splitContentPadding: 20,
   },
   linkedin: {
     destination: 'post',
-    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
-    heroImageRatio: 0.46,
-    splitContentPadding: 16,
+    safeArea: { top: 32, right: 32, bottom: 40, left: 32, footerMinHeight: 48 },
+    heroImageRatio: 0.48,
+    splitContentPadding: 22,
   },
   tiktok: {
     destination: 'reel',
-    safeArea: { top: 26, right: 20, bottom: 40, left: 20, footerMinHeight: 46 },
+    safeArea: { top: 52, right: 32, bottom: 64, left: 32, footerMinHeight: 54 },
     heroImageRatio: 0.52,
-    splitContentPadding: 14,
+    splitContentPadding: 20,
   },
 };
 
@@ -326,13 +340,7 @@ export function getRandomPhrase(): string {
 // ─── Privacy Helpers ────────────────────────────────────────────────
 export function applyPrivacy(privacy: PrivacySettings): PrivacySettings {
   if (privacy.privateAestheticMode) {
-    return {
-      ...privacy,
-      includeName: false,
-      includeUsername: false,
-      includePhoto: false,
-      includeExactNumbers: false,
-    };
+    return { ...privacy, includeName: false, includeUsername: false, includePhoto: false, includeExactNumbers: false };
   }
   return privacy;
 }
@@ -345,112 +353,43 @@ export function getPrivacyLevel(privacy: PrivacySettings): string {
 }
 
 // ─── Share Actions ──────────────────────────────────────────────────
-export async function trackShareEvent(
-  userId: string,
-  cardType: string,
-  shareTarget: string,
-  format: string,
-  privacyLevel: string
-) {
-  await supabase.from('share_events' as any).insert({
-    user_id: userId,
-    card_type: cardType,
-    share_target: shareTarget,
-    format,
-    privacy_level: privacyLevel,
-  });
+export async function trackShareEvent(userId: string, cardType: string, shareTarget: string, format: string, privacyLevel: string) {
+  await supabase.from('share_events' as any).insert({ user_id: userId, card_type: cardType, share_target: shareTarget, format, privacy_level: privacyLevel });
 }
 
-export async function saveShareCard(
-  userId: string,
-  data: ShareCardData,
-  theme: ShareTheme,
-  privacyLevel: string,
-  phrase: string
-) {
+export async function saveShareCard(userId: string, data: ShareCardData, theme: ShareTheme, privacyLevel: string, phrase: string) {
   const { error } = await supabase.from('share_cards').insert({
-    user_id: userId,
-    card_type: data.cardType,
-    title: data.title,
-    subtitle: data.subtitle,
-    stat_value: data.statValue,
-    stat_label: data.statLabel,
-    signature_phrase: phrase,
-    theme,
-    privacy_level: privacyLevel,
-    source_type: data.sourceType,
-    source_id: data.sourceId,
+    user_id: userId, card_type: data.cardType, title: data.title, subtitle: data.subtitle,
+    stat_value: data.statValue, stat_label: data.statLabel, signature_phrase: phrase,
+    theme, privacy_level: privacyLevel, source_type: data.sourceType, source_id: data.sourceId,
   });
   return { error };
 }
 
-/**
- * Platform-aware native share — always tries to share the rendered card image first.
- * Falls back to text+url if image sharing is not supported.
- */
-export async function nativeShare(
-  text: string,
-  title: string,
-  imageBlob?: Blob,
-  url?: string,
-  preset: NativeSharePreset = 'post',
-): Promise<boolean> {
+export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string, preset: NativeSharePreset = 'post'): Promise<boolean> {
   if (!navigator.share) return false;
-
   const isStoryLike = preset === 'story' || preset === 'reel';
-
   try {
     if (imageBlob) {
       const fileName = `lifestack-${preset}-share.png`;
       const file = new File([imageBlob], fileName, { type: 'image/png' });
-      const shareDataWithFile: ShareData = {
-        files: [file],
-        title,
-      };
-
-      // For post-like destinations, include caption + link.
-      if (!isStoryLike) {
-        shareDataWithFile.text = text;
-        if (url) shareDataWithFile.url = url;
-      }
-
-      if (navigator.canShare?.(shareDataWithFile)) {
-        await navigator.share(shareDataWithFile);
-        return true;
-      }
+      const shareDataWithFile: ShareData = { files: [file], title };
+      if (!isStoryLike) { shareDataWithFile.text = text; if (url) shareDataWithFile.url = url; }
+      if (navigator.canShare?.(shareDataWithFile)) { await navigator.share(shareDataWithFile); return true; }
     }
-
-    // Fallback: text+url handoff
     const shareData: ShareData = { title, text };
     if (url) shareData.url = url;
     await navigator.share(shareData);
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
+  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
 }
 
-/**
- * Copy rendered card image to clipboard as PNG (for paste into social media)
- */
 export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
-  try {
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': blob }),
-    ]);
-    return true;
-  } catch {
-    return false;
-  }
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); return true; } catch { return false; }
 }
 
 export async function downloadImage(canvas: HTMLCanvasElement, filename: string) {
@@ -460,36 +399,42 @@ export async function downloadImage(canvas: HTMLCanvasElement, filename: string)
   link.click();
 }
 
-// ─── Canvas Renderer ────────────────────────────────────────────────
-export async function renderCardToCanvas(
-  element: HTMLElement,
-  format: ShareFormat,
-): Promise<HTMLCanvasElement> {
+// ─── DETERMINISTIC CANVAS RENDERER ──────────────────────────────────
+/**
+ * Renders the card element at the exact fixed canvas size.
+ * 
+ * Strategy:
+ * 1. Clone the element into an offscreen container at the exact export pixel dimensions
+ * 2. Capture at 1:1 pixel ratio — no scaling artifacts
+ * 3. Output is exactly FORMAT_DIMENSIONS[format] pixels
+ */
+export async function renderCardToCanvas(element: HTMLElement, format: ShareFormat): Promise<HTMLCanvasElement> {
   const { w, h } = FORMAT_DIMENSIONS[format];
 
+  // Wait for fonts
   if ('fonts' in document) {
-    try {
-      await (document as Document & { fonts: FontFaceSet }).fonts.ready;
-    } catch {
-      // no-op; continue export even if font readiness fails
-    }
+    try { await (document as Document & { fonts: FontFaceSet }).fonts.ready; } catch { /* continue */ }
   }
 
-  // Let layout settle before capture to avoid half-rendered text lines.
-  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  // Let layout settle
+  await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 
+  const html2canvas = (await import('html2canvas')).default;
+
+  // We capture the preview element at its current size, then scale to exact export dimensions.
   const rect = element.getBoundingClientRect();
-  const captureWidth = Math.max(1, Math.round(rect.width));
-  const captureHeight = Math.max(1, Math.round(rect.height));
-  const scale = Math.max(1, Math.min(4, w / captureWidth));
+  const captureW = Math.max(1, Math.round(rect.width));
+  const captureH = Math.max(1, Math.round(rect.height));
+  
+  // Scale factor to reach target width
+  const scale = w / captureW;
 
   element.setAttribute('data-share-exporting', 'true');
-  const html2canvas = (await import('html2canvas')).default;
 
   try {
     const rawCanvas = await html2canvas(element, {
-      width: captureWidth,
-      height: captureHeight,
+      width: captureW,
+      height: captureH,
       scale,
       backgroundColor: null,
       useCORS: true,
@@ -499,94 +444,76 @@ export async function renderCardToCanvas(
       y: 0,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: captureWidth,
-      windowHeight: captureHeight,
+      windowWidth: captureW,
+      windowHeight: captureH,
       onclone: (doc) => {
         const exportRoot = doc.querySelector('[data-share-export-root="true"]') as HTMLElement | null;
         if (!exportRoot) return;
         exportRoot.style.animation = 'none';
         exportRoot.style.transform = 'none';
         exportRoot.style.overflow = 'hidden';
+        // Freeze all animations in cloned doc
+        const allAnimated = doc.querySelectorAll('*');
+        allAnimated.forEach((el) => {
+          (el as HTMLElement).style.animation = 'none';
+          (el as HTMLElement).style.transition = 'none';
+        });
       },
     });
 
-    // Normalize to exact platform size while preserving source aspect ratio.
-    if (rawCanvas.width === w && rawCanvas.height === h) return rawCanvas;
-
-    const normalized = document.createElement('canvas');
-    normalized.width = w;
-    normalized.height = h;
-
-    const ctx = normalized.getContext('2d');
+    // The raw canvas should be w × (captureH * scale).
+    // We need exactly w × h. Center-crop or pad to fit.
+    const outputCanvas = document.createElement('canvas');
+    outputCanvas.width = w;
+    outputCanvas.height = h;
+    const ctx = outputCanvas.getContext('2d');
     if (!ctx) return rawCanvas;
+
+    // Fill with the background gradient color (dark)
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, w, h);
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    const sourceRatio = rawCanvas.width / rawCanvas.height;
-    const targetRatio = w / h;
+    // Center the rendered content within the exact canvas
+    const renderedH = rawCanvas.height;
+    const dy = Math.max(0, Math.round((h - renderedH) / 2));
+    const sy = Math.max(0, Math.round((renderedH - h) / 2));
 
-    let sx = 0;
-    let sy = 0;
-    let sw = rawCanvas.width;
-    let sh = rawCanvas.height;
-
-    if (sourceRatio > targetRatio) {
-      sw = Math.round(rawCanvas.height * targetRatio);
-      sx = Math.round((rawCanvas.width - sw) / 2);
-    } else if (sourceRatio < targetRatio) {
-      sh = Math.round(rawCanvas.width / targetRatio);
-      sy = Math.round((rawCanvas.height - sh) / 2);
+    if (renderedH >= h) {
+      // Rendered taller than target — center crop
+      ctx.drawImage(rawCanvas, 0, sy, w, h, 0, 0, w, h);
+    } else {
+      // Rendered shorter — center with padding
+      ctx.drawImage(rawCanvas, 0, 0, rawCanvas.width, renderedH, 0, dy, w, renderedH);
     }
 
-    ctx.drawImage(rawCanvas, sx, sy, sw, sh, 0, 0, w, h);
-    return normalized;
+    return outputCanvas;
   } finally {
     element.removeAttribute('data-share-exporting');
   }
 }
 
-/**
- * Build platform-optimized caption text including AI insight links
- */
+// ─── Caption Builder ────────────────────────────────────────────────
 export function buildShareCaption(
-  data: ShareCardData,
-  phrase: string,
-  aiInsight?: string | null,
-  aiInsightEnabled?: boolean,
-  smartUrl?: string | null,
+  data: ShareCardData, phrase: string, aiInsight?: string | null,
+  aiInsightEnabled?: boolean, smartUrl?: string | null,
 ): string {
   const parts: string[] = [];
-
-  // Title + subtitle
   parts.push(data.title);
   if (data.subtitle) parts.push(data.subtitle);
-
-  // AI insight
-  if (aiInsight && aiInsightEnabled) {
-    parts.push(`\n💡 ${aiInsight}`);
-  }
-
-  // AI insight links as visible URLs in caption
+  if (aiInsight && aiInsightEnabled) parts.push(`\n💡 ${aiInsight}`);
   if (data.aiInsightLinks?.length) {
     const linkLines = data.aiInsightLinks.map(l => `🔗 ${l.label}: ${l.url}`);
     parts.push(linkLines.join('\n'));
   }
-
-  // Signature phrase
   parts.push(`\n${phrase}`);
-
-  // Smart link
-  if (smartUrl) {
-    parts.push(smartUrl);
-  } else {
-    parts.push('lifestack.app');
-  }
-
+  parts.push(smartUrl || 'lifestack.app');
   return parts.join('\n');
 }
 
-// ─── Demo Data (re-exported from language-engine powered module) ────
+// ─── Demo Data ──────────────────────────────────────────────────────
 export { generateDemoCards } from './shareDemoData';
 
 // ─── Platform Adapters ──────────────────────────────────────────────
