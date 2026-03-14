@@ -1,14 +1,6 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type { ImageLayout } from '@/services/shareService';
 import lifestackLogo from '@/assets/lifestack-logo-mark.png';
-
-interface SharedImageLayerProps {
-  url: string;
-  layout: ImageLayout;
-  imageCount: number;
-  showCount: boolean;
-  accentHex: string;
-}
 
 /** Detect media type from URL */
 export function detectMediaType(url: string): 'image' | 'video' | 'audio' {
@@ -33,6 +25,22 @@ function CountBadge({ count }: { count: number }) {
       +{count - 1} more
     </div>
   );
+}
+
+/** Shared clamp styles to avoid half-rendered/cut text lines */
+export function getClampStyle(lines: number, lineHeight: number, overrides: CSSProperties = {}): CSSProperties {
+  return {
+    overflow: 'hidden',
+    display: '-webkit-box',
+    WebkitLineClamp: lines,
+    WebkitBoxOrient: 'vertical',
+    lineHeight,
+    paddingBottom: '0.15em',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
+    textWrap: 'pretty',
+    ...overrides,
+  };
 }
 
 /** Play button overlay for video/audio media */
@@ -99,18 +107,27 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
 }
 
 /**
- * Hero: media displayed with preserved aspect ratio, capped height.
- * Uses object-fit:contain so the full image is always visible.
- * Max 38% of card height to leave room for text + footer.
+ * Hero: media displayed with preserved aspect ratio, with a configurable height share.
  */
-export function HeroImage({ url, imageCount, showCount, onError }: {
-  url: string; imageCount: number; showCount: boolean; onError: () => void;
+export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.46 }: {
+  url: string;
+  imageCount: number;
+  showCount: boolean;
+  onError: () => void;
+  heroRatio?: number;
 }) {
   const mediaType = detectMediaType(url);
+  const ratioPercent = `${Math.round(heroRatio * 100)}%`;
+
   return (
     <div
       className="relative w-full overflow-hidden flex items-center justify-center flex-shrink-0"
-      style={{ flex: '0 0 auto', maxHeight: '38%', minHeight: 60, background: 'hsla(0,0%,0%,0.15)' }}
+      style={{
+        flex: `0 0 ${ratioPercent}`,
+        maxHeight: ratioPercent,
+        minHeight: 72,
+        background: 'hsla(0,0%,0%,0.15)',
+      }}
     >
       <img
         src={url}
@@ -131,7 +148,10 @@ export function HeroImage({ url, imageCount, showCount, onError }: {
  * Split: image on the left — true 50/50, aspect ratio preserved.
  */
 export function SplitImage({ url, imageCount, showCount, onError }: {
-  url: string; imageCount: number; showCount: boolean; onError: () => void;
+  url: string;
+  imageCount: number;
+  showCount: boolean;
+  onError: () => void;
 }) {
   const mediaType = detectMediaType(url);
   return (
@@ -158,7 +178,8 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
  * Background: full bleed behind all content with readability overlay.
  */
 export function BackgroundImage({ url, onError }: {
-  url: string; onError: () => void;
+  url: string;
+  onError: () => void;
 }) {
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
@@ -210,20 +231,24 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
 }
 
 /**
- * "Posted from LifeStack" brand badge — inline flow element.
+ * "Posted from LifeStack" brand badge.
  * Guaranteed visible with nowrap and flex-shrink-0.
  */
-export function PostedFromBadge({ footerHex }: { footerHex: string }) {
+export function PostedFromBadge({ footerHex, compact = false }: { footerHex: string; compact?: boolean }) {
+  const iconSize = compact ? 14 : 15;
+  const fontSize = compact ? 7 : 7.5;
+
   return (
     <div
       className="inline-flex items-center gap-1.5 flex-shrink-0"
       style={{
-        padding: '3px 10px 3px 5px',
+        padding: compact ? '2px 7px 2px 4px' : '3px 8px 3px 5px',
         borderRadius: 100,
         background: 'hsla(0,0%,0%,0.5)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid hsla(0,0%,100%,0.1)',
+        border: `1px solid ${footerHex}55`,
         whiteSpace: 'nowrap',
+        maxWidth: '100%',
       }}
     >
       <img
@@ -231,16 +256,87 @@ export function PostedFromBadge({ footerHex }: { footerHex: string }) {
         alt="LifeStack"
         className="flex-shrink-0"
         style={{
-          width: 16,
-          height: 16,
+          width: iconSize,
+          height: iconSize,
           borderRadius: 3,
           objectFit: 'contain',
         }}
         crossOrigin="anonymous"
       />
-      <span style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.08em', color: 'hsla(0,0%,100%,0.8)', whiteSpace: 'nowrap' }}>
+      <span
+        style={{
+          fontSize,
+          fontWeight: 600,
+          letterSpacing: '0.07em',
+          color: 'hsla(0,0%,100%,0.84)',
+          whiteSpace: 'nowrap',
+          lineHeight: 1.2,
+        }}
+      >
         Posted from LifeStack
       </span>
+    </div>
+  );
+}
+
+export function TemplateFooter({
+  phrase,
+  accentHex,
+  footerHex,
+  footerMinHeight,
+  compact = false,
+  metaText,
+}: {
+  phrase: string;
+  accentHex: string;
+  footerHex: string;
+  footerMinHeight: number;
+  compact?: boolean;
+  metaText?: string;
+}) {
+  return (
+    <div
+      className="flex-shrink-0 mt-auto"
+      style={{
+        borderTop: '1px solid hsla(0,0%,100%,0.06)',
+        paddingTop: compact ? 8 : 10,
+        minHeight: footerMinHeight,
+      }}
+    >
+      <div className="grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}>
+        <div className="min-w-0">
+          <p
+            style={{
+              fontSize: compact ? 8 : 9,
+              fontWeight: 600,
+              letterSpacing: '0.11em',
+              textTransform: 'uppercase',
+              color: accentHex,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              lineHeight: 1.2,
+            }}
+          >
+            {phrase}
+          </p>
+          {metaText ? (
+            <p
+              style={{
+                fontSize: 8,
+                marginTop: 2,
+                color: footerHex,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {metaText}
+            </p>
+          ) : null}
+        </div>
+        <PostedFromBadge footerHex={footerHex} compact={compact} />
+      </div>
     </div>
   );
 }
@@ -279,6 +375,7 @@ export function useTemplateImage(props: {
   data: { imageUrl?: string; imageUrls?: string[]; imageLayout?: ImageLayout };
   includeImage?: boolean;
   imageLayout?: ImageLayout;
+  showImageCount?: boolean;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const url = props.data.imageUrl;
@@ -286,7 +383,7 @@ export function useTemplateImage(props: {
   const hasImage = includeImage && !!url && !imgFailed;
   const layout: ImageLayout = props.imageLayout || props.data.imageLayout || 'hero_image';
   const imageCount = props.data.imageUrls?.length || (url ? 1 : 0);
-  const showCount = (props as any).showImageCount !== false;
+  const showCount = props.showImageCount !== false;
   const mediaType = url ? detectMediaType(url) : 'image';
 
   return { hasImage, url: url || '', layout, imageCount, showCount, imgFailed, setImgFailed, mediaType };
