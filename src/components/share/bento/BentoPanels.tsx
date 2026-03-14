@@ -13,6 +13,10 @@ function detectMediaType(url: string): 'image' | 'video' | 'audio' {
   return 'image';
 }
 
+/**
+ * Base panel — RULE 1: every panel enforces overflow:hidden
+ * so no child content can bleed outside panel bounds.
+ */
 export function BentoPanel({ children, className = '', style }: PanelProps) {
   return (
     <div
@@ -22,6 +26,7 @@ export function BentoPanel({ children, className = '', style }: PanelProps) {
         borderRadius: '14px',
         border: '1px solid hsla(0,0%,100%,0.07)',
         boxShadow: '0 8px 24px -16px hsla(0,0%,0%,0.58)',
+        overflow: 'hidden',          // RULE 1 — hard boundary
         ...style,
       }}
     >
@@ -29,6 +34,8 @@ export function BentoPanel({ children, className = '', style }: PanelProps) {
     </div>
   );
 }
+
+// ── Media Panel ──────────────────────────────────────────────
 
 interface MediaPanelProps {
   url?: string;
@@ -49,7 +56,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
 
   if (!url || failed) {
     return (
-      <BentoPanel className={`flex items-center justify-center ${className}`} style={{ minHeight: 120, ...style }}>
+      <BentoPanel className={`flex items-center justify-center ${className}`} style={{ minHeight: 80, ...style }}>
         <div className="text-center opacity-35">
           <div
             className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2"
@@ -64,7 +71,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
   }
 
   return (
-    <BentoPanel className={`relative overflow-hidden ${className}`} style={style}>
+    <BentoPanel className={`relative ${className}`} style={style}>
       {isMediaAudio ? (
         <div
           className="absolute inset-0 flex flex-col items-center justify-center"
@@ -159,6 +166,9 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
   );
 }
 
+// ── Insight Panel ──────────────────────────────────────────────
+// RULE 3: Content-aware font scaling.  Never overflow.
+
 interface InsightPanelProps {
   insight: string;
   links?: { label: string; url: string }[];
@@ -169,54 +179,94 @@ interface InsightPanelProps {
   fullText?: boolean;
 }
 
+/**
+ * Compute a font size that lets the insight text fit
+ * within the panel.  We estimate lines from character count
+ * and a rough chars-per-line value, then scale down if needed.
+ *
+ * RULE 3 — AI insight priority logic:
+ *   short  → larger font, elegant
+ *   medium → smaller font, full visibility
+ *   long   → smallest font, tighter line-height, line clamp as last resort
+ */
+function computeInsightFontSize(
+  insightLen: number,
+  baseFontSize: number,
+): { fontSize: number; lineHeight: number; maxLines: number } {
+  // Bracket by length
+  if (insightLen < 80) {
+    return { fontSize: Math.min(baseFontSize, 18), lineHeight: 1.55, maxLines: 4 };
+  }
+  if (insightLen < 160) {
+    return { fontSize: Math.min(baseFontSize, 15), lineHeight: 1.5, maxLines: 6 };
+  }
+  if (insightLen < 300) {
+    return { fontSize: Math.min(baseFontSize, 13.5), lineHeight: 1.44, maxLines: 10 };
+  }
+  if (insightLen < 500) {
+    return { fontSize: Math.min(baseFontSize, 12), lineHeight: 1.38, maxLines: 16 };
+  }
+  // Very long
+  return { fontSize: Math.min(baseFontSize, 11), lineHeight: 1.34, maxLines: 22 };
+}
+
 export function InsightPanel({
   insight,
   links,
   theme,
   className = '',
   style,
-  fontSize = 15,
+  fontSize: baseFontSize = 15,
   fullText = false,
 }: InsightPanelProps) {
+  const { fontSize, lineHeight, maxLines } = computeInsightFontSize(insight.length, baseFontSize);
+
   return (
-    <BentoPanel className={`p-4 flex flex-col justify-center ${className}`} style={style}>
+    <BentoPanel
+      className={`flex flex-col ${className}`}
+      style={{
+        ...style,
+        // Inner padding handled here so the panel boundary is the BentoPanel edge
+        padding: '12px 14px',
+      }}
+    >
       <div
         style={{
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: 600,
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           color: theme.accentHex,
-          marginBottom: 8,
+          marginBottom: 6,
+          flexShrink: 0,
         }}
       >
         AI INSIGHT
       </div>
+
+      {/* RULE 1+3: text is clamped and overflow hidden — never bleeds */}
       <p
         style={{
           fontSize,
           fontStyle: 'italic',
-          lineHeight: 1.52,
+          lineHeight,
           color: 'hsl(220,10%,84%)',
           fontFamily: '"Playfair Display", serif',
-          whiteSpace: 'pre-wrap',
           overflowWrap: 'break-word',
           wordBreak: 'break-word',
-          ...(fullText
-            ? {}
-            : {
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 6,
-                WebkitBoxOrient: 'vertical' as const,
-              }),
+          overflow: 'hidden',
+          display: '-webkit-box',
+          WebkitLineClamp: maxLines,
+          WebkitBoxOrient: 'vertical' as const,
+          flex: '1 1 0',
+          minHeight: 0,
         }}
       >
         {insight}
       </p>
 
       {links?.length ? (
-        <div className="flex flex-wrap gap-1.5 mt-2">
+        <div className="flex flex-wrap gap-1.5 mt-2" style={{ flexShrink: 0 }}>
           {links.slice(0, 3).map((link, index) => (
             <a
               key={`${link.url}-${index}`}
@@ -224,7 +274,7 @@ export function InsightPanel({
               target="_blank"
               rel="noreferrer noopener"
               style={{
-                fontSize: 10,
+                fontSize: 9,
                 color: theme.accentHex,
                 textDecoration: 'underline',
                 textUnderlineOffset: '2px',
@@ -239,6 +289,9 @@ export function InsightPanel({
     </BentoPanel>
   );
 }
+
+// ── User Text Panel ──────────────────────────────────────────────
+// RULE 4: title + body must fit.  Content-aware font scaling.
 
 interface UserTextPanelProps {
   title: string;
@@ -263,11 +316,30 @@ export function UserTextPanel({
   titleSize = 22,
   subtitleSize = 14,
 }: UserTextPanelProps) {
+  // RULE 4 — content-aware scaling for title
+  const totalLen = title.length + (subtitle?.length || 0);
+  let effectiveTitleSize = titleSize;
+  let effectiveSubSize = subtitleSize;
+
+  if (totalLen > 200) {
+    effectiveTitleSize = Math.max(14, titleSize - 4);
+    effectiveSubSize = Math.max(11, subtitleSize - 2);
+  } else if (totalLen > 120) {
+    effectiveTitleSize = Math.max(16, titleSize - 2);
+    effectiveSubSize = Math.max(12, subtitleSize - 1);
+  }
+
   return (
-    <BentoPanel className={`p-4 flex flex-col justify-center ${className}`} style={style}>
+    <BentoPanel
+      className={`flex flex-col justify-center ${className}`}
+      style={{
+        ...style,
+        padding: '12px 14px',
+      }}
+    >
       <h2
         style={{
-          fontSize: titleSize,
+          fontSize: effectiveTitleSize,
           fontWeight: 600,
           lineHeight: 1.24,
           color: theme.headlineHex,
@@ -283,11 +355,11 @@ export function UserTextPanel({
       {subtitle && (
         <p
           style={{
-            fontSize: subtitleSize,
-            lineHeight: 1.48,
+            fontSize: effectiveSubSize,
+            lineHeight: 1.44,
             color: 'hsl(220,10%,58%)',
             fontFamily: '"Poppins", sans-serif',
-            marginTop: 8,
+            marginTop: 6,
             overflow: 'hidden',
             display: '-webkit-box',
             WebkitLineClamp: maxSubtitleLines,
@@ -301,6 +373,8 @@ export function UserTextPanel({
   );
 }
 
+// ── Meta Panel ──────────────────────────────────────────────
+
 interface MetaPanelProps {
   cardType: string;
   timeAnchor?: string;
@@ -313,7 +387,10 @@ interface MetaPanelProps {
 
 export function MetaPanel({ cardType, timeAnchor, domain, theme, className = '', style, compact }: MetaPanelProps) {
   return (
-    <BentoPanel className={`p-3.5 flex flex-col justify-center ${className}`} style={style}>
+    <BentoPanel
+      className={`flex flex-col justify-center ${className}`}
+      style={{ ...style, padding: compact ? '10px 12px' : '12px 14px' }}
+    >
       <div
         style={{
           fontSize: compact ? 9 : 10,
@@ -321,7 +398,7 @@ export function MetaPanel({ cardType, timeAnchor, domain, theme, className = '',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: theme.accentHex,
-          marginBottom: 5,
+          marginBottom: 3,
         }}
       >
         {cardType.replace(/_/g, ' ')}
@@ -338,7 +415,7 @@ export function MetaPanel({ cardType, timeAnchor, domain, theme, className = '',
             color: 'hsl(220,10%,43%)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            marginTop: 4,
+            marginTop: 3,
           }}
         >
           {domain}
@@ -347,6 +424,8 @@ export function MetaPanel({ cardType, timeAnchor, domain, theme, className = '',
     </BentoPanel>
   );
 }
+
+// ── Momentum Panel ──────────────────────────────────────────────
 
 interface MomentumPanelProps {
   statValue?: string;
@@ -374,12 +453,15 @@ export function MomentumPanel({
   compact,
 }: MomentumPanelProps) {
   return (
-    <BentoPanel className={`p-4 flex flex-col justify-center ${className}`} style={style}>
+    <BentoPanel
+      className={`flex flex-col justify-center ${className}`}
+      style={{ ...style, padding: compact ? '10px 14px' : '14px 18px' }}
+    >
       {statValue && (
-        <div className="flex items-baseline gap-2.5 mb-2">
+        <div className="flex items-baseline gap-2 mb-1">
           <span
             style={{
-              fontSize: compact ? 30 : 34,
+              fontSize: compact ? 26 : 30,
               fontWeight: 700,
               color: theme.accentHex,
               fontFamily: '"Playfair Display", serif',
@@ -391,7 +473,7 @@ export function MomentumPanel({
           {statLabel && (
             <span
               style={{
-                fontSize: compact ? 11 : 12,
+                fontSize: compact ? 10 : 11,
                 fontWeight: 500,
                 color: 'hsl(220,10%,54%)',
                 textTransform: 'uppercase',
@@ -405,19 +487,12 @@ export function MomentumPanel({
       )}
 
       {secondaryValue && (
-        <div className="flex items-baseline gap-2 mb-2">
-          <span style={{ fontSize: compact ? 16 : 18, fontWeight: 600, color: theme.metricHex, fontFamily: '"Playfair Display", serif' }}>
+        <div className="flex items-baseline gap-2 mb-1">
+          <span style={{ fontSize: compact ? 14 : 16, fontWeight: 600, color: theme.metricHex, fontFamily: '"Playfair Display", serif' }}>
             {showNumbers ? secondaryValue : '•••'}
           </span>
           {secondaryLabel && (
-            <span
-              style={{
-                fontSize: 11,
-                color: 'hsl(220,10%,47%)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-              }}
-            >
+            <span style={{ fontSize: 10, color: 'hsl(220,10%,47%)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               {secondaryLabel}
             </span>
           )}
@@ -426,14 +501,17 @@ export function MomentumPanel({
 
       <p
         style={{
-          fontSize: compact ? 10 : 11,
+          fontSize: compact ? 9 : 10,
           fontWeight: 500,
           fontStyle: 'italic',
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
           color: theme.accentHex,
           opacity: 0.74,
-          marginTop: statValue ? 4 : 0,
+          marginTop: statValue ? 2 : 0,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
         }}
       >
         {phrase}
@@ -441,6 +519,8 @@ export function MomentumPanel({
     </BentoPanel>
   );
 }
+
+// ── Brand Panel ──────────────────────────────────────────────
 
 interface BrandPanelProps {
   theme: ThemeDefinition;
@@ -454,24 +534,26 @@ export function BrandPanel({ theme, className = '', style, compact }: BrandPanel
     <div
       className={`flex items-center justify-center gap-3 ${className}`}
       style={{
-        padding: compact ? '12px 16px' : '14px 20px',
+        padding: compact ? '10px 14px' : '12px 18px',
         borderRadius: '14px',
         background: 'hsla(220,18%,8%,0.72)',
         border: '1px solid hsla(0,0%,100%,0.05)',
+        overflow: 'hidden',
+        flexShrink: 0,
         ...style,
       }}
     >
       <div
         className="flex items-center justify-center flex-shrink-0"
         style={{
-          width: compact ? 22 : 24,
-          height: compact ? 22 : 24,
-          borderRadius: 7,
+          width: compact ? 20 : 22,
+          height: compact ? 20 : 22,
+          borderRadius: 6,
           background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
           boxShadow: '0 2px 8px -2px hsla(43,74%,52%,0.3)',
         }}
       >
-        <span style={{ fontSize: 8, fontWeight: 700, color: 'hsl(220,20%,6%)', letterSpacing: '0.08em' }}>LS</span>
+        <span style={{ fontSize: 7, fontWeight: 700, color: 'hsl(220,20%,6%)', letterSpacing: '0.08em' }}>LS</span>
       </div>
       <span style={{ fontSize: compact ? 10 : 11, fontWeight: 500, letterSpacing: '0.06em', color: 'hsl(220,10%,48%)' }}>
         Posted from <span style={{ color: theme.accentHex, fontWeight: 600 }}>LifeStack</span>

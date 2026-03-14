@@ -72,20 +72,42 @@ export function AdaptiveBentoTemplate({
   });
 
   const showNumbers = privacy.includeExactNumbers;
-
   const canvasPadding = `${layout.safePadding.top}px ${layout.safePadding.right}px ${layout.safePadding.bottom}px ${layout.safePadding.left}px`;
+  const gap = layout.gap;
+
+  // ── Shared panel blocks ──
 
   const insightBlock = hasInsight ? (
     <InsightPanel
       insight={aiInsight!}
       links={data.aiInsightLinks}
       theme={theme}
-      className="min-h-0"
-      style={{ flex: `${layout.insightWeight} 1 0` }}
+      style={{
+        flex: `${layout.insightWeight} 1 0`,
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
       fontSize={layout.insightFontSize}
       fullText
     />
   ) : null;
+
+  const userTextBlock = (
+    <UserTextPanel
+      title={data.title}
+      subtitle={data.subtitle}
+      theme={theme}
+      style={{
+        flex: `${layout.textWeight} 1 0`,
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+      maxTitleLines={layout.titleLines}
+      maxSubtitleLines={layout.subtitleLines}
+      titleSize={hasInsight ? 18 : 20}
+      subtitleSize={hasInsight ? 12 : 13}
+    />
+  );
 
   const metaBlock = layout.showMeta ? (
     <MetaPanel
@@ -93,8 +115,11 @@ export function AdaptiveBentoTemplate({
       timeAnchor={privacy.includeDateTime ? data.timeAnchor : undefined}
       domain={data.domain}
       theme={theme}
-      className="min-w-0"
-      style={{ flex: `${layout.metaWeight} 1 0` }}
+      style={{
+        flex: `${layout.metaWeight} 1 0`,
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
       compact
     />
   ) : null;
@@ -108,26 +133,17 @@ export function AdaptiveBentoTemplate({
       phrase={phrase}
       theme={theme}
       showNumbers={showNumbers}
-      className="min-w-0"
-      style={{ flex: `${layout.momentumWeight} 1 0` }}
+      style={{
+        flex: `${layout.momentumWeight} 1 0`,
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
       compact={hasInsight}
     />
   ) : null;
 
-  const userTextBlock = (
-    <UserTextPanel
-      title={data.title}
-      subtitle={data.subtitle}
-      theme={theme}
-      className="min-h-0"
-      style={{ flex: `${layout.textWeight} 1 0` }}
-      maxTitleLines={layout.titleLines}
-      maxSubtitleLines={layout.subtitleLines}
-      titleSize={hasInsight ? 20 : 22}
-      subtitleSize={13.5}
-    />
-  );
-
+  // ── HERO layout ──
+  // Media dominates. Text/insight are secondary below.
   const renderHero = () => (
     <>
       {hasMedia && (
@@ -135,88 +151,152 @@ export function AdaptiveBentoTemplate({
           url={data.imageUrl}
           urls={data.imageUrls}
           showCount={showImageCount}
-          className="flex-shrink-0"
-          style={{ flex: `0 0 ${Math.round(layout.heroMediaRatio * 100)}%` }}
+          style={{
+            flex: `0 0 ${Math.round(layout.heroMediaRatio * 100)}%`,
+            minHeight: 0,
+            overflow: 'hidden',
+          }}
         />
       )}
 
+      {/* Secondary content stacks vertically below media */}
       <div
-        className={cn('flex gap-2 flex-1 min-h-0', layout.secondaryDirection === 'row' ? 'flex-row' : 'flex-col')}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap,
+          flex: '1 1 0',
+          minHeight: 0,
+          overflow: 'hidden',
+        }}
       >
-        <div className="flex flex-col gap-2 min-h-0" style={{ flex: `${layout.textWeight} 1 0` }}>
-          {userTextBlock}
-          {metaBlock}
-        </div>
         {insightBlock}
+        {userTextBlock}
+        <div style={{ display: 'flex', gap, flexShrink: 0, minHeight: 0 }}>
+          {metaBlock}
+          {momentumBlock}
+        </div>
       </div>
-
-      {momentumBlock}
     </>
   );
 
-  const renderSplit = () => (
-    <>
-      <div className={cn('flex gap-2 flex-1 min-h-0', layout.splitDirection === 'row' ? 'flex-row' : 'flex-col')}>
+  // ── SPLIT layout ──
+  // Media left/top, content column right/bottom.
+  // RULE 5: right column is a strict stack: insight → user → meta+momentum
+  const renderSplit = () => {
+    const isRow = layout.splitDirection === 'row';
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: isRow ? 'row' : 'column',
+          gap,
+          flex: '1 1 0',
+          minHeight: 0,
+          overflow: 'hidden',
+        }}
+      >
         {hasMedia && (
           <MediaPanel
             url={data.imageUrl}
             urls={data.imageUrls}
             showCount={showImageCount}
-            className="min-h-0"
-            style={{ flex: `0 0 ${Math.round(layout.splitMediaRatio * 100)}%` }}
+            style={{
+              flex: `0 0 ${Math.round(layout.splitMediaRatio * 100)}%`,
+              minHeight: 0,
+              overflow: 'hidden',
+            }}
           />
         )}
 
-        <div className="flex flex-col gap-2 flex-1 min-h-0">
+        {/* RULE 5 — strict stacked column for text panels */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap,
+            flex: '1 1 0',
+            minHeight: 0,
+            minWidth: 0,
+            overflow: 'hidden',
+          }}
+        >
           {insightBlock}
           {userTextBlock}
-          <div className="flex gap-2 flex-shrink-0 min-h-0">
+          {(metaBlock || momentumBlock) && (
+            <div style={{ display: 'flex', gap, flexShrink: 0, minHeight: 0, overflow: 'hidden' }}>
+              {metaBlock}
+              {momentumBlock}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ── BACKGROUND layout ──
+  // Media is atmospheric. Text dominates foreground.
+  const renderBackground = () => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap,
+        flex: '1 1 0',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {insightBlock}
+      {userTextBlock}
+
+      {(metaBlock || momentumBlock || hasMedia) && (
+        <div style={{ display: 'flex', gap, flex: hasMedia ? '0 0 20%' : '0 0 auto', minHeight: 0, overflow: 'hidden' }}>
+          {hasMedia && (
+            <MediaPanel
+              url={data.imageUrl}
+              urls={data.imageUrls}
+              showCount={showImageCount}
+              style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}
+            />
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
             {metaBlock}
             {momentumBlock}
           </div>
         </div>
-      </div>
-    </>
-  );
-
-  const renderBackground = () => (
-    <>
-      <div className="flex flex-col gap-2 flex-1 min-h-0">
-        {insightBlock}
-        {userTextBlock}
-
-        {(metaBlock || momentumBlock || hasMedia) && (
-          <div className="flex gap-2 min-h-0" style={{ flex: hasMedia ? '0 0 22%' : '0 0 auto' }}>
-            {hasMedia && (
-              <MediaPanel
-                url={data.imageUrl}
-                urls={data.imageUrls}
-                showCount={showImageCount}
-                className="min-w-0"
-                style={{ flex: '1.15 1 0' }}
-              />
-            )}
-            <div className="flex flex-col gap-2 min-w-0" style={{ flex: hasMedia ? '1 1 0' : '1 1 0' }}>
-              {metaBlock}
-              {momentumBlock}
-            </div>
-          </div>
-        )}
-      </div>
-    </>
+      )}
+    </div>
   );
 
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ background: theme.bgGradient }}>
+      {/* Atmospheric background image for background mode */}
       {hasMedia && imageStyle === 'background_image' && (
         <AtmosphericBackground url={data.imageUrl!} opacity={layout.backgroundOverlay} />
       )}
 
-      <div className="absolute inset-0 flex flex-col" style={{ padding: canvasPadding, gap: layout.gap }}>
-        {imageStyle === 'split_image' ? renderSplit() : imageStyle === 'background_image' ? renderBackground() : renderHero()}
+      {/* Main layout container — RULE 1: everything inside measured bounds */}
+      <div
+        className="absolute inset-0"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          padding: canvasPadding,
+          gap,
+          overflow: 'hidden',
+        }}
+      >
+        {imageStyle === 'split_image'
+          ? renderSplit()
+          : imageStyle === 'background_image'
+            ? renderBackground()
+            : renderHero()}
 
+        {/* RULE 6 — footer safe zone */}
         {privacy.includeFooter && (
-          <BrandPanel theme={theme} className="flex-shrink-0" compact={layout.compactBrand} />
+          <BrandPanel theme={theme} compact={layout.compactBrand} />
         )}
       </div>
     </div>

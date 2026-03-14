@@ -39,16 +39,23 @@ interface ComputeLayoutInput {
 
 function getSafePadding(format: ShareFormat) {
   if (format === 'story' || format === 'tiktok') {
-    return { top: 36, right: 24, bottom: 54, left: 24 };
+    return { top: 32, right: 20, bottom: 48, left: 20 };
   }
-
   if (format === 'feed' || format === 'linkedin') {
-    return { top: 24, right: 20, bottom: 30, left: 20 };
+    return { top: 20, right: 16, bottom: 24, left: 16 };
   }
-
-  return { top: 20, right: 18, bottom: 24, left: 18 };
+  // square
+  return { top: 16, right: 14, bottom: 20, left: 14 };
 }
 
+/**
+ * Deterministic layout solver.
+ *
+ * STEP 1: format → canvas proportions
+ * STEP 2: imageStyle → region map
+ * STEP 3: content lengths → dynamic panel weights
+ * STEP 4: font sizes capped by content length
+ */
 export function computeDynamicBentoLayout({
   baseVariant,
   format,
@@ -62,74 +69,134 @@ export function computeDynamicBentoLayout({
   const isSquare = format === 'square';
 
   const safePadding = getSafePadding(format);
-  const insightDensity = hasInsight ? Math.min(1.8, insightLength / 260) : 0;
-  const textDensity = Math.min(1.2, textLength / 200);
+  const gap = isStory ? 8 : 6;
 
-  const baseByVariant = {
-    hero: { heroMedia: isStory ? 0.48 : isSquare ? 0.44 : 0.46, splitMedia: isStory ? 0.44 : 0.52 },
-    split: { heroMedia: isStory ? 0.42 : isSquare ? 0.4 : 0.43, splitMedia: isStory ? 0.47 : 0.5 },
-    reflection: { heroMedia: isStory ? 0.38 : isSquare ? 0.36 : 0.4, splitMedia: isStory ? 0.42 : 0.48 },
-    minimal: { heroMedia: isStory ? 0.4 : isSquare ? 0.35 : 0.38, splitMedia: isStory ? 0.45 : 0.48 },
-  }[baseVariant];
+  // ── Content density metrics ──
+  const insightDensity = hasInsight ? Math.min(2.0, insightLength / 200) : 0;
+  const textDensity = Math.min(1.5, textLength / 160);
 
-  const computed: DynamicBentoLayoutSpec = {
-    safePadding,
-    gap: isStory ? 10 : 8,
-    heroMediaRatio: hasMedia ? baseByVariant.heroMedia : 0,
-    splitMediaRatio: hasMedia ? baseByVariant.splitMedia : 0,
-    splitDirection: isStory ? 'column' : 'row',
-    secondaryDirection: isStory ? 'column' : 'row',
-    insightWeight: hasInsight ? 1.05 + insightDensity : 0,
-    textWeight: hasInsight ? Math.max(0.75, 1.25 - insightDensity * 0.25) : 1.35,
-    metaWeight: hasInsight ? 0.58 : 0.72,
-    momentumWeight: hasInsight ? 0.62 : 0.78,
-    titleLines: hasInsight ? 2 : isSquare ? 3 : 4,
-    subtitleLines: hasInsight ? 2 : 3,
-    insightFontSize: isStory
-      ? Math.max(12.5, 18 - insightDensity * 2.4)
-      : isSquare
-        ? Math.max(12, 16 - insightDensity * 2.2)
-        : Math.max(12.5, 17 - insightDensity * 2.1),
-    showMomentum: !hasInsight || insightLength < 700,
-    showMeta: !hasInsight || insightLength < 820,
-    compactBrand: isSquare || hasInsight,
-    backgroundOverlay: hasInsight ? 0.64 : 0.54,
-  };
+  // ── STEP 2: Base media ratios per image style ──
+  let heroMediaRatio = 0;
+  let splitMediaRatio = 0;
+  let splitDirection: 'row' | 'column' = isStory ? 'column' : 'row';
+  let secondaryDirection: 'row' | 'column' = 'column';
 
-  if (imageStyle === 'split_image') {
-    computed.secondaryDirection = 'column';
-    computed.insightWeight = hasInsight ? 1.2 + insightDensity : 0;
-    computed.textWeight = hasInsight ? Math.max(0.75, 1.2 - insightDensity * 0.2) : 1.45;
-    computed.showMomentum = !hasInsight || insightLength < (isStory ? 620 : 760);
-  }
-
-  if (imageStyle === 'background_image') {
-    computed.heroMediaRatio = 0;
-    computed.splitMediaRatio = hasMedia ? (isStory ? 0.22 : 0.2) : 0;
-    computed.splitDirection = 'column';
-    computed.secondaryDirection = 'column';
-    computed.insightWeight = hasInsight ? 1.45 + insightDensity : 0;
-    computed.textWeight = hasInsight ? Math.max(0.65, 0.95 - insightDensity * 0.15) : 1.3;
-    computed.metaWeight = hasInsight ? 0.5 : 0.65;
-    computed.momentumWeight = hasInsight ? 0.52 : 0.7;
-    computed.titleLines = hasInsight ? 2 : 4;
-    computed.subtitleLines = hasInsight ? 2 : 3;
-    computed.showMomentum = !hasInsight || insightLength < (isStory ? 540 : 660);
-    computed.showMeta = !hasInsight || insightLength < 760;
+  if (imageStyle === 'hero_image' && hasMedia) {
+    // Hero: media dominates
+    heroMediaRatio = isStory ? 0.50 : isSquare ? 0.45 : 0.48;
+    // If insight is very long, shrink media to give more room
+    if (hasInsight && insightLength > 300) {
+      heroMediaRatio = Math.max(0.30, heroMediaRatio - 0.10);
+    }
+  } else if (imageStyle === 'split_image' && hasMedia) {
+    // Split: side-by-side (row) or stacked (column for story)
+    splitMediaRatio = isStory ? 0.38 : isSquare ? 0.42 : 0.45;
+    if (hasInsight && insightLength > 300) {
+      splitMediaRatio = Math.max(0.28, splitMediaRatio - 0.08);
+    }
+  } else if (imageStyle === 'background_image') {
+    // Background: no dedicated media panel (media is atmospheric)
+    heroMediaRatio = 0;
+    splitMediaRatio = 0;
+    splitDirection = 'column';
   }
 
   if (!hasMedia) {
-    computed.heroMediaRatio = 0;
-    computed.splitMediaRatio = 0;
-    computed.splitDirection = 'column';
+    heroMediaRatio = 0;
+    splitMediaRatio = 0;
+    splitDirection = 'column';
   }
 
-  if (!hasInsight) {
-    computed.insightFontSize = isStory ? 16 : 15;
-    computed.showMeta = true;
-    computed.showMomentum = true;
-    computed.textWeight += textDensity * 0.2;
+  // ── STEP 3: Dynamic panel weights ──
+  // These are flex-grow values for the stacked text column.
+  // They control relative height distribution.
+
+  let insightWeight = 0;
+  let textWeight = 1.2;
+  let metaWeight = 0.5;
+  let momentumWeight = 0.55;
+
+  if (hasInsight) {
+    // RULE 3: Insight gets priority. Scale weight by density.
+    if (insightLength < 100) {
+      insightWeight = 1.0;
+      textWeight = 1.0;
+    } else if (insightLength < 250) {
+      insightWeight = 1.4;
+      textWeight = 0.9;
+    } else if (insightLength < 400) {
+      insightWeight = 1.8;
+      textWeight = 0.7;
+      metaWeight = 0.4;
+      momentumWeight = 0.4;
+    } else {
+      // Very long insight — it dominates
+      insightWeight = 2.2;
+      textWeight = 0.55;
+      metaWeight = 0.35;
+      momentumWeight = 0.35;
+    }
+  } else {
+    // No insight — text gets more room
+    textWeight = 1.4 + textDensity * 0.15;
   }
 
-  return computed;
+  // ── STEP 4: Font sizes — content-aware ceiling ──
+  let insightFontSize: number;
+  if (insightLength < 60) {
+    insightFontSize = isStory ? 18 : isSquare ? 16 : 17;
+  } else if (insightLength < 150) {
+    insightFontSize = isStory ? 15 : isSquare ? 14 : 14.5;
+  } else if (insightLength < 300) {
+    insightFontSize = isStory ? 13 : isSquare ? 12.5 : 13;
+  } else if (insightLength < 500) {
+    insightFontSize = isStory ? 11.5 : isSquare ? 11 : 11.5;
+  } else {
+    insightFontSize = isStory ? 10.5 : isSquare ? 10 : 10.5;
+  }
+
+  // ── Line clamp calculations ──
+  let titleLines = hasInsight ? 2 : isSquare ? 3 : 4;
+  let subtitleLines = hasInsight ? 2 : 3;
+
+  // For background style with insight, allow more title lines since no media panel
+  if (imageStyle === 'background_image' && !hasInsight) {
+    titleLines = isSquare ? 4 : 5;
+    subtitleLines = 4;
+  }
+
+  // ── Show/hide decisions ──
+  let showMomentum = true;
+  let showMeta = true;
+
+  if (hasInsight) {
+    // Hide lower-priority panels when insight is very long to free space
+    showMomentum = insightLength < 500;
+    showMeta = insightLength < 600;
+  }
+
+  // ── Background overlay ──
+  const backgroundOverlay = hasInsight ? 0.58 : 0.50;
+
+  const compactBrand = isSquare || hasInsight;
+
+  return {
+    safePadding,
+    gap,
+    heroMediaRatio,
+    splitMediaRatio,
+    splitDirection,
+    secondaryDirection,
+    insightWeight,
+    textWeight,
+    metaWeight,
+    momentumWeight,
+    titleLines,
+    subtitleLines,
+    insightFontSize,
+    showMomentum,
+    showMeta,
+    compactBrand,
+    backgroundOverlay,
+  };
 }
