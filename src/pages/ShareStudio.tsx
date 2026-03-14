@@ -139,19 +139,13 @@ export default function ShareStudio() {
       // Render the visual card as a PNG blob
       const blob = await renderCardBlob();
 
-      if (!blob) {
-        toast.error('Failed to render card. Try again.');
-        setSharing(false);
-        return;
-      }
-
       const destinationPreset = getNativeSharePreset(format);
 
-      // Try native share with the rendered image
+      // Try native share — with image if available, text-only otherwise
       const shared = await nativeShare(
         caption,
         `LifeStack — ${selectedCard.title}`,
-        blob,
+        blob ?? undefined,
         smartUrl ?? undefined,
         destinationPreset,
       );
@@ -159,20 +153,26 @@ export default function ShareStudio() {
       await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
-      if (!shared) {
+      if (shared) {
+        setStep('success');
+      } else {
         // Fallback: copy image to clipboard if possible, otherwise copy text
-        const imgCopied = await copyImageToClipboard(blob);
-        if (imgCopied) {
-          toast.success('Card image copied to clipboard!');
-        } else {
-          const clipText = smartUrl ? `${caption}` : caption;
-          await copyToClipboard(clipText);
-          toast.success('Caption copied to clipboard');
+        if (blob) {
+          const imgCopied = await copyImageToClipboard(blob);
+          if (imgCopied) {
+            toast.success('Card image copied to clipboard!');
+            setStep('success');
+            return;
+          }
         }
+        const clipText = smartUrl ? `${caption}` : caption;
+        await copyToClipboard(clipText);
+        toast.success('Caption copied to clipboard');
+        setStep('success');
       }
-      setStep('success');
-    } catch {
-      toast.error('Share failed');
+    } catch (err) {
+      console.error('[ShareStudio] Share failed:', err);
+      toast.error('Share failed — try the Copy or Download buttons');
     } finally {
       setSharing(false);
     }
