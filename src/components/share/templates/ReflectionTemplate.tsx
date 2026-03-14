@@ -1,11 +1,17 @@
 import { cn } from '@/lib/utils';
-import { applyPrivacy } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, useTemplateImage } from './SharedImageLayer';
+import { getRenderPreset } from '@/services/shareService';
+import { HeroImage, SplitImage, BackgroundImage, TemplateFooter, useTemplateImage, getClampStyle } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp }: ShareTemplateProps) {
-  const privacy = applyPrivacy(rawPrivacy);
-  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+export function ReflectionTemplate({ data, theme: t, format, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
+  const preset = getRenderPreset(format);
+  const { safeArea } = preset;
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({
+    data,
+    includeImage,
+    imageLayout: imageLayoutProp,
+    showImageCount,
+  });
 
   const isBackground = hasImage && layout === 'background_image';
   const isSplit = hasImage && layout === 'split_image';
@@ -23,44 +29,58 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
           style={{ background: `radial-gradient(ellipse at 30% 80%, ${t.accentHex}, transparent 60%)` }} />
       )}
 
-      {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+      {isHero && (
+        <HeroImage
+          url={url}
+          imageCount={imageCount}
+          showCount={showCount}
+          onError={() => setImgFailed(true)}
+          heroRatio={preset.heroImageRatio}
+        />
+      )}
 
       <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: '20px 22px 16px' }}>
+        style={{
+          padding: isSplit
+            ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
+            : `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
+        }}>
 
-        {/* Top identifier — fixed */}
         <div className="flex-shrink-0" style={{ marginBottom: 10 }}>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <div style={{ width: 3, height: 14, borderRadius: 2, background: t.accentHex }} />
-            <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
+            <span className={cn('truncate', t.textMuted)} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
               {data.identityLabel || 'Reflection'}
             </span>
           </div>
         </div>
 
-        {/* Main reflection content — flexible */}
         <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
           style={{ gap: 10 }}>
-          <div className="flex-shrink-0" style={{ fontSize: 36, lineHeight: 0.6, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>"</div>
+          <div className="flex-shrink-0" style={{ fontSize: 32, lineHeight: 0.8, color: t.accentHex, opacity: 0.2, fontFamily: '"Playfair Display", serif' }}>
+            "
+          </div>
 
-          <p className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)', fontWeight: 500,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.4, fontStyle: 'italic',
-            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
+          <p className={t.textPrimary} style={{
+            ...getClampStyle(5, 1.42),
+            fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)',
+            fontWeight: 500,
+            fontFamily: '"Playfair Display", serif',
+            fontStyle: 'italic',
+          }}>
             {data.subtitle || data.title}
           </p>
 
           {data.title !== data.subtitle && data.subtitle && (
-            <p className={cn('flex-shrink-0', t.accent)} style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <p className={t.accent} style={{ ...getClampStyle(1, 1.3), fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               — {data.title}
             </p>
           )}
         </div>
 
-        {/* AI insight — fixed */}
         {aiInsight && (
           <div className="flex-shrink-0" style={{ paddingLeft: 12, borderLeft: `2px solid ${t.accentHex}40`, marginTop: 6 }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.625rem', lineHeight: 1.4,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.42), fontSize: '0.625rem' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
@@ -75,14 +95,13 @@ export function ReflectionTemplate({ data, theme: t, privacy: rawPrivacy, phrase
           </div>
         )}
 
-        {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
-          <p className={t.accent} style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {phrase}
-          </p>
-          <PostedFromBadge footerHex={t.footerHex} />
-        </div>
+        <TemplateFooter
+          phrase={phrase}
+          accentHex={t.accentHex}
+          footerHex={t.footerHex}
+          footerMinHeight={safeArea.footerMinHeight}
+          compact={isSplit}
+        />
       </div>
     </div>
   );

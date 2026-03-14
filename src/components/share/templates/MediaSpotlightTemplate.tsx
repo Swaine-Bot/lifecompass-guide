@@ -1,11 +1,17 @@
 import { cn } from '@/lib/utils';
-import { applyPrivacy, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, PlayOverlay, MediaTypeBadge, detectMediaType, useTemplateImage } from './SharedImageLayer';
+import { getRenderPreset } from '@/services/shareService';
+import { HeroImage, SplitImage, BackgroundImage, TemplateFooter, PlayOverlay, MediaTypeBadge, useTemplateImage, getClampStyle } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
-  const privacy = applyPrivacy(rawPrivacy);
-  const { hasImage, url, layout, imageCount, showCount, setImgFailed, mediaType } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
+  const preset = getRenderPreset(format);
+  const { safeArea } = preset;
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed, mediaType } = useTemplateImage({
+    data,
+    includeImage,
+    imageLayout: imageLayoutProp,
+    showImageCount,
+  });
 
   const isSplit = hasImage && layout === 'split_image';
   const isBackground = hasImage && layout === 'background_image';
@@ -15,44 +21,23 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
     <div className={cn('relative flex h-full w-full overflow-hidden select-none', isSplit ? 'flex-row' : 'flex-col')}
       style={{ background: t.bgGradient }}>
 
-      {/* Background mode */}
       {hasImage && isBackground && (
-        <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <img src={url} alt="" onError={() => setImgFailed(true)}
-            className="w-full h-full"
-            style={{ objectFit: 'cover', objectPosition: 'center', display: 'block',
-              filter: 'blur(14px) brightness(0.28) saturate(1.3)', transform: 'scale(1.15)' }}
-            crossOrigin="anonymous" />
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(180deg, hsla(0,0%,0%,0.5) 0%, hsla(0,0%,0%,0.35) 50%, hsla(0,0%,0%,0.6) 100%)' }} />
-        </div>
+        <BackgroundImage url={url} onError={() => setImgFailed(true)} />
       )}
 
-      {/* Split mode */}
       {hasImage && isSplit && (
-        <div className="relative overflow-hidden flex-shrink-0 flex items-center justify-center"
-          style={{ width: '50%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
-          <img src={url} alt="" onError={() => setImgFailed(true)}
-            className="w-full h-full"
-            style={{ objectFit: 'contain', display: 'block' }}
-            crossOrigin="anonymous" />
-          {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="sm" />}
-          {mediaType !== 'image' && <MediaTypeBadge mediaType={mediaType} />}
-          {showCount && imageCount > 1 && (
-            <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full z-10"
-              style={{ background: 'hsla(0,0%,0%,0.6)', color: 'hsla(0,0%,100%,0.9)', fontSize: 10, fontWeight: 600, backdropFilter: 'blur(4px)' }}>
-              +{imageCount - 1} more
-            </div>
-          )}
-        </div>
+        <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />
       )}
 
-      {/* Hero mode — capped at 50% */}
       {hasImage && isHero && (
-        <div className="relative flex items-center justify-center flex-shrink-0"
-          style={{ flex: '0 0 auto', maxHeight: '50%', overflow: 'hidden', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}>
-          <img src={url} alt="" onError={() => setImgFailed(true)}
-            className="w-full h-full"
+        <div className="relative flex items-center justify-center flex-shrink-0" style={{
+          flex: `0 0 ${Math.round(preset.heroImageRatio * 100)}%`,
+          maxHeight: `${Math.round(preset.heroImageRatio * 100)}%`,
+          overflow: 'hidden',
+          minHeight: 72,
+          background: 'hsla(0,0%,0%,0.15)',
+        }}>
+          <img src={url} alt="" onError={() => setImgFailed(true)} className="w-full h-full"
             style={{ objectFit: 'contain', display: 'block', maxHeight: '100%' }}
             crossOrigin="anonymous" />
           {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
@@ -66,9 +51,8 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
       )}
 
-      {/* No image fallback */}
       {!hasImage && (
-        <div className="relative flex items-center justify-center flex-shrink-0" style={{ flex: '0 0 40%', background: 'hsla(0,0%,100%,0.03)' }}>
+        <div className="relative flex items-center justify-center flex-shrink-0" style={{ flex: '0 0 42%', background: 'hsla(0,0%,100%,0.03)' }}>
           {data.secondaryValue ? (
             <div className="text-center flex flex-col items-center" style={{ gap: 8 }}>
               <p style={{ fontSize: 32, opacity: 0.6 }}>
@@ -85,39 +69,41 @@ export function MediaSpotlightTemplate({ data, theme: t, privacy: rawPrivacy, ph
         </div>
       )}
 
-      {/* Content area */}
       <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
-        style={{ padding: '14px 18px 14px' }}>
+        style={{
+          padding: isSplit
+            ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
+            : `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
+        }}>
 
-        {/* Text content — flexible */}
-        <div style={{ gap: 5 }} className="flex flex-col flex-1 min-h-0 justify-center overflow-hidden">
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.8125rem, 2.2vw, 1rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
-            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+        <div style={{ gap: 6 }} className="flex flex-col flex-1 min-h-0 justify-center overflow-hidden">
+          <h2 className={t.textPrimary} style={{
+            ...getClampStyle(3, 1.32),
+            fontSize: 'clamp(0.8125rem, 2.2vw, 1rem)',
+            fontWeight: 600,
+            fontFamily: '"Playfair Display", serif',
+          }}>
             {data.title}
           </h2>
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.625rem', lineHeight: 1.4,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.42), fontSize: '0.625rem' }}>
               {data.subtitle}
             </p>
           )}
           {aiInsight && (
-            <p style={{ fontSize: '0.5625rem', lineHeight: 1.35, color: t.accentHex, fontStyle: 'italic', marginTop: 2,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p style={{ ...getClampStyle(3, 1.38), fontSize: '0.5625rem', color: t.accentHex, fontStyle: 'italic', marginTop: 2 }}>
               {aiInsight}
             </p>
           )}
         </div>
 
-        {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 8, marginTop: 'auto' }}>
-          <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {phrase}
-          </p>
-          <PostedFromBadge footerHex={t.footerHex} />
-        </div>
+        <TemplateFooter
+          phrase={phrase}
+          accentHex={t.accentHex}
+          footerHex={t.footerHex}
+          footerMinHeight={safeArea.footerMinHeight}
+          compact={isSplit}
+        />
       </div>
     </div>
   );
