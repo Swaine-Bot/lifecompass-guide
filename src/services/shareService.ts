@@ -366,46 +366,60 @@ export async function saveShareCard(userId: string, data: ShareCardData, theme: 
   return { error };
 }
 
+/**
+ * Native share — ALWAYS shares the rendered card image as a file.
+ * Never degrades to text-only or link-only sharing.
+ * 
+ * The image IS the share content. Caption text is included alongside
+ * but the file is the primary payload so receiving apps (Instagram,
+ * WhatsApp, Facebook, TikTok, etc.) treat it as media, not a link.
+ *
+ * Fallback chain:
+ *  1. File share (image + caption) — works on most mobile browsers
+ *  2. File share (image only, no text) — for strict canShare checks
+ *  3. Return false — caller should copy image to clipboard instead
+ */
 export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string, preset: NativeSharePreset = 'post'): Promise<boolean> {
   if (!navigator.share) {
     console.warn('[Share] navigator.share not available');
     return false;
   }
-  const isStoryLike = preset === 'story' || preset === 'reel';
 
-  // Attempt 1: Share with image file
-  if (imageBlob) {
-    try {
-      const fileName = `lifestack-${preset}-share.png`;
-      const file = new File([imageBlob], fileName, { type: 'image/png' });
-      const shareDataWithFile: ShareData = { files: [file], title };
-      if (!isStoryLike) {
-        shareDataWithFile.text = text;
-        if (url) shareDataWithFile.url = url;
-      }
-      // Check if browser supports sharing files
-      if (navigator.canShare && navigator.canShare(shareDataWithFile)) {
-        await navigator.share(shareDataWithFile);
-        return true;
-      }
-      console.warn('[Share] canShare returned false for file share, falling back to text');
-    } catch (err: any) {
-      if (err?.name === 'AbortError') return false; // User cancelled
-      console.warn('[Share] File share failed, falling back to text:', err?.message);
-    }
-  }
-
-  // Attempt 2: Share text + URL only (no file)
-  try {
-    const shareData: ShareData = { title, text };
-    if (url) shareData.url = url;
-    await navigator.share(shareData);
-    return true;
-  } catch (err: any) {
-    if (err?.name === 'AbortError') return false; // User cancelled
-    console.error('[Share] Text share also failed:', err?.message);
+  if (!imageBlob) {
+    console.warn('[Share] No image blob provided — share card must always be an image');
     return false;
   }
+
+  const fileName = `lifestack-${preset}-share.png`;
+  const file = new File([imageBlob], fileName, { type: 'image/png' });
+
+  // Attempt 1: Image file + caption text (best experience)
+  try {
+    const shareData: ShareData = { files: [file], title, text };
+    if (navigator.canShare && navigator.canShare(shareData)) {
+      await navigator.share(shareData);
+      return true;
+    }
+  } catch (err: any) {
+    if (err?.name === 'AbortError') return false;
+    console.warn('[Share] File+text share failed:', err?.message);
+  }
+
+  // Attempt 2: Image file only (no text — some platforms reject text+file)
+  try {
+    const shareData: ShareData = { files: [file] };
+    if (navigator.canShare && navigator.canShare(shareData)) {
+      await navigator.share(shareData);
+      return true;
+    }
+  } catch (err: any) {
+    if (err?.name === 'AbortError') return false;
+    console.warn('[Share] File-only share failed:', err?.message);
+  }
+
+  // No text-only fallback — we never share without the card image
+  console.warn('[Share] Device does not support file sharing');
+  return false;
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
