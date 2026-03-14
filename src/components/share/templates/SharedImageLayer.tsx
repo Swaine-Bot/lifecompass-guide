@@ -38,12 +38,11 @@ export function getClampStyle(maxLines: number, lineHeight: number, overrides: C
     WebkitLineClamp: maxLines,
     WebkitBoxOrient: 'vertical' as const,
     overflow: 'hidden',
+    textOverflow: 'ellipsis',
     lineHeight,
-    // Extra bottom padding prevents descender/last-line clipping
-    paddingBottom: '0.2em',
+    maxHeight: `${maxLines * lineHeight}em`,
     overflowWrap: 'break-word' as const,
     wordBreak: 'break-word' as const,
-    hyphens: 'auto' as const,
     ...overrides,
   };
 }

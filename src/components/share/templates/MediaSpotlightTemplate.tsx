@@ -62,7 +62,7 @@ export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate
       )}
 
       {/* CONTENT COLUMN */}
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
@@ -70,7 +70,7 @@ export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate
         }}>
 
         {/* TEXT REGION */}
-        <div className="flex flex-col flex-1 min-h-0 justify-center" style={{ gap: 8 }}>
+        <div className="flex flex-col flex-1 min-h-0 justify-center overflow-hidden" style={{ gap: 8 }}>
           <h2 className={t.textPrimary} style={{
             ...getClampStyle(3, 1.35),
             fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)',

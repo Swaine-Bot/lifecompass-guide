@@ -34,7 +34,7 @@ export function ClassicTemplate({ data, theme: t, format, privacy: rawPrivacy, p
 
       {/* CONTENT COLUMN — padded inside safe zones */}
       <div
-        className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
@@ -66,7 +66,7 @@ export function ClassicTemplate({ data, theme: t, format, privacy: rawPrivacy, p
         )}
 
         {/* TEXT REGION — flex-1 to fill remaining space */}
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center', animate && 'share-hero-fade')}
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
           style={{ gap: 10, paddingTop: 10, paddingBottom: 6 }}>
           {displayValue && (
             <div className="flex-shrink-0">
