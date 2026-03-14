@@ -123,51 +123,58 @@ export default function ShareStudio() {
     }
   }, [user, includeSmartLink, selectedCard, privacyLevel]);
 
-  /** Main share action — renders card as image and shares via native share sheet */
+  /** Main share action — renders card as image and shares via native share sheet.
+   *  The card image is ALWAYS the primary content. Never degrades to text/link only. */
   const handleShare = useCallback(async () => {
     if (!user) return;
     setSharing(true);
     try {
-      // Generate smart link
+      // Render the visual card as a PNG blob — this is required
+      const blob = await renderCardBlob();
+      if (!blob) {
+        toast.error('Failed to render share card — please try again');
+        return;
+      }
+
+      // Generate smart link for caption
       const smartUrl = await generateSmartLink();
 
-      // Build caption with AI insight links
+      // Build caption text (accompanies the image, never replaces it)
       const caption = buildShareCaption(
         selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl
       );
 
-      // Render the visual card as a PNG blob
-      const blob = await renderCardBlob();
-
       const destinationPreset = getNativeSharePreset(format);
 
-      // Try native share — with image if available, text-only otherwise
+      // Try native share — always shares the card IMAGE
       const shared = await nativeShare(
         caption,
         `LifeStack — ${selectedCard.title}`,
-        blob ?? undefined,
+        blob,
         smartUrl ?? undefined,
         destinationPreset,
       );
 
-      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard', format, privacyLevel);
+      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard_image', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (shared) {
         setStep('success');
       } else {
-        // Fallback: copy image to clipboard if possible, otherwise copy text
-        if (blob) {
-          const imgCopied = await copyImageToClipboard(blob);
-          if (imgCopied) {
-            toast.success('Card image copied to clipboard!');
-            setStep('success');
-            return;
-          }
+        // Fallback: copy the card IMAGE to clipboard — never fall back to text
+        const imgCopied = await copyImageToClipboard(blob);
+        if (imgCopied) {
+          toast.success('Card image copied to clipboard — paste it into any app!');
+        } else {
+          // Last resort: download the image file
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `lifestack-${destinationPreset}-share.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast.success('Card image downloaded — share it from your gallery!');
         }
-        const clipText = smartUrl ? `${caption}` : caption;
-        await copyToClipboard(clipText);
-        toast.success('Caption copied to clipboard');
         setStep('success');
       }
     } catch (err) {
