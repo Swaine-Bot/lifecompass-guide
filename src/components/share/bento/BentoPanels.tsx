@@ -64,7 +64,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
   }
 
   return (
-    <BentoPanel className={`relative ${className}`} style={style}>
+    <BentoPanel className={`relative overflow-hidden ${className}`} style={style}>
       {isMediaAudio ? (
         <div
           className="absolute inset-0 flex flex-col items-center justify-center"
