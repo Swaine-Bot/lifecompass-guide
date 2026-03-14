@@ -36,7 +36,7 @@ interface MediaPanelProps {
   style?: React.CSSProperties;
 }
 
-export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, className = '' }: MediaPanelProps) {
+export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, className = '', style }: MediaPanelProps) {
   const [failed, setFailed] = useState(false);
   const imageCount = urls?.length || (url ? 1 : 0);
 
