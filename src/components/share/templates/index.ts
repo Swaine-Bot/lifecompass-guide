@@ -14,6 +14,10 @@ import { MinimalTemplate } from './MinimalTemplate';
 import { MomentumTemplate } from './MomentumTemplate';
 import { MediaSpotlightTemplate } from './MediaSpotlightTemplate';
 import { ReflectionTemplate } from './ReflectionTemplate';
+import { HeroBentoLayout } from '../bento/HeroBentoLayout';
+import { SplitBentoLayout } from '../bento/SplitBentoLayout';
+import { ReflectionBentoLayout } from '../bento/ReflectionBentoLayout';
+import { MinimalBentoLayout } from '../bento/MinimalBentoLayout';
 import type { ShareTemplateProps } from './types';
 import type { FC } from 'react';
 
@@ -24,4 +28,8 @@ export const TEMPLATE_COMPONENTS: Record<ShareTemplateName, FC<ShareTemplateProp
   momentum: MomentumTemplate,
   media_spotlight: MediaSpotlightTemplate,
   reflection: ReflectionTemplate,
+  bento_hero: HeroBentoLayout,
+  bento_split: SplitBentoLayout,
+  bento_reflection: ReflectionBentoLayout,
+  bento_minimal: MinimalBentoLayout,
 };
