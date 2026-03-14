@@ -367,21 +367,45 @@ export async function saveShareCard(userId: string, data: ShareCardData, theme: 
 }
 
 export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string, preset: NativeSharePreset = 'post'): Promise<boolean> {
-  if (!navigator.share) return false;
+  if (!navigator.share) {
+    console.warn('[Share] navigator.share not available');
+    return false;
+  }
   const isStoryLike = preset === 'story' || preset === 'reel';
-  try {
-    if (imageBlob) {
+
+  // Attempt 1: Share with image file
+  if (imageBlob) {
+    try {
       const fileName = `lifestack-${preset}-share.png`;
       const file = new File([imageBlob], fileName, { type: 'image/png' });
       const shareDataWithFile: ShareData = { files: [file], title };
-      if (!isStoryLike) { shareDataWithFile.text = text; if (url) shareDataWithFile.url = url; }
-      if (navigator.canShare?.(shareDataWithFile)) { await navigator.share(shareDataWithFile); return true; }
+      if (!isStoryLike) {
+        shareDataWithFile.text = text;
+        if (url) shareDataWithFile.url = url;
+      }
+      // Check if browser supports sharing files
+      if (navigator.canShare && navigator.canShare(shareDataWithFile)) {
+        await navigator.share(shareDataWithFile);
+        return true;
+      }
+      console.warn('[Share] canShare returned false for file share, falling back to text');
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return false; // User cancelled
+      console.warn('[Share] File share failed, falling back to text:', err?.message);
     }
+  }
+
+  // Attempt 2: Share text + URL only (no file)
+  try {
     const shareData: ShareData = { title, text };
     if (url) shareData.url = url;
     await navigator.share(shareData);
     return true;
-  } catch { return false; }
+  } catch (err: any) {
+    if (err?.name === 'AbortError') return false; // User cancelled
+    console.error('[Share] Text share also failed:', err?.message);
+    return false;
+  }
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
