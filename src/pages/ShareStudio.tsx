@@ -85,6 +85,7 @@ export default function ShareStudio() {
   const privacyLevel = getPrivacyLevel(privacy);
   const themeObj = THEMES[theme];
   const TemplateComponent = TEMPLATE_COMPONENTS[selectedTemplate];
+  const renderLayoutSignature = `${selectedTemplate}:${imageLayout}:${format}:${includePostImage ? 'img' : 'no-img'}:${aiInsightEnabled ? `ai-${(aiInsight || '').length}` : 'no-ai'}`;
 
   /** Render the card DOM node to a high-res PNG blob */
   const renderCardBlob = useCallback(async (): Promise<Blob | null> => {
@@ -254,6 +255,7 @@ export default function ShareStudio() {
       }}
     >
       <TemplateComponent
+        key={renderLayoutSignature}
         data={selectedCard}
         theme={themeObj}
         format={format}
