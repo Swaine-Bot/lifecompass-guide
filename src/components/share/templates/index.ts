@@ -14,12 +14,25 @@ import { MinimalTemplate } from './MinimalTemplate';
 import { MomentumTemplate } from './MomentumTemplate';
 import { MediaSpotlightTemplate } from './MediaSpotlightTemplate';
 import { ReflectionTemplate } from './ReflectionTemplate';
-import { HeroBentoLayout } from '../bento/HeroBentoLayout';
-import { SplitBentoLayout } from '../bento/SplitBentoLayout';
-import { ReflectionBentoLayout } from '../bento/ReflectionBentoLayout';
-import { MinimalBentoLayout } from '../bento/MinimalBentoLayout';
+import { AdaptiveBentoTemplate } from '../bento/AdaptiveBentoTemplate';
 import type { ShareTemplateProps } from './types';
 import type { FC } from 'react';
+
+const BentoHeroTemplate: FC<ShareTemplateProps> = (props) => (
+  <AdaptiveBentoTemplate {...props} baseVariant="hero" />
+);
+
+const BentoSplitTemplate: FC<ShareTemplateProps> = (props) => (
+  <AdaptiveBentoTemplate {...props} baseVariant="split" />
+);
+
+const BentoReflectionTemplate: FC<ShareTemplateProps> = (props) => (
+  <AdaptiveBentoTemplate {...props} baseVariant="reflection" />
+);
+
+const BentoMinimalTemplate: FC<ShareTemplateProps> = (props) => (
+  <AdaptiveBentoTemplate {...props} baseVariant="minimal" />
+);
 
 export const TEMPLATE_COMPONENTS: Record<ShareTemplateName, FC<ShareTemplateProps>> = {
   classic: ClassicTemplate,
@@ -28,8 +41,8 @@ export const TEMPLATE_COMPONENTS: Record<ShareTemplateName, FC<ShareTemplateProp
   momentum: MomentumTemplate,
   media_spotlight: MediaSpotlightTemplate,
   reflection: ReflectionTemplate,
-  bento_hero: HeroBentoLayout,
-  bento_split: SplitBentoLayout,
-  bento_reflection: ReflectionBentoLayout,
-  bento_minimal: MinimalBentoLayout,
+  bento_hero: BentoHeroTemplate,
+  bento_split: BentoSplitTemplate,
+  bento_reflection: BentoReflectionTemplate,
+  bento_minimal: BentoMinimalTemplate,
 };
