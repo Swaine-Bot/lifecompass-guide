@@ -144,15 +144,18 @@ export default function ShareStudio() {
         return;
       }
 
+      const destinationPreset = getNativeSharePreset(format);
+
       // Try native share with the rendered image
       const shared = await nativeShare(
         caption,
         `LifeStack — ${selectedCard.title}`,
         blob,
-        smartUrl ?? undefined
+        smartUrl ?? undefined,
+        destinationPreset,
       );
 
-      await trackShareEvent(user.id, selectedCard.cardType, shared ? 'native' : 'clipboard', format, privacyLevel);
+      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (!shared) {
