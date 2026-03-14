@@ -54,7 +54,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
   }
 
   return (
-    <BentoPanel className={`relative ${className}`}>
+    <BentoPanel className={`relative ${className}`} style={style}>
       <img
         src={url}
         alt=""
