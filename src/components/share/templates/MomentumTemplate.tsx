@@ -37,7 +37,7 @@ export function MomentumTemplate({ data, theme: t, format, privacy: rawPrivacy, 
       )}
 
       {/* CONTENT COLUMN */}
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
