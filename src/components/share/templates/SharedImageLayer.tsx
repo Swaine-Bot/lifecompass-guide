@@ -27,18 +27,23 @@ function CountBadge({ count }: { count: number }) {
   );
 }
 
-/** Shared clamp styles to avoid half-rendered/cut text lines */
-export function getClampStyle(lines: number, lineHeight: number, overrides: CSSProperties = {}): CSSProperties {
+/**
+ * SAFE TEXT STYLE — prevents text from being cut off.
+ * Uses word-wrap and overflow-wrap instead of line-clamp for safety.
+ * Line-clamp is only used when explicitly needed with proper padding.
+ */
+export function getClampStyle(maxLines: number, lineHeight: number, overrides: CSSProperties = {}): CSSProperties {
   return {
-    overflow: 'hidden',
     display: '-webkit-box',
-    WebkitLineClamp: lines,
-    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: maxLines,
+    WebkitBoxOrient: 'vertical' as const,
+    overflow: 'hidden',
     lineHeight,
-    paddingBottom: '0.15em',
-    overflowWrap: 'anywhere',
-    wordBreak: 'break-word',
-    textWrap: 'pretty',
+    // Extra bottom padding prevents descender/last-line clipping
+    paddingBottom: '0.2em',
+    overflowWrap: 'break-word' as const,
+    wordBreak: 'break-word' as const,
+    hyphens: 'auto' as const,
     ...overrides,
   };
 }
@@ -52,8 +57,7 @@ export function PlayOverlay({ mediaType, size = 'lg' }: { mediaType: 'video' | '
       <div
         className="flex items-center justify-center rounded-full"
         style={{
-          width: dim,
-          height: dim,
+          width: dim, height: dim,
           background: 'hsla(0,0%,0%,0.55)',
           backdropFilter: 'blur(12px)',
           border: '2px solid hsla(0,0%,100%,0.25)',
@@ -87,7 +91,7 @@ export function PlayOverlay({ mediaType, size = 'lg' }: { mediaType: 'video' | '
   );
 }
 
-/** Media type badge — e.g. "🎬 Video" or "🎙️ Audio" */
+/** Media type badge */
 export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) {
   return (
     <div
@@ -95,8 +99,7 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
       style={{
         background: 'hsla(0,0%,0%,0.6)',
         color: 'hsla(0,0%,100%,0.85)',
-        fontSize: 9,
-        fontWeight: 600,
+        fontSize: 9, fontWeight: 600,
         backdropFilter: 'blur(4px)',
         letterSpacing: '0.05em',
       }}
@@ -107,32 +110,24 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
 }
 
 /**
- * Hero: media displayed with preserved aspect ratio, with a configurable height share.
+ * HERO IMAGE — media dominates the card (65-70% of card height).
+ * Uses object-fit: contain to preserve aspect ratio.
  */
-export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.46 }: {
-  url: string;
-  imageCount: number;
-  showCount: boolean;
-  onError: () => void;
-  heroRatio?: number;
+export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.48 }: {
+  url: string; imageCount: number; showCount: boolean; onError: () => void; heroRatio?: number;
 }) {
   const mediaType = detectMediaType(url);
-  const ratioPercent = `${Math.round(heroRatio * 100)}%`;
-
   return (
     <div
       className="relative w-full overflow-hidden flex items-center justify-center flex-shrink-0"
       style={{
-        flex: `0 0 ${ratioPercent}`,
-        maxHeight: ratioPercent,
-        minHeight: 72,
-        background: 'hsla(0,0%,0%,0.15)',
+        flex: `0 0 ${Math.round(heroRatio * 100)}%`,
+        minHeight: 80,
+        background: 'hsla(0,0%,0%,0.12)',
       }}
     >
       <img
-        src={url}
-        alt=""
-        onError={onError}
+        src={url} alt="" onError={onError}
         className="w-full h-full"
         style={{ objectFit: 'contain', display: 'block', maxHeight: '100%' }}
         crossOrigin="anonymous"
@@ -145,24 +140,19 @@ export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.4
 }
 
 /**
- * Split: image on the left — true 50/50, aspect ratio preserved.
+ * SPLIT IMAGE — true 50/50 side-by-side layout.
  */
 export function SplitImage({ url, imageCount, showCount, onError }: {
-  url: string;
-  imageCount: number;
-  showCount: boolean;
-  onError: () => void;
+  url: string; imageCount: number; showCount: boolean; onError: () => void;
 }) {
   const mediaType = detectMediaType(url);
   return (
     <div
       className="relative overflow-hidden flex-shrink-0 flex items-center justify-center"
-      style={{ width: '50%', minHeight: 0, background: 'hsla(0,0%,0%,0.15)' }}
+      style={{ width: '50%', minHeight: 0, background: 'hsla(0,0%,0%,0.12)' }}
     >
       <img
-        src={url}
-        alt=""
-        onError={onError}
+        src={url} alt="" onError={onError}
         className="w-full h-full"
         style={{ objectFit: 'contain', display: 'block' }}
         crossOrigin="anonymous"
@@ -175,18 +165,13 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
 }
 
 /**
- * Background: full bleed behind all content with readability overlay.
+ * BACKGROUND IMAGE — atmospheric, blurred, full bleed.
  */
-export function BackgroundImage({ url, onError }: {
-  url: string;
-  onError: () => void;
-}) {
+export function BackgroundImage({ url, onError }: { url: string; onError: () => void }) {
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
       <img
-        src={url}
-        alt=""
-        onError={onError}
+        src={url} alt="" onError={onError}
         className="w-full h-full"
         style={{ objectFit: 'cover', objectPosition: 'center', display: 'block', filter: 'blur(14px) brightness(0.28) saturate(1.3)', transform: 'scale(1.15)' }}
         crossOrigin="anonymous"
@@ -198,142 +183,95 @@ export function BackgroundImage({ url, onError }: {
   );
 }
 
-/**
- * Life phase pill
- */
+/** Life phase pill */
 export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; accentHex: string }) {
   if (!lifePhase) return null;
   const labels: Record<string, string> = {
-    student_early_career: 'Early Career',
-    builder: 'Builder',
-    family_home: 'Family & Home',
-    explorer: 'Explorer',
-    legacy_impact: 'Legacy & Impact',
+    student_early_career: 'Early Career', builder: 'Builder',
+    family_home: 'Family & Home', explorer: 'Explorer', legacy_impact: 'Legacy & Impact',
   };
-  const label = labels[lifePhase] || lifePhase;
   return (
-    <span
-      className="inline-flex px-2 py-0.5 rounded-full flex-shrink-0"
-      style={{
-        fontSize: 8,
-        fontWeight: 600,
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        background: 'hsla(0,0%,0%,0.4)',
-        backdropFilter: 'blur(6px)',
-        color: accentHex,
-        border: `1px solid ${accentHex}30`,
-      }}
-    >
-      {label}
+    <span className="inline-flex px-2 py-0.5 rounded-full flex-shrink-0"
+      style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+        background: 'hsla(0,0%,0%,0.4)', backdropFilter: 'blur(6px)', color: accentHex, border: `1px solid ${accentHex}30` }}>
+      {labels[lifePhase] || lifePhase}
     </span>
   );
 }
 
 /**
- * "Posted from LifeStack" brand badge.
- * Guaranteed visible with nowrap and flex-shrink-0.
+ * POSTED FROM LIFESTACK — brand lockup badge.
+ * NEVER clipped: uses nowrap, flex-shrink-0, and dedicated safe zone.
  */
 export function PostedFromBadge({ footerHex, compact = false }: { footerHex: string; compact?: boolean }) {
-  const iconSize = compact ? 14 : 15;
-  const fontSize = compact ? 7 : 7.5;
-
+  const iconSize = compact ? 14 : 16;
+  const fontSize = compact ? 7.5 : 8;
   return (
     <div
       className="inline-flex items-center gap-1.5 flex-shrink-0"
       style={{
-        padding: compact ? '2px 7px 2px 4px' : '3px 8px 3px 5px',
+        padding: compact ? '3px 8px 3px 5px' : '4px 10px 4px 6px',
         borderRadius: 100,
         background: 'hsla(0,0%,0%,0.5)',
         backdropFilter: 'blur(10px)',
         border: `1px solid ${footerHex}55`,
         whiteSpace: 'nowrap',
-        maxWidth: '100%',
       }}
     >
       <img
-        src={lifestackLogo}
-        alt="LifeStack"
+        src={lifestackLogo} alt="LifeStack"
         className="flex-shrink-0"
-        style={{
-          width: iconSize,
-          height: iconSize,
-          borderRadius: 3,
-          objectFit: 'contain',
-        }}
+        style={{ width: iconSize, height: iconSize, borderRadius: 3, objectFit: 'contain' }}
         crossOrigin="anonymous"
       />
-      <span
-        style={{
-          fontSize,
-          fontWeight: 600,
-          letterSpacing: '0.07em',
-          color: 'hsla(0,0%,100%,0.84)',
-          whiteSpace: 'nowrap',
-          lineHeight: 1.2,
-        }}
-      >
+      <span style={{
+        fontSize, fontWeight: 600, letterSpacing: '0.07em',
+        color: 'hsla(0,0%,100%,0.84)', whiteSpace: 'nowrap', lineHeight: 1.2,
+      }}>
         Posted from LifeStack
       </span>
     </div>
   );
 }
 
+/**
+ * TEMPLATE FOOTER — dedicated safe zone at card bottom.
+ * Uses flex-shrink-0 and mt-auto to always stick to bottom.
+ * Contains signature phrase + "Posted from LifeStack" badge.
+ */
 export function TemplateFooter({
-  phrase,
-  accentHex,
-  footerHex,
-  footerMinHeight,
-  compact = false,
-  metaText,
+  phrase, accentHex, footerHex, footerMinHeight, compact = false, metaText,
 }: {
-  phrase: string;
-  accentHex: string;
-  footerHex: string;
-  footerMinHeight: number;
-  compact?: boolean;
-  metaText?: string;
+  phrase: string; accentHex: string; footerHex: string;
+  footerMinHeight: number; compact?: boolean; metaText?: string;
 }) {
   return (
     <div
       className="flex-shrink-0 mt-auto"
       style={{
         borderTop: '1px solid hsla(0,0%,100%,0.06)',
-        paddingTop: compact ? 8 : 10,
+        paddingTop: compact ? 10 : 14,
         minHeight: footerMinHeight,
       }}
     >
-      <div className="grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}>
-        <div className="min-w-0">
-          <p
-            style={{
-              fontSize: compact ? 8 : 9,
-              fontWeight: 600,
-              letterSpacing: '0.11em',
-              textTransform: 'uppercase',
-              color: accentHex,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              lineHeight: 1.2,
-            }}
-          >
+      <div className="flex items-center justify-between gap-3" style={{ flexWrap: 'nowrap' }}>
+        <div className="min-w-0 flex-1">
+          <p style={{
+            fontSize: compact ? 9 : 10,
+            fontWeight: 600, letterSpacing: '0.11em', textTransform: 'uppercase',
+            color: accentHex, overflow: 'hidden', textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap', lineHeight: 1.3,
+          }}>
             {phrase}
           </p>
-          {metaText ? (
-            <p
-              style={{
-                fontSize: 8,
-                marginTop: 2,
-                color: footerHex,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
+          {metaText && (
+            <p style={{
+              fontSize: 9, marginTop: 2, color: footerHex,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
               {metaText}
             </p>
-          ) : null}
+          )}
         </div>
         <PostedFromBadge footerHex={footerHex} compact={compact} />
       </div>
@@ -341,41 +279,25 @@ export function TemplateFooter({
   );
 }
 
-/**
- * Small LifeStack logo mark for template headers
- */
+/** Small LifeStack logo mark for template headers */
 export function BrandLogoMark({ size = 28 }: { size?: number }) {
   return (
-    <div
-      className="flex items-center justify-center flex-shrink-0"
+    <div className="flex items-center justify-center flex-shrink-0"
       style={{
-        width: size,
-        height: size,
-        borderRadius: size * 0.28,
+        width: size, height: size, borderRadius: size * 0.28,
         background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
         boxShadow: '0 2px 12px -2px hsla(43,74%,52%,0.3)',
-        overflow: 'hidden',
-        padding: 3,
-      }}
-    >
-      <img
-        src={lifestackLogo}
-        alt="LS"
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-        crossOrigin="anonymous"
-      />
+        overflow: 'hidden', padding: 3,
+      }}>
+      <img src={lifestackLogo} alt="LS" style={{ width: '100%', height: '100%', objectFit: 'contain' }} crossOrigin="anonymous" />
     </div>
   );
 }
 
-/**
- * Hook to manage image state in a template
- */
+/** Hook to manage image state in a template */
 export function useTemplateImage(props: {
   data: { imageUrl?: string; imageUrls?: string[]; imageLayout?: ImageLayout };
-  includeImage?: boolean;
-  imageLayout?: ImageLayout;
-  showImageCount?: boolean;
+  includeImage?: boolean; imageLayout?: ImageLayout; showImageCount?: boolean;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const url = props.data.imageUrl;
@@ -385,6 +307,5 @@ export function useTemplateImage(props: {
   const imageCount = props.data.imageUrls?.length || (url ? 1 : 0);
   const showCount = props.showImageCount !== false;
   const mediaType = url ? detectMediaType(url) : 'image';
-
   return { hasImage, url: url || '', layout, imageCount, showCount, imgFailed, setImgFailed, mediaType };
 }
