@@ -19,7 +19,7 @@ import {
   DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase, THEMES,
   nativeShare, copyToClipboard, copyImageToClipboard, trackShareEvent, saveShareCard,
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
-  CardType, ImageLayout, buildShareCaption,
+  CardType, ImageLayout, buildShareCaption, getNativeSharePreset,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
@@ -144,15 +144,18 @@ export default function ShareStudio() {
         return;
       }
 
+      const destinationPreset = getNativeSharePreset(format);
+
       // Try native share with the rendered image
       const shared = await nativeShare(
         caption,
         `LifeStack — ${selectedCard.title}`,
         blob,
-        smartUrl ?? undefined
+        smartUrl ?? undefined,
+        destinationPreset,
       );
 
-      await trackShareEvent(user.id, selectedCard.cardType, shared ? 'native' : 'clipboard', format, privacyLevel);
+      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard', format, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (!shared) {
@@ -208,7 +211,8 @@ export default function ShareStudio() {
     try {
       const { renderCardToCanvas, downloadImage } = await import('@/services/shareService');
       const canvas = await renderCardToCanvas(cardRef.current, format);
-      await downloadImage(canvas, `lifestack-${selectedCard.cardType}-${Date.now()}.png`);
+      const destinationPreset = getNativeSharePreset(format);
+      await downloadImage(canvas, `lifestack-${destinationPreset}-${selectedCard.cardType}-${Date.now()}.png`);
       toast.success('Image saved');
     } catch {
       toast.error('Download failed');
@@ -236,15 +240,19 @@ export default function ShareStudio() {
 
   // ─── Card Preview Component ───
   const CardPreview = ({ className }: { className?: string }) => (
-    <div ref={cardRef}
+    <div
+      ref={cardRef}
+      data-share-export-root="true"
       className={cn('share-card relative select-none', formatAspect[format], className)}
       style={{
         borderRadius: '16px',
         border: '1px solid hsla(0,0%,100%,0.04)',
         boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)',
         overflow: 'hidden',
-        /* Ensure the container has a fixed aspect-ratio-based height and clips all overflow */
-      }}>
+        textRendering: 'optimizeLegibility',
+        WebkitFontSmoothing: 'antialiased',
+      }}
+    >
       <TemplateComponent
         data={selectedCard}
         theme={themeObj}
@@ -252,7 +260,7 @@ export default function ShareStudio() {
         privacy={privacy}
         phrase={phrase}
         userName={privacy.includeName ? 'You' : undefined}
-        animate={true}
+        animate={false}
         aiInsight={aiInsightEnabled ? aiInsight : null}
         includeImage={includePostImage}
         imageLayout={imageLayout}

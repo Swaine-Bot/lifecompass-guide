@@ -1,13 +1,20 @@
 import { cn } from '@/lib/utils';
-import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, BrandLogoMark, useTemplateImage } from './SharedImageLayer';
+import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS, getRenderPreset } from '@/services/shareService';
+import { HeroImage, SplitImage, BackgroundImage, BrandLogoMark, TemplateFooter, useTemplateImage, getClampStyle } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
+export function ClassicTemplate({ data, theme: t, format, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
   const privacy = applyPrivacy(rawPrivacy);
   const displayValue = privacy.includeExactNumbers ? data.statValue : '•••';
   const tokens = SHARE_TOKENS;
-  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+  const preset = getRenderPreset(format);
+  const { safeArea } = preset;
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({
+    data,
+    includeImage,
+    imageLayout: imageLayoutProp,
+    showImageCount,
+  });
 
   const isSplit = hasImage && layout === 'split_image';
   const isBackground = hasImage && layout === 'background_image';
@@ -16,12 +23,14 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
   return (
     <div
       className={cn('relative overflow-hidden h-full w-full select-none', isSplit ? 'flex flex-row' : 'flex flex-col')}
-      style={{ background: t.bgGradient, padding: isSplit ? 0 : tokens.spacing.cardPadding }}
+      style={{
+        background: t.bgGradient,
+        padding: isSplit ? 0 : `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
+      }}
     >
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      {/* Dot texture */}
       {!isBackground && (
         <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{
           backgroundImage: `radial-gradient(${t.dotPattern} 0.5px, transparent 0.5px)`,
@@ -29,59 +38,98 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
         }} />
       )}
 
-      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: isSplit ? tokens.spacing.cardPadding : undefined }}>
-
-        {/* Top band — fixed */}
+      <div
+        className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{
+          padding: isSplit
+            ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
+            : undefined,
+        }}
+      >
         <div className="relative flex items-center justify-between flex-shrink-0" style={{ minHeight: tokens.spacing.topBandHeight, marginBottom: 10 }}>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <BrandLogoMark size={26} />
             {privacy.includeName && userName && (
-              <span className={cn('font-medium', t.textSecondary)} style={{ fontSize: 11 }}>{userName}</span>
+              <span className={cn('font-medium truncate', t.textSecondary)} style={{ fontSize: 11 }}>{userName}</span>
             )}
           </div>
           <span className={cn(t.pillBg, t.pillBorder, t.accent)}
-            style={{ fontSize: tokens.typography.pillSize, fontWeight: Number(tokens.typography.pillWeight),
-              letterSpacing: tokens.typography.pillLetterSpacing, textTransform: 'uppercase',
-              padding: '4px 10px', borderRadius: tokens.radius.pill, borderWidth: 1, borderStyle: 'solid' }}>
+            style={{
+              fontSize: tokens.typography.pillSize,
+              fontWeight: Number(tokens.typography.pillWeight),
+              letterSpacing: tokens.typography.pillLetterSpacing,
+              textTransform: 'uppercase',
+              padding: '4px 10px',
+              borderRadius: tokens.radius.pill,
+              borderWidth: 1,
+              borderStyle: 'solid',
+            }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
         </div>
 
-        {/* Hero image */}
-        {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+        {isHero && (
+          <HeroImage
+            url={url}
+            imageCount={imageCount}
+            showCount={showCount}
+            onError={() => setImgFailed(true)}
+            heroRatio={preset.heroImageRatio}
+          />
+        )}
 
-        {/* Hero content — flexible, takes remaining space */}
         <div className={cn('relative flex-1 min-h-0 flex flex-col justify-center text-center overflow-hidden', animate && 'share-hero-fade')}
-          style={{ gap: 10, paddingTop: 6, paddingBottom: 6 }}>
+          style={{ gap: 10, paddingTop: 8, paddingBottom: 8 }}>
           {displayValue && (
             <div className="flex-shrink-0">
-              <div style={{ fontSize: tokens.typography.heroSize, fontWeight: 700, letterSpacing: '-0.02em',
-                lineHeight: 1.1, color: t.headlineHex, fontFamily: '"Playfair Display", serif' }}>
+              <div style={{
+                fontSize: tokens.typography.heroSize,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.14,
+                color: t.headlineHex,
+                fontFamily: '"Playfair Display", serif',
+              }}>
                 {displayValue}
               </div>
               {data.statLabel && (
-                <p className={t.textSecondary} style={{ fontSize: '0.75rem', fontWeight: 600,
-                  letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 4 }}>{data.statLabel}</p>
+                <p className={t.textSecondary} style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 4 }}>
+                  {data.statLabel}
+                </p>
               )}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', fontWeight: 600,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.3,
-            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>{data.title}</h2>
+
+          <h2
+            className={t.textPrimary}
+            style={{
+              ...getClampStyle(3, 1.32),
+              fontSize: 'clamp(0.875rem, 2.4vw, 1.125rem)',
+              fontWeight: 600,
+              fontFamily: '"Playfair Display", serif',
+            }}
+          >
+            {data.title}
+          </h2>
+
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.5, maxWidth: '85%', margin: '0 auto',
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p
+              className={t.textSecondary}
+              style={{
+                ...getClampStyle(3, 1.48),
+                fontSize: '0.6875rem',
+                maxWidth: '88%',
+                margin: '0 auto',
+              }}
+            >
               {data.subtitle}
             </p>
           )}
         </div>
 
-        {/* AI Insight — fixed */}
         {aiInsight && (
-          <div className="relative flex-shrink-0" style={{ paddingTop: 6, paddingBottom: 4, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.625rem', fontStyle: 'italic', lineHeight: 1.4, textAlign: 'center',
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+          <div className="relative flex-shrink-0" style={{ paddingTop: 8, paddingBottom: 6, borderTop: '1px solid hsla(0,0%,100%,0.06)' }}>
+            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.42), fontSize: '0.625rem', fontStyle: 'italic', textAlign: 'center' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
@@ -96,13 +144,13 @@ export function ClassicTemplate({ data, theme: t, privacy: rawPrivacy, phrase, u
           </div>
         )}
 
-        {/* Footer — fixed, anchored to bottom */}
-        <div className="relative flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
-          <p className={t.accent} style={{ fontSize: tokens.typography.footerSize, fontWeight: 500,
-            letterSpacing: '0.1em', textTransform: 'uppercase', flex: '1 1 0', minWidth: 0,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{phrase}</p>
-          <PostedFromBadge footerHex={t.footerHex} />
-        </div>
+        <TemplateFooter
+          phrase={phrase}
+          accentHex={t.accentHex}
+          footerHex={t.footerHex}
+          footerMinHeight={safeArea.footerMinHeight}
+          compact={isSplit}
+        />
       </div>
     </div>
   );

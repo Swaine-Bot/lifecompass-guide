@@ -6,6 +6,7 @@ export type ShareFormat = 'story' | 'feed' | 'square' | 'linkedin' | 'tiktok';
 export type ShareTheme = 'obsidian_gold' | 'midnight_sage' | 'graphite_platinum' | 'ember_focus' | 'clean_silver';
 export type VisualModule = 'flame' | 'ring' | 'radar' | 'badge' | 'chart' | 'quote' | 'none';
 export type ImageLayout = 'hero_image' | 'split_image' | 'background_image' | 'none';
+export type NativeSharePreset = 'post' | 'story' | 'reel';
 
 export interface ShareCardData {
   cardType: CardType;
@@ -41,6 +42,21 @@ export interface PrivacySettings {
   privateAestheticMode: boolean;
 }
 
+export interface ShareSafeArea {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+  footerMinHeight: number;
+}
+
+export interface ShareRenderPreset {
+  destination: NativeSharePreset;
+  safeArea: ShareSafeArea;
+  heroImageRatio: number;
+  splitContentPadding: number;
+}
+
 export const DEFAULT_PRIVACY: PrivacySettings = {
   includeName: false,
   includeUsername: false,
@@ -54,12 +70,53 @@ export const DEFAULT_PRIVACY: PrivacySettings = {
 
 // ─── Format Dimensions ───────────────────────────────────────────────
 export const FORMAT_DIMENSIONS: Record<ShareFormat, { w: number; h: number; label: string }> = {
-  story:    { w: 1080, h: 1920, label: 'Story 9:16' },
-  feed:     { w: 1080, h: 1350, label: 'Feed 4:5' },
-  square:   { w: 1080, h: 1080, label: 'Square 1:1' },
+  story: { w: 1080, h: 1920, label: 'Story 9:16' },
+  feed: { w: 1080, h: 1350, label: 'Feed 4:5' },
+  square: { w: 1080, h: 1080, label: 'Square 1:1' },
   linkedin: { w: 1080, h: 1350, label: 'LinkedIn 4:5' },
-  tiktok:   { w: 1080, h: 1920, label: 'TikTok 9:16' },
+  tiktok: { w: 1080, h: 1920, label: 'TikTok 9:16' },
 };
+
+export const FORMAT_RENDER_PRESETS: Record<ShareFormat, ShareRenderPreset> = {
+  story: {
+    destination: 'story',
+    safeArea: { top: 24, right: 20, bottom: 34, left: 20, footerMinHeight: 44 },
+    heroImageRatio: 0.5,
+    splitContentPadding: 14,
+  },
+  feed: {
+    destination: 'post',
+    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
+    heroImageRatio: 0.46,
+    splitContentPadding: 16,
+  },
+  square: {
+    destination: 'post',
+    safeArea: { top: 16, right: 18, bottom: 20, left: 18, footerMinHeight: 36 },
+    heroImageRatio: 0.44,
+    splitContentPadding: 14,
+  },
+  linkedin: {
+    destination: 'post',
+    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
+    heroImageRatio: 0.46,
+    splitContentPadding: 16,
+  },
+  tiktok: {
+    destination: 'reel',
+    safeArea: { top: 26, right: 20, bottom: 40, left: 20, footerMinHeight: 46 },
+    heroImageRatio: 0.52,
+    splitContentPadding: 14,
+  },
+};
+
+export function getRenderPreset(format: ShareFormat): ShareRenderPreset {
+  return FORMAT_RENDER_PRESETS[format];
+}
+
+export function getNativeSharePreset(format: ShareFormat): NativeSharePreset {
+  return FORMAT_RENDER_PRESETS[format].destination;
+}
 
 // ─── Design Tokens ──────────────────────────────────────────────────
 export const SHARE_TOKENS = {
@@ -331,27 +388,39 @@ export async function saveShareCard(
  * Platform-aware native share — always tries to share the rendered card image first.
  * Falls back to text+url if image sharing is not supported.
  */
-export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string): Promise<boolean> {
+export async function nativeShare(
+  text: string,
+  title: string,
+  imageBlob?: Blob,
+  url?: string,
+  preset: NativeSharePreset = 'post',
+): Promise<boolean> {
   if (!navigator.share) return false;
 
-  try {
-    // Always try to share with the image file first
-    if (imageBlob) {
-      const file = new File([imageBlob], 'lifestack-share.png', { type: 'image/png' });
-      const shareDataWithFile: ShareData = { files: [file] };
+  const isStoryLike = preset === 'story' || preset === 'reel';
 
-      // Check if the platform can share files
-      if (navigator.canShare?.(shareDataWithFile)) {
-        // Include text as caption for platforms that support it (WhatsApp, etc.)
-        shareDataWithFile.title = title;
+  try {
+    if (imageBlob) {
+      const fileName = `lifestack-${preset}-share.png`;
+      const file = new File([imageBlob], fileName, { type: 'image/png' });
+      const shareDataWithFile: ShareData = {
+        files: [file],
+        title,
+      };
+
+      // For post-like destinations, include caption + link.
+      if (!isStoryLike) {
         shareDataWithFile.text = text;
         if (url) shareDataWithFile.url = url;
+      }
+
+      if (navigator.canShare?.(shareDataWithFile)) {
         await navigator.share(shareDataWithFile);
         return true;
       }
     }
 
-    // Fallback: share as text + url (no image)
+    // Fallback: text+url handoff
     const shareData: ShareData = { title, text };
     if (url) shareData.url = url;
     await navigator.share(shareData);
@@ -394,28 +463,87 @@ export async function downloadImage(canvas: HTMLCanvasElement, filename: string)
 // ─── Canvas Renderer ────────────────────────────────────────────────
 export async function renderCardToCanvas(
   element: HTMLElement,
-  format: ShareFormat
+  format: ShareFormat,
 ): Promise<HTMLCanvasElement> {
   const { w, h } = FORMAT_DIMENSIONS[format];
-  const scale = w / element.offsetWidth;
+
+  if ('fonts' in document) {
+    try {
+      await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+    } catch {
+      // no-op; continue export even if font readiness fails
+    }
+  }
+
+  // Let layout settle before capture to avoid half-rendered text lines.
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+  const rect = element.getBoundingClientRect();
+  const captureWidth = Math.max(1, Math.round(rect.width));
+  const captureHeight = Math.max(1, Math.round(rect.height));
+  const scale = Math.max(1, Math.min(4, w / captureWidth));
+
+  element.setAttribute('data-share-exporting', 'true');
   const html2canvas = (await import('html2canvas')).default;
-  const canvas = await html2canvas(element, {
-    width: element.offsetWidth,
-    height: element.offsetHeight,
-    scale,
-    backgroundColor: null,
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    // Clip to exact element bounds to prevent overflow content from rendering
-    x: 0,
-    y: 0,
-    scrollX: 0,
-    scrollY: 0,
-    windowWidth: element.offsetWidth,
-    windowHeight: element.offsetHeight,
-  });
-  return canvas;
+
+  try {
+    const rawCanvas = await html2canvas(element, {
+      width: captureWidth,
+      height: captureHeight,
+      scale,
+      backgroundColor: null,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: captureWidth,
+      windowHeight: captureHeight,
+      onclone: (doc) => {
+        const exportRoot = doc.querySelector('[data-share-export-root="true"]') as HTMLElement | null;
+        if (!exportRoot) return;
+        exportRoot.style.animation = 'none';
+        exportRoot.style.transform = 'none';
+        exportRoot.style.overflow = 'hidden';
+      },
+    });
+
+    // Normalize to exact platform size while preserving source aspect ratio.
+    if (rawCanvas.width === w && rawCanvas.height === h) return rawCanvas;
+
+    const normalized = document.createElement('canvas');
+    normalized.width = w;
+    normalized.height = h;
+
+    const ctx = normalized.getContext('2d');
+    if (!ctx) return rawCanvas;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    const sourceRatio = rawCanvas.width / rawCanvas.height;
+    const targetRatio = w / h;
+
+    let sx = 0;
+    let sy = 0;
+    let sw = rawCanvas.width;
+    let sh = rawCanvas.height;
+
+    if (sourceRatio > targetRatio) {
+      sw = Math.round(rawCanvas.height * targetRatio);
+      sx = Math.round((rawCanvas.width - sw) / 2);
+    } else if (sourceRatio < targetRatio) {
+      sh = Math.round(rawCanvas.width / targetRatio);
+      sy = Math.round((rawCanvas.height - sh) / 2);
+    }
+
+    ctx.drawImage(rawCanvas, sx, sy, sw, sh, 0, 0, w, h);
+    return normalized;
+  } finally {
+    element.removeAttribute('data-share-exporting');
+  }
 }
 
 /**

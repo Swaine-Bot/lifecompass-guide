@@ -1,12 +1,19 @@
 import { cn } from '@/lib/utils';
-import { applyPrivacy, CARD_TYPE_LABELS, SHARE_TOKENS } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, PostedFromBadge, BrandLogoMark, useTemplateImage } from './SharedImageLayer';
+import { applyPrivacy, CARD_TYPE_LABELS, getRenderPreset } from '@/services/shareService';
+import { HeroImage, SplitImage, BackgroundImage, BrandLogoMark, TemplateFooter, useTemplateImage, getClampStyle } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
-export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
+export function StoryTemplate({ data, theme: t, format, privacy: rawPrivacy, phrase, userName, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
   const privacy = applyPrivacy(rawPrivacy);
   const displayValue = privacy.includeExactNumbers ? data.statValue : '•••';
-  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({ data, includeImage, imageLayout: imageLayoutProp });
+  const preset = getRenderPreset(format);
+  const { safeArea } = preset;
+  const { hasImage, url, layout, imageCount, showCount, setImgFailed } = useTemplateImage({
+    data,
+    includeImage,
+    imageLayout: imageLayoutProp,
+    showImageCount,
+  });
 
   const isSplit = hasImage && layout === 'split_image';
   const isBackground = hasImage && layout === 'background_image';
@@ -20,57 +27,77 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
       {isBackground && <BackgroundImage url={url} onError={() => setImgFailed(true)} />}
       {isSplit && <SplitImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
 
-      {/* Large accent gradient splash */}
       {!isBackground && (
         <div className="absolute top-0 left-0 w-full h-1/3 pointer-events-none opacity-[0.12]"
           style={{ background: `radial-gradient(ellipse at 20% 0%, ${t.accentHex}, transparent 70%)` }} />
       )}
 
-      {isHero && <HeroImage url={url} imageCount={imageCount} showCount={showCount} onError={() => setImgFailed(true)} />}
+      {isHero && (
+        <HeroImage
+          url={url}
+          imageCount={imageCount}
+          showCount={showCount}
+          onError={() => setImgFailed(true)}
+          heroRatio={preset.heroImageRatio}
+        />
+      )}
 
-      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
-        style={{ padding: '20px 22px 16px' }}>
-
-        {/* Top label — fixed */}
-        <div className="flex items-center gap-2 flex-shrink-0" style={{ marginBottom: 10 }}>
+      <div
+        className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        style={{
+          padding: isSplit
+            ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
+            : `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
+        }}
+      >
+        <div className="flex items-center gap-2 flex-shrink-0 min-w-0" style={{ marginBottom: 10 }}>
           <BrandLogoMark size={22} />
-          <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
+          <span className={cn('truncate', t.textMuted)} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
         </div>
 
-        {/* Hero content — flexible */}
         <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
           style={{ gap: 10 }}>
           {displayValue && (
-            <div className="flex-shrink-0" style={{ fontSize: 'clamp(1.75rem, 6vw, 3rem)', fontWeight: 700, color: t.accentHex,
-              fontFamily: '"Playfair Display", serif', lineHeight: 1, letterSpacing: '-0.03em' }}>
+            <div className="flex-shrink-0" style={{
+              fontSize: 'clamp(1.75rem, 6vw, 3rem)',
+              fontWeight: 700,
+              color: t.accentHex,
+              fontFamily: '"Playfair Display", serif',
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+            }}>
               {displayValue}
             </div>
           )}
-          <h2 className={t.textPrimary} style={{ fontSize: 'clamp(0.875rem, 2.8vw, 1.25rem)', fontWeight: 700,
-            fontFamily: '"Playfair Display", serif', lineHeight: 1.25, letterSpacing: '-0.01em',
-            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+
+          <h2 className={t.textPrimary} style={{
+            ...getClampStyle(3, 1.28),
+            fontSize: 'clamp(0.875rem, 2.8vw, 1.25rem)',
+            fontWeight: 700,
+            fontFamily: '"Playfair Display", serif',
+            letterSpacing: '-0.01em',
+          }}>
             {data.title}
           </h2>
+
           {data.subtitle && (
-            <p className={t.textSecondary} style={{ fontSize: '0.6875rem', lineHeight: 1.45,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.45), fontSize: '0.6875rem' }}>
               {data.subtitle}
             </p>
           )}
+
           {data.statLabel && (
-            <p className={t.textMuted} style={{ fontSize: '0.625rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <p className={t.textMuted} style={{ fontSize: '0.625rem', letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1.3 }}>
               {data.statLabel}
             </p>
           )}
         </div>
 
-        {/* AI Insight pull-quote — fixed */}
         {aiInsight && (
           <div className="flex-shrink-0" style={{ padding: '8px 0 8px 12px', borderLeft: `3px solid ${t.accentHex}`, marginTop: 6 }}>
-            <p className={t.textSecondary} style={{ fontSize: '0.625rem', fontStyle: 'italic', lineHeight: 1.4,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <p className={t.textSecondary} style={{ ...getClampStyle(3, 1.4), fontSize: '0.625rem', fontStyle: 'italic' }}>
               {aiInsight}
             </p>
             {data.aiInsightLinks?.length ? (
@@ -85,19 +112,14 @@ export function StoryTemplate({ data, theme: t, privacy: rawPrivacy, phrase, use
           </div>
         )}
 
-        {/* Footer — fixed, anchored */}
-        <div className="flex-shrink-0 flex items-center justify-between" style={{ borderTop: '1px solid hsla(0,0%,100%,0.06)', paddingTop: 10, marginTop: 'auto' }}>
-          <div className="min-w-0 flex-1">
-            <p className={t.accent} style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {phrase}
-            </p>
-            {privacy.includeName && userName && (
-              <p className={t.textMuted} style={{ fontSize: 9, marginTop: 2 }}>{userName}</p>
-            )}
-          </div>
-          <PostedFromBadge footerHex={t.footerHex} />
-        </div>
+        <TemplateFooter
+          phrase={phrase}
+          accentHex={t.accentHex}
+          footerHex={t.footerHex}
+          footerMinHeight={safeArea.footerMinHeight}
+          compact={isSplit}
+          metaText={privacy.includeName && userName ? userName : undefined}
+        />
       </div>
     </div>
   );
