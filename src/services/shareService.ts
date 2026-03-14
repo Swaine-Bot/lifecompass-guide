@@ -6,6 +6,7 @@ export type ShareFormat = 'story' | 'feed' | 'square' | 'linkedin' | 'tiktok';
 export type ShareTheme = 'obsidian_gold' | 'midnight_sage' | 'graphite_platinum' | 'ember_focus' | 'clean_silver';
 export type VisualModule = 'flame' | 'ring' | 'radar' | 'badge' | 'chart' | 'quote' | 'none';
 export type ImageLayout = 'hero_image' | 'split_image' | 'background_image' | 'none';
+export type NativeSharePreset = 'post' | 'story' | 'reel';
 
 export interface ShareCardData {
   cardType: CardType;
@@ -41,6 +42,21 @@ export interface PrivacySettings {
   privateAestheticMode: boolean;
 }
 
+export interface ShareSafeArea {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+  footerMinHeight: number;
+}
+
+export interface ShareRenderPreset {
+  destination: NativeSharePreset;
+  safeArea: ShareSafeArea;
+  heroImageRatio: number;
+  splitContentPadding: number;
+}
+
 export const DEFAULT_PRIVACY: PrivacySettings = {
   includeName: false,
   includeUsername: false,
@@ -54,12 +70,53 @@ export const DEFAULT_PRIVACY: PrivacySettings = {
 
 // ─── Format Dimensions ───────────────────────────────────────────────
 export const FORMAT_DIMENSIONS: Record<ShareFormat, { w: number; h: number; label: string }> = {
-  story:    { w: 1080, h: 1920, label: 'Story 9:16' },
-  feed:     { w: 1080, h: 1350, label: 'Feed 4:5' },
-  square:   { w: 1080, h: 1080, label: 'Square 1:1' },
+  story: { w: 1080, h: 1920, label: 'Story 9:16' },
+  feed: { w: 1080, h: 1350, label: 'Feed 4:5' },
+  square: { w: 1080, h: 1080, label: 'Square 1:1' },
   linkedin: { w: 1080, h: 1350, label: 'LinkedIn 4:5' },
-  tiktok:   { w: 1080, h: 1920, label: 'TikTok 9:16' },
+  tiktok: { w: 1080, h: 1920, label: 'TikTok 9:16' },
 };
+
+export const FORMAT_RENDER_PRESETS: Record<ShareFormat, ShareRenderPreset> = {
+  story: {
+    destination: 'story',
+    safeArea: { top: 24, right: 20, bottom: 34, left: 20, footerMinHeight: 44 },
+    heroImageRatio: 0.5,
+    splitContentPadding: 14,
+  },
+  feed: {
+    destination: 'post',
+    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
+    heroImageRatio: 0.46,
+    splitContentPadding: 16,
+  },
+  square: {
+    destination: 'post',
+    safeArea: { top: 16, right: 18, bottom: 20, left: 18, footerMinHeight: 36 },
+    heroImageRatio: 0.44,
+    splitContentPadding: 14,
+  },
+  linkedin: {
+    destination: 'post',
+    safeArea: { top: 18, right: 20, bottom: 22, left: 20, footerMinHeight: 38 },
+    heroImageRatio: 0.46,
+    splitContentPadding: 16,
+  },
+  tiktok: {
+    destination: 'reel',
+    safeArea: { top: 26, right: 20, bottom: 40, left: 20, footerMinHeight: 46 },
+    heroImageRatio: 0.52,
+    splitContentPadding: 14,
+  },
+};
+
+export function getRenderPreset(format: ShareFormat): ShareRenderPreset {
+  return FORMAT_RENDER_PRESETS[format];
+}
+
+export function getNativeSharePreset(format: ShareFormat): NativeSharePreset {
+  return FORMAT_RENDER_PRESETS[format].destination;
+}
 
 // ─── Design Tokens ──────────────────────────────────────────────────
 export const SHARE_TOKENS = {
