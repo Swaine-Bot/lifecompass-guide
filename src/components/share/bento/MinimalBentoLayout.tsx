@@ -1,8 +1,11 @@
 import type { ShareTemplateProps } from '../templates/types';
-import { MediaPanel, UserTextPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+import { MediaPanel, InsightPanel, UserTextPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+import { applyPrivacy } from '@/services/shareService';
 
-export function MinimalBentoLayout({ data, theme, format, privacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+export function MinimalBentoLayout({ data, theme, format, privacy: rawPrivacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+  const privacy = applyPrivacy(rawPrivacy);
   const hasMedia = includeImage && !!data.imageUrl;
+  const hasInsight = !!aiInsight;
   const showNumbers = privacy.includeExactNumbers;
   const isStory = format === 'story' || format === 'tiktok';
 
@@ -11,11 +14,10 @@ export function MinimalBentoLayout({ data, theme, format, privacy, phrase, aiIns
       className="absolute inset-0 flex flex-col justify-center"
       style={{
         background: theme.bgGradient,
-        padding: isStory ? '120px 28px 180px' : '40px 28px',
-        gap: 10,
+        padding: isStory ? '28px 18px 40px' : '20px 14px',
+        gap: 8,
       }}
     >
-      {/* Media (compact) */}
       {hasMedia && (
         <MediaPanel
           url={data.imageUrl}
@@ -26,17 +28,23 @@ export function MinimalBentoLayout({ data, theme, format, privacy, phrase, aiIns
         />
       )}
 
-      {/* Quote / title */}
+      {hasInsight && (
+        <InsightPanel
+          insight={aiInsight!}
+          theme={theme}
+          className="flex-shrink-0"
+        />
+      )}
+
       <UserTextPanel
-        title={aiInsight ? `"${aiInsight}"` : data.title}
-        subtitle={aiInsight ? data.title : data.subtitle}
+        title={hasInsight ? data.title : (aiInsight ? `"${aiInsight}"` : data.title)}
+        subtitle={hasInsight ? data.subtitle : (aiInsight ? data.title : data.subtitle)}
         theme={theme}
         className="flex-shrink-0"
         maxTitleLines={4}
         maxSubtitleLines={2}
       />
 
-      {/* Momentum (if exists) */}
       {data.statValue && (
         <MomentumPanel
           statValue={data.statValue}
@@ -45,11 +53,11 @@ export function MinimalBentoLayout({ data, theme, format, privacy, phrase, aiIns
           theme={theme}
           showNumbers={showNumbers}
           className="flex-shrink-0"
+          compact
         />
       )}
 
-      {/* Brand */}
-      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0 mt-auto" />}
+      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0 mt-auto" compact />}
     </div>
   );
 }

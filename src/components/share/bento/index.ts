@@ -5,4 +5,4 @@ export { MinimalBentoLayout } from './MinimalBentoLayout';
 export { AdaptiveBentoTemplate } from './AdaptiveBentoTemplate';
 export { computeDynamicBentoLayout, resolveImageStyle } from './layoutEngine';
 export type { BentoBaseVariant, DynamicBentoLayoutSpec } from './layoutEngine';
-export { BentoPanel, MediaPanel, InsightPanel, UserTextPanel, MetaPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+export { BentoPanel, MediaPanel, InsightPanel, UserTextPanel, MetaPanel, MomentumPanel, MilestonePanel, BrandPanel } from './BentoPanels';

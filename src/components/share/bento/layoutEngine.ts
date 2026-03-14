@@ -20,6 +20,14 @@ export interface DynamicBentoLayoutSpec {
   showMeta: boolean;
   compactBrand: boolean;
   backgroundOverlay: number;
+  /** Panel arrangement order */
+  panelOrder: ('media' | 'insight' | 'text' | 'momentum' | 'meta')[];
+  /** Whether meta and momentum should be in a row together */
+  metaMomentumRow: boolean;
+  /** Title font size */
+  titleFontSize: number;
+  /** Subtitle font size */
+  subtitleFontSize: number;
 }
 
 export function resolveImageStyle(imageLayout: ImageLayout | undefined, hasMedia: boolean): ImageLayout {
@@ -39,22 +47,22 @@ interface ComputeLayoutInput {
 
 function getSafePadding(format: ShareFormat) {
   if (format === 'story' || format === 'tiktok') {
-    return { top: 32, right: 20, bottom: 48, left: 20 };
+    return { top: 28, right: 18, bottom: 40, left: 18 };
   }
   if (format === 'feed' || format === 'linkedin') {
-    return { top: 20, right: 16, bottom: 24, left: 16 };
+    return { top: 18, right: 14, bottom: 22, left: 14 };
   }
   // square
-  return { top: 16, right: 14, bottom: 20, left: 14 };
+  return { top: 14, right: 12, bottom: 18, left: 12 };
 }
 
 /**
- * Deterministic layout solver.
- *
- * STEP 1: format → canvas proportions
- * STEP 2: imageStyle → region map
- * STEP 3: content lengths → dynamic panel weights
- * STEP 4: font sizes capped by content length
+ * Deterministic layout composition engine.
+ * 
+ * Responds to: content presence/absence, media type, AI insight length,
+ * user message length, selected format, selected image style.
+ * 
+ * Priority hierarchy: Media > AI Insight > User Text > Meta/Momentum
  */
 export function computeDynamicBentoLayout({
   baseVariant,
@@ -67,35 +75,55 @@ export function computeDynamicBentoLayout({
 }: ComputeLayoutInput): DynamicBentoLayoutSpec {
   const isStory = format === 'story' || format === 'tiktok';
   const isSquare = format === 'square';
+  const isFeed = format === 'feed' || format === 'linkedin';
 
   const safePadding = getSafePadding(format);
-  const gap = isStory ? 8 : 6;
+  const gap = isStory ? 8 : isSquare ? 6 : 7;
 
   // ── Content density metrics ──
-  const insightDensity = hasInsight ? Math.min(2.0, insightLength / 200) : 0;
-  const textDensity = Math.min(1.5, textLength / 160);
+  const contentDense = (insightLength > 200 && textLength > 100);
 
-  // ── STEP 2: Base media ratios per image style ──
+  // ── Panel arrangement based on image style ──
+  let panelOrder: DynamicBentoLayoutSpec['panelOrder'];
+  
+  if (imageStyle === 'hero_image' && hasMedia) {
+    panelOrder = hasInsight 
+      ? ['media', 'insight', 'text', 'momentum', 'meta']
+      : ['media', 'text', 'momentum', 'meta'];
+  } else if (imageStyle === 'split_image' && hasMedia) {
+    panelOrder = hasInsight
+      ? ['media', 'insight', 'text', 'meta']
+      : ['media', 'text', 'momentum', 'meta'];
+  } else if (imageStyle === 'background_image' && hasMedia) {
+    panelOrder = hasInsight
+      ? ['insight', 'text', 'media', 'momentum', 'meta']
+      : ['text', 'media', 'momentum', 'meta'];
+  } else {
+    // No media
+    panelOrder = hasInsight
+      ? ['insight', 'text', 'momentum', 'meta']
+      : ['text', 'momentum', 'meta'];
+  }
+
+  // ── Media ratios ──
   let heroMediaRatio = 0;
   let splitMediaRatio = 0;
   let splitDirection: 'row' | 'column' = isStory ? 'column' : 'row';
   let secondaryDirection: 'row' | 'column' = 'column';
 
   if (imageStyle === 'hero_image' && hasMedia) {
-    // Hero: media dominates
-    heroMediaRatio = isStory ? 0.50 : isSquare ? 0.45 : 0.48;
-    // If insight is very long, shrink media to give more room
+    heroMediaRatio = isStory ? 0.48 : isSquare ? 0.42 : 0.45;
     if (hasInsight && insightLength > 300) {
-      heroMediaRatio = Math.max(0.30, heroMediaRatio - 0.10);
+      heroMediaRatio = Math.max(0.28, heroMediaRatio - 0.12);
+    } else if (hasInsight) {
+      heroMediaRatio = Math.max(0.32, heroMediaRatio - 0.06);
     }
   } else if (imageStyle === 'split_image' && hasMedia) {
-    // Split: side-by-side (row) or stacked (column for story)
-    splitMediaRatio = isStory ? 0.38 : isSquare ? 0.42 : 0.45;
+    splitMediaRatio = isStory ? 0.36 : isSquare ? 0.40 : 0.44;
     if (hasInsight && insightLength > 300) {
-      splitMediaRatio = Math.max(0.28, splitMediaRatio - 0.08);
+      splitMediaRatio = Math.max(0.26, splitMediaRatio - 0.10);
     }
   } else if (imageStyle === 'background_image') {
-    // Background: no dedicated media panel (media is atmospheric)
     heroMediaRatio = 0;
     splitMediaRatio = 0;
     splitDirection = 'column';
@@ -107,41 +135,35 @@ export function computeDynamicBentoLayout({
     splitDirection = 'column';
   }
 
-  // ── STEP 3: Dynamic panel weights ──
-  // These are flex-grow values for the stacked text column.
-  // They control relative height distribution.
-
+  // ── Panel weights ──
   let insightWeight = 0;
   let textWeight = 1.2;
-  let metaWeight = 0.5;
-  let momentumWeight = 0.55;
+  let metaWeight = 0.45;
+  let momentumWeight = 0.5;
 
   if (hasInsight) {
-    // RULE 3: Insight gets priority. Scale weight by density.
     if (insightLength < 100) {
       insightWeight = 1.0;
       textWeight = 1.0;
     } else if (insightLength < 250) {
-      insightWeight = 1.4;
-      textWeight = 0.9;
+      insightWeight = 1.5;
+      textWeight = 0.85;
     } else if (insightLength < 400) {
-      insightWeight = 1.8;
-      textWeight = 0.7;
-      metaWeight = 0.4;
-      momentumWeight = 0.4;
-    } else {
-      // Very long insight — it dominates
-      insightWeight = 2.2;
-      textWeight = 0.55;
+      insightWeight = 1.9;
+      textWeight = 0.65;
       metaWeight = 0.35;
-      momentumWeight = 0.35;
+      momentumWeight = 0.38;
+    } else {
+      insightWeight = 2.3;
+      textWeight = 0.5;
+      metaWeight = 0.3;
+      momentumWeight = 0.32;
     }
   } else {
-    // No insight — text gets more room
-    textWeight = 1.4 + textDensity * 0.15;
+    textWeight = 1.5;
   }
 
-  // ── STEP 4: Font sizes — content-aware ceiling ──
+  // ── Font sizes ──
   let insightFontSize: number;
   if (insightLength < 60) {
     insightFontSize = isStory ? 18 : isSquare ? 16 : 17;
@@ -155,11 +177,24 @@ export function computeDynamicBentoLayout({
     insightFontSize = isStory ? 10.5 : isSquare ? 10 : 10.5;
   }
 
-  // ── Line clamp calculations ──
+  // Title/subtitle sizes — respond to content density
+  let titleFontSize: number;
+  let subtitleFontSize: number;
+  if (hasInsight && contentDense) {
+    titleFontSize = isSquare ? 16 : 17;
+    subtitleFontSize = 11;
+  } else if (hasInsight) {
+    titleFontSize = isSquare ? 18 : 20;
+    subtitleFontSize = 12;
+  } else {
+    titleFontSize = isSquare ? 22 : isStory ? 26 : 24;
+    subtitleFontSize = isSquare ? 13 : 14;
+  }
+
+  // ── Line clamps ──
   let titleLines = hasInsight ? 2 : isSquare ? 3 : 4;
   let subtitleLines = hasInsight ? 2 : 3;
 
-  // For background style with insight, allow more title lines since no media panel
   if (imageStyle === 'background_image' && !hasInsight) {
     titleLines = isSquare ? 4 : 5;
     subtitleLines = 4;
@@ -169,16 +204,20 @@ export function computeDynamicBentoLayout({
   let showMomentum = true;
   let showMeta = true;
 
-  if (hasInsight) {
-    // Hide lower-priority panels when insight is very long to free space
-    showMomentum = insightLength < 500;
-    showMeta = insightLength < 600;
+  if (hasInsight && contentDense) {
+    showMomentum = insightLength < 400;
+    showMeta = insightLength < 500;
   }
 
-  // ── Background overlay ──
-  const backgroundOverlay = hasInsight ? 0.58 : 0.50;
+  // Compact formats hide lower-priority panels
+  if (isSquare && hasInsight && insightLength > 200) {
+    showMomentum = false;
+  }
 
-  const compactBrand = isSquare || hasInsight;
+  const metaMomentumRow = showMeta && showMomentum;
+
+  const backgroundOverlay = hasInsight ? 0.56 : 0.48;
+  const compactBrand = isSquare || (hasInsight && contentDense);
 
   return {
     safePadding,
@@ -198,5 +237,9 @@ export function computeDynamicBentoLayout({
     showMeta,
     compactBrand,
     backgroundOverlay,
+    panelOrder,
+    metaMomentumRow,
+    titleFontSize,
+    subtitleFontSize,
   };
 }

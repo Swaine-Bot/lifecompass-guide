@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import { applyPrivacy } from '@/services/shareService';
 import type { ShareTemplateProps } from '../templates/types';
 import {
@@ -26,21 +25,29 @@ function AtmosphericBackground({ url, opacity }: { url: string; opacity: number 
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
-          filter: `blur(16px) brightness(${opacity}) saturate(1.25)`,
-          transform: 'scale(1.12)',
+          filter: `blur(20px) brightness(${opacity}) saturate(1.2)`,
+          transform: 'scale(1.15)',
         }}
       />
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(180deg, hsla(220,30%,3%,0.35) 0%, hsla(220,30%,3%,0.58) 58%, hsla(220,30%,3%,0.76) 100%)',
+            'linear-gradient(180deg, hsla(220,30%,3%,0.4) 0%, hsla(220,30%,3%,0.6) 50%, hsla(220,30%,3%,0.8) 100%)',
         }}
       />
     </div>
   );
 }
 
+/**
+ * Premium modular share card composer.
+ * 
+ * Builds cards from dedicated content blocks arranged by the layout engine.
+ * Each block is a self-contained panel with its own visual treatment.
+ * 
+ * Layout hierarchy: Media > AI Insight > User Text > Supporting metadata
+ */
 export function AdaptiveBentoTemplate({
   baseVariant,
   data,
@@ -75,18 +82,21 @@ export function AdaptiveBentoTemplate({
   const canvasPadding = `${layout.safePadding.top}px ${layout.safePadding.right}px ${layout.safePadding.bottom}px ${layout.safePadding.left}px`;
   const gap = layout.gap;
 
-  // ── Shared panel blocks ──
+  // ── Panel blocks ──
+
+  const mediaBlock = hasMedia ? (
+    <MediaPanel
+      url={data.imageUrl}
+      urls={data.imageUrls}
+      showCount={showImageCount}
+    />
+  ) : null;
 
   const insightBlock = hasInsight ? (
     <InsightPanel
       insight={aiInsight!}
       links={data.aiInsightLinks}
       theme={theme}
-      style={{
-        flex: `${layout.insightWeight} 1 0`,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
       fontSize={layout.insightFontSize}
       fullText
     />
@@ -97,15 +107,10 @@ export function AdaptiveBentoTemplate({
       title={data.title}
       subtitle={data.subtitle}
       theme={theme}
-      style={{
-        flex: `${layout.textWeight} 1 0`,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
       maxTitleLines={layout.titleLines}
       maxSubtitleLines={layout.subtitleLines}
-      titleSize={hasInsight ? 18 : 20}
-      subtitleSize={hasInsight ? 12 : 13}
+      titleSize={layout.titleFontSize}
+      subtitleSize={layout.subtitleFontSize}
     />
   );
 
@@ -115,11 +120,6 @@ export function AdaptiveBentoTemplate({
       timeAnchor={privacy.includeDateTime ? data.timeAnchor : undefined}
       domain={data.domain}
       theme={theme}
-      style={{
-        flex: `${layout.metaWeight} 1 0`,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
       compact
     />
   ) : null;
@@ -133,33 +133,20 @@ export function AdaptiveBentoTemplate({
       phrase={phrase}
       theme={theme}
       showNumbers={showNumbers}
-      style={{
-        flex: `${layout.momentumWeight} 1 0`,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
       compact={hasInsight}
     />
   ) : null;
 
-  // ── HERO layout ──
-  // Media dominates. Text/insight are secondary below.
+  // ── HERO LAYOUT ──
+  // Media dominates as primary panel. Content stacks below.
   const renderHero = () => (
     <>
-      {hasMedia && (
-        <MediaPanel
-          url={data.imageUrl}
-          urls={data.imageUrls}
-          showCount={showImageCount}
-          style={{
-            flex: `0 0 ${Math.round(layout.heroMediaRatio * 100)}%`,
-            minHeight: 0,
-            overflow: 'hidden',
-          }}
-        />
+      {mediaBlock && (
+        <div style={{ flex: `0 0 ${Math.round(layout.heroMediaRatio * 100)}%`, minHeight: 0, overflow: 'hidden' }}>
+          {React.cloneElement(mediaBlock, { style: { height: '100%' } })}
+        </div>
       )}
 
-      {/* Secondary content stacks vertically below media */}
       <div
         style={{
           display: 'flex',
@@ -170,19 +157,34 @@ export function AdaptiveBentoTemplate({
           overflow: 'hidden',
         }}
       >
-        {insightBlock}
-        {userTextBlock}
-        <div style={{ display: 'flex', gap, flexShrink: 0, minHeight: 0 }}>
-          {metaBlock}
-          {momentumBlock}
+        {insightBlock && (
+          <div style={{ flex: `${layout.insightWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+            {React.cloneElement(insightBlock, { style: { height: '100%' } })}
+          </div>
+        )}
+        <div style={{ flex: `${layout.textWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+          {React.cloneElement(userTextBlock, { style: { height: '100%' } })}
         </div>
+        {(metaBlock || momentumBlock) && (
+          <div style={{ display: 'flex', gap, flexShrink: 0, minHeight: 0 }}>
+            {momentumBlock && (
+              <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+                {React.cloneElement(momentumBlock, { style: { height: '100%' } })}
+              </div>
+            )}
+            {metaBlock && (
+              <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+                {React.cloneElement(metaBlock, { style: { height: '100%' } })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
 
-  // ── SPLIT layout ──
-  // Media left/top, content column right/bottom.
-  // RULE 5: right column is a strict stack: insight → user → meta+momentum
+  // ── SPLIT LAYOUT ──
+  // True divided composition — media in one region, content in complementary region.
   const renderSplit = () => {
     const isRow = layout.splitDirection === 'row';
 
@@ -197,20 +199,12 @@ export function AdaptiveBentoTemplate({
           overflow: 'hidden',
         }}
       >
-        {hasMedia && (
-          <MediaPanel
-            url={data.imageUrl}
-            urls={data.imageUrls}
-            showCount={showImageCount}
-            style={{
-              flex: `0 0 ${Math.round(layout.splitMediaRatio * 100)}%`,
-              minHeight: 0,
-              overflow: 'hidden',
-            }}
-          />
+        {mediaBlock && (
+          <div style={{ flex: `0 0 ${Math.round(layout.splitMediaRatio * 100)}%`, minHeight: 0, overflow: 'hidden' }}>
+            {React.cloneElement(mediaBlock, { style: { height: '100%' } })}
+          </div>
         )}
 
-        {/* RULE 5 — strict stacked column for text panels */}
         <div
           style={{
             display: 'flex',
@@ -222,12 +216,26 @@ export function AdaptiveBentoTemplate({
             overflow: 'hidden',
           }}
         >
-          {insightBlock}
-          {userTextBlock}
+          {insightBlock && (
+            <div style={{ flex: `${layout.insightWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+              {React.cloneElement(insightBlock, { style: { height: '100%' } })}
+            </div>
+          )}
+          <div style={{ flex: `${layout.textWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+            {React.cloneElement(userTextBlock, { style: { height: '100%' } })}
+          </div>
           {(metaBlock || momentumBlock) && (
             <div style={{ display: 'flex', gap, flexShrink: 0, minHeight: 0, overflow: 'hidden' }}>
-              {metaBlock}
-              {momentumBlock}
+              {momentumBlock && (
+                <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+                  {React.cloneElement(momentumBlock, { style: { height: '100%' } })}
+                </div>
+              )}
+              {metaBlock && (
+                <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+                  {React.cloneElement(metaBlock, { style: { height: '100%' } })}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -235,8 +243,8 @@ export function AdaptiveBentoTemplate({
     );
   };
 
-  // ── BACKGROUND layout ──
-  // Media is atmospheric. Text dominates foreground.
+  // ── BACKGROUND LAYOUT ──
+  // Media is atmospheric backdrop. Text panels dominate foreground.
   const renderBackground = () => (
     <div
       style={{
@@ -248,36 +256,57 @@ export function AdaptiveBentoTemplate({
         overflow: 'hidden',
       }}
     >
-      {insightBlock}
-      {userTextBlock}
+      {insightBlock && (
+        <div style={{ flex: `${layout.insightWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+          {React.cloneElement(insightBlock, { style: { height: '100%' } })}
+        </div>
+      )}
+      <div style={{ flex: `${layout.textWeight} 1 0`, minHeight: 0, overflow: 'hidden' }}>
+        {React.cloneElement(userTextBlock, { style: { height: '100%' } })}
+      </div>
 
-      {(metaBlock || momentumBlock || hasMedia) && (
-        <div style={{ display: 'flex', gap, flex: hasMedia ? '0 0 20%' : '0 0 auto', minHeight: 0, overflow: 'hidden' }}>
-          {hasMedia && (
-            <MediaPanel
-              url={data.imageUrl}
-              urls={data.imageUrls}
-              showCount={showImageCount}
-              style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}
-            />
+      {(metaBlock || momentumBlock || (hasMedia && imageStyle === 'background_image')) && (
+        <div style={{ display: 'flex', gap, flex: '0 0 auto', minHeight: 0, overflow: 'hidden' }}>
+          {hasMedia && imageStyle === 'background_image' && mediaBlock && (
+            <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden', maxHeight: 80 }}>
+              {React.cloneElement(mediaBlock, { style: { height: '100%' } })}
+            </div>
           )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
-            {metaBlock}
-            {momentumBlock}
-          </div>
+          {(metaBlock || momentumBlock) && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+              {momentumBlock && React.cloneElement(momentumBlock, { style: { height: '100%' } })}
+              {metaBlock && React.cloneElement(metaBlock, { style: { height: '100%' } })}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 
+  // ── Canvas background with subtle texture ──
+  const canvasBg = (
+    <div className="absolute inset-0" style={{ background: theme.bgGradient }}>
+      {/* Subtle noise texture overlay */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at 20% 20%, hsla(43,74%,52%,0.03) 0%, transparent 60%)',
+        }}
+      />
+    </div>
+  );
+
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: theme.bgGradient }}>
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Base background */}
+      {canvasBg}
+
       {/* Atmospheric background image for background mode */}
       {hasMedia && imageStyle === 'background_image' && (
         <AtmosphericBackground url={data.imageUrl!} opacity={layout.backgroundOverlay} />
       )}
 
-      {/* Main layout container — RULE 1: everything inside measured bounds */}
+      {/* Main layout container */}
       <div
         className="absolute inset-0"
         style={{
@@ -294,7 +323,7 @@ export function AdaptiveBentoTemplate({
             ? renderBackground()
             : renderHero()}
 
-        {/* RULE 6 — footer safe zone */}
+        {/* Brand footer */}
         {privacy.includeFooter && (
           <BrandPanel theme={theme} compact={layout.compactBrand} />
         )}
@@ -302,3 +331,6 @@ export function AdaptiveBentoTemplate({
     </div>
   );
 }
+
+// Need React for cloneElement
+import React from 'react';
