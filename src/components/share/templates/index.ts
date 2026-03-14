@@ -7,7 +7,8 @@ export { ReflectionTemplate } from './ReflectionTemplate';
 export { TEMPLATE_REGISTRY, suggestTemplate } from './types';
 export type { ShareTemplateName, ShareTemplateProps, TemplateMetadata } from './types';
 
-import type { ShareTemplateName } from './types';
+import { createElement, type FC } from 'react';
+import type { ShareTemplateName, ShareTemplateProps } from './types';
 import { ClassicTemplate } from './ClassicTemplate';
 import { StoryTemplate } from './StoryTemplate';
 import { MinimalTemplate } from './MinimalTemplate';
@@ -15,24 +16,18 @@ import { MomentumTemplate } from './MomentumTemplate';
 import { MediaSpotlightTemplate } from './MediaSpotlightTemplate';
 import { ReflectionTemplate } from './ReflectionTemplate';
 import { AdaptiveBentoTemplate } from '../bento/AdaptiveBentoTemplate';
-import type { ShareTemplateProps } from './types';
-import type { FC } from 'react';
 
-const BentoHeroTemplate: FC<ShareTemplateProps> = (props) => (
-  <AdaptiveBentoTemplate {...props} baseVariant="hero" />
-);
+const BentoHeroTemplate: FC<ShareTemplateProps> = (props) =>
+  createElement(AdaptiveBentoTemplate, { ...props, baseVariant: 'hero' });
 
-const BentoSplitTemplate: FC<ShareTemplateProps> = (props) => (
-  <AdaptiveBentoTemplate {...props} baseVariant="split" />
-);
+const BentoSplitTemplate: FC<ShareTemplateProps> = (props) =>
+  createElement(AdaptiveBentoTemplate, { ...props, baseVariant: 'split' });
 
-const BentoReflectionTemplate: FC<ShareTemplateProps> = (props) => (
-  <AdaptiveBentoTemplate {...props} baseVariant="reflection" />
-);
+const BentoReflectionTemplate: FC<ShareTemplateProps> = (props) =>
+  createElement(AdaptiveBentoTemplate, { ...props, baseVariant: 'reflection' });
 
-const BentoMinimalTemplate: FC<ShareTemplateProps> = (props) => (
-  <AdaptiveBentoTemplate {...props} baseVariant="minimal" />
-);
+const BentoMinimalTemplate: FC<ShareTemplateProps> = (props) =>
+  createElement(AdaptiveBentoTemplate, { ...props, baseVariant: 'minimal' });
 
 export const TEMPLATE_COMPONENTS: Record<ShareTemplateName, FC<ShareTemplateProps>> = {
   classic: ClassicTemplate,
