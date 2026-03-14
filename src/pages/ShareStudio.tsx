@@ -636,8 +636,8 @@ export default function ShareStudio() {
 
         {/* Actions */}
         <div className="space-y-2 pt-2">
-          <Button onClick={() => setStep('preview')} className="w-full">
-            <Share2 className="w-4 h-4 mr-2" />Preview & Share
+          <Button onClick={handleShare} disabled={sharing} className="w-full">
+            <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Rendering & Sharing...' : 'Preview & Share'}
           </Button>
           <Button onClick={handleSave} variant="outline" className="w-full">
             <Download className="w-4 h-4 mr-2" />Save to Vault
