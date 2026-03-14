@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { getRenderPreset } from '@/services/shareService';
-import { HeroImage, SplitImage, BackgroundImage, TemplateFooter, PlayOverlay, MediaTypeBadge, useTemplateImage, getClampStyle } from './SharedImageLayer';
+import { SplitImage, BackgroundImage, TemplateFooter, PlayOverlay, MediaTypeBadge, useTemplateImage, getClampStyle } from './SharedImageLayer';
 import type { ShareTemplateProps } from './types';
 
 export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate, aiInsight, includeImage, imageLayout: imageLayoutProp, showImageCount }: ShareTemplateProps) {
