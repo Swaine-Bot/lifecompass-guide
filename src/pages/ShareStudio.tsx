@@ -211,7 +211,8 @@ export default function ShareStudio() {
     try {
       const { renderCardToCanvas, downloadImage } = await import('@/services/shareService');
       const canvas = await renderCardToCanvas(cardRef.current, format);
-      await downloadImage(canvas, `lifestack-${selectedCard.cardType}-${Date.now()}.png`);
+      const destinationPreset = getNativeSharePreset(format);
+      await downloadImage(canvas, `lifestack-${destinationPreset}-${selectedCard.cardType}-${Date.now()}.png`);
       toast.success('Image saved');
     } catch {
       toast.error('Download failed');
