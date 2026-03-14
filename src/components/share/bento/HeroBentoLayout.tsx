@@ -1,7 +1,9 @@
 import type { ShareTemplateProps } from '../templates/types';
 import { MediaPanel, InsightPanel, UserTextPanel, MetaPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+import { applyPrivacy } from '@/services/shareService';
 
-export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+export function HeroBentoLayout({ data, theme, format, privacy: rawPrivacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+  const privacy = applyPrivacy(rawPrivacy);
   const hasMedia = includeImage && !!data.imageUrl;
   const hasInsight = !!aiInsight;
   const showNumbers = privacy.includeExactNumbers;
@@ -12,11 +14,10 @@ export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsigh
       className="absolute inset-0 flex flex-col"
       style={{
         background: theme.bgGradient,
-        padding: isStory ? '120px 28px 180px' : '28px',
-        gap: 8,
+        padding: isStory ? '28px 18px 40px' : '14px',
+        gap: 7,
       }}
     >
-      {/* Media — large top */}
       {hasMedia && (
         <MediaPanel
           url={data.imageUrl}
@@ -27,7 +28,6 @@ export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsigh
         />
       )}
 
-      {/* Two-col row: Insight | Meta */}
       <div className="flex gap-2" style={{ flex: hasMedia ? '0 0 auto' : '1 1 0', minHeight: 0 }}>
         {hasInsight ? (
           <>
@@ -48,7 +48,6 @@ export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsigh
         )}
       </div>
 
-      {/* User text */}
       <UserTextPanel
         title={data.title}
         subtitle={data.subtitle}
@@ -58,7 +57,6 @@ export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsigh
         maxSubtitleLines={2}
       />
 
-      {/* Momentum row (if insight took the spot above) */}
       {hasInsight && data.statValue && (
         <MomentumPanel
           statValue={data.statValue}
@@ -70,7 +68,6 @@ export function HeroBentoLayout({ data, theme, format, privacy, phrase, aiInsigh
         />
       )}
 
-      {/* Brand */}
       {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0 mt-auto" />}
     </div>
   );
