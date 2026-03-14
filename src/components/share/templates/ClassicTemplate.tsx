@@ -34,7 +34,7 @@ export function ClassicTemplate({ data, theme: t, format, privacy: rawPrivacy, p
 
       {/* CONTENT COLUMN — padded inside safe zones */}
       <div
-        className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+        className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
