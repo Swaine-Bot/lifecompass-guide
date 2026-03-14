@@ -42,7 +42,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
 
   if (!url || failed) {
     return (
-      <BentoPanel className={`flex items-center justify-center ${className}`} style={{ minHeight: 120 }}>
+      <BentoPanel className={`flex items-center justify-center ${className}`} style={{ minHeight: 120, ...style }}>
         <div className="text-center opacity-30">
           <div className="w-12 h-12 mx-auto rounded-xl bg-[hsla(0,0%,100%,0.05)] flex items-center justify-center mb-2">
             <span className="text-lg">📷</span>
