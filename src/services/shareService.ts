@@ -463,28 +463,87 @@ export async function downloadImage(canvas: HTMLCanvasElement, filename: string)
 // ─── Canvas Renderer ────────────────────────────────────────────────
 export async function renderCardToCanvas(
   element: HTMLElement,
-  format: ShareFormat
+  format: ShareFormat,
 ): Promise<HTMLCanvasElement> {
   const { w, h } = FORMAT_DIMENSIONS[format];
-  const scale = w / element.offsetWidth;
+
+  if ('fonts' in document) {
+    try {
+      await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+    } catch {
+      // no-op; continue export even if font readiness fails
+    }
+  }
+
+  // Let layout settle before capture to avoid half-rendered text lines.
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+  const rect = element.getBoundingClientRect();
+  const captureWidth = Math.max(1, Math.round(rect.width));
+  const captureHeight = Math.max(1, Math.round(rect.height));
+  const scale = Math.max(1, Math.min(4, w / captureWidth));
+
+  element.setAttribute('data-share-exporting', 'true');
   const html2canvas = (await import('html2canvas')).default;
-  const canvas = await html2canvas(element, {
-    width: element.offsetWidth,
-    height: element.offsetHeight,
-    scale,
-    backgroundColor: null,
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    // Clip to exact element bounds to prevent overflow content from rendering
-    x: 0,
-    y: 0,
-    scrollX: 0,
-    scrollY: 0,
-    windowWidth: element.offsetWidth,
-    windowHeight: element.offsetHeight,
-  });
-  return canvas;
+
+  try {
+    const rawCanvas = await html2canvas(element, {
+      width: captureWidth,
+      height: captureHeight,
+      scale,
+      backgroundColor: null,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: captureWidth,
+      windowHeight: captureHeight,
+      onclone: (doc) => {
+        const exportRoot = doc.querySelector('[data-share-export-root="true"]') as HTMLElement | null;
+        if (!exportRoot) return;
+        exportRoot.style.animation = 'none';
+        exportRoot.style.transform = 'none';
+        exportRoot.style.overflow = 'hidden';
+      },
+    });
+
+    // Normalize to exact platform size while preserving source aspect ratio.
+    if (rawCanvas.width === w && rawCanvas.height === h) return rawCanvas;
+
+    const normalized = document.createElement('canvas');
+    normalized.width = w;
+    normalized.height = h;
+
+    const ctx = normalized.getContext('2d');
+    if (!ctx) return rawCanvas;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    const sourceRatio = rawCanvas.width / rawCanvas.height;
+    const targetRatio = w / h;
+
+    let sx = 0;
+    let sy = 0;
+    let sw = rawCanvas.width;
+    let sh = rawCanvas.height;
+
+    if (sourceRatio > targetRatio) {
+      sw = Math.round(rawCanvas.height * targetRatio);
+      sx = Math.round((rawCanvas.width - sw) / 2);
+    } else if (sourceRatio < targetRatio) {
+      sh = Math.round(rawCanvas.width / targetRatio);
+      sy = Math.round((rawCanvas.height - sh) / 2);
+    }
+
+    ctx.drawImage(rawCanvas, sx, sy, sw, sh, 0, 0, w, h);
+    return normalized;
+  } finally {
+    element.removeAttribute('data-share-exporting');
+  }
 }
 
 /**
