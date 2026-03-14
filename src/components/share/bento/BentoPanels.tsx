@@ -1,12 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ThemeDefinition } from '@/services/shareService';
 
 // ── Shared font constant ──
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 
 /**
- * Auto-size text to fill its container.
- * Starts at maxFontSize and shrinks until text fits without overflow.
+ * Auto-size text to fill its container without overflow.
+ * Uses ResizeObserver to re-measure when container changes size
+ * (e.g. format switch from story→square).
+ * Binary search finds the largest font that fits.
  */
 function useAutoSizeText(
   text: string | undefined,
@@ -16,13 +18,14 @@ function useAutoSizeText(
   const ref = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(maxFontSize);
 
-  useEffect(() => {
+  const measure = useCallback(() => {
     const el = ref.current;
     if (!el || !text) return;
 
-    // Reset to max to measure
-    let size = maxFontSize;
-    el.style.fontSize = `${size}px`;
+    // Temporarily allow natural sizing to get container bounds
+    const parentH = el.parentElement?.clientHeight || el.clientHeight;
+    const parentW = el.parentElement?.clientWidth || el.clientWidth;
+    if (parentH < 4 || parentW < 4) return; // Not laid out yet
 
     // Binary search for fitting size
     let lo = minFontSize;
@@ -30,7 +33,7 @@ function useAutoSizeText(
     while (hi - lo > 0.5) {
       const mid = (lo + hi) / 2;
       el.style.fontSize = `${mid}px`;
-      if (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) {
+      if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) {
         hi = mid;
       } else {
         lo = mid;
@@ -39,6 +42,30 @@ function useAutoSizeText(
     setFontSize(lo);
     el.style.fontSize = `${lo}px`;
   }, [text, maxFontSize, minFontSize]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Initial measure after layout
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(measure);
+    });
+
+    // Re-measure when container resizes (format change, window resize)
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        requestAnimationFrame(measure);
+      });
+      ro.observe(el);
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      ro?.disconnect();
+    };
+  }, [measure]);
 
   return { ref, fontSize };
 }
@@ -95,8 +122,8 @@ interface MediaPanelProps {
 
 /**
  * Media panel that wraps tightly around its content.
- * Images/videos use object-fit: contain so no cropping, and the panel
- * shrinks to fit rather than leaving dead space.
+ * Uses natural aspect ratio when no explicit height is given,
+ * or fills with object-fit: cover when constrained by parent.
  */
 export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, className = '', style }: MediaPanelProps) {
   const [failed, setFailed] = useState(false);
@@ -138,40 +165,43 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
     </div>
   );
 
-  // Audio: fixed compact layout
+  // Audio: compact waveform layout — no dead space
   if (isMediaAudio) {
     return (
-      <BentoPanel className={`flex items-center gap-3 ${className}`} style={{ padding: '14px 16px', ...style }}>
+      <BentoPanel className={`flex items-center gap-3 ${className}`} style={{ padding: '12px 14px', ...style }}>
         <div
           style={{
-            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
             background: 'linear-gradient(135deg, hsla(43,74%,52%,0.12) 0%, hsla(43,74%,52%,0.04) 100%)',
             border: '1.5px solid hsla(43,74%,52%,0.25)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
-          <span style={{ fontSize: 18 }}>🎙️</span>
+          <span style={{ fontSize: 16 }}>🎙️</span>
         </div>
         <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <div className="flex items-end gap-[2px]" style={{ height: 20 }}>
-            {[...Array(18)].map((_, i) => (
+          <div className="flex items-end gap-[2px]" style={{ height: 18 }}>
+            {[...Array(20)].map((_, i) => (
               <span
                 key={i}
                 style={{
-                  width: 2.5, borderRadius: 4, flexShrink: 0,
-                  height: `${5 + ((i * 7 + 3) % 14)}px`,
+                  width: 2.5, borderRadius: 4, flexShrink: 0, flex: '1 0 0',
+                  height: `${4 + ((i * 7 + 3) % 13)}px`,
                   background: `hsla(43,74%,52%,${0.2 + ((i * 3) % 5) * 0.06})`,
                 }}
               />
             ))}
           </div>
-          <span style={{ fontSize: 9, color: 'hsl(220,10%,50%)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: FONT_FAMILY }}>
+          <span style={{ fontSize: 8, color: 'hsl(220,10%,50%)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: FONT_FAMILY }}>
             Voice Note
           </span>
         </div>
       </BentoPanel>
     );
   }
+
+  // Determine if we're filling a parent container (explicit height) or self-sizing
+  const hasExplicitHeight = style?.height !== undefined;
 
   // Image/Video: tight-wrapping panel
   return (
@@ -192,7 +222,8 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
           style={{
             display: 'block',
             width: '100%',
-            height: '100%',
+            height: hasExplicitHeight ? '100%' : undefined,
+            aspectRatio: !hasExplicitHeight && naturalAspect ? `${naturalAspect}` : undefined,
             objectFit: 'cover',
           }}
         />
@@ -211,7 +242,8 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
           style={{
             display: 'block',
             width: '100%',
-            height: '100%',
+            height: hasExplicitHeight ? '100%' : undefined,
+            aspectRatio: !hasExplicitHeight && naturalAspect ? `${naturalAspect}` : undefined,
             objectFit: 'cover',
           }}
         />
@@ -222,13 +254,13 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             style={{
-              width: 48, height: 48, borderRadius: '50%',
+              width: 44, height: 44, borderRadius: '50%',
               background: 'hsla(0,0%,0%,0.5)', backdropFilter: 'blur(12px)',
               border: '1.5px solid hsla(0,0%,100%,0.18)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <span style={{ fontSize: 16, color: 'hsl(0,0%,96%)', marginLeft: 2 }}>▶</span>
+            <span style={{ fontSize: 14, color: 'hsl(0,0%,96%)', marginLeft: 2 }}>▶</span>
           </div>
         </div>
       )}
@@ -257,31 +289,31 @@ export function InsightPanel({
   style,
   fontSize: maxFont = 16,
 }: InsightPanelProps) {
-  const { ref } = useAutoSizeText(insight, maxFont, 9);
+  const { ref } = useAutoSizeText(insight, maxFont, 8);
 
   return (
     <BentoPanel
       className={`flex flex-col ${className}`}
       glowColor={`hsla(43,74%,52%,0.06)`}
-      style={{ padding: '12px 14px', ...style }}
+      style={{ padding: '10px 12px', ...style }}
     >
-      {/* Label */}
-      <div className="flex items-center gap-2 mb-1.5" style={{ flexShrink: 0 }}>
-        <div style={{ width: 3, height: 12, borderRadius: 2, background: theme.accentHex, opacity: 0.7 }} />
+      {/* Label bar */}
+      <div className="flex items-center gap-2 mb-1" style={{ flexShrink: 0 }}>
+        <div style={{ width: 3, height: 10, borderRadius: 2, background: theme.accentHex, opacity: 0.7 }} />
         <span style={{
-          fontSize: 8, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+          fontSize: 7, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
           color: theme.accentHex, opacity: 0.85, fontFamily: FONT_FAMILY,
         }}>
           AI Insight
         </span>
       </div>
 
-      {/* Auto-sized text */}
+      {/* Auto-sized insight text */}
       <div
         ref={ref}
         style={{
           flex: '1 1 0', minHeight: 0, overflow: 'hidden',
-          fontStyle: 'italic', lineHeight: 1.45,
+          fontStyle: 'italic', lineHeight: 1.4,
           color: 'hsl(220,10%,86%)', fontFamily: FONT_FAMILY,
           overflowWrap: 'break-word', wordBreak: 'break-word',
         }}
@@ -290,14 +322,14 @@ export function InsightPanel({
       </div>
 
       {links?.length ? (
-        <div className="flex flex-wrap gap-1.5 mt-1.5" style={{ flexShrink: 0 }}>
+        <div className="flex flex-wrap gap-1.5 mt-1" style={{ flexShrink: 0 }}>
           {links.slice(0, 3).map((link, i) => (
             <a
               key={`${link.url}-${i}`}
               href={link.url}
               target="_blank"
               rel="noreferrer noopener"
-              style={{ fontSize: 8, color: theme.accentHex, textDecoration: 'underline', textUnderlineOffset: '2px', opacity: 0.8, fontFamily: FONT_FAMILY }}
+              style={{ fontSize: 7, color: theme.accentHex, textDecoration: 'underline', textUnderlineOffset: '2px', opacity: 0.8, fontFamily: FONT_FAMILY }}
             >
               {link.label}
             </a>
@@ -329,20 +361,22 @@ export function UserTextPanel({
   maxTitleSize = 22,
   maxSubtitleSize = 14,
 }: UserTextPanelProps) {
-  const titleRef = useAutoSizeText(title, maxTitleSize, 12);
-  const subRef = useAutoSizeText(subtitle, maxSubtitleSize, 9);
+  const titleRef = useAutoSizeText(title, maxTitleSize, 10);
+  const subRef = useAutoSizeText(subtitle, maxSubtitleSize, 8);
 
   return (
     <BentoPanel
-      className={`flex flex-col justify-center ${className}`}
-      style={{ padding: '12px 14px', ...style }}
+      className={`flex flex-col ${className}`}
+      style={{ padding: '10px 12px', ...style }}
     >
+      {/* Title — takes proportional space */}
       <div
         ref={titleRef.ref}
         style={{
-          fontWeight: 600, lineHeight: 1.28, color: theme.headlineHex,
+          fontWeight: 600, lineHeight: 1.25, color: theme.headlineHex,
           fontFamily: FONT_FAMILY, overflow: 'hidden',
-          flex: subtitle ? '0 1 auto' : '1 1 0', minHeight: 0,
+          flex: subtitle ? '1 1 0' : '1 1 0', minHeight: 0,
+          overflowWrap: 'break-word', wordBreak: 'break-word',
         }}
       >
         {title}
@@ -351,9 +385,10 @@ export function UserTextPanel({
         <div
           ref={subRef.ref}
           style={{
-            lineHeight: 1.45, color: 'hsl(220,10%,56%)',
-            fontFamily: FONT_FAMILY, marginTop: 6,
-            overflow: 'hidden', flex: '1 1 0', minHeight: 0,
+            lineHeight: 1.4, color: 'hsl(220,10%,56%)',
+            fontFamily: FONT_FAMILY, marginTop: 4,
+            overflow: 'hidden', flex: '1.2 1 0', minHeight: 0,
+            overflowWrap: 'break-word', wordBreak: 'break-word',
           }}
         >
           {subtitle}
@@ -375,25 +410,36 @@ interface MetaPanelProps {
 }
 
 export function MetaPanel({ cardType, timeAnchor, domain, theme, className = '', style }: MetaPanelProps) {
+  const typeLabel = cardType.replace(/_/g, ' ');
+  const { ref: typeRef } = useAutoSizeText(typeLabel, 10, 6);
+  const { ref: timeRef } = useAutoSizeText(timeAnchor, 11, 7);
+
   return (
     <BentoPanel
       className={`flex flex-col justify-center ${className}`}
-      style={{ padding: '10px 12px', ...style }}
+      style={{ padding: '8px 10px', ...style }}
     >
-      <div style={{
-        fontSize: 8, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
-        color: theme.accentHex, opacity: 0.75, fontFamily: FONT_FAMILY, marginBottom: 3,
-      }}>
-        {cardType.replace(/_/g, ' ')}
+      <div
+        ref={typeRef}
+        style={{
+          fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+          color: theme.accentHex, opacity: 0.75, fontFamily: FONT_FAMILY,
+          overflow: 'hidden', lineHeight: 1.3,
+        }}
+      >
+        {typeLabel}
       </div>
       {timeAnchor && (
-        <div style={{ fontSize: 11, color: 'hsl(220,10%,48%)', fontFamily: FONT_FAMILY }}>
+        <div
+          ref={timeRef}
+          style={{ color: 'hsl(220,10%,48%)', fontFamily: FONT_FAMILY, marginTop: 2, overflow: 'hidden', lineHeight: 1.3 }}
+        >
           {timeAnchor}
         </div>
       )}
       {domain && (
         <div style={{
-          fontSize: 8, color: 'hsl(220,10%,40%)', textTransform: 'uppercase',
+          fontSize: 7, color: 'hsl(220,10%,40%)', textTransform: 'uppercase',
           letterSpacing: '0.1em', marginTop: 2, fontFamily: FONT_FAMILY,
         }}>
           {domain}
@@ -422,24 +468,33 @@ export function MomentumPanel({
   statValue, statLabel, secondaryValue, secondaryLabel,
   phrase, theme, showNumbers = true, className = '', style, compact,
 }: MomentumPanelProps) {
+  const displayStat = showNumbers ? statValue : '•••';
+  const { ref: statRef } = useAutoSizeText(displayStat, compact ? 24 : 30, 14);
+  const { ref: phraseRef } = useAutoSizeText(phrase, compact ? 9 : 10, 6);
+
   return (
     <BentoPanel
       className={`flex flex-col justify-center ${className}`}
       glowColor={statValue ? `hsla(43,74%,52%,0.05)` : undefined}
-      style={{ padding: compact ? '10px 12px' : '12px 14px', ...style }}
+      style={{ padding: compact ? '8px 10px' : '10px 12px', ...style }}
     >
       {statValue && (
         <div className="flex items-baseline gap-2 mb-1">
-          <span style={{
-            fontSize: compact ? 26 : 32, fontWeight: 700, color: theme.accentHex,
-            fontFamily: FONT_FAMILY, lineHeight: 1, letterSpacing: '-0.02em',
-          }}>
-            {showNumbers ? statValue : '•••'}
+          <span
+            ref={statRef}
+            style={{
+              fontWeight: 700, color: theme.accentHex,
+              fontFamily: FONT_FAMILY, lineHeight: 1, letterSpacing: '-0.02em',
+              overflow: 'hidden',
+            }}
+          >
+            {displayStat}
           </span>
           {statLabel && (
             <span style={{
-              fontSize: compact ? 8 : 9, fontWeight: 600, color: 'hsl(220,10%,50%)',
+              fontSize: compact ? 7 : 8, fontWeight: 600, color: 'hsl(220,10%,50%)',
               textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT_FAMILY,
+              flexShrink: 0,
             }}>
               {statLabel}
             </span>
@@ -449,26 +504,30 @@ export function MomentumPanel({
 
       {secondaryValue && (
         <div className="flex items-baseline gap-2 mb-1">
-          <span style={{ fontSize: compact ? 14 : 17, fontWeight: 600, color: theme.metricHex, fontFamily: FONT_FAMILY }}>
+          <span style={{ fontSize: compact ? 13 : 16, fontWeight: 600, color: theme.metricHex, fontFamily: FONT_FAMILY }}>
             {showNumbers ? secondaryValue : '•••'}
           </span>
           {secondaryLabel && (
-            <span style={{ fontSize: 8, color: 'hsl(220,10%,44%)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: FONT_FAMILY }}>
+            <span style={{ fontSize: 7, color: 'hsl(220,10%,44%)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: FONT_FAMILY }}>
               {secondaryLabel}
             </span>
           )}
         </div>
       )}
 
-      <p style={{
-        fontSize: compact ? 8 : 9, fontWeight: 500, fontStyle: 'italic',
-        letterSpacing: '0.06em', textTransform: 'uppercase',
-        color: theme.accentHex, opacity: 0.6,
-        marginTop: statValue ? 3 : 0, fontFamily: FONT_FAMILY,
-        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-      }}>
+      <div
+        ref={phraseRef}
+        style={{
+          fontWeight: 500, fontStyle: 'italic',
+          letterSpacing: '0.06em', textTransform: 'uppercase',
+          color: theme.accentHex, opacity: 0.6,
+          marginTop: statValue ? 2 : 0, fontFamily: FONT_FAMILY,
+          overflow: 'hidden', lineHeight: 1.3,
+          overflowWrap: 'break-word', wordBreak: 'break-word',
+        }}
+      >
         {phrase}
-      </p>
+      </div>
     </BentoPanel>
   );
 }
@@ -484,23 +543,32 @@ interface MilestonePanelProps {
 }
 
 export function MilestonePanel({ label, sublabel, theme, className = '', style }: MilestonePanelProps) {
+  const { ref: labelRef } = useAutoSizeText(label, 12, 8);
+
   return (
     <BentoPanel
       className={`flex flex-col justify-center ${className}`}
       glowColor={`hsla(43,74%,52%,0.04)`}
-      style={{ padding: '10px 12px', ...style }}
+      style={{ padding: '8px 10px', ...style }}
     >
       <div className="flex items-center gap-2">
         <div style={{
-          width: 6, height: 6, borderRadius: '50%',
+          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
           background: theme.accentHex, boxShadow: `0 0 8px ${theme.accentHex}`, opacity: 0.7,
         }} />
-        <span style={{ fontSize: 11, fontWeight: 600, color: theme.headlineHex, letterSpacing: '0.02em', fontFamily: FONT_FAMILY }}>
+        <span
+          ref={labelRef}
+          style={{
+            fontWeight: 600, color: theme.headlineHex, letterSpacing: '0.02em',
+            fontFamily: FONT_FAMILY, overflow: 'hidden', lineHeight: 1.3,
+            flex: '1 1 0', minWidth: 0,
+          }}
+        >
           {label}
         </span>
       </div>
       {sublabel && (
-        <span style={{ fontSize: 9, color: 'hsl(220,10%,44%)', marginTop: 2, marginLeft: 14, fontFamily: FONT_FAMILY }}>
+        <span style={{ fontSize: 8, color: 'hsl(220,10%,44%)', marginTop: 2, marginLeft: 14, fontFamily: FONT_FAMILY }}>
           {sublabel}
         </span>
       )}
@@ -520,9 +588,9 @@ interface BrandPanelProps {
 export function BrandPanel({ theme, className = '', style, compact }: BrandPanelProps) {
   return (
     <div
-      className={`flex items-center justify-center gap-2.5 ${className}`}
+      className={`flex items-center justify-center gap-2 ${className}`}
       style={{
-        padding: compact ? '8px 14px' : '10px 18px',
+        padding: compact ? '6px 12px' : '8px 16px',
         borderRadius: 14,
         background: 'linear-gradient(145deg, hsla(220,20%,10%,0.8) 0%, hsla(220,18%,7%,0.72) 100%)',
         border: '1px solid hsla(0,0%,100%,0.05)',
@@ -532,16 +600,16 @@ export function BrandPanel({ theme, className = '', style, compact }: BrandPanel
     >
       <div
         style={{
-          width: compact ? 18 : 22, height: compact ? 18 : 22, borderRadius: 6, flexShrink: 0,
+          width: compact ? 16 : 20, height: compact ? 16 : 20, borderRadius: 5, flexShrink: 0,
           background: 'linear-gradient(135deg, hsl(43,74%,55%) 0%, hsl(43,65%,38%) 100%)',
           boxShadow: '0 2px 8px -2px hsla(43,74%,52%,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        <span style={{ fontSize: compact ? 6 : 7, fontWeight: 800, color: 'hsl(220,20%,6%)', letterSpacing: '0.06em', fontFamily: FONT_FAMILY }}>LS</span>
+        <span style={{ fontSize: compact ? 5 : 6, fontWeight: 800, color: 'hsl(220,20%,6%)', letterSpacing: '0.06em', fontFamily: FONT_FAMILY }}>LS</span>
       </div>
       <span style={{
-        fontSize: compact ? 9 : 10, fontWeight: 500, letterSpacing: '0.04em',
+        fontSize: compact ? 8 : 9, fontWeight: 500, letterSpacing: '0.04em',
         color: 'hsl(220,10%,44%)', fontFamily: FONT_FAMILY,
       }}>
         Posted from <span style={{ color: theme.accentHex, fontWeight: 600 }}>LifeStack</span>
