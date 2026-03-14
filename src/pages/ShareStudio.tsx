@@ -240,15 +240,19 @@ export default function ShareStudio() {
 
   // ─── Card Preview Component ───
   const CardPreview = ({ className }: { className?: string }) => (
-    <div ref={cardRef}
+    <div
+      ref={cardRef}
+      data-share-export-root="true"
       className={cn('share-card relative select-none', formatAspect[format], className)}
       style={{
         borderRadius: '16px',
         border: '1px solid hsla(0,0%,100%,0.04)',
         boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)',
         overflow: 'hidden',
-        /* Ensure the container has a fixed aspect-ratio-based height and clips all overflow */
-      }}>
+        textRendering: 'optimizeLegibility',
+        WebkitFontSmoothing: 'antialiased',
+      }}
+    >
       <TemplateComponent
         data={selectedCard}
         theme={themeObj}
@@ -256,7 +260,7 @@ export default function ShareStudio() {
         privacy={privacy}
         phrase={phrase}
         userName={privacy.includeName ? 'You' : undefined}
-        animate={true}
+        animate={false}
         aiInsight={aiInsightEnabled ? aiInsight : null}
         includeImage={includePostImage}
         imageLayout={imageLayout}
