@@ -53,7 +53,7 @@ export function MomentumTemplate({ data, theme: t, format, privacy: rawPrivacy, 
         </div>
 
         {/* TEXT REGION */}
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center', animate && 'share-hero-fade')}
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center overflow-hidden', animate && 'share-hero-fade')}
           style={{ gap: 10 }}>
           {displayValue && (
             <div className="flex-shrink-0" style={{

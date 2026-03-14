@@ -70,7 +70,7 @@ export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate
         }}>
 
         {/* TEXT REGION */}
-        <div className="flex flex-col flex-1 min-h-0 justify-center" style={{ gap: 8 }}>
+        <div className="flex flex-col flex-1 min-h-0 justify-center overflow-hidden" style={{ gap: 8 }}>
           <h2 className={t.textPrimary} style={{
             ...getClampStyle(3, 1.35),
             fontSize: 'clamp(0.875rem, 2.5vw, 1.0625rem)',

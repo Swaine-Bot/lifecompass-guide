@@ -34,7 +34,7 @@ export function MinimalTemplate({ data, theme: t, format, phrase, animate, aiIns
         }}>
 
         {/* TEXT REGION — centered */}
-        <div className={cn('flex-1 min-h-0 flex flex-col justify-center items-center', animate && 'share-hero-fade')}
+        <div className={cn('flex-1 min-h-0 flex flex-col justify-center items-center overflow-hidden', animate && 'share-hero-fade')}
           style={{ gap: 14 }}>
 
           <div className="flex-shrink-0" style={{ fontSize: 32, lineHeight: 1, color: t.accentHex, opacity: 0.3, fontFamily: 'serif' }}>
