@@ -33,6 +33,7 @@ interface MediaPanelProps {
   isAudio?: boolean;
   showCount?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, className = '' }: MediaPanelProps) {
