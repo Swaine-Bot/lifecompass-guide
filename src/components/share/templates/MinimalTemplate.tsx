@@ -26,7 +26,7 @@ export function MinimalTemplate({ data, theme: t, format, phrase, animate, aiIns
       )}
 
       {/* CONTENT COLUMN */}
-      <div className={cn('relative flex flex-col items-center text-center', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
+      <div className={cn('relative flex flex-col items-center text-center overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
