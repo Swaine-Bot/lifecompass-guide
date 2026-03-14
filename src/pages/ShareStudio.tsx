@@ -19,7 +19,7 @@ import {
   DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase, THEMES,
   nativeShare, copyToClipboard, copyImageToClipboard, trackShareEvent, saveShareCard,
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
-  CardType, ImageLayout, buildShareCaption,
+  CardType, ImageLayout, buildShareCaption, getNativeSharePreset,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
