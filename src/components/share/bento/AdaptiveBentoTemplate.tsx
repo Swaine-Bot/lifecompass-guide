@@ -22,7 +22,7 @@ interface AdaptiveBentoTemplateProps extends ShareTemplateProps {
  * - Format (story, feed, square, linkedin, tiktok)
  * - Content presence (media, insight, stats, subtitle)
  *
- * Every element gets its own clean box panel. All text auto-sizes.
+ * Every element gets its own clean box panel. All text auto-sizes via ResizeObserver.
  * Media wraps tightly — no dead space.
  */
 export function AdaptiveBentoTemplate({
@@ -48,18 +48,18 @@ export function AdaptiveBentoTemplate({
   const isStory = format === 'story' || format === 'tiktok';
   const isSquare = format === 'square';
 
-  // Dynamic sizing based on format
-  const pad = isStory ? '24px 16px 36px' : isSquare ? '14px 12px 16px' : '16px 14px 20px';
-  const gap = isStory ? 7 : isSquare ? 5 : 6;
+  // Dynamic spacing based on format
+  const gap = isStory ? 6 : isSquare ? 4 : 5;
+  const pad = isStory ? '20px 14px 32px' : isSquare ? '12px 10px 14px' : '14px 12px 18px';
 
-  // Content-aware font scaling
+  // Content-aware font scaling — fewer items = bigger text
   const contentPieces = [hasMedia, hasInsight, hasStats, hasSub].filter(Boolean).length;
-  const titleMaxSize = contentPieces >= 3 ? (isSquare ? 16 : 18) : (isSquare ? 20 : 24);
-  const subMaxSize = contentPieces >= 3 ? 11 : 13;
-  const insightMaxSize = contentPieces >= 3 ? 13 : 16;
+  const titleMaxSize = contentPieces >= 3 ? (isSquare ? 14 : 16) : (isSquare ? 18 : 22);
+  const subMaxSize = contentPieces >= 3 ? 10 : 12;
+  const insightMaxSize = contentPieces >= 3 ? 12 : 15;
 
-  // Determine media flex ratio — more content = less media space
-  const mediaRatio = contentPieces >= 3 ? 0.28 : contentPieces >= 2 ? 0.35 : 0.45;
+  // Media flex ratio — more content = less media space
+  const mediaRatio = contentPieces >= 3 ? 0.25 : contentPieces >= 2 ? 0.32 : 0.42;
 
   // ── Build panel blocks ──
 
@@ -117,38 +117,38 @@ export function AdaptiveBentoTemplate({
   ) : null;
 
   // ── Layout strategies ──
-  // Each returns a flex column of panels that fills the card
+  // Each fills the card with flex panels that have explicit flex sizing
+  // so auto-sizer can measure against real container heights.
 
   const renderHeroLayout = () => (
     <>
-      {/* Media takes proportional space at top */}
+      {/* Media at top with proportional space */}
       {mediaBlock && imgLayout === 'hero_image' && (
         <div style={{ flex: `0 0 ${Math.round(mediaRatio * 100)}%`, minHeight: 0 }}>
           {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
-      {/* Content fills remaining space */}
+      {/* Insight fills generous space */}
       {insightBlock && (
-        <div style={{ flex: hasStats ? '1.5 1 0' : '2 1 0', minHeight: 0 }}>
+        <div style={{ flex: hasStats ? '1.2 1 0' : '1.8 1 0', minHeight: 0 }}>
           {React.cloneElement(insightBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
+      {/* Text panel */}
       <div style={{ flex: '1 1 0', minHeight: 0 }}>
         {React.cloneElement(textBlock, { style: { width: '100%', height: '100%' } })}
       </div>
       {/* Bottom row: momentum + meta side by side */}
-      {(momentumBlock || true) && (
-        <div style={{ display: 'flex', gap, flexShrink: 0 }}>
-          {momentumBlock && (
-            <div style={{ flex: '1 1 0', minWidth: 0 }}>
-              {React.cloneElement(momentumBlock, { style: { height: '100%' } })}
-            </div>
-          )}
+      <div style={{ display: 'flex', gap, flexShrink: 0 }}>
+        {momentumBlock && (
           <div style={{ flex: '1 1 0', minWidth: 0 }}>
-            {React.cloneElement(metaBlock, { style: { height: '100%' } })}
+            {React.cloneElement(momentumBlock, { style: { height: '100%' } })}
           </div>
+        )}
+        <div style={{ flex: '1 1 0', minWidth: 0 }}>
+          {React.cloneElement(metaBlock, { style: { height: '100%' } })}
         </div>
-      )}
+      </div>
     </>
   );
 
@@ -158,14 +158,14 @@ export function AdaptiveBentoTemplate({
       <div style={{ display: 'flex', flexDirection: isRow ? 'row' : 'column', gap, flex: '1 1 0', minHeight: 0 }}>
         {/* Media side */}
         {mediaBlock && (
-          <div style={{ flex: `0 0 ${isRow ? '42%' : `${Math.round(mediaRatio * 100)}%`}`, minHeight: 0, minWidth: 0 }}>
+          <div style={{ flex: `0 0 ${isRow ? '40%' : `${Math.round(mediaRatio * 100)}%`}`, minHeight: 0, minWidth: 0 }}>
             {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
           </div>
         )}
         {/* Content side */}
         <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minHeight: 0, minWidth: 0 }}>
           {insightBlock && (
-            <div style={{ flex: '1.5 1 0', minHeight: 0 }}>
+            <div style={{ flex: '1.2 1 0', minHeight: 0 }}>
               {React.cloneElement(insightBlock, { style: { width: '100%', height: '100%' } })}
             </div>
           )}
@@ -189,9 +189,9 @@ export function AdaptiveBentoTemplate({
 
   const renderReflectionLayout = () => (
     <>
-      {/* Insight-first: big insight panel dominates */}
+      {/* Insight or text dominates */}
       {insightBlock ? (
-        <div style={{ flex: '2.5 1 0', minHeight: 0 }}>
+        <div style={{ flex: '2 1 0', minHeight: 0 }}>
           {React.cloneElement(insightBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       ) : (
@@ -200,18 +200,16 @@ export function AdaptiveBentoTemplate({
         </div>
       )}
       {/* Media + meta row */}
-      {(mediaBlock || true) && (
-        <div style={{ display: 'flex', gap, flexShrink: 0 }}>
-          {mediaBlock && (
-            <div style={{ flex: '1 1 0', minWidth: 0, maxHeight: 90 }}>
-              {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
-            </div>
-          )}
-          <div style={{ flex: '1 1 0', minWidth: 0 }}>
-            {React.cloneElement(metaBlock, { style: { height: '100%' } })}
+      <div style={{ display: 'flex', gap, flexShrink: 0 }}>
+        {mediaBlock && (
+          <div style={{ flex: '1 1 0', minWidth: 0, maxHeight: 80 }}>
+            {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
           </div>
+        )}
+        <div style={{ flex: '1 1 0', minWidth: 0 }}>
+          {React.cloneElement(metaBlock, { style: { height: '100%' } })}
         </div>
-      )}
+      </div>
       {/* Text block if insight already shown */}
       {insightBlock && (
         <div style={{ flex: '1 1 0', minHeight: 0 }}>
@@ -230,12 +228,12 @@ export function AdaptiveBentoTemplate({
   const renderMinimalLayout = () => (
     <>
       {mediaBlock && (
-        <div style={{ flexShrink: 0, maxHeight: '35%' }}>
+        <div style={{ flexShrink: 0, maxHeight: '32%' }}>
           {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
       {insightBlock && (
-        <div style={{ flex: '1.5 1 0', minHeight: 0 }}>
+        <div style={{ flex: '1.2 1 0', minHeight: 0 }}>
           {React.cloneElement(insightBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
@@ -255,12 +253,9 @@ export function AdaptiveBentoTemplate({
 
   // Choose layout
   const chooseLayout = () => {
-    // For background_image, use the same layout but skip the media panel in the layout
-    // (it's rendered as atmospheric behind)
     if (imgLayout === 'split_image') return renderSplitLayout();
     if (baseVariant === 'reflection') return renderReflectionLayout();
     if (baseVariant === 'minimal') return renderMinimalLayout();
-    // hero and default
     return renderHeroLayout();
   };
 
