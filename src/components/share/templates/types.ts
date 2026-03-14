@@ -1,6 +1,6 @@
 import type { ShareCardData, PrivacySettings, ShareTheme, ShareFormat, ThemeDefinition, ImageLayout } from '@/services/shareService';
 
-export type ShareTemplateName = 'classic' | 'story' | 'minimal' | 'momentum' | 'media_spotlight' | 'reflection';
+export type ShareTemplateName = 'classic' | 'story' | 'minimal' | 'momentum' | 'media_spotlight' | 'reflection' | 'bento_hero' | 'bento_split' | 'bento_reflection' | 'bento_minimal';
 
 export interface ShareTemplateProps {
   data: ShareCardData;
@@ -26,9 +26,48 @@ export interface TemplateMetadata {
   bestFor: string[];
   aiInsightPlacement: string;
   suggestedForTypes: string[];
+  isBento?: boolean;
 }
 
 export const TEMPLATE_REGISTRY: TemplateMetadata[] = [
+  // ─── Bento Templates (featured) ─────────────────────────────────
+  {
+    id: 'bento_hero',
+    label: 'Bento Hero',
+    description: 'Modular bento grid with large media panel',
+    bestFor: ['Instagram', 'TikTok', 'Photos'],
+    aiInsightPlacement: 'dedicated panel',
+    suggestedForTypes: ['feed_post', 'journal_reflection', 'achievement'],
+    isBento: true,
+  },
+  {
+    id: 'bento_split',
+    label: 'Bento Split',
+    description: 'Side-by-side media and content panels',
+    bestFor: ['LinkedIn', 'Facebook'],
+    aiInsightPlacement: 'stacked panel',
+    suggestedForTypes: ['milestone', 'progress', 'goal_progress'],
+    isBento: true,
+  },
+  {
+    id: 'bento_reflection',
+    label: 'Bento Reflect',
+    description: 'Insight-first layout for deep shares',
+    bestFor: ['Journal', 'Mentor', 'Insights'],
+    aiInsightPlacement: 'hero panel',
+    suggestedForTypes: ['mentor_insight', 'journal_reflection', 'weekly_recap'],
+    isBento: true,
+  },
+  {
+    id: 'bento_minimal',
+    label: 'Bento Minimal',
+    description: 'Clean, concise quote card',
+    bestFor: ['Quotes', 'Quick shares'],
+    aiInsightPlacement: 'inline text',
+    suggestedForTypes: ['mentor_insight', 'micro_move_completed'],
+    isBento: true,
+  },
+  // ─── Legacy Templates ───────────────────────────────────────────
   {
     id: 'classic',
     label: 'Classic',
@@ -80,9 +119,12 @@ export const TEMPLATE_REGISTRY: TemplateMetadata[] = [
 ];
 
 export function suggestTemplate(sourceType?: string, hasMedia?: boolean): ShareTemplateName {
-  if (hasMedia) return 'media_spotlight';
-  if (!sourceType) return 'classic';
+  if (hasMedia) return 'bento_hero';
+  if (!sourceType) return 'bento_hero';
   
-  const match = TEMPLATE_REGISTRY.find(t => t.suggestedForTypes.includes(sourceType));
-  return match?.id || 'classic';
+  // Prefer bento templates
+  const bentoMatch = TEMPLATE_REGISTRY.filter(t => t.isBento).find(t => t.suggestedForTypes.includes(sourceType));
+  if (bentoMatch) return bentoMatch.id;
+  
+  return 'bento_hero';
 }
