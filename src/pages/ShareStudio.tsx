@@ -255,6 +255,7 @@ export default function ShareStudio() {
       }}
     >
       <TemplateComponent
+        key={renderLayoutSignature}
         data={selectedCard}
         theme={themeObj}
         format={format}
