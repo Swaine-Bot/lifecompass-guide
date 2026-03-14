@@ -62,7 +62,7 @@ export function MediaSpotlightTemplate({ data, theme: t, format, phrase, animate
       )}
 
       {/* CONTENT COLUMN */}
-      <div className={cn('relative flex flex-col', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
+      <div className={cn('relative flex flex-col overflow-hidden', isSplit ? 'flex-1 min-w-0' : 'flex-1', animate && 'share-hero-fade')}
         style={{
           padding: isSplit
             ? `${safeArea.top}px ${preset.splitContentPadding}px ${safeArea.bottom}px ${preset.splitContentPadding}px`
