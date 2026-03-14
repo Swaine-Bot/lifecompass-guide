@@ -388,27 +388,39 @@ export async function saveShareCard(
  * Platform-aware native share — always tries to share the rendered card image first.
  * Falls back to text+url if image sharing is not supported.
  */
-export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string): Promise<boolean> {
+export async function nativeShare(
+  text: string,
+  title: string,
+  imageBlob?: Blob,
+  url?: string,
+  preset: NativeSharePreset = 'post',
+): Promise<boolean> {
   if (!navigator.share) return false;
 
-  try {
-    // Always try to share with the image file first
-    if (imageBlob) {
-      const file = new File([imageBlob], 'lifestack-share.png', { type: 'image/png' });
-      const shareDataWithFile: ShareData = { files: [file] };
+  const isStoryLike = preset === 'story' || preset === 'reel';
 
-      // Check if the platform can share files
-      if (navigator.canShare?.(shareDataWithFile)) {
-        // Include text as caption for platforms that support it (WhatsApp, etc.)
-        shareDataWithFile.title = title;
+  try {
+    if (imageBlob) {
+      const fileName = `lifestack-${preset}-share.png`;
+      const file = new File([imageBlob], fileName, { type: 'image/png' });
+      const shareDataWithFile: ShareData = {
+        files: [file],
+        title,
+      };
+
+      // For post-like destinations, include caption + link.
+      if (!isStoryLike) {
         shareDataWithFile.text = text;
         if (url) shareDataWithFile.url = url;
+      }
+
+      if (navigator.canShare?.(shareDataWithFile)) {
         await navigator.share(shareDataWithFile);
         return true;
       }
     }
 
-    // Fallback: share as text + url (no image)
+    // Fallback: text+url handoff
     const shareData: ShareData = { title, text };
     if (url) shareData.url = url;
     await navigator.share(shareData);
