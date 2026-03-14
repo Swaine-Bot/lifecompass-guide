@@ -16,7 +16,7 @@ function detectMediaType(url: string): 'image' | 'video' | 'audio' {
 export function BentoPanel({ children, className = '', style }: PanelProps) {
   return (
     <div
-      className={`relative overflow-hidden ${className}`}
+      className={`relative ${className}`}
       style={{
         background: 'hsla(220,18%,10%,0.68)',
         borderRadius: '14px',
