@@ -1,7 +1,9 @@
 import type { ShareTemplateProps } from '../templates/types';
 import { MediaPanel, InsightPanel, UserTextPanel, MetaPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+import { applyPrivacy } from '@/services/shareService';
 
-export function SplitBentoLayout({ data, theme, format, privacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+export function SplitBentoLayout({ data, theme, format, privacy: rawPrivacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+  const privacy = applyPrivacy(rawPrivacy);
   const hasMedia = includeImage && !!data.imageUrl;
   const hasInsight = !!aiInsight;
   const showNumbers = privacy.includeExactNumbers;
@@ -12,13 +14,11 @@ export function SplitBentoLayout({ data, theme, format, privacy, phrase, aiInsig
       className="absolute inset-0 flex flex-col"
       style={{
         background: theme.bgGradient,
-        padding: isStory ? '120px 28px 180px' : '28px',
-        gap: 8,
+        padding: isStory ? '28px 18px 40px' : '14px',
+        gap: 7,
       }}
     >
-      {/* Main split row */}
       <div className="flex gap-2 flex-1 min-h-0">
-        {/* Left: Media */}
         {hasMedia && (
           <MediaPanel
             url={data.imageUrl}
@@ -28,7 +28,6 @@ export function SplitBentoLayout({ data, theme, format, privacy, phrase, aiInsig
           />
         )}
 
-        {/* Right: stacked panels */}
         <div className="flex flex-col gap-2 flex-1 min-w-0">
           {hasInsight && (
             <InsightPanel insight={aiInsight!} theme={theme} className="flex-1 min-h-0" />
@@ -47,11 +46,11 @@ export function SplitBentoLayout({ data, theme, format, privacy, phrase, aiInsig
             domain={data.domain}
             theme={theme}
             className="flex-shrink-0"
+            compact
           />
         </div>
       </div>
 
-      {/* Bottom: Momentum */}
       {data.statValue && (
         <MomentumPanel
           statValue={data.statValue}
@@ -62,11 +61,11 @@ export function SplitBentoLayout({ data, theme, format, privacy, phrase, aiInsig
           theme={theme}
           showNumbers={showNumbers}
           className="flex-shrink-0"
+          compact={hasInsight}
         />
       )}
 
-      {/* Brand */}
-      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0" />}
+      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0" compact />}
     </div>
   );
 }

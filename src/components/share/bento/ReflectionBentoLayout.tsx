@@ -1,7 +1,9 @@
 import type { ShareTemplateProps } from '../templates/types';
 import { MediaPanel, InsightPanel, UserTextPanel, MetaPanel, MomentumPanel, BrandPanel } from './BentoPanels';
+import { applyPrivacy } from '@/services/shareService';
 
-export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+export function ReflectionBentoLayout({ data, theme, format, privacy: rawPrivacy, phrase, aiInsight, includeImage, showImageCount }: ShareTemplateProps) {
+  const privacy = applyPrivacy(rawPrivacy);
   const hasMedia = includeImage && !!data.imageUrl;
   const hasInsight = !!aiInsight;
   const showNumbers = privacy.includeExactNumbers;
@@ -12,11 +14,10 @@ export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, ai
       className="absolute inset-0 flex flex-col"
       style={{
         background: theme.bgGradient,
-        padding: isStory ? '120px 28px 180px' : '28px',
-        gap: 8,
+        padding: isStory ? '28px 18px 40px' : '14px',
+        gap: 7,
       }}
     >
-      {/* Large insight panel — hero */}
       {hasInsight ? (
         <InsightPanel insight={aiInsight!} theme={theme} className="flex-[2] min-h-0" />
       ) : (
@@ -30,7 +31,6 @@ export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, ai
         />
       )}
 
-      {/* Row: Media preview + Meta */}
       <div className="flex gap-2 flex-shrink-0" style={{ height: hasMedia ? '25%' : 'auto' }}>
         {hasMedia && (
           <MediaPanel
@@ -47,11 +47,11 @@ export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, ai
             domain={data.domain}
             theme={theme}
             className="flex-1"
+            compact
           />
         </div>
       </div>
 
-      {/* User text (if insight took hero) */}
       {hasInsight && (
         <UserTextPanel
           title={data.title}
@@ -63,7 +63,6 @@ export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, ai
         />
       )}
 
-      {/* Momentum */}
       {data.statValue && (
         <MomentumPanel
           statValue={data.statValue}
@@ -72,11 +71,11 @@ export function ReflectionBentoLayout({ data, theme, format, privacy, phrase, ai
           theme={theme}
           showNumbers={showNumbers}
           className="flex-shrink-0"
+          compact
         />
       )}
 
-      {/* Brand */}
-      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0 mt-auto" />}
+      {privacy.includeFooter && <BrandPanel theme={theme} className="flex-shrink-0 mt-auto" compact />}
     </div>
   );
 }
