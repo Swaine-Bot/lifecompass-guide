@@ -141,7 +141,7 @@ export default function ShareStudio() {
     }
   }, [user, includeSmartLink, selectedCard, privacyLevel]);
 
-  /** Main share — renders via deterministic canvas, then native share */
+  /** Main share — renders via deterministic canvas, then IMAGE-ONLY native share */
   const handleShare = useCallback(async () => {
     if (!user) return;
     setSharing(true);
@@ -152,27 +152,30 @@ export default function ShareStudio() {
         return;
       }
 
+      // Generate smart link & caption separately — NOT included in share payload
       const smartUrl = await generateSmartLink();
       const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
       const nativePreset = PLATFORM_PROFILES[platform].nativeSharePreset;
 
-      const shared = await nativeShare(
-        caption,
-        `LifeStack — ${selectedCard.title}`,
-        blob,
-        smartUrl ?? undefined,
-        nativePreset,
-      );
+      // IMAGE-ONLY share — no text/url contamination
+      const result = await nativeShare(blob, nativePreset);
 
-      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${nativePreset}` : 'clipboard_image', platform, privacyLevel);
+      await trackShareEvent(user.id, selectedCard.cardType, result.shared ? `native_${nativePreset}` : result.method, platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
-      if (shared) {
+      if (result.shared) {
+        // Copy caption to clipboard after successful image share
+        await copyToClipboard(caption);
+        toast.success('Card shared! Caption copied for pasting.', { duration: 4000 });
         setStep('success');
+      } else if (result.method === 'cancelled') {
+        // User cancelled — do nothing
       } else {
+        // File sharing unsupported — controlled fallback
         const imgCopied = await copyImageToClipboard(blob);
         if (imgCopied) {
-          toast.success('Card image copied to clipboard — paste it into any app!');
+          await copyToClipboard(caption);
+          toast.success('Card image copied to clipboard — paste it into any app! Caption also copied.');
         } else {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -180,7 +183,8 @@ export default function ShareStudio() {
           a.download = `lifestack-${platform}-share.png`;
           a.click();
           URL.revokeObjectURL(url);
-          toast.success('Card image downloaded — share it from your gallery!');
+          await copyToClipboard(caption);
+          toast.success('Card saved to downloads. Caption copied for pasting.');
         }
         setStep('success');
       }
