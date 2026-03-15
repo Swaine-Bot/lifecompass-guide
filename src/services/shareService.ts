@@ -367,59 +367,67 @@ export async function saveShareCard(userId: string, data: ShareCardData, theme: 
 }
 
 /**
- * Native share — ALWAYS shares the rendered card image as a file.
- * Never degrades to text-only or link-only sharing.
- * 
- * The image IS the share content. Caption text is included alongside
- * but the file is the primary payload so receiving apps (Instagram,
- * WhatsApp, Facebook, TikTok, etc.) treat it as media, not a link.
+ * Native share — IMAGE-ONLY payload for card sharing.
  *
- * Fallback chain:
- *  1. File share (image + caption) — works on most mobile browsers
- *  2. File share (image only, no text) — for strict canShare checks
- *  3. Return false — caller should copy image to clipboard instead
+ * CRITICAL: On iOS, if text/url is included alongside files, apps like
+ * Facebook/Instagram will prefer the URL and ignore the image file.
+ * The solution is to send ONLY the file in the navigator.share payload.
+ *
+ * Caption/link are handled separately (copied to clipboard after share).
+ *
+ * @param imageBlob - The rendered PNG card blob (required)
+ * @param preset - Native share preset name (for filename)
+ * @returns { shared: boolean; method: string } — what happened
  */
-export async function nativeShare(text: string, title: string, imageBlob?: Blob, url?: string, preset: NativeSharePreset = 'post'): Promise<boolean> {
+export async function nativeShare(
+  imageBlob: Blob,
+  preset: NativeSharePreset = 'post',
+): Promise<{ shared: boolean; method: string }> {
   if (!navigator.share) {
     console.warn('[Share] navigator.share not available');
-    return false;
+    return { shared: false, method: 'unsupported' };
   }
 
-  if (!imageBlob) {
-    console.warn('[Share] No image blob provided — share card must always be an image');
-    return false;
+  if (!imageBlob || imageBlob.size === 0) {
+    console.warn('[Share] No image blob or empty blob');
+    return { shared: false, method: 'no_blob' };
   }
 
   const fileName = `lifestack-${preset}-share.png`;
   const file = new File([imageBlob], fileName, { type: 'image/png' });
 
-  // Attempt 1: Image file + caption text (best experience)
-  try {
-    const shareData: ShareData = { files: [file], title, text };
-    if (navigator.canShare && navigator.canShare(shareData)) {
-      await navigator.share(shareData);
-      return true;
-    }
-  } catch (err: any) {
-    if (err?.name === 'AbortError') return false;
-    console.warn('[Share] File+text share failed:', err?.message);
-  }
+  // Debug logging
+  console.log('[Share] Payload debug:', {
+    mode: 'social_image_only',
+    hasFiles: true,
+    fileMIME: file.type,
+    fileSize: file.size,
+    hasText: false,
+    hasUrl: false,
+    hasTitle: false,
+    canShareFiles: navigator.canShare ? navigator.canShare({ files: [file] }) : 'canShare_unavailable',
+  });
 
-  // Attempt 2: Image file only (no text — some platforms reject text+file)
+  // IMAGE-ONLY share — no text, no url, no title
   try {
     const shareData: ShareData = { files: [file] };
     if (navigator.canShare && navigator.canShare(shareData)) {
       await navigator.share(shareData);
-      return true;
+      console.log('[Share] Image-only share succeeded');
+      return { shared: true, method: 'native_file' };
+    } else {
+      console.warn('[Share] canShare({ files }) returned false');
     }
   } catch (err: any) {
-    if (err?.name === 'AbortError') return false;
-    console.warn('[Share] File-only share failed:', err?.message);
+    if (err?.name === 'AbortError') {
+      console.log('[Share] User cancelled share');
+      return { shared: false, method: 'cancelled' };
+    }
+    console.warn('[Share] Image-only share failed:', err?.message);
   }
 
-  // No text-only fallback — we never share without the card image
   console.warn('[Share] Device does not support file sharing');
-  return false;
+  return { shared: false, method: 'file_unsupported' };
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
