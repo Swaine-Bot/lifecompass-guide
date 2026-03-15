@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,38 +9,55 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SharePrivacyControls } from '@/components/share/SharePrivacyControls';
-import { ShareFormatSelector } from '@/components/share/ShareFormatSelector';
+import { PlatformSelector } from '@/components/share/PlatformSelector';
 import { ShareThemeSelector } from '@/components/share/ShareThemeSelector';
 import { TemplateSelector } from '@/components/share/TemplateSelector';
 import { AIInsightControls, type InsightStyle } from '@/components/share/AIInsightControls';
-import { TEMPLATE_COMPONENTS, suggestTemplate, type ShareTemplateName } from '@/components/share/templates';
+import { suggestTemplate, type ShareTemplateName } from '@/components/share/templates';
+import { CompositionCard, exportCompositionToBlob } from '@/components/share/CompositionCard';
+import { normalizeShareContent, type NormalizeInput } from '@/components/share/composition/normalizeShareContent';
+import type { SharePlatform } from '@/components/share/platformProfiles';
+import { PLATFORM_PROFILES } from '@/components/share/platformProfiles';
+import type { BentoBaseVariant } from '@/components/share/bento/layoutEngine';
 import {
-  ShareCardData, PrivacySettings, ShareFormat, ShareTheme,
+  ShareCardData, PrivacySettings, ShareTheme,
   DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase, THEMES,
   nativeShare, copyToClipboard, copyImageToClipboard, trackShareEvent, saveShareCard,
   CARD_TYPE_LABELS, getPrivacyLevel, CARD_TYPE_ICONS,
-  CardType, ImageLayout, buildShareCaption, getNativeSharePreset,
+  CardType, ImageLayout, buildShareCaption,
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
-type FlowStep = 'studio' | 'preview' | 'success';
+type FlowStep = 'studio' | 'success';
 
-const formatAspect: Record<ShareFormat, string> = {
-  story: 'aspect-[9/16]',
-  feed: 'aspect-[4/5]',
-  square: 'aspect-square',
-  linkedin: 'aspect-[4/5]',
-  tiktok: 'aspect-[9/16]',
-};
+/** Map ShareTemplateName to BentoBaseVariant strategy */
+function templateToStrategy(template: ShareTemplateName): BentoBaseVariant {
+  switch (template) {
+    case 'bento_hero': case 'story': case 'media_spotlight': return 'hero';
+    case 'bento_split': case 'classic': case 'momentum': return 'split';
+    case 'bento_reflection': case 'reflection': return 'reflection';
+    case 'bento_minimal': case 'minimal': return 'minimal';
+    default: return 'hero';
+  }
+}
+
+/** Map ImageLayout to ImageTreatment string */
+function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'background' | 'none' {
+  switch (layout) {
+    case 'hero_image': return 'hero';
+    case 'split_image': return 'split';
+    case 'background_image': return 'background';
+    default: return 'none';
+  }
+}
 
 export default function ShareStudio() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const cardRef = useRef<HTMLDivElement>(null);
   const demoCards = useMemo(() => generateDemoCards(), []);
 
   const prefill = (location.state as any)?.prefill as ShareCardData | undefined;
@@ -50,14 +67,14 @@ export default function ShareStudio() {
 
   const [selectedCard, setSelectedCard] = useState<ShareCardData>(prefill || demoCards[0]);
   const [theme, setTheme] = useState<ShareTheme>('obsidian_gold');
-  const [format, setFormat] = useState<ShareFormat>('square');
+  const [platform, setPlatform] = useState<SharePlatform>('instagram_feed');
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
   const [phrase, setPhrase] = useState(getRandomPhrase());
   const [sharing, setSharing] = useState(false);
   const [step, setStep] = useState<FlowStep>('studio');
   const [activeTab, setActiveTab] = useState('template');
 
-  // Template
+  // Template / Strategy
   const [selectedTemplate, setSelectedTemplate] = useState<ShareTemplateName>(
     suggestTemplate(shareOrigin, hasMedia)
   );
@@ -84,23 +101,24 @@ export default function ShareStudio() {
 
   const privacyLevel = getPrivacyLevel(privacy);
   const themeObj = THEMES[theme];
-  const TemplateComponent = TEMPLATE_COMPONENTS[selectedTemplate];
-  const renderLayoutSignature = `${selectedTemplate}:${imageLayout}:${format}:${includePostImage ? 'img' : 'no-img'}:${aiInsightEnabled ? `ai-${(aiInsight || '').length}` : 'no-ai'}`;
+  const strategy = templateToStrategy(selectedTemplate);
 
-  /** Render the card DOM node to a high-res PNG blob */
-  const renderCardBlob = useCallback(async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
-    try {
-      const { renderCardToCanvas } = await import('@/services/shareService');
-      const canvas = await renderCardToCanvas(cardRef.current, format);
-      return await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((blob) => resolve(blob), 'image/png', 1.0)
-      );
-    } catch (err) {
-      console.error('Card render failed:', err);
-      return null;
-    }
-  }, [format]);
+  // ── Normalized content (single source of truth) ──
+  const normalizedContent = useMemo(() => {
+    return normalizeShareContent({
+      data: selectedCard,
+      privacy,
+      theme: themeObj,
+      platform,
+      phrase,
+      aiInsight,
+      aiInsightEnabled,
+      includeImage: includePostImage,
+      imageLayout: mapImageLayoutForNormalize(imageLayout),
+      showImageCount,
+      strategy,
+    });
+  }, [selectedCard, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
 
   const generateSmartLink = useCallback(async (): Promise<string | null> => {
     if (!user || !includeSmartLink) return null;
@@ -123,54 +141,43 @@ export default function ShareStudio() {
     }
   }, [user, includeSmartLink, selectedCard, privacyLevel]);
 
-  /** Main share action — renders card as image and shares via native share sheet.
-   *  The card image is ALWAYS the primary content. Never degrades to text/link only. */
+  /** Main share — renders via deterministic canvas, then native share */
   const handleShare = useCallback(async () => {
     if (!user) return;
     setSharing(true);
     try {
-      // Render the visual card as a PNG blob — this is required
-      const blob = await renderCardBlob();
+      const blob = await exportCompositionToBlob(normalizedContent, platform);
       if (!blob) {
         toast.error('Failed to render share card — please try again');
         return;
       }
 
-      // Generate smart link for caption
       const smartUrl = await generateSmartLink();
+      const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
+      const nativePreset = PLATFORM_PROFILES[platform].nativeSharePreset;
 
-      // Build caption text (accompanies the image, never replaces it)
-      const caption = buildShareCaption(
-        selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl
-      );
-
-      const destinationPreset = getNativeSharePreset(format);
-
-      // Try native share — always shares the card IMAGE
       const shared = await nativeShare(
         caption,
         `LifeStack — ${selectedCard.title}`,
         blob,
         smartUrl ?? undefined,
-        destinationPreset,
+        nativePreset,
       );
 
-      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${destinationPreset}` : 'clipboard_image', format, privacyLevel);
+      await trackShareEvent(user.id, selectedCard.cardType, shared ? `native_${nativePreset}` : 'clipboard_image', platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (shared) {
         setStep('success');
       } else {
-        // Fallback: copy the card IMAGE to clipboard — never fall back to text
         const imgCopied = await copyImageToClipboard(blob);
         if (imgCopied) {
           toast.success('Card image copied to clipboard — paste it into any app!');
         } else {
-          // Last resort: download the image file
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `lifestack-${destinationPreset}-share.png`;
+          a.download = `lifestack-${platform}-share.png`;
           a.click();
           URL.revokeObjectURL(url);
           toast.success('Card image downloaded — share it from your gallery!');
@@ -183,11 +190,10 @@ export default function ShareStudio() {
     } finally {
       setSharing(false);
     }
-  }, [user, selectedCard, phrase, format, privacyLevel, theme, aiInsight, aiInsightEnabled, renderCardBlob, generateSmartLink]);
+  }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink]);
 
   const handleCopy = useCallback(async () => {
-    // Copy rendered image to clipboard
-    const blob = await renderCardBlob();
+    const blob = await exportCompositionToBlob(normalizedContent, platform);
     if (blob) {
       const ok = await copyImageToClipboard(blob);
       if (ok) {
@@ -195,13 +201,12 @@ export default function ShareStudio() {
         return;
       }
     }
-    // Fallback to text
     const smartUrl = generatedSmartUrl || (await generateSmartLink());
     const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
     const ok = await copyToClipboard(caption);
     if (ok) toast.success('Caption copied to clipboard');
     else toast.error('Copy failed');
-  }, [selectedCard, phrase, generatedSmartUrl, generateSmartLink, aiInsight, aiInsightEnabled, renderCardBlob]);
+  }, [normalizedContent, platform, selectedCard, phrase, generatedSmartUrl, generateSmartLink, aiInsight, aiInsightEnabled]);
 
   const handleCopyLink = useCallback(async () => {
     let url = generatedSmartUrl;
@@ -215,17 +220,20 @@ export default function ShareStudio() {
   }, [generatedSmartUrl, generateSmartLink]);
 
   const handleDownload = useCallback(async () => {
-    if (!cardRef.current) return;
     try {
-      const { renderCardToCanvas, downloadImage } = await import('@/services/shareService');
-      const canvas = await renderCardToCanvas(cardRef.current, format);
-      const destinationPreset = getNativeSharePreset(format);
-      await downloadImage(canvas, `lifestack-${destinationPreset}-${selectedCard.cardType}-${Date.now()}.png`);
+      const blob = await exportCompositionToBlob(normalizedContent, platform);
+      if (!blob) { toast.error('Render failed'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lifestack-${platform}-${selectedCard.cardType}-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
       toast.success('Image saved');
     } catch {
       toast.error('Download failed');
     }
-  }, [format, selectedCard.cardType]);
+  }, [normalizedContent, platform, selectedCard.cardType]);
 
   const handleSave = useCallback(async () => {
     if (!user) return;
@@ -245,38 +253,6 @@ export default function ShareStudio() {
     setSavedCards(data || []);
     setShowSaved(true);
   }, [user]);
-
-  // ─── Card Preview Component ───
-  const CardPreview = ({ className }: { className?: string }) => (
-    <div
-      ref={cardRef}
-      data-share-export-root="true"
-      className={cn('share-card relative select-none', formatAspect[format], className)}
-      style={{
-        borderRadius: '16px',
-        border: '1px solid hsla(0,0%,100%,0.04)',
-        boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)',
-        overflow: 'hidden',
-        textRendering: 'optimizeLegibility',
-        WebkitFontSmoothing: 'antialiased',
-      }}
-    >
-      <TemplateComponent
-        key={renderLayoutSignature}
-        data={selectedCard}
-        theme={themeObj}
-        format={format}
-        privacy={privacy}
-        phrase={phrase}
-        userName={privacy.includeName ? 'You' : undefined}
-        animate={false}
-        aiInsight={aiInsightEnabled ? aiInsight : null}
-        includeImage={includePostImage}
-        imageLayout={imageLayout}
-        showImageCount={showImageCount}
-      />
-    </div>
-  );
 
   // ─── Success Screen ───
   if (step === 'success') {
@@ -300,78 +276,6 @@ export default function ShareStudio() {
           <div className="space-y-2">
             <Button onClick={() => { setStep('studio'); setGeneratedSmartUrl(null); }} className="w-full">Create Another</Button>
             <Button onClick={() => navigate(-1)} variant="outline" className="w-full">Done</Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── Preview Screen ───
-  if (step === 'preview') {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => setStep('studio')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-lg font-serif font-bold">Final Preview</h1>
-          </div>
-        </div>
-        <div className="max-w-md mx-auto px-4 py-6 space-y-6 pb-32">
-          <CardPreview />
-
-          {/* What will be shared explanation */}
-          <div className="rounded-lg border border-border/30 bg-secondary/30 p-3 space-y-1">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">What gets shared</p>
-            <p className="text-xs text-foreground">✅ Rendered card image (PNG)</p>
-            <p className="text-xs text-muted-foreground">+ Caption text with your insight & link</p>
-            {selectedCard.aiInsightLinks?.length ? (
-              <p className="text-xs text-muted-foreground">+ AI insight links in caption</p>
-            ) : null}
-          </div>
-
-          {/* Format chips */}
-          <div className="flex gap-2 justify-center flex-wrap">
-            {(['square', 'feed', 'story', 'linkedin', 'tiktok'] as ShareFormat[]).map(f => (
-              <button key={f} onClick={() => setFormat(f)}
-                className={cn(
-                  'px-3 py-1 rounded-full text-xs font-medium border transition-all',
-                  format === f ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground'
-                )}>
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {includeSmartLink && (
-            <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
-              <Link2 className="w-3 h-3" />Smart link will be generated on share
-            </div>
-          )}
-
-          <p className="text-[10px] text-center text-muted-foreground">
-            Nothing is posted without your action.
-          </p>
-
-          <div className="space-y-2">
-            <Button onClick={handleShare} disabled={sharing} className="w-full">
-              <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Rendering & Sharing...' : 'Share Card Image'}
-            </Button>
-            <div className="grid grid-cols-3 gap-2">
-              <Button onClick={handleDownload} variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-1.5" />Save
-              </Button>
-              <Button onClick={handleCopy} variant="outline" size="sm">
-                <ClipboardCopy className="w-4 h-4 mr-1.5" />Copy
-              </Button>
-              <Button onClick={handleCopyLink} variant="outline" size="sm">
-                <Link2 className="w-4 h-4 mr-1.5" />Link
-              </Button>
-            </div>
-            <Button onClick={() => setStep('studio')} variant="ghost" size="sm" className="w-full text-muted-foreground">
-              ← Back to Edit
-            </Button>
           </div>
         </div>
       </div>
@@ -443,11 +347,13 @@ export default function ShareStudio() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 pb-32">
-        {/* Card Preview */}
+        {/* Card Preview — deterministic canvas, same as export */}
         <div className="flex justify-center">
-          <div className="w-full max-w-xs">
-            <CardPreview />
-          </div>
+          <CompositionCard
+            content={normalizedContent}
+            platform={platform}
+            maxPreviewWidth={Math.min(320, window.innerWidth - 48)}
+          />
         </div>
 
         {/* Regenerate */}
@@ -470,7 +376,7 @@ export default function ShareStudio() {
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
             {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
             <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
-            <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
+            <TabsTrigger value="platform" className="text-xs">Platform</TabsTrigger>
             <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
           </TabsList>
 
@@ -480,29 +386,27 @@ export default function ShareStudio() {
               <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
               {!hasPrefill && (
-                <>
-                  <div className="border-t border-border/30 pt-3">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
-                    <div className="grid grid-cols-2 gap-2 mt-3">
-                      {demoCards.map((card) => (
-                        <button key={card.cardType} onClick={() => setSelectedCard(card)}
-                          className={cn(
-                            'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
-                            selectedCard.cardType === card.cardType
-                              ? 'border-primary bg-primary/10' : 'border-border/30 hover:border-border/60'
-                          )}>
-                          <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
-                          <div>
-                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
-                              {CARD_TYPE_LABELS[card.cardType as CardType]}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+                <div className="border-t border-border/30 pt-3">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    {demoCards.map((card) => (
+                      <button key={card.cardType} onClick={() => setSelectedCard(card)}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
+                          selectedCard.cardType === card.cardType
+                            ? 'border-primary bg-primary/10' : 'border-border/30 hover:border-border/60'
+                        )}>
+                        <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+                        <div>
+                          <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
+                            {CARD_TYPE_LABELS[card.cardType as CardType]}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </>
+                </div>
               )}
 
               {hasPrefill && (
@@ -593,9 +497,10 @@ export default function ShareStudio() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="format" className="mt-3">
+          {/* Platform Tab (replaces Format) */}
+          <TabsContent value="platform" className="mt-3">
             <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
-              <ShareFormatSelector format={format} onChange={setFormat} />
+              <PlatformSelector platform={platform} onChange={setPlatform} />
             </Card>
           </TabsContent>
 
@@ -637,8 +542,19 @@ export default function ShareStudio() {
         {/* Actions */}
         <div className="space-y-2 pt-2">
           <Button onClick={handleShare} disabled={sharing} className="w-full">
-            <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Rendering & Sharing...' : 'Preview & Share'}
+            <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Rendering & Sharing...' : 'Share'}
           </Button>
+          <div className="grid grid-cols-3 gap-2">
+            <Button onClick={handleDownload} variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-1.5" />Save
+            </Button>
+            <Button onClick={handleCopy} variant="outline" size="sm">
+              <ClipboardCopy className="w-4 h-4 mr-1.5" />Copy
+            </Button>
+            <Button onClick={handleCopyLink} variant="outline" size="sm">
+              <Link2 className="w-4 h-4 mr-1.5" />Link
+            </Button>
+          </div>
           <Button onClick={handleSave} variant="outline" className="w-full">
             <Download className="w-4 h-4 mr-2" />Save to Vault
           </Button>
