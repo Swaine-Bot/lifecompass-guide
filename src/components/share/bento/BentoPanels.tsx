@@ -479,22 +479,22 @@ export function MomentumPanel({
       style={{ padding: compact ? '8px 10px' : '10px 12px', ...style }}
     >
       {statValue && (
-        <div className="flex items-baseline gap-2 mb-1">
-          <span
+        <div className="flex items-baseline gap-2" style={{ flexShrink: 0, marginBottom: 4 }}>
+          <div
             ref={statRef}
             style={{
               fontWeight: 700, color: theme.accentHex,
               fontFamily: FONT_FAMILY, lineHeight: 1, letterSpacing: '-0.02em',
-              overflow: 'hidden',
+              overflow: 'hidden', whiteSpace: 'nowrap',
             }}
           >
             {displayStat}
-          </span>
+          </div>
           {statLabel && (
             <span style={{
               fontSize: compact ? 7 : 8, fontWeight: 600, color: 'hsl(220,10%,50%)',
               textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT_FAMILY,
-              flexShrink: 0,
+              flexShrink: 0, whiteSpace: 'nowrap',
             }}>
               {statLabel}
             </span>
@@ -503,12 +503,12 @@ export function MomentumPanel({
       )}
 
       {secondaryValue && (
-        <div className="flex items-baseline gap-2 mb-1">
-          <span style={{ fontSize: compact ? 13 : 16, fontWeight: 600, color: theme.metricHex, fontFamily: FONT_FAMILY }}>
+        <div className="flex items-baseline gap-2" style={{ flexShrink: 0, marginBottom: 4 }}>
+          <span style={{ fontSize: compact ? 13 : 16, fontWeight: 600, color: theme.metricHex, fontFamily: FONT_FAMILY, whiteSpace: 'nowrap' }}>
             {showNumbers ? secondaryValue : '•••'}
           </span>
           {secondaryLabel && (
-            <span style={{ fontSize: 7, color: 'hsl(220,10%,44%)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: FONT_FAMILY }}>
+            <span style={{ fontSize: 7, color: 'hsl(220,10%,44%)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: FONT_FAMILY, whiteSpace: 'nowrap' }}>
               {secondaryLabel}
             </span>
           )}
@@ -521,9 +521,10 @@ export function MomentumPanel({
           fontWeight: 500, fontStyle: 'italic',
           letterSpacing: '0.06em', textTransform: 'uppercase',
           color: theme.accentHex, opacity: 0.6,
-          marginTop: statValue ? 2 : 0, fontFamily: FONT_FAMILY,
+          marginTop: 'auto', fontFamily: FONT_FAMILY,
           overflow: 'hidden', lineHeight: 1.3,
           overflowWrap: 'break-word', wordBreak: 'break-word',
+          flexShrink: 0,
         }}
       >
         {phrase}
