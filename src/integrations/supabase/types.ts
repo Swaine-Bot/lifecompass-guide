@@ -1717,6 +1717,141 @@ export type Database = {
         }
         Relationships: []
       }
+      wearable_connections: {
+        Row: {
+          access_token_encrypted: string | null
+          connection_status: string
+          created_at: string | null
+          external_account_id: string | null
+          id: string
+          last_sync_at: string | null
+          last_sync_status: string | null
+          permissions_granted: Json | null
+          provider: string
+          refresh_token_encrypted: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          connection_status?: string
+          created_at?: string | null
+          external_account_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_status?: string | null
+          permissions_granted?: Json | null
+          provider: string
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          connection_status?: string
+          created_at?: string | null
+          external_account_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_status?: string | null
+          permissions_granted?: Json | null
+          provider?: string
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wearable_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          local_date: string
+          metric_type: string
+          metric_value: number
+          provider: string
+          raw_provider_reference: Json | null
+          source_timestamp: string
+          sync_batch_id: string | null
+          unit: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          local_date: string
+          metric_type: string
+          metric_value: number
+          provider: string
+          raw_provider_reference?: Json | null
+          source_timestamp: string
+          sync_batch_id?: string | null
+          unit: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          local_date?: string
+          metric_type?: string
+          metric_value?: number
+          provider?: string
+          raw_provider_reference?: Json | null
+          source_timestamp?: string
+          sync_batch_id?: string | null
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wearable_notification_prefs: {
+        Row: {
+          created_at: string | null
+          id: string
+          inactivity_nudges: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          step_milestones: boolean | null
+          step_reminders: boolean | null
+          streak_alerts: boolean | null
+          updated_at: string | null
+          user_id: string
+          weekly_summary: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          inactivity_nudges?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          step_milestones?: boolean | null
+          step_reminders?: boolean | null
+          streak_alerts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          weekly_summary?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          inactivity_nudges?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          step_milestones?: boolean | null
+          step_reminders?: boolean | null
+          streak_alerts?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_summary?: boolean | null
+        }
+        Relationships: []
+      }
       xp_events: {
         Row: {
           created_at: string | null
