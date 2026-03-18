@@ -231,6 +231,7 @@ SAFETY: Never diagnose medical conditions. Never make body-image judgments. Neve
 Your role is to help users navigate life decisions, build better habits, achieve goals, and find clarity.
 
 ${phaseContext} ${focusAreas}
+${wearableContext}
 ${imageInstructions}
 
 RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
