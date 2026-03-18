@@ -10,7 +10,7 @@
 
 import type { CompositionSpec, PanelSpec } from '../composition/computeCompositionSpec';
 import type { NormalizedShareContent } from '../composition/normalizeShareContent';
-import type { ThemeDefinition } from '@/services/shareService';
+import type { ThemeDefinition, SponsorData } from '@/services/shareService';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 
