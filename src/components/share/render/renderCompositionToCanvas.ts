@@ -540,6 +540,7 @@ export async function renderCompositionToCanvas(
     [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec)],
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec)],
     [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec)],
+    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec)],
     [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec)],
   ];
 
