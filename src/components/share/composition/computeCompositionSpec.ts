@@ -51,6 +51,7 @@ export interface CompositionSpec {
     text: PanelSpec;
     momentum: PanelSpec;
     meta: PanelSpec;
+    sponsor: PanelSpec;
     brand: PanelSpec;
   };
 
@@ -147,7 +148,10 @@ export function computeCompositionSpec(
   // ── Panel sizing ──
   // Available height for content panels
   const brandH = content.showFooter ? 60 : 0;
-  const availH = ch - brandH - (content.showFooter ? gap : 0);
+  const sponsorH = content.showSponsor ? (isStory ? 70 : 62) : 0;
+  const availH = ch - brandH - sponsorH
+    - (content.showFooter ? gap : 0)
+    - (content.showSponsor ? gap : 0);
 
   // Strategy-based panel proportions
   let mediaRatio = 0;
@@ -295,6 +299,18 @@ export function computeCompositionSpec(
     zIndex: 3,
   };
 
+  // Sponsor panel — sits between content and brand
+  const sponsorY = H - sz.bottom - brandH - (content.showFooter ? gap : 0) - sponsorH;
+  const sponsorPanelSpec: PanelSpec = {
+    id: 'sponsor',
+    x: cx,
+    y: sponsorY,
+    width: cw,
+    height: sponsorH,
+    visible: content.showSponsor,
+    zIndex: 4,
+  };
+
   // Brand panel
   const brandPanelSpec: PanelSpec = {
     id: 'brand',
@@ -316,6 +332,7 @@ export function computeCompositionSpec(
       text: textPanelSpec,
       momentum: momentumPanelSpec,
       meta: metaPanelSpec,
+      sponsor: sponsorPanelSpec,
       brand: brandPanelSpec,
     },
     typography,

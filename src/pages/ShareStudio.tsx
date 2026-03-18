@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
@@ -95,6 +96,14 @@ export default function ShareStudio() {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
   const [showImageCount, setShowImageCount] = useState(true);
 
+  // Sponsor / Partner
+  const [sponsorEnabled, setSponsorEnabled] = useState(!!prefill?.sponsor);
+  const [sponsorName, setSponsorName] = useState(prefill?.sponsor?.name || '');
+  const [sponsorMessage, setSponsorMessage] = useState(prefill?.sponsor?.message || '');
+  const [sponsorType, setSponsorType] = useState<'sponsored' | 'powered' | 'partnership' | 'rewards' | 'productivity'>(
+    prefill?.sponsor?.attributionType || 'sponsored'
+  );
+
   // Saved cards
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
@@ -103,10 +112,19 @@ export default function ShareStudio() {
   const themeObj = THEMES[theme];
   const strategy = templateToStrategy(selectedTemplate);
 
+  // Build sponsor data object
+  const sponsorData = useMemo(() => {
+    if (!sponsorEnabled || !sponsorName.trim()) return undefined;
+    return { name: sponsorName.trim(), message: sponsorMessage.trim() || undefined, attributionType: sponsorType };
+  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType]);
+
+  // Merge sponsor into card data
+  const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData }), [selectedCard, sponsorData]);
+
   // ── Normalized content (single source of truth) ──
   const normalizedContent = useMemo(() => {
     return normalizeShareContent({
-      data: selectedCard,
+      data: cardWithSponsor,
       privacy,
       theme: themeObj,
       platform,
@@ -118,7 +136,7 @@ export default function ShareStudio() {
       showImageCount,
       strategy,
     });
-  }, [selectedCard, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
+  }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
 
   const generateSmartLink = useCallback(async (): Promise<string | null> => {
     if (!user || !includeSmartLink) return null;
@@ -374,14 +392,15 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={cn("w-full bg-secondary/50", "grid", hasPostImage ? "grid-cols-7" : "grid-cols-6")}>
-            <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
-            <TabsTrigger value="ai" className="text-xs">AI</TabsTrigger>
-            <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
-            {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
-            <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
-            <TabsTrigger value="platform" className="text-xs">Platform</TabsTrigger>
-            <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
+          <TabsList className="w-full bg-secondary/50 flex overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="template" className="text-xs flex-shrink-0">Template</TabsTrigger>
+            <TabsTrigger value="ai" className="text-xs flex-shrink-0">AI</TabsTrigger>
+            <TabsTrigger value="style" className="text-xs flex-shrink-0">Style</TabsTrigger>
+            {hasPostImage && <TabsTrigger value="image" className="text-xs flex-shrink-0">Image</TabsTrigger>}
+            <TabsTrigger value="sponsor" className="text-xs flex-shrink-0">Partner</TabsTrigger>
+            <TabsTrigger value="privacy" className="text-xs flex-shrink-0">Privacy</TabsTrigger>
+            <TabsTrigger value="platform" className="text-xs flex-shrink-0">Platform</TabsTrigger>
+            <TabsTrigger value="link" className="text-xs flex-shrink-0">Link</TabsTrigger>
           </TabsList>
 
           {/* Template Tab */}
@@ -538,6 +557,68 @@ export default function ShareStudio() {
               )}
               {generatedSmartUrl && (
                 <p className="text-[10px] text-muted-foreground text-center break-all">{generatedSmartUrl}</p>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Sponsor / Partner Tab */}
+          <TabsContent value="sponsor" className="mt-3">
+            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+              <div>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sponsor / Partner</span>
+                <p className="text-[10px] text-muted-foreground mt-1">Add a premium partner attribution to this card.</p>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Handshake className="w-3.5 h-3.5 text-primary" />Enable partner zone
+                  </Label>
+                </div>
+                <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
+              </div>
+              {sponsorEnabled && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Partner name</Label>
+                    <Input
+                      value={sponsorName}
+                      onChange={(e) => setSponsorName(e.target.value)}
+                      placeholder="e.g. Discovery Vitality"
+                      className="bg-secondary/50 border-border/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Attribution type</Label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {([
+                        { value: 'sponsored' as const, label: 'Sponsored by' },
+                        { value: 'powered' as const, label: 'Powered by' },
+                        { value: 'partnership' as const, label: 'Partnership' },
+                        { value: 'rewards' as const, label: 'Rewards by' },
+                        { value: 'productivity' as const, label: 'Prod. partner' },
+                      ]).map((opt) => (
+                        <button key={opt.value} onClick={() => setSponsorType(opt.value)}
+                          className={cn(
+                            'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
+                            sponsorType === opt.value
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border/30 text-muted-foreground hover:border-border/60'
+                          )}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Message / CTA (optional)</Label>
+                    <Input
+                      value={sponsorMessage}
+                      onChange={(e) => setSponsorMessage(e.target.value)}
+                      placeholder="e.g. Earn rewards for healthy habits"
+                      className="bg-secondary/50 border-border/30"
+                    />
+                  </div>
+                </div>
               )}
             </Card>
           </TabsContent>

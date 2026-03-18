@@ -10,7 +10,7 @@
 
 import type { CompositionSpec, PanelSpec } from '../composition/computeCompositionSpec';
 import type { NormalizedShareContent } from '../composition/normalizeShareContent';
-import type { ThemeDefinition } from '@/services/shareService';
+import type { ThemeDefinition, SponsorData } from '@/services/shareService';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 
@@ -459,6 +459,69 @@ function drawBrandPanel(
   ctx.restore();
 }
 
+function drawSponsorPanel(
+  ctx: CanvasRenderingContext2D,
+  panel: PanelSpec,
+  content: NormalizedShareContent,
+  spec: CompositionSpec,
+) {
+  if (!panel.visible || !content.sponsor) return;
+
+  const sponsor = content.sponsor;
+  const pad = 20;
+
+  ctx.save();
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
+
+  // Subtle glass background with slight gold tint
+  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
+  grad.addColorStop(0, 'rgba(22, 24, 36, 0.78)');
+  grad.addColorStop(1, 'rgba(18, 20, 30, 0.72)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Thin accent border
+  ctx.strokeStyle = 'rgba(200, 170, 80, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Attribution prefix
+  const prefixMap: Record<string, string> = {
+    sponsored: 'Sponsored by',
+    powered: 'Powered by',
+    partnership: 'In partnership with',
+    rewards: 'Rewards by',
+    productivity: 'Productivity partner:',
+  };
+  const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
+
+  // Left side: attribution text
+  const textX = panel.x + pad;
+  const centerY = panel.y + panel.height / 2;
+
+  // Attribution line
+  ctx.font = `500 ${14}px ${FONT_FAMILY}`;
+  ctx.fillStyle = 'rgb(100, 105, 118)';
+  ctx.fillText(prefix, textX, centerY - 2);
+
+  const prefixW = ctx.measureText(prefix).width;
+  ctx.font = `600 ${15}px ${FONT_FAMILY}`;
+  ctx.fillStyle = 'rgb(180, 175, 165)';
+  ctx.fillText(` ${sponsor.name}`, textX + prefixW, centerY - 2);
+
+  // Message / CTA on second line if present
+  const tagline = sponsor.message || sponsor.cta;
+  if (tagline) {
+    ctx.font = `400 ${12}px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgb(90, 95, 108)';
+    const maxW = panel.width - pad * 2;
+    const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
+    ctx.fillText(clipped, textX, centerY + 16, maxW);
+  }
+
+  ctx.restore();
+}
+
 // ─── Main Background ─────────────────────────────────────────────────
 
 function drawBackground(
@@ -540,6 +603,7 @@ export async function renderCompositionToCanvas(
     [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec)],
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec)],
     [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec)],
+    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec)],
     [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec)],
   ];
 

@@ -4,7 +4,7 @@
  * so the composition engine receives only final, allowed data.
  */
 
-import type { ShareCardData, PrivacySettings, ThemeDefinition } from '@/services/shareService';
+import type { ShareCardData, PrivacySettings, ThemeDefinition, SponsorData } from '@/services/shareService';
 import { applyPrivacy, CARD_TYPE_LABELS } from '@/services/shareService';
 import type { SharePlatform, PlatformProfile, ImageTreatment } from '../platformProfiles';
 import { getPlatformProfile, getContentLengthTier } from '../platformProfiles';
@@ -38,6 +38,10 @@ export interface NormalizedShareContent {
   // Meta
   timeAnchor: string | null;
   domain: string | null;
+
+  // Sponsor / Partner
+  sponsor: SponsorData | null;
+  showSponsor: boolean;
 
   // Visibility decisions (resolved from privacy + platform)
   showFooter: boolean;
@@ -211,6 +215,9 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
 
     timeAnchor: privacy.includeDateTime ? (input.data.timeAnchor || null) : null,
     domain: input.data.domain || null,
+
+    sponsor: input.data.sponsor || null,
+    showSponsor: !!input.data.sponsor?.name,
 
     showFooter: visibility.showFooter,
     showMetadata: visibility.showMetadata,
