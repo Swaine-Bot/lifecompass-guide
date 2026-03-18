@@ -508,16 +508,16 @@ export default function Settings() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Profile Visibility</Label>
-                  <p className="text-sm text-muted-foreground">Who can see your profile</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Who can see your profile</p>
                 </div>
                 <Select 
                   value={privacySettings.profile_visibility} 
                   onValueChange={(v) => updatePrivacy({ profile_visibility: v as any })}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-28 sm:w-32 shrink-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
