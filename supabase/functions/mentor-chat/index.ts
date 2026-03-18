@@ -12,7 +12,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate the user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -41,9 +40,8 @@ serve(async (req) => {
     const userId = claimsData.claims.sub;
     console.log("Authenticated user:", userId);
 
-    const { messages, profile } = await req.json();
+    const { messages, profile, imageUrl } = await req.json();
     
-    // Validate input
     const MAX_MESSAGE_LENGTH = 5000;
     const MAX_MESSAGES = 50;
     
@@ -62,30 +60,121 @@ serve(async (req) => {
     }
     
     const lastMessage = messages[messages.length - 1];
-    if (!lastMessage?.content || typeof lastMessage.content !== 'string') {
+    if (!lastMessage?.content && !imageUrl) {
       return new Response(
         JSON.stringify({ error: "Invalid message content" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
-    if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
+    if (lastMessage?.content && typeof lastMessage.content === 'string' && lastMessage.content.length > MAX_MESSAGE_LENGTH) {
       return new Response(
         JSON.stringify({ error: `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
-    // Sanitize messages - ensure only valid roles and content
-    const sanitizedMessages = messages.map((m: { role: string; content: string }) => ({
-      role: m.role === 'assistant' ? 'assistant' : 'user',
-      content: String(m.content).slice(0, MAX_MESSAGE_LENGTH)
-    }));
-    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // If an image URL is provided, we need to:
+    // 1. Generate a signed URL for the image
+    // 2. Run moderation check
+    // 3. Analyze with vision model
+    let imageBase64: string | null = null;
+    let imageMimeType: string = "image/jpeg";
+    let moderationResult: "safe" | "blocked" = "safe";
+
+    if (imageUrl) {
+      try {
+        // The imageUrl is a storage path like "userId/filename.jpg"
+        // Create a service-role client to generate signed URL
+        const serviceClient = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        );
+
+        const { data: signedUrlData, error: signedUrlError } = await serviceClient.storage
+          .from("mentor-images")
+          .createSignedUrl(imageUrl, 300); // 5 min expiry
+
+        if (signedUrlError || !signedUrlData?.signedUrl) {
+          console.error("Signed URL error:", signedUrlError);
+          throw new Error("Could not access uploaded image");
+        }
+
+        // Fetch the image and convert to base64
+        const imgResp = await fetch(signedUrlData.signedUrl);
+        if (!imgResp.ok) throw new Error("Failed to fetch image");
+        
+        const contentType = imgResp.headers.get("content-type") || "image/jpeg";
+        imageMimeType = contentType;
+        const imgBuffer = await imgResp.arrayBuffer();
+        const uint8 = new Uint8Array(imgBuffer);
+        
+        // Convert to base64
+        let binary = "";
+        for (let i = 0; i < uint8.length; i++) {
+          binary += String.fromCharCode(uint8[i]);
+        }
+        imageBase64 = btoa(binary);
+
+        // Run moderation check using AI
+        const modResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-lite",
+            messages: [
+              {
+                role: "system",
+                content: `You are a content moderation system. Analyze the image and respond with ONLY one word: "safe" or "blocked".
+Block images containing: explicit sexual content, graphic violence, self-harm imagery, illegal content, abusive content.
+Allow: food, fitness, workspaces, selfies, screenshots, documents, nature, everyday life photos.
+If borderline but not explicitly harmful, respond "safe".`
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "image_url",
+                    image_url: { url: `data:${imageMimeType};base64,${imageBase64}` }
+                  },
+                  { type: "text", text: "Moderate this image." }
+                ]
+              }
+            ],
+          }),
+        });
+
+        if (modResponse.ok) {
+          const modData = await modResponse.json();
+          const modResult = modData.choices?.[0]?.message?.content?.trim().toLowerCase() || "safe";
+          moderationResult = modResult.includes("block") ? "blocked" : "safe";
+        }
+      } catch (imgErr) {
+        console.error("Image processing error:", imgErr);
+        return new Response(
+          JSON.stringify({ error: "Failed to process image. Please try again.", moderation_status: "error" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // If moderation blocked the image
+    if (moderationResult === "blocked") {
+      return new Response(
+        JSON.stringify({
+          message: "I appreciate you sharing, but I'm not able to analyze this particular image. If you'd like, you can describe what you wanted to discuss, or share a different image and I'll be happy to help.",
+          moderation_status: "blocked"
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const phaseContext = profile?.life_phase 
@@ -96,32 +185,37 @@ serve(async (req) => {
       ? `Their focus areas are: ${profile.focus_areas.join(', ')}.` 
       : '';
 
+    const imageInstructions = imageUrl ? `
+IMAGE ANALYSIS INSTRUCTIONS:
+The user has shared an image in this message. Analyze it thoughtfully and provide useful mentor feedback.
+
+Structure your response as:
+1. **Observation** - What you see (use hedging language: "It looks like...", "From what I can see...")
+2. **Reflection** - Connect it to their growth, habits, or goals
+3. **Next Step** - One actionable suggestion
+4. **Follow-up** - An optional question to deepen the conversation
+
+Support these use cases: meal/nutrition analysis, fitness progress, workspace setup, mood/environment reflection, screenshots/notes discussion, general lifestyle coaching.
+
+SAFETY: Never diagnose medical conditions. Never make body-image judgments. Never identify specific people. If the image appears medical or concerning, encourage professional support.
+` : '';
+
     const systemPrompt = `You are a calm, direct, and pragmatic life mentor for the LifeStack app. 
 
 Your role is to help users navigate life decisions, build better habits, achieve goals, and find clarity.
 
 ${phaseContext} ${focusAreas}
+${imageInstructions}
 
 RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
 - NEVER write a wall of text or one massive paragraph. This is your #1 rule.
 - ALWAYS break your response into multiple short paragraphs separated by blank lines. Each paragraph should be 1-3 sentences MAX.
 - Use **bold** for key terms, important points, and section headers.
 - Use bullet points (- ) or numbered lists (1. 2. 3.) whenever you have multiple tips, steps, options, or ideas. Lists are PREFERRED over prose.
-- Structure longer responses with clear section headers in bold, e.g.:
-
-  **Why this matters**
-
-  Brief explanation here.
-
-  **What to do next**
-
-  - First action
-  - Second action
-  - Third action
-
+- Structure longer responses with clear section headers in bold.
 - When asking the user a question, put it on its own line with a blank line before it.
-- Keep each sentence concise and punchy. Avoid run-on sentences.
-- If your response has more than 3 ideas or points, USE A LIST. Do not combine them into a paragraph.
+- Keep each sentence concise and punchy.
+- If your response has more than 3 ideas or points, USE A LIST.
 
 CRITICAL DISCLAIMER - You must follow these rules strictly:
 - Your guidance is for informational purposes only and does NOT constitute professional advice
@@ -143,6 +237,45 @@ Guidelines:
 
 Your tone: Like a wise friend who has seen a lot of life and genuinely wants to help - but one who knows their limits and always defers to professionals for serious matters.`;
 
+    // Build the messages array for the AI
+    // For previous messages, just use text. For the last message with image, include the image.
+    const sanitizedMessages: any[] = [];
+    
+    for (let i = 0; i < messages.length; i++) {
+      const m = messages[i];
+      const isLast = i === messages.length - 1;
+      
+      if (isLast && imageBase64) {
+        // Build multimodal content for the last message
+        const content: any[] = [
+          {
+            type: "image_url",
+            image_url: { url: `data:${imageMimeType};base64,${imageBase64}` }
+          }
+        ];
+        if (m.content && typeof m.content === 'string' && m.content.trim()) {
+          content.push({ type: "text", text: m.content.slice(0, MAX_MESSAGE_LENGTH) });
+        } else {
+          content.push({ type: "text", text: "I'm sharing this image with you. What do you think?" });
+        }
+        sanitizedMessages.push({
+          role: 'user',
+          content
+        });
+      } else {
+        // Check if this message had an image reference in history
+        const hasHistoricalImage = m.imageUrl && typeof m.imageUrl === 'string';
+        sanitizedMessages.push({
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: String(m.content || '').slice(0, MAX_MESSAGE_LENGTH) + 
+            (hasHistoricalImage ? ' [User shared an image in this message]' : '')
+        });
+      }
+    }
+
+    // Use vision-capable model when image is present
+    const model = imageBase64 ? "google/gemini-2.5-flash" : "google/gemini-3-flash-preview";
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -150,7 +283,7 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           ...sanitizedMessages,
@@ -165,6 +298,14 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "AI credits exhausted. Please try again later." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
@@ -172,7 +313,7 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
     const message = data.choices?.[0]?.message?.content || "I'm here to help. What's on your mind?";
 
     return new Response(
-      JSON.stringify({ message }),
+      JSON.stringify({ message, moderation_status: imageUrl ? "safe" : undefined }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
