@@ -26,6 +26,8 @@ import { Language } from '@/lib/translations';
 import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
+import { WearableSettings } from '@/components/wearables/WearableSettings';
+import { Watch } from 'lucide-react';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -319,6 +321,10 @@ export default function Settings() {
           <TabsTrigger value="engagement" className="flex items-center gap-1.5">
             <Sparkles className="w-4 h-4" />
             Engagement
+          </TabsTrigger>
+          <TabsTrigger value="wearables" className="flex items-center gap-1.5">
+            <Watch className="w-4 h-4" />
+            Devices
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
@@ -790,6 +796,10 @@ export default function Settings() {
 
         <TabsContent value="engagement" className="space-y-4">
           <NotificationPreferencesCard />
+        </TabsContent>
+
+        <TabsContent value="wearables" className="space-y-4">
+          <WearableSettings />
         </TabsContent>
 
         <TabsContent value="account" className="space-y-4">

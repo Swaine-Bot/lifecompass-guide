@@ -23,6 +23,7 @@ import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
 import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
 import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 import { InvitePrompt } from '@/components/viral/InvitePrompt';
+import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 
 interface Task {
   id: string;
@@ -327,6 +328,10 @@ export default function Home() {
           shieldAvailable={streak.shield_available}
         />
       </div>
+
+      {/* Step Progress */}
+      <StepProgressCard />
+
 
       {/* Share Streak */}
       {streak.current_streak >= 3 && (
