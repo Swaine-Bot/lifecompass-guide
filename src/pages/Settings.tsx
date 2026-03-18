@@ -311,19 +311,19 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="flex-wrap">
+        <TabsList className="w-full overflow-x-auto scrollbar-hide">
           <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy & Notifications</TabsTrigger>
-          <TabsTrigger value="subscription" className="flex items-center gap-1.5">
-            <Crown className="w-4 h-4" />
+          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-1">
+            <Crown className="w-3.5 h-3.5" />
             Plan
           </TabsTrigger>
-          <TabsTrigger value="engagement" className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" />
-            Engagement
+          <TabsTrigger value="engagement" className="flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            Engage
           </TabsTrigger>
-          <TabsTrigger value="wearables" className="flex items-center gap-1.5">
-            <Watch className="w-4 h-4" />
+          <TabsTrigger value="wearables" className="flex items-center gap-1">
+            <Watch className="w-3.5 h-3.5" />
             Devices
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
