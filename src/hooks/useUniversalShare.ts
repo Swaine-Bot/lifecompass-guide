@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ShareCardData, CardType, VisualModule } from '@/services/shareService';
+import type { ShareCardData, CardType, VisualModule, SponsorData } from '@/services/shareService';
 
 // ─── Shareable Source Types ─────────────────────────────────────────
 export type ShareSourceType =
   | 'mentor_insight'
   | 'goal_created'
   | 'goal_progress'
+  | 'goal_completed'
   | 'micro_move_completed'
   | 'journal_reflection'
   | 'achievement'
@@ -15,7 +16,18 @@ export type ShareSourceType =
   | 'feed_post'
   | 'feed_post_insight'
   | 'feed_post_offer'
-  | 'feed_post_suggestions';
+  | 'feed_post_suggestions'
+  | 'habit_streak'
+  | 'wellness_streak'
+  | 'vault_insight'
+  | 'reward_unlocked'
+  | 'challenge_completed'
+  | 'domain_levelup'
+  | 'daily_signal'
+  | 'mirror_moment'
+  | 'cinematic_report'
+  | 'progress_snapshot'
+  | 'partner_reward';
 
 export interface ShareSource {
   type: ShareSourceType;
@@ -25,9 +37,9 @@ export interface ShareSource {
   statValue?: string;
   statLabel?: string;
   domain?: string;
-  quote?: string;       // for mentor insights
-  excerpt?: string;     // for journal (max 120 chars)
-  contextTag?: string;  // for mentor insight context
+  quote?: string;
+  excerpt?: string;
+  contextTag?: string;
   // Feed post specific
   authorName?: string;
   postCategory?: string;
@@ -39,6 +51,8 @@ export interface ShareSource {
   imageUrls?: string[];
   // All media (images, video, audio) for journal entries
   mediaUrls?: string[];
+  // Sponsor / Partner
+  sponsor?: SponsorData;
 }
 
 // ─── Source → Card mapping ──────────────────────────────────────────
@@ -46,6 +60,7 @@ const SOURCE_TO_CARD: Record<ShareSourceType, { cardType: CardType; visualType: 
   mentor_insight:         { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'INSIGHT' },
   goal_created:           { cardType: 'milestone', visualType: 'badge', identityLabel: 'DECLARATION' },
   goal_progress:          { cardType: 'progress', visualType: 'ring', identityLabel: 'PROGRESS' },
+  goal_completed:         { cardType: 'milestone', visualType: 'badge', identityLabel: 'COMPLETED' },
   micro_move_completed:   { cardType: 'streak', visualType: 'flame', identityLabel: 'MOMENTUM' },
   journal_reflection:     { cardType: 'milestone', visualType: 'quote', identityLabel: 'REFLECTION' },
   achievement:            { cardType: 'level_up', visualType: 'badge', identityLabel: 'ACHIEVEMENT' },
@@ -55,6 +70,17 @@ const SOURCE_TO_CARD: Record<ShareSourceType, { cardType: CardType; visualType: 
   feed_post_insight:      { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'POST · INSIGHT' },
   feed_post_offer:        { cardType: 'level_up', visualType: 'badge', identityLabel: 'POST · OFFER' },
   feed_post_suggestions:  { cardType: 'progress', visualType: 'chart', identityLabel: 'POST · SUGGESTIONS' },
+  habit_streak:           { cardType: 'streak', visualType: 'flame', identityLabel: 'STREAK' },
+  wellness_streak:        { cardType: 'streak', visualType: 'flame', identityLabel: 'WELLNESS' },
+  vault_insight:          { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'SAVED INSIGHT' },
+  reward_unlocked:        { cardType: 'level_up', visualType: 'badge', identityLabel: 'REWARD' },
+  challenge_completed:    { cardType: 'milestone', visualType: 'badge', identityLabel: 'CHALLENGE' },
+  domain_levelup:         { cardType: 'level_up', visualType: 'badge', identityLabel: 'LEVEL UP' },
+  daily_signal:           { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'DAILY SIGNAL' },
+  mirror_moment:          { cardType: 'mentor_insight', visualType: 'quote', identityLabel: 'MIRROR MOMENT' },
+  cinematic_report:       { cardType: 'weekly_recap', visualType: 'chart', identityLabel: 'REPORT' },
+  progress_snapshot:      { cardType: 'progress', visualType: 'ring', identityLabel: 'SNAPSHOT' },
+  partner_reward:         { cardType: 'level_up', visualType: 'badge', identityLabel: 'PARTNER REWARD' },
 };
 
 function sourceToCardData(source: ShareSource): ShareCardData {
@@ -71,13 +97,14 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       sourceType: source.type,
       sourceId: source.id,
       domain: 'mind',
+      sponsor: source.sponsor,
     };
   }
 
-  if (source.type === 'mentor_insight') {
+  if (source.type === 'mentor_insight' || source.type === 'daily_signal' || source.type === 'mirror_moment') {
     return {
       cardType: mapping.cardType,
-      title: 'Mentor Insight',
+      title: source.type === 'mentor_insight' ? 'Mentor Insight' : source.type === 'daily_signal' ? 'Daily Signal' : 'Mirror Moment',
       subtitle: source.quote || source.subtitle,
       statValue: source.contextTag || 'Life Strategy',
       statLabel: '',
@@ -87,12 +114,12 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       sourceType: source.type,
       sourceId: source.id,
       domain: source.domain || 'mind',
+      sponsor: source.sponsor,
     };
   }
 
   if (source.type === 'journal_reflection') {
     const excerpt = (source.excerpt || source.subtitle || '').slice(0, 120);
-    // Detect media types from mediaUrls
     const imageUrls = source.mediaUrls?.filter(u => /\.(jpg|jpeg|png|gif|webp)/i.test(u)) || source.imageUrls;
     const videoUrls = source.mediaUrls?.filter(u => /\.(mp4|mov|webm)/i.test(u));
     const audioUrls = source.mediaUrls?.filter(u => /\.(mp3|wav|webm|ogg)/i.test(u));
@@ -113,9 +140,9 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       imageUrl: firstImage,
       imageUrls: imageUrls,
       imageLayout: firstImage ? 'hero_image' as const : undefined,
-      // Store video/audio info for share output
       secondaryValue: videoUrls?.length ? `🎬 ${videoUrls.length} video${videoUrls.length > 1 ? 's' : ''}` : audioUrls?.length ? `🎙️ ${audioUrls.length} voice note${audioUrls.length > 1 ? 's' : ''}` : undefined,
       secondaryLabel: videoUrls?.length ? 'attached' : audioUrls?.length ? 'attached' : undefined,
+      sponsor: source.sponsor,
     };
   }
 
@@ -144,6 +171,7 @@ function sourceToCardData(source: ShareSource): ShareCardData {
       imageUrl: source.imageUrl,
       imageUrls: source.imageUrls,
       imageLayout: source.imageUrl ? 'hero_image' as const : undefined,
+      sponsor: source.sponsor,
     };
   }
 
@@ -159,6 +187,10 @@ function sourceToCardData(source: ShareSource): ShareCardData {
     sourceType: source.type,
     sourceId: source.id,
     domain: source.domain || 'mind',
+    imageUrl: source.imageUrl,
+    imageUrls: source.imageUrls,
+    imageLayout: source.imageUrl ? 'hero_image' as const : undefined,
+    sponsor: source.sponsor,
   };
 }
 
