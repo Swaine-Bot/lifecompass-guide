@@ -329,6 +329,10 @@ export default function Home() {
         />
       </div>
 
+      {/* Step Progress */}
+      <StepProgressCard />
+
+
       {/* Share Streak */}
       {streak.current_streak >= 3 && (
         <div className="flex justify-end -mt-3">
