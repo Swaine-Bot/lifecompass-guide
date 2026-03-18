@@ -39,6 +39,10 @@ export interface NormalizedShareContent {
   timeAnchor: string | null;
   domain: string | null;
 
+  // Sponsor / Partner
+  sponsor: SponsorData | null;
+  showSponsor: boolean;
+
   // Visibility decisions (resolved from privacy + platform)
   showFooter: boolean;
   showMetadata: boolean;
