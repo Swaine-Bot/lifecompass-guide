@@ -707,17 +707,17 @@ export default function Settings() {
                 Under GDPR and POPIA, you have the right to access, export, and delete your personal data at any time.
               </p>
               
-              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
-                <div>
+              <div className="flex items-center justify-between gap-3 p-4 rounded-lg bg-muted/30">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 shrink-0" />
                     Export My Data
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Download all your personal data in JSON format (Right to Data Portability)
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Download your personal data in JSON format
                   </p>
                 </div>
-                <Button 
+                <Button
                   variant="outline" 
                   onClick={exportUserData} 
                   disabled={exportStatus === 'loading'}

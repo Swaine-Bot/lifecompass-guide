@@ -49,7 +49,7 @@ export const AppLayout = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 flex flex-col min-h-screen pb-20 lg:pb-0 overflow-x-hidden">
+      <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden">
         <PullToRefresh 
           onRefresh={handleRefresh}
           className="flex-1 h-full"
