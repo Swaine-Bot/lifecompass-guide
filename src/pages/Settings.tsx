@@ -658,10 +658,10 @@ export default function Settings() {
               <div className="space-y-4">
                 <p className="text-sm font-medium text-muted-foreground">Notification Types</p>
                 
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                     <Label>Goals & Tasks</Label>
-                    <p className="text-sm text-muted-foreground">Deadline reminders and task notifications</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Deadline reminders and task notifications</p>
                   </div>
                   <Switch
                     checked={privacySettings.notifications_goals}
