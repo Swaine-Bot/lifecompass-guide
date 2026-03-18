@@ -112,10 +112,19 @@ export default function ShareStudio() {
   const themeObj = THEMES[theme];
   const strategy = templateToStrategy(selectedTemplate);
 
+  // Build sponsor data object
+  const sponsorData = useMemo(() => {
+    if (!sponsorEnabled || !sponsorName.trim()) return undefined;
+    return { name: sponsorName.trim(), message: sponsorMessage.trim() || undefined, attributionType: sponsorType };
+  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType]);
+
+  // Merge sponsor into card data
+  const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData }), [selectedCard, sponsorData]);
+
   // ── Normalized content (single source of truth) ──
   const normalizedContent = useMemo(() => {
     return normalizeShareContent({
-      data: selectedCard,
+      data: cardWithSponsor,
       privacy,
       theme: themeObj,
       platform,
@@ -127,7 +136,7 @@ export default function ShareStudio() {
       showImageCount,
       strategy,
     });
-  }, [selectedCard, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
+  }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
 
   const generateSmartLink = useCallback(async (): Promise<string | null> => {
     if (!user || !includeSmartLink) return null;
