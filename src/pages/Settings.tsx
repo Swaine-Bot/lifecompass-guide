@@ -290,20 +290,20 @@ export default function Settings() {
   const timezones = ['UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Toronto', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Dubai', 'Australia/Sydney', 'Pacific/Auckland'];
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src={lifestackLogo} alt="LifeStack" className="w-10 h-10" />
-          <div>
-            <h1 className="text-2xl font-serif font-bold">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
+    <div className="space-y-6 pb-6">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold">Settings</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm truncate">Manage your account and preferences</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate('/home')}
-          className="rounded-full"
+          className="rounded-full shrink-0"
           aria-label="Close settings"
         >
           <X className="w-5 h-5" />
@@ -311,19 +311,19 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="flex-wrap">
+        <TabsList className="w-full overflow-x-auto scrollbar-hide">
           <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy & Notifications</TabsTrigger>
-          <TabsTrigger value="subscription" className="flex items-center gap-1.5">
-            <Crown className="w-4 h-4" />
+          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-1">
+            <Crown className="w-3.5 h-3.5" />
             Plan
           </TabsTrigger>
-          <TabsTrigger value="engagement" className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" />
-            Engagement
+          <TabsTrigger value="engagement" className="flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            Engage
           </TabsTrigger>
-          <TabsTrigger value="wearables" className="flex items-center gap-1.5">
-            <Watch className="w-4 h-4" />
+          <TabsTrigger value="wearables" className="flex items-center gap-1">
+            <Watch className="w-3.5 h-3.5" />
             Devices
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
@@ -508,16 +508,16 @@ export default function Settings() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Profile Visibility</Label>
-                  <p className="text-sm text-muted-foreground">Who can see your profile</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Who can see your profile</p>
                 </div>
                 <Select 
                   value={privacySettings.profile_visibility} 
                   onValueChange={(v) => updatePrivacy({ profile_visibility: v as any })}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-28 sm:w-32 shrink-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -528,10 +528,10 @@ export default function Settings() {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Show Activity Status</Label>
-                  <p className="text-sm text-muted-foreground">Let friends see when you're active</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let friends see when you're active</p>
                 </div>
                 <Switch
                   checked={privacySettings.show_activity_status}
@@ -539,10 +539,10 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Allow Friend Requests</Label>
-                  <p className="text-sm text-muted-foreground">Let others send you friend requests</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let others send you friend requests</p>
                 </div>
                 <Switch
                   checked={privacySettings.allow_friend_requests}
@@ -550,10 +550,10 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Show AI Insights to Friends</Label>
-                  <p className="text-sm text-muted-foreground">Let friends see AI mentor comments on your posts</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let friends see AI mentor comments on your posts</p>
                 </div>
                 <Switch
                   checked={privacySettings.show_ai_insights_to_friends}
@@ -561,14 +561,14 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
+                    <Sparkles className="w-4 h-4 text-primary shrink-0" />
                     Curated Suggestions
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Show curated product and service recommendations in AI insights on your feed posts
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Show curated recommendations in AI insights on your feed posts
                   </p>
                 </div>
                 <Switch
@@ -577,14 +577,14 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-border/30">
-                <div>
+              <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/30">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4 shrink-0" />
                     Location Services
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Enable location for finding nearby professionals and local features
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Enable location for nearby professionals
                   </p>
                   {latitude && longitude && (
                     <p className="text-xs text-primary mt-1">
@@ -601,7 +601,7 @@ export default function Settings() {
                   value={locationPermission} 
                   onValueChange={(v) => updatePermission(v as LocationPermission)}
                 >
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-32 sm:w-40 shrink-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -624,17 +624,17 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Master Push Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
                     {pushNotifications.isSubscribed ? (
-                      <Bell className="w-4 h-4 text-primary" />
+                      <Bell className="w-4 h-4 text-primary shrink-0" />
                     ) : (
-                      <BellOff className="w-4 h-4 text-muted-foreground" />
+                      <BellOff className="w-4 h-4 text-muted-foreground shrink-0" />
                     )}
-                    Enable Push Notifications
+                    Push Notifications
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {pushNotifications.isSupported 
                       ? pushNotifications.isSubscribed 
                         ? "You'll receive notifications on this device"
@@ -658,10 +658,10 @@ export default function Settings() {
               <div className="space-y-4">
                 <p className="text-sm font-medium text-muted-foreground">Notification Types</p>
                 
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                     <Label>Goals & Tasks</Label>
-                    <p className="text-sm text-muted-foreground">Deadline reminders and task notifications</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Deadline reminders and task notifications</p>
                   </div>
                   <Switch
                     checked={privacySettings.notifications_goals}
@@ -669,10 +669,10 @@ export default function Settings() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                     <Label>Social Activity</Label>
-                    <p className="text-sm text-muted-foreground">Reactions and comments on your posts</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Reactions and comments on your posts</p>
                   </div>
                   <Switch
                     checked={privacySettings.notifications_social}
@@ -680,10 +680,10 @@ export default function Settings() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                     <Label>Nudges & Reminders</Label>
-                    <p className="text-sm text-muted-foreground">Daily check-ins and habit reminders</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Daily check-ins and habit reminders</p>
                   </div>
                   <Switch
                     checked={privacySettings.notifications_nudges}
@@ -707,17 +707,17 @@ export default function Settings() {
                 Under GDPR and POPIA, you have the right to access, export, and delete your personal data at any time.
               </p>
               
-              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
-                <div>
+              <div className="flex items-center justify-between gap-3 p-4 rounded-lg bg-muted/30">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 shrink-0" />
                     Export My Data
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Download all your personal data in JSON format (Right to Data Portability)
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Download your personal data in JSON format
                   </p>
                 </div>
-                <Button 
+                <Button
                   variant="outline" 
                   onClick={exportUserData} 
                   disabled={exportStatus === 'loading'}

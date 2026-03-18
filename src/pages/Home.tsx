@@ -278,33 +278,38 @@ export default function Home() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/settings">
-            <Avatar className="w-12 h-12 ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <Link to="/settings" className="shrink-0">
+            <Avatar className="w-10 h-10 sm:w-12 sm:h-12 ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer">
               <AvatarImage src={avatarUrl || undefined} />
               <AvatarFallback className="bg-primary/10 text-primary text-lg">
                 {profile?.name?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
           </Link>
-          <div>
-            <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">
+          <div className="min-w-0">
+            <h1 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold mb-0.5 truncate">
               {greeting}, {profile?.name || 'there'}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="gold" size="sm" asChild>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button variant="gold" size="sm" asChild className="hidden sm:inline-flex">
             <Link to="/goals/new">
               <Plus className="w-4 h-4 mr-1" />
               Add Goal
             </Link>
           </Button>
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="gold" size="icon" asChild className="sm:hidden h-9 w-9">
+            <Link to="/goals/new">
+              <Plus className="w-4 h-4" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild className="h-9 w-9">
             <Link to="/settings">
               <Settings className="w-4 h-4" />
             </Link>
@@ -568,22 +573,22 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Link to="/goals/new" className="quick-action">
           <Target className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">New Goal</span>
+          <span className="text-xs text-muted-foreground text-center">New Goal</span>
         </Link>
         <Link to="/habits/new" className="quick-action">
           <Flame className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">Add Habit</span>
+          <span className="text-xs text-muted-foreground text-center">Add Habit</span>
         </Link>
         <Link to="/journal" className="quick-action">
           <PenLine className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">Journal</span>
+          <span className="text-xs text-muted-foreground text-center">Journal</span>
         </Link>
         <Link to="/mentor" className="quick-action">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">AI Mentor</span>
+          <span className="text-xs text-muted-foreground text-center">AI Mentor</span>
         </Link>
       </div>
 

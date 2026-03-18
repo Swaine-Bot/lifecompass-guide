@@ -19,7 +19,7 @@ export const BottomNav = () => {
 
   return (
     <nav className="bottom-nav lg:hidden">
-      <div className="flex items-center justify-around px-2 py-1">
+      <div className="flex items-center justify-around px-1 py-1.5">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/home' && location.pathname.startsWith(item.path));
