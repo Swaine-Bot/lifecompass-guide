@@ -786,6 +786,9 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           id: string
+          image_metadata: Json | null
+          image_url: string | null
+          moderation_status: string | null
           role: string
         }
         Insert: {
@@ -793,6 +796,9 @@ export type Database = {
           conversation_id: string
           created_at?: string | null
           id?: string
+          image_metadata?: Json | null
+          image_url?: string | null
+          moderation_status?: string | null
           role: string
         }
         Update: {
@@ -800,6 +806,9 @@ export type Database = {
           conversation_id?: string
           created_at?: string | null
           id?: string
+          image_metadata?: Json | null
+          image_url?: string | null
+          moderation_status?: string | null
           role?: string
         }
         Relationships: [
