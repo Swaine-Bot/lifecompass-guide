@@ -322,6 +322,10 @@ export default function Settings() {
             <Sparkles className="w-4 h-4" />
             Engagement
           </TabsTrigger>
+          <TabsTrigger value="wearables" className="flex items-center gap-1.5">
+            <Watch className="w-4 h-4" />
+            Devices
+          </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
