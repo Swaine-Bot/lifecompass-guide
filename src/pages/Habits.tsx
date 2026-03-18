@@ -118,15 +118,16 @@ export default function Habits() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">Habits</h1>
-          <p className="text-muted-foreground">Build routines that shape your life</p>
+          <p className="text-muted-foreground text-sm">Build routines that shape your life</p>
         </div>
-        <Button variant="gold" asChild>
+        <Button variant="gold" asChild className="shrink-0">
           <Link to="/habits/new">
-            <Plus className="w-4 h-4 mr-2" />
-            New Habit
+            <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">New Habit</span>
+            <span className="sm:hidden">New</span>
           </Link>
         </Button>
       </div>

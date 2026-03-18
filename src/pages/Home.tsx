@@ -573,22 +573,22 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Link to="/goals/new" className="quick-action">
           <Target className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">New Goal</span>
+          <span className="text-xs text-muted-foreground text-center">New Goal</span>
         </Link>
         <Link to="/habits/new" className="quick-action">
           <Flame className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">Add Habit</span>
+          <span className="text-xs text-muted-foreground text-center">Add Habit</span>
         </Link>
         <Link to="/journal" className="quick-action">
           <PenLine className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">Journal</span>
+          <span className="text-xs text-muted-foreground text-center">Journal</span>
         </Link>
         <Link to="/mentor" className="quick-action">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground">AI Mentor</span>
+          <span className="text-xs text-muted-foreground text-center">AI Mentor</span>
         </Link>
       </div>
 

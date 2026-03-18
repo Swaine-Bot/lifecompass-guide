@@ -197,12 +197,13 @@
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-50;
     @apply bg-card/90 backdrop-blur-xl border-t border-border/50;
-    @apply safe-area-inset-bottom;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   
   .bottom-nav-item {
-    @apply flex flex-col items-center gap-1 py-2 px-3;
+    @apply flex flex-col items-center gap-0.5 py-2 px-1.5;
     @apply text-muted-foreground transition-colors duration-200;
+    min-width: 0;
   }
   
   .bottom-nav-item.active {

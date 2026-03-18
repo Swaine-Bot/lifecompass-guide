@@ -94,15 +94,16 @@ export default function Goals() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">Goals & Plans</h1>
-          <p className="text-muted-foreground">Your roadmap to an intentional life</p>
+          <p className="text-muted-foreground text-sm">Your roadmap to an intentional life</p>
         </div>
-        <Button variant="gold" asChild>
+        <Button variant="gold" asChild className="shrink-0">
           <Link to="/goals/new">
-            <Plus className="w-4 h-4 mr-2" />
-            New Goal
+            <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">New Goal</span>
+            <span className="sm:hidden">New</span>
           </Link>
         </Button>
       </div>

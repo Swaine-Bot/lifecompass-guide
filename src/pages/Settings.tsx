@@ -290,20 +290,20 @@ export default function Settings() {
   const timezones = ['UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Toronto', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Dubai', 'Australia/Sydney', 'Pacific/Auckland'];
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src={lifestackLogo} alt="LifeStack" className="w-10 h-10" />
-          <div>
-            <h1 className="text-2xl font-serif font-bold">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
+    <div className="space-y-6 pb-6">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold">Settings</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm truncate">Manage your account and preferences</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate('/home')}
-          className="rounded-full"
+          className="rounded-full shrink-0"
           aria-label="Close settings"
         >
           <X className="w-5 h-5" />

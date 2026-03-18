@@ -179,7 +179,7 @@ export default function Mentor() {
   ];
 
   return (
-    <div className="fixed inset-0 bottom-16 lg:bottom-0 lg:left-64 flex flex-col bg-background z-10">
+    <div className="fixed inset-0 bottom-[4.5rem] lg:bottom-0 lg:left-64 flex flex-col bg-background z-10">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-card/80 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-2">
