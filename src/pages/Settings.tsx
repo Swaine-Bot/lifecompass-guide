@@ -680,10 +680,10 @@ export default function Settings() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
                     <Label>Nudges & Reminders</Label>
-                    <p className="text-sm text-muted-foreground">Daily check-ins and habit reminders</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Daily check-ins and habit reminders</p>
                   </div>
                   <Switch
                     checked={privacySettings.notifications_nudges}
