@@ -4,7 +4,7 @@
  * so the composition engine receives only final, allowed data.
  */
 
-import type { ShareCardData, PrivacySettings, ThemeDefinition } from '@/services/shareService';
+import type { ShareCardData, PrivacySettings, ThemeDefinition, SponsorData } from '@/services/shareService';
 import { applyPrivacy, CARD_TYPE_LABELS } from '@/services/shareService';
 import type { SharePlatform, PlatformProfile, ImageTreatment } from '../platformProfiles';
 import { getPlatformProfile, getContentLengthTier } from '../platformProfiles';

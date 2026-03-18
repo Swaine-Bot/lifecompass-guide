@@ -8,6 +8,14 @@ export type VisualModule = 'flame' | 'ring' | 'radar' | 'badge' | 'chart' | 'quo
 export type ImageLayout = 'hero_image' | 'split_image' | 'background_image' | 'none';
 export type NativeSharePreset = 'post' | 'story' | 'reel';
 
+export interface SponsorData {
+  name: string;
+  logoUrl?: string;
+  message?: string;
+  cta?: string;
+  attributionType?: 'sponsored' | 'powered' | 'partnership' | 'rewards' | 'productivity';
+}
+
 export interface ShareCardData {
   cardType: CardType;
   title: string;
@@ -27,6 +35,7 @@ export interface ShareCardData {
   imageUrls?: string[];
   imageLayout?: ImageLayout;
   aiInsightLinks?: { label: string; url: string }[];
+  sponsor?: SponsorData;
 }
 
 export interface PrivacySettings {
