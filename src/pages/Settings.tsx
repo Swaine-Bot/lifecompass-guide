@@ -528,10 +528,10 @@ export default function Settings() {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Show Activity Status</Label>
-                  <p className="text-sm text-muted-foreground">Let friends see when you're active</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let friends see when you're active</p>
                 </div>
                 <Switch
                   checked={privacySettings.show_activity_status}
