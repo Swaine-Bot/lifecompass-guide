@@ -26,6 +26,8 @@ import { Language } from '@/lib/translations';
 import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components/subscription';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
+import { WearableSettings } from '@/components/wearables/WearableSettings';
+import { Watch } from 'lucide-react';
 
 interface PrivacySettings {
   terms_accepted: boolean;
