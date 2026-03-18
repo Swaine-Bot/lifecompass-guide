@@ -185,6 +185,32 @@ If borderline but not explicitly harmful, respond "safe".`
       ? `Their focus areas are: ${profile.focus_areas.join(', ')}.` 
       : '';
 
+    // Fetch wearable step context for mentor awareness
+    let wearableContext = '';
+    try {
+      const serviceClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+      const today = new Date().toISOString().split('T')[0];
+      const { data: stepData } = await serviceClient
+        .from('wearable_metrics')
+        .select('metric_value, provider')
+        .eq('user_id', userId)
+        .eq('metric_type', 'steps')
+        .eq('local_date', today)
+        .limit(1)
+        .maybeSingle();
+
+      if (stepData) {
+        const steps = Number(stepData.metric_value);
+        const provider = stepData.provider?.replace('_', ' ') || 'their wearable';
+        wearableContext = `\nWEARABLE DATA: The user has ${steps.toLocaleString()} steps today (synced from ${provider}). You can reference this naturally when relevant — e.g. encouragement, progress toward goals, or movement suggestions. Don't force it into every response.`;
+      }
+    } catch (e) {
+      console.log('Wearable context fetch skipped:', e);
+    }
+
     const imageInstructions = imageUrl ? `
 IMAGE ANALYSIS INSTRUCTIONS:
 The user has shared an image in this message. Analyze it thoughtfully and provide useful mentor feedback.
