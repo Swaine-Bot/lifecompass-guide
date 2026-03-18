@@ -560,6 +560,68 @@ export default function ShareStudio() {
               )}
             </Card>
           </TabsContent>
+
+          {/* Sponsor / Partner Tab */}
+          <TabsContent value="sponsor" className="mt-3">
+            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+              <div>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sponsor / Partner</span>
+                <p className="text-[10px] text-muted-foreground mt-1">Add a premium partner attribution to this card.</p>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Handshake className="w-3.5 h-3.5 text-primary" />Enable partner zone
+                  </Label>
+                </div>
+                <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
+              </div>
+              {sponsorEnabled && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Partner name</Label>
+                    <Input
+                      value={sponsorName}
+                      onChange={(e) => setSponsorName(e.target.value)}
+                      placeholder="e.g. Discovery Vitality"
+                      className="bg-secondary/50 border-border/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Attribution type</Label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {([
+                        { value: 'sponsored' as const, label: 'Sponsored by' },
+                        { value: 'powered' as const, label: 'Powered by' },
+                        { value: 'partnership' as const, label: 'Partnership' },
+                        { value: 'rewards' as const, label: 'Rewards by' },
+                        { value: 'productivity' as const, label: 'Prod. partner' },
+                      ]).map((opt) => (
+                        <button key={opt.value} onClick={() => setSponsorType(opt.value)}
+                          className={cn(
+                            'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
+                            sponsorType === opt.value
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border/30 text-muted-foreground hover:border-border/60'
+                          )}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Message / CTA (optional)</Label>
+                    <Input
+                      value={sponsorMessage}
+                      onChange={(e) => setSponsorMessage(e.target.value)}
+                      placeholder="e.g. Earn rewards for healthy habits"
+                      className="bg-secondary/50 border-border/30"
+                    />
+                  </div>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
         </Tabs>
 
         {/* Actions */}
