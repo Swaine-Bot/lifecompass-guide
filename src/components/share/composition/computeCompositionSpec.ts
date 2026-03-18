@@ -51,6 +51,7 @@ export interface CompositionSpec {
     text: PanelSpec;
     momentum: PanelSpec;
     meta: PanelSpec;
+    sponsor: PanelSpec;
     brand: PanelSpec;
   };
 
