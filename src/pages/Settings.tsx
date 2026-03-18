@@ -577,14 +577,14 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-border/30">
-                <div>
+              <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/30">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4 shrink-0" />
                     Location Services
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Enable location for finding nearby professionals and local features
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Enable location for nearby professionals
                   </p>
                   {latitude && longitude && (
                     <p className="text-xs text-primary mt-1">
