@@ -77,7 +77,7 @@ export const PLATFORM_PROFILES: Record<SharePlatform, PlatformProfile> = {
     textDensity: 'very_low',
     maxInsightLines: 3,
     maxTitleLines: 2,
-    maxBodyLines: 2,
+    maxBodyLines: 3,
     showFooter: false,
     showMetadata: false,
     preferredImageTreatment: ['hero', 'background', 'split'],
