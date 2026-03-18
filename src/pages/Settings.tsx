@@ -798,6 +798,10 @@ export default function Settings() {
           <NotificationPreferencesCard />
         </TabsContent>
 
+        <TabsContent value="wearables" className="space-y-4">
+          <WearableSettings />
+        </TabsContent>
+
         <TabsContent value="account" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
