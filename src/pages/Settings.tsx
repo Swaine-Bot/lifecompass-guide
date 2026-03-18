@@ -550,10 +550,10 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Show AI Insights to Friends</Label>
-                  <p className="text-sm text-muted-foreground">Let friends see AI mentor comments on your posts</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let friends see AI mentor comments on your posts</p>
                 </div>
                 <Switch
                   checked={privacySettings.show_ai_insights_to_friends}
