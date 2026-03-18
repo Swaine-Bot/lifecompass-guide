@@ -1,26 +1,34 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Send, Loader2, AlertTriangle, ExternalLink, MapPin, ChevronDown, ChevronUp, History } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Sparkles, Send, Loader2, AlertTriangle, ExternalLink, MapPin, History, ImagePlus } from 'lucide-react';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { useLocation } from '@/hooks/useLocation';
 import { MAX_MESSAGE_LENGTH } from '@/lib/validation';
 import { MentorSidebar } from '@/components/mentor/MentorSidebar';
 import { MentorMessage } from '@/components/mentor/MentorMessage';
+import { MentorImagePreview } from '@/components/mentor/MentorImagePreview';
 import { useMentorConversations } from '@/hooks/useMentorConversations';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export default function Mentor() {
   const [input, setInput] = useState('');
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { profile } = useAuth();
   const { getMapsSearchUrl, latitude, longitude, permission, requestLocation } = useLocation();
-  
+
   const {
     conversations,
     activeConversationId,
@@ -30,18 +38,16 @@ export default function Mentor() {
     setLoading,
     createConversation,
     saveMessage,
+    uploadImage,
     deleteConversation,
     selectConversation,
     startNewConversation,
   } = useMentorConversations();
 
   useEffect(() => {
-    if (permission === 'while_using') {
-      requestLocation();
-    }
+    if (permission === 'while_using') requestLocation();
   }, [permission, requestLocation]);
 
-  // Only auto-scroll when a new message is added (not on initial load of history)
   const prevMessageCount = useRef(0);
   useEffect(() => {
     if (messages.length > prevMessageCount.current) {
@@ -50,7 +56,6 @@ export default function Mentor() {
     prevMessageCount.current = messages.length;
   }, [messages]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -58,9 +63,25 @@ export default function Mentor() {
     }
   }, [input]);
 
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error('Please select a JPG, PNG, WebP, or GIF image.');
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error('Image must be under 10MB.');
+      return;
+    }
+    setPendingImage(file);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
+
   const sendMessage = async () => {
     const trimmedInput = input.trim();
-    if (!trimmedInput || loading) return;
+    if ((!trimmedInput && !pendingImage) || loading) return;
     if (trimmedInput.length > MAX_MESSAGE_LENGTH) return;
 
     let conversationId = activeConversationId;
@@ -69,28 +90,79 @@ export default function Mentor() {
       if (!conversationId) return;
     }
 
-    const userMessage = { role: 'user' as const, content: trimmedInput };
+    let storagePath: string | null = null;
+
+    // Upload image first if present
+    if (pendingImage) {
+      setUploading(true);
+      storagePath = await uploadImage(pendingImage);
+      setUploading(false);
+      if (!storagePath) {
+        toast.error('Image upload failed. Please try again.');
+        return;
+      }
+    }
+
+    const userMessage = {
+      role: 'user' as const,
+      content: trimmedInput,
+      imageUrl: storagePath,
+    };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    setPendingImage(null);
     setLoading(true);
 
-    await saveMessage(conversationId, 'user', trimmedInput);
+    await saveMessage(conversationId, 'user', trimmedInput, storagePath);
 
     try {
+      // Track image upload event
+      if (storagePath) {
+        supabase.from('engagement_events').insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          event_type: 'mentor_image_upload_completed',
+          source_engine: 'mirror',
+          metadata: {},
+        }).then(() => {});
+      }
+
       const response = await supabase.functions.invoke('mentor-chat', {
-        body: { 
-          messages: [...messages, userMessage],
-          profile: profile 
-        }
+        body: {
+          messages: [...messages, { role: 'user', content: trimmedInput }],
+          profile,
+          imageUrl: storagePath,
+        },
       });
 
       if (response.error) throw response.error;
 
+      const moderationStatus = response.data?.moderation_status;
       const assistantContent = response.data?.message || "I'm here to help you navigate your journey. What's on your mind?";
       const assistantMessage = { role: 'assistant' as const, content: assistantContent };
       setMessages(prev => [...prev, assistantMessage]);
-      await saveMessage(conversationId, 'assistant', assistantContent);
+      await saveMessage(conversationId, 'assistant', assistantContent, null, moderationStatus);
+
+      // Track moderation block
+      if (moderationStatus === 'blocked') {
+        supabase.from('engagement_events').insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          event_type: 'mentor_image_moderation_blocked',
+          source_engine: 'mirror',
+          metadata: {},
+        }).then(() => {});
+      }
+
+      // Track analysis completed
+      if (storagePath && moderationStatus === 'safe') {
+        supabase.from('engagement_events').insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          event_type: 'mentor_image_analysis_completed',
+          source_engine: 'mirror',
+          metadata: {},
+        }).then(() => {});
+      }
     } catch (error) {
+      console.error('Mentor chat error:', error);
       const errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
       setMessages(prev => [...prev, { role: 'assistant' as const, content: errorMessage }]);
       await saveMessage(conversationId, 'assistant', errorMessage);
@@ -98,9 +170,6 @@ export default function Mentor() {
       setLoading(false);
     }
   };
-
-  // Enter now creates a new line (default textarea behavior)
-  // No special key handler needed
 
   const professionalLinks = [
     { label: 'Find a Therapist', query: 'therapist near me' },
@@ -139,7 +208,7 @@ export default function Mentor() {
         </div>
       </div>
 
-      {/* Disclaimer collapsible */}
+      {/* Disclaimer */}
       <Collapsible open={disclaimerOpen} onOpenChange={setDisclaimerOpen}>
         <CollapsibleContent>
           <div className="px-4 py-3 bg-warning/5 border-b border-warning/20">
@@ -176,7 +245,7 @@ export default function Mentor() {
 
       {/* Main content area */}
       <div className="flex flex-1 min-h-0 overflow-hidden relative">
-        {/* Chat history sidebar - slides over on mobile, side panel on desktop */}
+        {/* Sidebar */}
         <div className={cn(
           "absolute lg:relative inset-y-0 left-0 z-20 transition-transform duration-200 ease-in-out",
           "w-72 bg-card border-r border-border/30",
@@ -193,20 +262,13 @@ export default function Mentor() {
           />
         </div>
 
-        {/* Overlay for mobile sidebar */}
         {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/40 z-10 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/40 z-10 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
 
-        {/* Chat messages */}
+        {/* Chat */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
-          <div 
-            className="flex-1 overflow-y-auto overscroll-contain"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
+          <div className="flex-1 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
@@ -215,13 +277,19 @@ export default function Mentor() {
                   </div>
                   <h3 className="font-serif text-xl font-semibold mb-2">Hello, {profile?.name || 'there'}</h3>
                   <p className="text-muted-foreground max-w-md text-sm">
-                    I'm your AI mentor. Ask me about your goals, habits, or any challenge you're facing.
+                    I'm your AI mentor. Ask me about your goals, habits, or any challenge you're facing. You can also share images for analysis.
                   </p>
                 </div>
               )}
 
               {messages.map((msg, i) => (
-                <MentorMessage key={i} role={msg.role} content={msg.content} />
+                <MentorMessage
+                  key={i}
+                  role={msg.role}
+                  content={msg.content}
+                  imageUrl={msg.imageUrl}
+                  conversationId={activeConversationId || undefined}
+                />
               ))}
 
               {loading && (
@@ -230,7 +298,10 @@ export default function Mentor() {
                     <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                   </div>
                   <div className="chat-bubble-assistant">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {pendingImage || uploading ? 'Analyzing image…' : 'Thinking…'}
+                    </div>
                   </div>
                 </div>
               )}
@@ -241,13 +312,43 @@ export default function Mentor() {
           {/* Input area */}
           <div className="border-t border-border/30 bg-card/60 backdrop-blur-sm shrink-0">
             <div className="max-w-2xl mx-auto px-4 py-3">
+              {/* Image preview */}
+              {pendingImage && (
+                <div className="mb-2 flex items-center gap-2">
+                  <MentorImagePreview
+                    file={pendingImage}
+                    uploading={uploading}
+                    onRemove={() => setPendingImage(null)}
+                  />
+                  <p className="text-xs text-muted-foreground/60">Images shared with your mentor stay private.</p>
+                </div>
+              )}
               <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2 items-end">
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleImageSelect}
+                />
+                {/* Image upload button */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={loading || uploading}
+                  className="h-[44px] w-[44px] rounded-xl shrink-0 text-muted-foreground hover:text-primary"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImagePlus className="w-5 h-5" />
+                </Button>
                 <div className="flex-1 relative">
                   <Textarea
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
-                    placeholder="Message your mentor..."
+                    placeholder={pendingImage ? "Add a caption (optional)..." : "Message your mentor..."}
                     disabled={loading}
                     maxLength={MAX_MESSAGE_LENGTH}
                     rows={2}
@@ -261,7 +362,7 @@ export default function Mentor() {
                   type="submit"
                   variant="gold"
                   size="icon"
-                  disabled={loading || !input.trim()}
+                  disabled={loading || (!input.trim() && !pendingImage)}
                   className="h-[44px] w-[44px] rounded-xl shrink-0"
                 >
                   <Send className="w-4 h-4" />
