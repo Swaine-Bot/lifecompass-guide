@@ -561,14 +561,14 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
+                    <Sparkles className="w-4 h-4 text-primary shrink-0" />
                     Curated Suggestions
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Show curated product and service recommendations in AI insights on your feed posts
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Show curated recommendations in AI insights on your feed posts
                   </p>
                 </div>
                 <Switch
