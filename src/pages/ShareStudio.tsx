@@ -392,14 +392,15 @@ export default function ShareStudio() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={cn("w-full bg-secondary/50", "grid", hasPostImage ? "grid-cols-7" : "grid-cols-6")}>
-            <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
-            <TabsTrigger value="ai" className="text-xs">AI</TabsTrigger>
-            <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
-            {hasPostImage && <TabsTrigger value="image" className="text-xs">Image</TabsTrigger>}
-            <TabsTrigger value="privacy" className="text-xs">Privacy</TabsTrigger>
-            <TabsTrigger value="platform" className="text-xs">Platform</TabsTrigger>
-            <TabsTrigger value="link" className="text-xs">Link</TabsTrigger>
+          <TabsList className="w-full bg-secondary/50 flex overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="template" className="text-xs flex-shrink-0">Template</TabsTrigger>
+            <TabsTrigger value="ai" className="text-xs flex-shrink-0">AI</TabsTrigger>
+            <TabsTrigger value="style" className="text-xs flex-shrink-0">Style</TabsTrigger>
+            {hasPostImage && <TabsTrigger value="image" className="text-xs flex-shrink-0">Image</TabsTrigger>}
+            <TabsTrigger value="sponsor" className="text-xs flex-shrink-0">Partner</TabsTrigger>
+            <TabsTrigger value="privacy" className="text-xs flex-shrink-0">Privacy</TabsTrigger>
+            <TabsTrigger value="platform" className="text-xs flex-shrink-0">Platform</TabsTrigger>
+            <TabsTrigger value="link" className="text-xs flex-shrink-0">Link</TabsTrigger>
           </TabsList>
 
           {/* Template Tab */}
