@@ -129,7 +129,11 @@ export function ShareCardPreview({
 
           {statValue && (
             <div className="space-y-1">
-              <div className={cn('text-4xl font-bold font-serif', t.accent)}>
+              <div className={cn(
+                'font-bold font-serif break-words',
+                t.accent,
+                statValue.length > 6 ? 'text-xl' : 'text-4xl'
+              )}>
                 {showNumbers ? statValue : '•••'}
               </div>
               {statLabel && (
@@ -138,10 +142,10 @@ export function ShareCardPreview({
             </div>
           )}
 
-          <div className="space-y-2">
-            <h2 className="text-xl font-serif font-semibold">{title}</h2>
+          <div className="space-y-2 min-w-0">
+            <h2 className="text-xl font-serif font-semibold break-words">{title}</h2>
             {subtitle && (
-              <p className="text-sm text-muted-foreground leading-relaxed">{subtitle}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed break-words line-clamp-4">{subtitle}</p>
             )}
           </div>
 
