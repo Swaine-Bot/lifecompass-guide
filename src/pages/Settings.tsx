@@ -539,10 +539,10 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
                   <Label>Allow Friend Requests</Label>
-                  <p className="text-sm text-muted-foreground">Let others send you friend requests</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Let others send you friend requests</p>
                 </div>
                 <Switch
                   checked={privacySettings.allow_friend_requests}
