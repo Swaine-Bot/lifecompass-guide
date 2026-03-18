@@ -601,7 +601,7 @@ export default function Settings() {
                   value={locationPermission} 
                   onValueChange={(v) => updatePermission(v as LocationPermission)}
                 >
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-32 sm:w-40 shrink-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
