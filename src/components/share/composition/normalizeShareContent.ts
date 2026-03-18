@@ -216,6 +216,9 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
     timeAnchor: privacy.includeDateTime ? (input.data.timeAnchor || null) : null,
     domain: input.data.domain || null,
 
+    sponsor: input.data.sponsor || null,
+    showSponsor: !!input.data.sponsor?.name,
+
     showFooter: visibility.showFooter,
     showMetadata: visibility.showMetadata,
     showMomentum: visibility.showMomentum,
