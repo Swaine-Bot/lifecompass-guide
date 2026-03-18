@@ -148,7 +148,10 @@ export function computeCompositionSpec(
   // ── Panel sizing ──
   // Available height for content panels
   const brandH = content.showFooter ? 60 : 0;
-  const availH = ch - brandH - (content.showFooter ? gap : 0);
+  const sponsorH = content.showSponsor ? (isStory ? 70 : 62) : 0;
+  const availH = ch - brandH - sponsorH
+    - (content.showFooter ? gap : 0)
+    - (content.showSponsor ? gap : 0);
 
   // Strategy-based panel proportions
   let mediaRatio = 0;
