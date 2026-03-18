@@ -299,6 +299,18 @@ export function computeCompositionSpec(
     zIndex: 3,
   };
 
+  // Sponsor panel — sits between content and brand
+  const sponsorY = H - sz.bottom - brandH - (content.showFooter ? gap : 0) - sponsorH;
+  const sponsorPanelSpec: PanelSpec = {
+    id: 'sponsor',
+    x: cx,
+    y: sponsorY,
+    width: cw,
+    height: sponsorH,
+    visible: content.showSponsor,
+    zIndex: 4,
+  };
+
   // Brand panel
   const brandPanelSpec: PanelSpec = {
     id: 'brand',
@@ -320,6 +332,7 @@ export function computeCompositionSpec(
       text: textPanelSpec,
       momentum: momentumPanelSpec,
       meta: metaPanelSpec,
+      sponsor: sponsorPanelSpec,
       brand: brandPanelSpec,
     },
     typography,
