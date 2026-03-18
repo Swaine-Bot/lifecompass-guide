@@ -96,6 +96,14 @@ export default function ShareStudio() {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
   const [showImageCount, setShowImageCount] = useState(true);
 
+  // Sponsor / Partner
+  const [sponsorEnabled, setSponsorEnabled] = useState(!!prefill?.sponsor);
+  const [sponsorName, setSponsorName] = useState(prefill?.sponsor?.name || '');
+  const [sponsorMessage, setSponsorMessage] = useState(prefill?.sponsor?.message || '');
+  const [sponsorType, setSponsorType] = useState<'sponsored' | 'powered' | 'partnership' | 'rewards' | 'productivity'>(
+    prefill?.sponsor?.attributionType || 'sponsored'
+  );
+
   // Saved cards
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
