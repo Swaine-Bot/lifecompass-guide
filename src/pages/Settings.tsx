@@ -624,17 +624,17 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Master Push Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
-                <div>
+              <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="min-w-0 flex-1">
                   <Label className="flex items-center gap-2">
                     {pushNotifications.isSubscribed ? (
-                      <Bell className="w-4 h-4 text-primary" />
+                      <Bell className="w-4 h-4 text-primary shrink-0" />
                     ) : (
-                      <BellOff className="w-4 h-4 text-muted-foreground" />
+                      <BellOff className="w-4 h-4 text-muted-foreground shrink-0" />
                     )}
-                    Enable Push Notifications
+                    Push Notifications
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {pushNotifications.isSupported 
                       ? pushNotifications.isSubscribed 
                         ? "You'll receive notifications on this device"
