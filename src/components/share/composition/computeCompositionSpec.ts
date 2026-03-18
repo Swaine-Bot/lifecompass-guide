@@ -265,7 +265,7 @@ export function computeCompositionSpec(
     x: panelX,
     y: textPanelY,
     width: panelW,
-    height: Math.max(textPanelH, 80),
+    height: Math.max(textPanelH, textMinH),
     visible: true,
     zIndex: 3,
   };
