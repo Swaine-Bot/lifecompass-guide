@@ -119,7 +119,7 @@ function sourceToCardData(source: ShareSource): ShareCardData {
   }
 
   if (source.type === 'journal_reflection') {
-    const excerpt = (source.excerpt || source.subtitle || '').slice(0, 120);
+    const excerpt = source.excerpt || source.subtitle || '';
     const imageUrls = source.mediaUrls?.filter(u => /\.(jpg|jpeg|png|gif|webp)/i.test(u)) || source.imageUrls;
     const videoUrls = source.mediaUrls?.filter(u => /\.(mp4|mov|webm)/i.test(u));
     const audioUrls = source.mediaUrls?.filter(u => /\.(mp3|wav|webm|ogg)/i.test(u));
