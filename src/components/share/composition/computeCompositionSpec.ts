@@ -201,10 +201,12 @@ export function computeCompositionSpec(
   const gapsInColumn = contentPanels - 1;
   const netPanelH = panelAreaH - gapsInColumn * gap;
 
-  // Compute panel heights
+  // Compute panel heights with minimums to prevent overlap
   const mediaH = Math.round(netPanelH * mediaRatio);
-  const insightH = Math.round(netPanelH * insightRatio);
-  const textH = Math.round(netPanelH * textRatio);
+  const insightMinH = hasInsight ? (isStory ? 160 : 140) : 0;
+  const insightH = Math.max(Math.round(netPanelH * insightRatio), insightMinH);
+  const textMinH = isStory ? 140 : 120;
+  const textH = Math.max(Math.round(netPanelH * textRatio), textMinH);
 
   // ── Split layout: side-by-side ──
   const isSplit = content.strategy === 'split' && content.hasMedia && content.imageTreatment !== 'background';
@@ -263,7 +265,7 @@ export function computeCompositionSpec(
     x: panelX,
     y: textPanelY,
     width: panelW,
-    height: Math.max(textPanelH, 80),
+    height: Math.max(textPanelH, textMinH),
     visible: true,
     zIndex: 3,
   };

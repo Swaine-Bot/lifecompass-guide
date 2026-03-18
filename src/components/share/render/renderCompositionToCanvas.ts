@@ -250,6 +250,9 @@ function drawInsightPanel(
   ctx.fillText('AI INSIGHT', panel.x + pad + 14, panel.y + pad + 16);
   ctx.globalAlpha = 1;
 
+  // ── Heading-to-body gap (universal spacing token) ──
+  const insightHeadingGap = 20;
+
   // Insight text
   const fontSize = spec.typography.insightFontSize;
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
@@ -260,7 +263,8 @@ function drawInsightPanel(
   const lineH = fontSize * spec.typography.insightLineHeight;
   const lines = wrapText(ctx, content.aiInsight, textMaxW, spec.typography.insightMaxLines);
 
-  let textY = panel.y + pad + 44;
+  // pad(24) + labelHeight(20) + insightHeadingGap(20) + fontSize offset
+  let textY = panel.y + pad + 20 + insightHeadingGap + fontSize;
   for (const line of lines) {
     ctx.fillText(line, textX, textY);
     textY += lineH;
