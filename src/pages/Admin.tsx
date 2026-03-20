@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -20,9 +20,11 @@ import { ModerationControls } from '@/components/admin/sections/ModerationContro
 import { DocumentCenter } from '@/components/admin/sections/DocumentCenter';
 import { ShareAnalytics } from '@/components/admin/sections/ShareAnalytics';
 import { TrustSafety } from '@/components/admin/sections/TrustSafety';
+import { AIAnalyst } from '@/components/admin/sections/AIAnalyst';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'analyst', label: 'Analyst', icon: Brain },
   { id: 'behavioral', label: 'Behavior', icon: BarChart3 },
   { id: 'sentiment', label: 'Sentiment', icon: Heart },
   { id: 'goals', label: 'Goals', icon: Target },
@@ -161,6 +163,7 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {activeSection === 'overview' && <ExecutiveOverview data={analytics} />}
+        {activeSection === 'analyst' && <AIAnalyst />}
         {activeSection === 'behavioral' && <BehavioralAnalytics data={analytics} />}
         {activeSection === 'sentiment' && <SentimentClimate data={analytics} />}
         {activeSection === 'goals' && <GoalIntelligence data={analytics} />}

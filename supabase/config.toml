@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.generate-cinematic-report]
 verify_jwt = false
+
+[functions.admin-analyst]
+verify_jwt = false
