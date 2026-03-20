@@ -163,6 +163,7 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {activeSection === 'overview' && <ExecutiveOverview data={analytics} />}
+        {activeSection === 'analyst' && <AIAnalyst />}
         {activeSection === 'behavioral' && <BehavioralAnalytics data={analytics} />}
         {activeSection === 'sentiment' && <SentimentClimate data={analytics} />}
         {activeSection === 'goals' && <GoalIntelligence data={analytics} />}
