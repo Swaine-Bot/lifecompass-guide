@@ -135,15 +135,43 @@ async function gatherPlatformContext(adminClient: any) {
   const recentActive = new Set(sessions?.filter(s => s.started_at && new Date(s.started_at) >= new Date(weekAgo) && recentJoinerIds.has(s.user_id)).map(s => s.user_id));
   const newUserRetention = recentJoiners.length >= PRIVACY_THRESHOLD
     ? (recentActive.size / recentJoiners.length * 100).toFixed(1)
-    : 'insufficient data';
+    : 'below privacy threshold';
 
-  // User growth by week (last 12 weeks)
-  const weeklyGrowth: { week: string; newUsers: number }[] = [];
-  for (let i = 11; i >= 0; i--) {
-    const weekStart = new Date(now_ts - (i + 1) * 7 * 86400000);
-    const weekEnd = new Date(now_ts - i * 7 * 86400000);
-    const count = profiles?.filter(p => new Date(p.created_at) >= weekStart && new Date(p.created_at) < weekEnd).length || 0;
-    weeklyGrowth.push({ week: weekStart.toISOString().split('T')[0], newUsers: count });
+  // Determine maturity mode
+  let maturityMode: string;
+  let maturityGuidance: string;
+  if (totalUsers < 50) {
+    maturityMode = 'BEHAVIORAL DESIGN';
+    maturityGuidance = `The platform has fewer than 50 users. Classical statistical analysis and prediction are NOT reliable at this scale.
+DO NOT say "insufficient data" and stop. Instead:
+- Identify early behavioral signals (activation patterns, friction points, Day-1 to Day-2 behaviors)
+- Recommend what to instrument, track, and test next
+- Provide product design and onboarding insights based on observed patterns
+- Explain what CANNOT yet be concluded, then pivot to what CAN be learned
+- Act as a strategic product advisor, not a statistician
+- Frame answers around: what matters now, what to watch, which behaviors are likely leading indicators`;
+  } else if (totalUsers < 200) {
+    maturityMode = 'EARLY SIGNAL';
+    maturityGuidance = `The platform has ${totalUsers} users — enough for directional analysis but not high-confidence statistics.
+- Provide directional findings with cautious language ("likely", "appears to", "early signal suggests")
+- Separate promising patterns from unsupported assumptions
+- Identify candidate retention drivers and churn indicators
+- Recommend experiments and monitoring priorities
+- Use descriptive stats freely, but flag inferential results as tentative`;
+  } else if (totalUsers < 1000) {
+    maturityMode = 'STATISTICAL';
+    maturityGuidance = `The platform has ${totalUsers} users — sufficient for proper descriptive and inferential analysis on most questions.
+- Provide inferential/statistical results where cohort sizes allow
+- Report confidence levels and effect sizes
+- Distinguish statistical significance from practical significance
+- Still flag small sub-cohorts that fall below reliable thresholds`;
+  } else {
+    maturityMode = 'PREDICTIVE';
+    maturityGuidance = `The platform has ${totalUsers} users — sufficient volume for predictive modeling and advanced segmentation.
+- Provide predictive outputs with probability/risk bands
+- Identify feature importance and likely predictors
+- Recommend targeted interventions for at-risk cohorts
+- Clearly state predictions are probabilistic, not certain`;
   }
 
   return `
@@ -151,10 +179,15 @@ async function gatherPlatformContext(adminClient: any) {
 Generated: ${now.toISOString()}
 Privacy threshold: ${PRIVACY_THRESHOLD} users minimum per cohort
 
+── MATURITY ASSESSMENT ──
+Analysis mode: ${maturityMode}
+Total platform users: ${totalUsers}
+${maturityGuidance}
+
 ── USERS ──
 Total users: ${totalUsers}
 DAU: ${activeToday} | WAU: ${activeWeek} | MAU: ${activeMonth}
-New user 30d→7d retention: ${newUserRetention}${typeof newUserRetention === 'string' ? '' : '%'}
+New user 30d→7d retention: ${newUserRetention}${typeof newUserRetention === 'number' ? '%' : ''}
 
 ── SUBSCRIPTIONS ──
 Free: ${subCounts.free} | Pro: ${subCounts.pro} | Founder: ${subCounts.founder}
