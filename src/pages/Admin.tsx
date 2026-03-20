@@ -20,6 +20,7 @@ import { ModerationControls } from '@/components/admin/sections/ModerationContro
 import { DocumentCenter } from '@/components/admin/sections/DocumentCenter';
 import { ShareAnalytics } from '@/components/admin/sections/ShareAnalytics';
 import { TrustSafety } from '@/components/admin/sections/TrustSafety';
+import { AIAnalyst } from '@/components/admin/sections/AIAnalyst';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
