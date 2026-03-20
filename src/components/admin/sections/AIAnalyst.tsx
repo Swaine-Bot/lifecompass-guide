@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { SectionHeader } from '@/components/admin/SectionHeader';
+import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import {
   Brain,
@@ -18,6 +18,7 @@ import {
   Target,
   Activity,
   AlertTriangle,
+  LogIn,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,17 +38,22 @@ const QUICK_PROMPTS = [
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-analyst`;
 
+async function getSessionToken(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || null;
+}
+
 export function AIAnalyst() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
 
   const scrollToBottom = useCallback(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   }, []);
 
@@ -60,18 +66,40 @@ export function AIAnalyst() {
     let assistantContent = '';
 
     try {
+      const token = await getSessionToken();
+      if (!token) {
+        toast({
+          title: 'Session expired',
+          description: 'Please sign in again to use the AI Analyst.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ messages: allMessages }),
       });
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => ({ error: 'Request failed' }));
-        throw new Error(errData.error || `Error ${resp.status}`);
+        const status = resp.status;
+
+        if (status === 401) {
+          throw new Error('Session expired. Please refresh the page and sign in again.');
+        } else if (status === 403) {
+          throw new Error('You do not have permission to use the AI Analyst. Admin role required.');
+        } else if (status === 429) {
+          throw new Error('Rate limit reached. Please wait a moment and try again.');
+        } else if (status === 402) {
+          throw new Error('AI credits exhausted. Please try again later.');
+        }
+        throw new Error(errData.error || `Analysis failed (${status})`);
       }
 
       if (!resp.body) throw new Error('No response stream');
@@ -189,48 +217,50 @@ export function AIAnalyst() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SectionHeader
         title="AI Analyst"
         description="Privacy-first conversational intelligence for platform analysis, predictions, and strategic recommendations."
         icon={Brain}
       />
 
-      <div className="flex flex-col h-[calc(100vh-320px)] min-h-[500px]">
+      <div className="flex flex-col" style={{ height: 'calc(100vh - 260px)', minHeight: '400px' }}>
         {/* Chat area */}
-        <Card className="flex-1 flex flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm">
+        <Card className="flex-1 flex flex-col overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm min-h-0">
           {messages.length === 0 ? (
             /* Empty state with quick prompts */
-            <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-8">
-              <div className="text-center space-y-3">
-                <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="h-7 w-7 text-primary" />
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <div className="flex flex-col items-center justify-center space-y-6 py-8">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">Platform Intelligence</h3>
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Ask questions about user behavior, retention, engagement, predictions, or strategic recommendations. All analysis is privacy-first and aggregated.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground">Platform Intelligence</h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  Ask questions about user behavior, retention, engagement, predictions, or strategic recommendations. All analysis is privacy-first and aggregated.
-                </p>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-                {QUICK_PROMPTS.map((qp, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(qp.prompt)}
-                    className="flex items-start gap-3 p-3 rounded-xl border border-border/40 bg-secondary/30 hover:bg-secondary/60 text-left transition-all group"
-                  >
-                    <qp.icon className="h-4 w-4 mt-0.5 text-primary/70 group-hover:text-primary shrink-0" />
-                    <span className="text-sm text-muted-foreground group-hover:text-foreground leading-snug">
-                      {qp.label}
-                    </span>
-                  </button>
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+                  {QUICK_PROMPTS.map((qp, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(qp.prompt)}
+                      className="flex items-start gap-3 p-3 rounded-xl border border-border/40 bg-secondary/30 hover:bg-secondary/60 text-left transition-all group"
+                    >
+                      <qp.icon className="h-4 w-4 mt-0.5 text-primary/70 group-hover:text-primary shrink-0" />
+                      <span className="text-sm text-muted-foreground group-hover:text-foreground leading-snug">
+                        {qp.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
-            /* Message thread */
-            <ScrollArea className="flex-1 p-4" ref={scrollRef as any}>
-              <div className="space-y-6 max-w-3xl mx-auto">
+            /* Message thread - use native scrolling */
+            <div className="flex-1 overflow-y-auto p-4 min-h-0" ref={scrollContainerRef}>
+              <div className="space-y-6 max-w-3xl mx-auto pb-2">
                 {messages.map((msg, i) => (
                   <div
                     key={i}
@@ -246,7 +276,7 @@ export function AIAnalyst() {
                     )}
                     <div
                       className={cn(
-                        'rounded-2xl px-4 py-3 max-w-[85%]',
+                        'rounded-2xl px-4 py-3 max-w-[85%] overflow-hidden',
                         msg.role === 'user'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary/50 text-foreground'
@@ -255,7 +285,7 @@ export function AIAnalyst() {
                       {msg.role === 'assistant' ? (
                         <div className="space-y-2">
                           {msg.content ? (
-                            <div className="prose prose-sm prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_p]:text-sm [&_li]:text-sm [&_strong]:text-foreground">
+                            <div className="prose prose-sm prose-invert max-w-none break-words [&_table]:text-xs [&_th]:px-2 [&_td]:px-2 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_p]:text-sm [&_li]:text-sm [&_strong]:text-foreground [&_pre]:overflow-x-auto [&_pre]:max-w-full [&_code]:break-all [&_table]:overflow-x-auto [&_table]:block">
                               <ReactMarkdown>{msg.content}</ReactMarkdown>
                             </div>
                           ) : (
@@ -283,17 +313,17 @@ export function AIAnalyst() {
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           )}
 
           {/* Input area */}
-          <div className="border-t border-border/40 p-4">
+          <div className="border-t border-border/40 p-3 sm:p-4 shrink-0">
             <div className="max-w-3xl mx-auto flex gap-2 items-end">
               {messages.length > 0 && (
                 <Button
