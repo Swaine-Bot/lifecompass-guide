@@ -24,6 +24,7 @@ import { AIAnalyst } from '@/components/admin/sections/AIAnalyst';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'analyst', label: 'Analyst', icon: Brain },
   { id: 'behavioral', label: 'Behavior', icon: BarChart3 },
   { id: 'sentiment', label: 'Sentiment', icon: Heart },
   { id: 'goals', label: 'Goals', icon: Target },
