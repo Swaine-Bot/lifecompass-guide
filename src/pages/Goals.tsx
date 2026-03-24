@@ -144,11 +144,11 @@ export default function Goals() {
       {/* Active Goals */}
       <div className="space-y-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-            <Target className="w-3 h-3 text-primary" />
+          <div className="icon-orb-sm">
+            <Target />
           </div>
           <h2 className="font-serif text-base font-semibold tracking-tight">Active Goals</h2>
-          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider ml-1">{activeGoals.length}</span>
+          <span className="section-label ml-1">{activeGoals.length}</span>
         </div>
 
         {activeGoals.length === 0 ? (
