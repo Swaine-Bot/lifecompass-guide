@@ -166,7 +166,11 @@ export function playSound(event: SoundEvent, intensity: SoundIntensity = 'normal
   const slot = SOUND_SLOTS[event];
   if (!slot) return;
 
-  const volume = intensity === 'low' ? 0.06 : 0.12;
+  // Volume scaling: low keeps things barely perceptible, normal is subtle not loud
+  const baseVolume = intensity === 'low' ? 0.04 : 0.10;
+  // Presence/completion sounds sit quieter than reward sounds
+  const categoryScale = slot.category === 'reward' ? 1.0 : slot.category === 'presence' ? 0.7 : 0.85;
+  const volume = baseVolume * categoryScale;
 
   // File-based audio is the primary path
   loadAudioFile(ctx, slot.fileUrl).then((buffer) => {

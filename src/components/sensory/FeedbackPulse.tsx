@@ -1,19 +1,31 @@
 import { memo } from 'react';
 import { useSensory } from '@/contexts/SensoryContext';
+import type { FeedbackEvent } from '@/engines/feedbackEngine';
 
 /**
  * Visual feedback pulse — brief glow on feedback events.
- * Pulse color adapts to current mood's accent hue.
+ * 
+ * Three intensity tiers for emotional precision:
+ * - reward:     strong glow (milestone, streak)
+ * - standard:   medium glow (daily signal, insight)
+ * - completion: soft glow (micro move, reflection)
  */
+
+const REWARD_EVENTS: FeedbackEvent[] = ['milestone_reached', 'streak_continued'];
+const COMPLETION_EVENTS: FeedbackEvent[] = ['micro_move_complete', 'reflection_saved', 'goal_created'];
+
+function getPulseIntensity(event: FeedbackEvent): { opacity: number; spread: string } {
+  if (REWARD_EVENTS.includes(event)) return { opacity: 0.16, spread: '60%' };
+  if (COMPLETION_EVENTS.includes(event)) return { opacity: 0.06, spread: '40%' };
+  return { opacity: 0.10, spread: '50%' }; // standard
+}
+
 export const FeedbackPulse = memo(function FeedbackPulse() {
   const { activePulse, environment } = useSensory();
 
   if (!activePulse) return null;
 
-  // Stronger pulse for reward events
-  const isReward = activePulse === 'milestone_reached' || activePulse === 'streak_continued';
-  const opacity = isReward ? 0.18 : 0.12;
-  const spread = isReward ? '60%' : '50%';
+  const { opacity, spread } = getPulseIntensity(activePulse);
 
   return (
     <div
