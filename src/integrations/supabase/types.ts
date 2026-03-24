@@ -1176,6 +1176,7 @@ export type Database = {
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]
+          age_range: string | null
           available_minutes_per_day: number | null
           avatar_url: string | null
           bio: string | null
@@ -1185,16 +1186,20 @@ export type Database = {
           gender: string | null
           guide_completed: boolean | null
           id: string
+          identity_prompt: string | null
           is_verified: boolean | null
           language: string | null
           last_latitude: number | null
           last_longitude: number | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at: string | null
+          mentor_style: string | null
           micro_moves_count: number
           name: string | null
+          occupation: string | null
           onboarding_completed: boolean | null
           page_category: string | null
+          primary_intent: string | null
           province: string | null
           strictness_level: number | null
           timezone: string | null
@@ -1204,6 +1209,7 @@ export type Database = {
         }
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"]
+          age_range?: string | null
           available_minutes_per_day?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -1213,16 +1219,20 @@ export type Database = {
           gender?: string | null
           guide_completed?: boolean | null
           id?: string
+          identity_prompt?: string | null
           is_verified?: boolean | null
           language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          mentor_style?: string | null
           micro_moves_count?: number
           name?: string | null
+          occupation?: string | null
           onboarding_completed?: boolean | null
           page_category?: string | null
+          primary_intent?: string | null
           province?: string | null
           strictness_level?: number | null
           timezone?: string | null
@@ -1232,6 +1242,7 @@ export type Database = {
         }
         Update: {
           account_type?: Database["public"]["Enums"]["account_type"]
+          age_range?: string | null
           available_minutes_per_day?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -1241,16 +1252,20 @@ export type Database = {
           gender?: string | null
           guide_completed?: boolean | null
           id?: string
+          identity_prompt?: string | null
           is_verified?: boolean | null
           language?: string | null
           last_latitude?: number | null
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          mentor_style?: string | null
           micro_moves_count?: number
           name?: string | null
+          occupation?: string | null
           onboarding_completed?: boolean | null
           page_category?: string | null
+          primary_intent?: string | null
           province?: string | null
           strictness_level?: number | null
           timezone?: string | null
