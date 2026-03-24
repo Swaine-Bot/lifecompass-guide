@@ -188,8 +188,10 @@ export default function Home() {
       ));
       
       if (completed) {
-        choreographedDispatch('micro_move_complete');
-        triggerReward();
+        const isOneThing = tasks.find(t => t.id === taskId)?.is_one_thing ?? false;
+        choreographedDispatch(isOneThing ? 'milestone_reached' : 'micro_move_complete');
+        triggerReward(isOneThing);
+        toast.success(isOneThing ? '🎉 The One Thing — done!' : '✓ Task completed');
         const result = await awardXP('mind', 20, 'task_completed', taskId);
         if (result?.leveled_up && user) {
           milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
