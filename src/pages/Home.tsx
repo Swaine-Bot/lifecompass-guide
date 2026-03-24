@@ -105,7 +105,6 @@ export default function Home() {
       return;
     }
     
-    // If it's a storage path, generate signed URL
     if (profile.avatar_url.includes('avatars/') || profile.avatar_url.includes('/')) {
       const { data, error } = await supabase.storage
         .from('user-media')
@@ -122,26 +121,22 @@ export default function Home() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch today's tasks
       const { data: tasksData } = await supabase
         .from('tasks')
         .select('*')
         .eq('status', 'today')
         .order('is_one_thing', { ascending: false });
       
-      // Fetch habits
       const { data: habitsData } = await supabase
         .from('habits')
         .select('*')
         .limit(5);
       
-      // Fetch today's habit logs
       const { data: logsData } = await supabase
         .from('habit_logs')
         .select('habit_id, completed')
         .eq('date', today);
 
-      // Fetch today's check-in
       const { data: checkinData } = await supabase
         .from('daily_checkins')
         .select('mood, energy')
@@ -163,7 +158,6 @@ export default function Home() {
 
   const triggerReward = (isOneThing: boolean = false) => {
     setShowReward(true);
-    // Only fire confetti for "The One Thing" — regular tasks get sensory feedback only
     if (isOneThing) {
       confetti({
         particleCount: 60,
@@ -196,7 +190,6 @@ export default function Home() {
         if (result?.leveled_up && user) {
           milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
         }
-        // Check streak after XP award
         if (user) milestonePrompt.checkStreak(streak.current_streak + 1, user.id);
       }
     }
@@ -287,23 +280,23 @@ export default function Home() {
   const habitsCompleted = habitLogs.filter(l => l.completed).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-5 animate-fade-in">
+      {/* Header — Premium Command Center */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
           <Link to="/settings" className="shrink-0">
-            <Avatar className="w-10 h-10 sm:w-12 sm:h-12 ring-2 ring-primary/20 hover:ring-primary/40 transition-all cursor-pointer">
+            <Avatar className="w-11 h-11 ring-2 ring-primary/15 hover:ring-primary/30 transition-all cursor-pointer shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.2)]">
               <AvatarImage src={avatarUrl || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-lg">
+              <AvatarFallback className="bg-primary/10 text-primary font-serif text-lg">
                 {profile?.name?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
           </Link>
           <div className="min-w-0">
-            <h1 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold mb-0.5 truncate">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight mb-0.5 truncate">
               {greeting}, {profile?.name || 'there'}
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground/70 text-xs tracking-wide uppercase">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
           </div>
@@ -315,12 +308,12 @@ export default function Home() {
               Add Goal
             </Link>
           </Button>
-          <Button variant="gold" size="icon" asChild className="sm:hidden h-9 w-9">
+          <Button variant="gold" size="icon-sm" asChild className="sm:hidden">
             <Link to="/goals/new">
               <Plus className="w-4 h-4" />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+          <Button variant="ghost" size="icon-sm" asChild className="text-muted-foreground/60 hover:text-foreground">
             <Link to="/settings">
               <Settings className="w-4 h-4" />
             </Link>
@@ -328,15 +321,15 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-3">
-        <Card variant="glass" className="p-4 text-center">
-          <div className="text-2xl font-bold text-primary">{completedToday}</div>
-          <div className="text-xs text-muted-foreground">Tasks Done</div>
+      {/* Stats Row — Grounded Metrics */}
+      <div className="grid grid-cols-3 gap-2.5">
+        <Card variant="glass" className="p-3.5 text-center group hover-lift">
+          <div className="text-2xl font-bold text-primary font-serif">{completedToday}</div>
+          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Done</div>
         </Card>
-        <Card variant="glass" className="p-4 text-center">
-          <div className="text-2xl font-bold text-primary">{habitsCompleted}/{habits.length}</div>
-          <div className="text-xs text-muted-foreground">Habits</div>
+        <Card variant="glass" className="p-3.5 text-center group hover-lift">
+          <div className="text-2xl font-bold text-primary font-serif">{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></div>
+          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Habits</div>
         </Card>
         <MomentumStreakCard
           currentStreak={streak.current_streak}
@@ -348,10 +341,9 @@ export default function Home() {
       {/* Step Progress */}
       <StepProgressCard />
 
-
       {/* Share Streak */}
       {streak.current_streak >= 3 && (
-        <div className="flex justify-end -mt-3">
+        <div className="flex justify-end -mt-2">
           <ShareButton
             source={{
               type: 'achievement',
@@ -373,27 +365,27 @@ export default function Home() {
         onReveal={markSignalRead}
       />
 
-      {/* The One Thing */}
+      {/* The One Thing — Hero Card */}
       {oneThingTask && (
         <Card variant="gold" className="overflow-hidden">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/25 to-primary/10 flex items-center justify-center shrink-0 ring-1 ring-primary/20">
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs uppercase tracking-wider text-primary/80 font-medium mb-1">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-primary/70 font-semibold mb-1.5">
                   The One Thing
                 </p>
-                <p className="font-medium text-lg">{oneThingTask.title}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {oneThingTask.effort_minutes} min
+                <p className="font-serif font-semibold text-lg leading-snug">{oneThingTask.title}</p>
+                <p className="text-xs text-muted-foreground/60 mt-1.5">
+                  {oneThingTask.effort_minutes} min estimated
                 </p>
               </div>
               <Checkbox 
                 checked={oneThingTask.status === 'done'}
                 onCheckedChange={(checked) => toggleTask(oneThingTask.id, checked as boolean)}
-                className="w-6 h-6"
+                className="w-6 h-6 mt-1"
               />
             </div>
           </CardContent>
@@ -402,9 +394,9 @@ export default function Home() {
 
       {/* Today's Micro-Moves */}
       <Card variant="glass">
-        <CardHeader className="pb-2">
+        <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2">
               Today's Micro-Moves
               {showReward && (
                 <span className="flex items-center gap-1 text-primary animate-pulse">
@@ -416,18 +408,19 @@ export default function Home() {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {/* Quick Add Task */}
+          {/* Quick Add */}
           <div className="flex gap-2 mb-3">
             <Input
               placeholder="Add a quick task..."
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addQuickTask()}
-              className="h-9 text-sm"
+              className="h-9 text-sm bg-secondary/30 border-border/30 focus:border-primary/40 placeholder:text-muted-foreground/40"
               disabled={isAddingTask}
             />
             <Button 
               size="sm" 
+              variant="gold-outline"
               onClick={addQuickTask}
               disabled={!newTaskTitle.trim() || isAddingTask}
               className="h-9 px-3"
@@ -436,49 +429,48 @@ export default function Home() {
             </Button>
           </div>
 
-          {/* Task List - Compact */}
+          {/* Task List */}
           {microMoves.length === 0 && completedTasks.length === 0 ? (
-            <div className="text-center py-4 text-muted-foreground">
-              <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Add your first task above!</p>
+            <div className="text-center py-6 text-muted-foreground/50">
+              <Target className="w-6 h-6 mx-auto mb-2 opacity-40" />
+              <p className="text-xs">Add your first task above</p>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {microMoves.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-2 py-2 px-2 rounded-md hover:bg-secondary/30 transition-colors group"
+                  className="flex items-center gap-2.5 py-2.5 px-2.5 rounded-lg hover:bg-white/[0.03] transition-colors group"
                 >
                   <Checkbox 
                     checked={false}
                     onCheckedChange={() => toggleTask(task.id, true)}
-                    className="w-4 h-4"
+                    className="w-[18px] h-[18px]"
                   />
-                  <span className="flex-1 text-sm truncate">{task.title}</span>
+                  <span className="flex-1 text-sm truncate leading-snug">{task.title}</span>
                   {task.created_by === 'ai_mentor' && (
-                    <span className="text-[10px] text-primary/60 shrink-0">AI</span>
+                    <span className="text-[9px] text-primary/50 uppercase tracking-wider shrink-0">AI</span>
                   )}
-                  <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[11px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">
                     {task.effort_minutes}m
                   </span>
                 </div>
               ))}
               
-              {/* Completed Tasks - More Compact */}
               {completedTasks.length > 0 && (
-                <div className="pt-2 border-t border-border/30 mt-2">
-                  <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                <div className="pt-3 mt-2 border-t border-white/[0.04]">
+                  <p className="text-[10px] text-muted-foreground/40 mb-1.5 flex items-center gap-1 uppercase tracking-wider">
                     <Check className="w-3 h-3" /> Completed ({completedTasks.length})
                   </p>
                   {completedTasks.slice(0, 3).map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-2 py-1 px-2 text-muted-foreground"
+                      className="flex items-center gap-2.5 py-1.5 px-2.5 text-muted-foreground/40"
                     >
                       <Checkbox 
                         checked={true}
                         onCheckedChange={() => toggleTask(task.id, false)}
-                        className="w-4 h-4"
+                        className="w-[18px] h-[18px]"
                       />
                       <span className="flex-1 text-xs line-through truncate">{task.title}</span>
                     </div>
@@ -490,36 +482,36 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Habits */}
+      {/* Habits — Circular Check-in */}
       {habits.length > 0 && (
         <Card variant="glass">
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Habit Check-in</CardTitle>
-              <Button variant="ghost" size="sm" asChild>
+              <CardTitle>Habit Check-in</CardTitle>
+              <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground/50 hover:text-foreground">
                 <Link to="/habits">
-                  View all <ChevronRight className="w-4 h-4 ml-1" />
+                  View all <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
                 </Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
               {habits.map((habit) => {
                 const isCompleted = habitLogs.find(l => l.habit_id === habit.id)?.completed;
                 return (
                   <button
                     key={habit.id}
                     onClick={() => toggleHabit(habit.id)}
-                    className="flex flex-col items-center gap-2 min-w-[70px]"
+                    className="flex flex-col items-center gap-2 min-w-[64px] group"
                   >
                     <div className={cn(
-                      "habit-check",
+                      "habit-check transition-transform group-hover:scale-105",
                       isCompleted && "completed"
                     )} style={{ borderColor: isCompleted ? undefined : habit.color }}>
                       {isCompleted && <Check className="w-4 h-4" />}
                     </div>
-                    <span className="text-xs text-muted-foreground text-center line-clamp-2">
+                    <span className="text-[11px] text-muted-foreground/60 text-center line-clamp-2 leading-tight">
                       {habit.title}
                     </span>
                   </button>
@@ -537,11 +529,11 @@ export default function Home() {
         xpForLevel={xpForLevel}
       />
 
-      {/* Mood & Energy */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card variant="glass">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">How are you feeling?</CardTitle>
+      {/* Mood & Energy — Side by Side */}
+      <div className="grid md:grid-cols-2 gap-3">
+        <Card variant="surface">
+          <CardHeader>
+            <CardTitle className="text-base">How are you feeling?</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
@@ -562,9 +554,9 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card variant="glass">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Energy level?</CardTitle>
+        <Card variant="surface">
+          <CardHeader>
+            <CardTitle className="text-base">Energy level?</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
@@ -586,24 +578,19 @@ export default function Home() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Link to="/goals/new" className="quick-action">
-          <Target className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground text-center">New Goal</span>
-        </Link>
-        <Link to="/habits/new" className="quick-action">
-          <Flame className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground text-center">Add Habit</span>
-        </Link>
-        <Link to="/journal" className="quick-action">
-          <PenLine className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground text-center">Journal</span>
-        </Link>
-        <Link to="/mentor" className="quick-action">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-xs text-muted-foreground text-center">AI Mentor</span>
-        </Link>
+      {/* Quick Actions — Refined Grid */}
+      <div className="grid grid-cols-4 gap-2.5">
+        {[
+          { to: '/goals/new', icon: Target, label: 'Goal' },
+          { to: '/habits/new', icon: Flame, label: 'Habit' },
+          { to: '/journal', icon: PenLine, label: 'Journal' },
+          { to: '/mentor', icon: Sparkles, label: 'Mentor' },
+        ].map(({ to, icon: Icon, label }) => (
+          <Link key={to} to={to} className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] hover:border-primary/20 transition-all">
+            <Icon className="w-4.5 h-4.5 text-primary/70" />
+            <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">{label}</span>
+          </Link>
+        ))}
       </div>
 
       {milestonePrompt.milestone && (
