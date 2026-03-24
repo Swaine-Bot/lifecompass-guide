@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Plus, Flame, Check, ChevronRight, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
 
 interface Habit {
