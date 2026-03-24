@@ -195,8 +195,8 @@ serve(async (req) => {
           console.log(`Push sent successfully`);
           sent++;
         } else {
-          const errorText = await pushResponse.text();
-          console.error(`Push failed for user ${sub.user_id}:`, pushResponse.status, errorText);
+          await pushResponse.text(); // consume
+          console.error(`Push failed:`, pushResponse.status);
           
           // If subscription is invalid (410 Gone or 404), remove it
           if (pushResponse.status === 410 || pushResponse.status === 404) {
