@@ -16,6 +16,7 @@ export const AppLayout = () => {
   
   // Track user session for screen time analytics
   useSessionTracking();
+  useProgressiveProfiling();
 
   const handleRefresh = useCallback(async () => {
     // Refresh all queries and profile data
