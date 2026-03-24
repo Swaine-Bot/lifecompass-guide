@@ -144,7 +144,7 @@ export default function Habits() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Today's Progress</p>
+              <p className="section-label text-primary/60">Today's Progress</p>
               <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/40 text-xl">/{habits.length}</span></p>
             </div>
             <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary/[0.05]">
