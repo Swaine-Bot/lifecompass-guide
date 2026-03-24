@@ -167,11 +167,16 @@ export default function LifeEvents() {
   const pastEvents = events.filter(e => new Date(e.event_date) < new Date());
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-serif font-bold">Life Events</h1>
-          <p className="text-muted-foreground">Track important dates and get mentor reminders</p>
+    <div className="space-y-5 pb-20 md:pb-0 animate-fade-in">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+              <Gift className="w-3.5 h-3.5 text-primary/70" />
+            </div>
+            <h1 className="text-xl font-serif font-bold tracking-tight">Life Events</h1>
+          </div>
+          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">Track important dates and get mentor reminders</p>
         </div>
         <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
