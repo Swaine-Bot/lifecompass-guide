@@ -327,7 +327,7 @@ export default function GoalDetail() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Milestones</CardTitle>
-              <span className="text-xs text-muted-foreground/50 tabular-nums">{milestoneDone}/{milestones.length}</span>
+              <span className="counter-text">{milestoneDone}/{milestones.length}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-1.5">
