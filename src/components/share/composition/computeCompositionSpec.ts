@@ -165,7 +165,8 @@ export function computeCompositionSpec(
   const showBottomRow = showMomentum || showMeta;
 
   if (showBottomRow) {
-    bottomRowH = isStory ? 100 : 90;
+    // Increase minimum bottom row height to prevent text overlap
+    bottomRowH = isStory ? 120 : 110;
   }
 
   const panelAreaH = availH - bottomRowH - (showBottomRow ? gap : 0);
@@ -173,22 +174,39 @@ export function computeCompositionSpec(
   // Count visible content panels
   const contentPanels = [hasMedia, hasInsight, true /* text always shown */].filter(Boolean).length;
 
+  // Estimate user text length to allocate more space
+  const userTextLength = (content.subtitle?.length || 0) + (content.title?.length || 0);
+  const hasLongUserText = userTextLength > 200;
+  const hasVeryLongUserText = userTextLength > 400;
+
   if (hasMedia) {
     if (content.strategy === 'hero' || content.strategy === 'minimal') {
-      mediaRatio = contentPanels >= 3 ? 0.30 : contentPanels >= 2 ? 0.38 : 0.50;
+      // Reduce media ratio when user text is long
+      if (hasVeryLongUserText) {
+        mediaRatio = contentPanels >= 3 ? 0.20 : contentPanels >= 2 ? 0.25 : 0.30;
+      } else if (hasLongUserText) {
+        mediaRatio = contentPanels >= 3 ? 0.25 : contentPanels >= 2 ? 0.32 : 0.40;
+      } else {
+        mediaRatio = contentPanels >= 3 ? 0.30 : contentPanels >= 2 ? 0.38 : 0.50;
+      }
     } else if (content.strategy === 'split') {
       mediaRatio = 0; // split uses side-by-side, handled differently
     } else {
-      mediaRatio = 0.25; // reflection: small media
+      mediaRatio = hasLongUserText ? 0.18 : 0.25; // reflection: small media
     }
   }
 
   if (hasInsight) {
-    insightRatio = contentPanels >= 3 ? 0.30 : 0.40;
+    // Reduce insight ratio when user text is long
+    if (hasVeryLongUserText) {
+      insightRatio = contentPanels >= 3 ? 0.22 : 0.30;
+    } else {
+      insightRatio = contentPanels >= 3 ? 0.30 : 0.40;
+    }
   }
 
   textRatio = 1 - mediaRatio - insightRatio;
-  textRatio = Math.max(textRatio, 0.20);
+  textRatio = Math.max(textRatio, 0.25); // Raised minimum from 0.20 to 0.25
 
   // Normalize ratios
   const total = mediaRatio + insightRatio + textRatio;
@@ -205,7 +223,7 @@ export function computeCompositionSpec(
   const mediaH = Math.round(netPanelH * mediaRatio);
   const insightMinH = hasInsight ? (isStory ? 160 : 140) : 0;
   const insightH = Math.max(Math.round(netPanelH * insightRatio), insightMinH);
-  const textMinH = isStory ? 140 : 120;
+  const textMinH = isStory ? 180 : 160; // Increased minimum text panel height
   const textH = Math.max(Math.round(netPanelH * textRatio), textMinH);
 
   // ── Split layout: side-by-side ──
