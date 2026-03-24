@@ -31,6 +31,8 @@ interface Task {
   status: string;
   is_one_thing: boolean;
   effort_minutes: number;
+  created_by?: string;
+  playbook_id?: string;
 }
 
 interface Habit {
