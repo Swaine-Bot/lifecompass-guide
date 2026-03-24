@@ -10,6 +10,7 @@ import { Plus, Target, Search, ChevronRight, Calendar, MoreVertical } from 'luci
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { SectionHeader, CategoryChip, StatusBadge, MetaText } from '@/components/ds';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
