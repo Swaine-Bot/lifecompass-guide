@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 
 interface DailySignalCardProps {
   signal: {
