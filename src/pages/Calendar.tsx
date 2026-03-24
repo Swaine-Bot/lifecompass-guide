@@ -221,12 +221,12 @@ export default function Calendar() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <CalendarDays className="w-3.5 h-3.5 text-primary/70" />
+            <div className="icon-orb">
+              <CalendarDays />
             </div>
             <h1 className="text-xl font-serif font-bold tracking-tight">Calendar</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">View and reschedule your tasks, habits, and goals</p>
+          <p className="page-subtitle">View and reschedule your tasks, habits, and goals</p>
         </div>
       </div>
 

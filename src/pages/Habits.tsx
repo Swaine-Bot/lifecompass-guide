@@ -255,7 +255,7 @@ export default function Habits() {
                         <TrendingUp className="w-3.5 h-3.5" />
                         {weeklyProgress}%
                       </div>
-                      <p className="text-[10px] text-muted-foreground/30 uppercase tracking-wider">week</p>
+                      <p className="section-label">week</p>
                     </div>
                   </div>
                 </CardContent>

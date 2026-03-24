@@ -464,7 +464,7 @@ export default function Home() {
               
               {completedTasks.length > 0 && (
                 <div className="pt-2.5 mt-2 border-t border-white/[0.04]">
-                  <p className="text-[10px] text-muted-foreground/30 mb-1 flex items-center gap-1 uppercase tracking-wider px-2.5">
+                  <p className="section-label mb-1 flex items-center gap-1 px-2.5">
                     <Check className="w-3 h-3" /> Done ({completedTasks.length})
                   </p>
                   {completedTasks.slice(0, 3).map((task) => (

@@ -171,12 +171,12 @@ export default function LifeEvents() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <Gift className="w-3.5 h-3.5 text-primary/70" />
+            <div className="icon-orb">
+              <Gift />
             </div>
             <h1 className="text-xl font-serif font-bold tracking-tight">Life Events</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">Track important dates and get mentor reminders</p>
+          <p className="page-subtitle">Track important dates and get mentor reminders</p>
         </div>
         <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>

@@ -196,7 +196,7 @@ export default function Goals() {
                         <p className="text-xs text-muted-foreground/50 line-clamp-2 leading-relaxed">{goal.why}</p>
                       )}
                       {goal.target_date && (
-                        <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground/40">
+                        <div className="flex items-center gap-1.5 mt-3 meta-text">
                           <Calendar className="w-3 h-3" />
                           <span>Due {format(new Date(goal.target_date), 'MMM d, yyyy')}</span>
                         </div>

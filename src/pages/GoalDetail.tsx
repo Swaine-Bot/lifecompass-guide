@@ -400,7 +400,7 @@ export default function GoalDetail() {
                       <span className="meta-text-xs">{task.effort_minutes}m</span>
                     )}
                     {task.due_date && (
-                      <span className="text-[11px] text-muted-foreground/40 tabular-nums">
+                      <span className="meta-text">
                         {format(new Date(task.due_date), 'MMM d')}
                       </span>
                     )}

@@ -34,12 +34,12 @@ export default function Cinematics() {
       {/* Header — Cinematic, aspirational */}
       <div className="space-y-1">
         <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-            <Film className="w-4 h-4 text-primary/70" />
+          <div className="icon-orb">
+            <Film />
           </div>
           <h1 className="font-serif text-xl font-bold tracking-tight">Life Cinematics</h1>
         </div>
-        <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">
+        <p className="page-subtitle">
           Your life story, told in chapters
         </p>
       </div>
