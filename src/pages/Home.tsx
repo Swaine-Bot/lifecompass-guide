@@ -161,15 +161,18 @@ export default function Home() {
     }
   };
 
-  const triggerReward = () => {
+  const triggerReward = (isOneThing: boolean = false) => {
     setShowReward(true);
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#D4AF37', '#FFD700', '#FFA500']
-    });
-    setTimeout(() => setShowReward(false), 2000);
+    // Only fire confetti for "The One Thing" — regular tasks get sensory feedback only
+    if (isOneThing) {
+      confetti({
+        particleCount: 60,
+        spread: 55,
+        origin: { y: 0.6 },
+        colors: ['#D4AF37', '#FFD700', '#FFA500']
+      });
+    }
+    setTimeout(() => setShowReward(false), 1500);
   };
 
   const toggleTask = async (taskId: string, completed: boolean) => {
