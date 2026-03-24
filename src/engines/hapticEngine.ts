@@ -1,21 +1,30 @@
 /**
- * LifeStack Haptic Engine
- * Maps events to device haptics with graceful fallback.
+ * LifeStack Haptic Engine v2
+ * 
+ * Semantic haptic categories with refined patterns per event meaning.
  */
 
 export type HapticEvent =
-  | 'micro_move_complete'
-  | 'milestone_reached'
-  | 'mentor_response'
-  | 'warning';
+  | 'completion'         // micro move done, task done
+  | 'reward'             // milestone, streak, level up
+  | 'mentor_presence'    // mentor message arrives
+  | 'warning'            // drift, violation
+  | 'insight'            // mirror moment, daily signal
+  | 'confirmation'       // goal created, reflection saved
+  | 'navigation';        // screen transition (very subtle)
 
-type HapticPattern = { style: 'light' | 'medium' | 'heavy'; duration?: number } | { pattern: number[] };
+type HapticPattern =
+  | { style: 'light' | 'medium' | 'heavy' }
+  | { pattern: number[] };
 
 const HAPTIC_MAP: Record<HapticEvent, HapticPattern> = {
-  micro_move_complete: { style: 'medium' },
-  milestone_reached: { pattern: [0, 80, 60, 80] }, // double pulse
-  mentor_response: { style: 'light' },
-  warning: { pattern: [0, 120, 80, 120] }, // slow pulse
+  completion:       { style: 'medium' },
+  reward:           { pattern: [0, 60, 40, 60, 40, 80] },  // triple ascending pulse
+  mentor_presence:  { style: 'light' },
+  warning:          { pattern: [0, 100, 60, 100] },          // slow double pulse
+  insight:          { pattern: [0, 40, 30, 40] },            // gentle double tap
+  confirmation:     { style: 'medium' },
+  navigation:       { style: 'light' },
 };
 
 function vibrateSupported(): boolean {
@@ -30,7 +39,7 @@ export function triggerHaptic(event: HapticEvent, enabled: boolean = true): void
   if ('pattern' in haptic) {
     navigator.vibrate(haptic.pattern);
   } else {
-    const ms = haptic.style === 'light' ? 10 : haptic.style === 'medium' ? 25 : 40;
+    const ms = haptic.style === 'light' ? 8 : haptic.style === 'medium' ? 20 : 35;
     navigator.vibrate(ms);
   }
 }

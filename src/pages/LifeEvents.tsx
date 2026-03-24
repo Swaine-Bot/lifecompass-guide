@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 interface LifeEvent {
   id: string;
@@ -43,6 +44,7 @@ const EVENT_COLORS = {
 };
 
 export default function LifeEvents() {
+  useEnvironment('life_events');
   const { user } = useAuth();
   const [events, setEvents] = useState<LifeEvent[]>([]);
   const [showAddDialog, setShowAddDialog] = useState(false);

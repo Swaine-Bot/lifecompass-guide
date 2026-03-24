@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Target, Search, ChevronRight, Calendar, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ const statusColors: Record<string, string> = {
 const categories = ['All', 'Health', 'Career', 'Money', 'Relationships', 'Mindset', 'Legacy'];
 
 export default function Goals() {
+  useEnvironment('goals');
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);

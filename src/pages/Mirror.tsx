@@ -7,8 +7,10 @@ import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
 import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
 import { engagementEventService } from '@/services/engagementEventService';
 import { toast } from 'sonner';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 export default function Mirror() {
+  useEnvironment('mirror');
   const navigate = useNavigate();
   const {
     mirrorMoments, latestMirror, mirrorLoading,

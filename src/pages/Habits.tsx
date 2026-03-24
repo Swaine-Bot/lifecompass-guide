@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Plus, Flame, Check, ChevronRight, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
 
 interface Habit {
@@ -26,6 +27,7 @@ interface HabitLog {
 }
 
 export default function Habits() {
+  useEnvironment('habits');
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [loading, setLoading] = useState(true);

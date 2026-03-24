@@ -7,8 +7,10 @@ import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
 import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
 import { toast } from 'sonner';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 export default function Cinematics() {
+  useEnvironment('cinematics');
   const navigate = useNavigate();
   const {
     cinematicReports, cinematicLoading,

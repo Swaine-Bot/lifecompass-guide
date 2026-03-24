@@ -11,6 +11,7 @@ import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { engagementEventService } from '@/services/engagementEventService';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 interface SavedInsight {
   id: string;
@@ -21,6 +22,7 @@ interface SavedInsight {
 }
 
 export default function InsightLibrary() {
+  useEnvironment('insights');
   const { user } = useAuth();
   const navigate = useNavigate();
   const { openShareStudio } = useUniversalShare();

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
 import { SharePrivacyControls } from '@/components/share/SharePrivacyControls';
 import { PlatformSelector } from '@/components/share/PlatformSelector';
@@ -56,6 +57,7 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
 }
 
 export default function ShareStudio() {
+  useEnvironment('share_studio');
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

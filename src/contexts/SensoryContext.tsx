@@ -9,9 +9,9 @@ import {
   setFeedbackPreferences,
   registerPulseListener,
   type FeedbackEvent,
-  type FeedbackPreferences,
 } from '@/engines/feedbackEngine';
 import type { SoundIntensity } from '@/engines/soundEngine';
+import type { SubjectContext } from '@/engines/sensoryContentMap';
 
 interface SensorySettings {
   visualMode: 'static' | 'dynamic';
@@ -23,6 +23,7 @@ interface SensorySettings {
 interface SensoryContextType {
   environment: EnvironmentState;
   setScreen: (screen: ScreenContext) => void;
+  setSubjectContext: (ctx: SubjectContext | null) => void;
   settings: SensorySettings;
   updateSettings: (patch: Partial<SensorySettings>) => void;
   activePulse: FeedbackEvent | null;
@@ -50,7 +51,6 @@ function loadSettings(): SensorySettings {
 function shouldUseLowPerf(mode: SensorySettings['performanceMode']): boolean {
   if (mode === 'low') return true;
   if (mode === 'high') return false;
-  // auto: check deviceMemory / hardwareConcurrency
   if (typeof navigator !== 'undefined') {
     const mem = (navigator as any).deviceMemory;
     if (mem && mem < 4) return true;
@@ -67,23 +67,21 @@ export function SensoryProvider({
   lifePhase?: LifePhase | null;
 }) {
   const [screen, setScreen] = useState<ScreenContext>('home');
+  const [subjectCtx, setSubjectContext] = useState<SubjectContext | null>(null);
   const [settings, setSettings] = useState<SensorySettings>(loadSettings);
   const [activePulse, setActivePulse] = useState<FeedbackEvent | null>(null);
   const pulseTimeout = useRef<ReturnType<typeof setTimeout>>();
 
-  // Resolve environment
   const environment = useMemo(
-    () => resolveEnvironment(lifePhase, screen),
-    [lifePhase, screen],
+    () => resolveEnvironment(lifePhase, screen, 'unknown', subjectCtx ?? undefined),
+    [lifePhase, screen, subjectCtx],
   );
 
-  // Effective visual mode considering performance
   const effectiveVisualMode = useMemo(() => {
     if (shouldUseLowPerf(settings.performanceMode)) return 'static';
     return settings.visualMode;
   }, [settings.visualMode, settings.performanceMode]);
 
-  // Sync feedback engine prefs
   useEffect(() => {
     setFeedbackPreferences({
       soundIntensity: settings.soundIntensity,
@@ -92,7 +90,6 @@ export function SensoryProvider({
     });
   }, [settings.soundIntensity, settings.hapticsEnabled, effectiveVisualMode]);
 
-  // Register pulse listener
   useEffect(() => {
     return registerPulseListener((event) => {
       setActivePulse(event);
@@ -101,7 +98,6 @@ export function SensoryProvider({
     });
   }, []);
 
-  // Persist settings
   const updateSettings = useCallback((patch: Partial<SensorySettings>) => {
     setSettings((prev) => {
       const next = { ...prev, ...patch };
@@ -114,6 +110,7 @@ export function SensoryProvider({
     () => ({
       environment,
       setScreen,
+      setSubjectContext,
       settings,
       updateSettings,
       activePulse,
@@ -130,9 +127,10 @@ export function useSensory() {
   return ctx;
 }
 
-/** Convenience hook for screens to register themselves */
-export function useEnvironment(screen: ScreenContext) {
-  const { setScreen, environment } = useSensory();
+/** Register a screen and optionally a subject context */
+export function useEnvironment(screen: ScreenContext, subjectContext?: SubjectContext | null) {
+  const { setScreen, setSubjectContext, environment } = useSensory();
   useEffect(() => { setScreen(screen); }, [screen, setScreen]);
+  useEffect(() => { setSubjectContext(subjectContext ?? null); }, [subjectContext, setSubjectContext]);
   return environment;
 }

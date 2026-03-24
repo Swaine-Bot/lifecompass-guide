@@ -28,7 +28,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 import { WearableSettings } from '@/components/wearables/WearableSettings';
 import { Watch } from 'lucide-react';
-import { useSensory } from '@/contexts/SensoryContext';
+import { useSensory, useEnvironment } from '@/contexts/SensoryContext';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -138,6 +138,7 @@ function SensorySettingsPanel() {
 }
 
 export default function Settings() {
+  useEnvironment('settings');
   const { user, profile, signOut, refreshProfile } = useAuth();
   const { tier, isPremium } = useSubscription();
   const navigate = useNavigate();
