@@ -809,37 +809,37 @@ export default function Journal() {
 
           {/* Main Text Area */}
           <div>
-            <label className="text-sm font-medium mb-2 block">What's on your mind?</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">What's on your mind?</label>
             <Textarea
               placeholder="Write about your day, thoughts, or anything you want to reflect on..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 
           {/* Gratitude */}
           <div>
-            <label className="text-sm font-medium mb-2 block">🙏 Gratitude</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">🙏 Gratitude</label>
             <Textarea
               placeholder="What are you grateful for today?"
               value={gratitude}
               onChange={(e) => setGratitude(e.target.value)}
               rows={2}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 
           {/* Reflection */}
           <div>
-            <label className="text-sm font-medium mb-2 block">💭 Reflection</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">💭 Reflection</label>
             <Textarea
               placeholder="Any insights or lessons learned?"
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
               rows={2}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 
