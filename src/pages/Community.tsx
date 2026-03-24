@@ -959,15 +959,22 @@ export default function Community() {
   const acceptedFriends = friends.filter(f => f.status === 'accepted');
 
   return (
-    <div className="space-y-4 pb-20 md:pb-0">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-serif font-bold shrink-0">Community</h1>
+    <div className="space-y-4 pb-20 md:pb-0 animate-fade-in">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+              <Users className="w-3.5 h-3.5 text-primary/70" />
+            </div>
+            <h1 className="text-xl font-serif font-bold shrink-0 tracking-tight">Community</h1>
+          </div>
+        </div>
         <div className="flex gap-1.5 shrink-0">
-          <Button variant="outline" size="sm" onClick={() => setShowShareGoal(true)} className="h-8 px-2.5 text-xs">
+          <Button variant="ghost" size="sm" onClick={() => setShowShareGoal(true)} className="h-8 px-2.5 text-[11px] text-muted-foreground/50 hover:text-foreground">
             <Target className="w-3.5 h-3.5 mr-1" />
             <span className="hidden xs:inline">Share</span> Goal
           </Button>
-          <Button variant="gold" size="sm" onClick={() => setShowNewPost(true)} className="h-8 px-2.5 text-xs">
+          <Button variant="gold" size="sm" onClick={() => setShowNewPost(true)} className="h-8 px-2.5 text-[11px]">
             <Share2 className="w-3.5 h-3.5 mr-1" />
             Post
           </Button>
