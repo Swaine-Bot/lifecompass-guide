@@ -907,6 +907,10 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="sensory" className="space-y-4">
+          <SensorySettingsPanel />
+        </TabsContent>
       </Tabs>
 
       <UpgradeModal 
