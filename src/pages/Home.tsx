@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
-import { useEngagement } from '@/hooks/useEngagement';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { DailySignalCard } from '@/components/engagement/DailySignalCard';
 import { XPDomainBars } from '@/components/engagement/XPDomainBars';
 import { MomentumStreakCard } from '@/components/engagement/MomentumStreakCard';
