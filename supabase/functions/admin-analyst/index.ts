@@ -639,8 +639,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseUrl || !serviceKey) {
+      return new Response(JSON.stringify({ error: 'Service configuration error' }), {
+        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const adminClient = createClient(supabaseUrl, serviceKey);
 
     const token = authHeader.replace('Bearer ', '');
@@ -715,8 +720,8 @@ Deno.serve(async (req) => {
           status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      const t = await response.text();
-      console.error('AI gateway error:', response.status, t);
+      await response.text(); // consume body
+      console.error('AI gateway error:', response.status);
       return new Response(JSON.stringify({ error: 'AI analysis failed' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -727,8 +732,8 @@ Deno.serve(async (req) => {
     });
 
   } catch (error: unknown) {
-    console.error('admin-analyst error:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
+    console.error('admin-analyst error:', error instanceof Error ? error.message : 'Unknown');
+    return new Response(JSON.stringify({ error: 'An unexpected error occurred' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

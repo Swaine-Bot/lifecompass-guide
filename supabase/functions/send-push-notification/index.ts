@@ -22,10 +22,49 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
+    // Auth: require service-role or admin caller
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if caller is using service role key (internal call) or is an admin user
+    const token = authHeader.replace("Bearer ", "");
+    const isServiceRole = token === supabaseServiceKey;
+
+    if (!isServiceRole) {
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Verify admin role
+      const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: roleData } = await adminClient
+        .from("user_roles").select("role").eq("user_id", claimsData.claims.sub).eq("role", "admin").maybeSingle();
+      if (!roleData) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const { userId, userIds, title, body, type, data } = await req.json();
 
@@ -153,11 +192,11 @@ serve(async (req) => {
         });
 
         if (pushResponse.ok || pushResponse.status === 201) {
-          console.log(`Push sent to user ${sub.user_id}`);
+          console.log(`Push sent successfully`);
           sent++;
         } else {
-          const errorText = await pushResponse.text();
-          console.error(`Push failed for user ${sub.user_id}:`, pushResponse.status, errorText);
+          await pushResponse.text(); // consume
+          console.error(`Push failed:`, pushResponse.status);
           
           // If subscription is invalid (410 Gone or 404), remove it
           if (pushResponse.status === 410 || pushResponse.status === 404) {
@@ -166,7 +205,7 @@ serve(async (req) => {
           failed++;
         }
       } catch (error) {
-        console.error(`Failed to send push to user ${sub.user_id}:`, error);
+        console.error('Push send error:', error instanceof Error ? error.message : 'Unknown');
         failed++;
       }
     }
