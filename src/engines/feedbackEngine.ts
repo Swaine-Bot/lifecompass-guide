@@ -1,7 +1,7 @@
 /**
- * LifeStack Feedback Engine v2
+ * LifeStack Feedback Engine v3
  * 
- * Unified dispatcher with semantic event mapping to sound + haptic + visual.
+ * Unified dispatcher with emotionally-coherent sound + haptic + visual pairings.
  */
 
 import { playSound, type SoundIntensity, type SoundEvent } from './soundEngine';
@@ -50,14 +50,23 @@ export function registerPulseListener(cb: PulseCallback): () => void {
   return () => { pulseListener = null; };
 }
 
-/** Event → sound + haptic routing table */
+/**
+ * Event → sound + haptic routing table.
+ * 
+ * Coherence rules applied:
+ * - reward sounds pair with reward haptics (rich pattern)
+ * - warning sounds pair with warning haptics (restrained)
+ * - presence cues stay light across both channels
+ * - completion is grounded and precise
+ * - app_open uses the dedicated 'arrival' haptic
+ */
 const EVENT_ROUTING: Record<FeedbackEvent, { sound: SoundEvent; haptic: HapticEvent }> = {
-  micro_move_complete: { sound: 'micro_move_complete', haptic: 'completion' },
-  milestone_reached:   { sound: 'milestone_reached',   haptic: 'reward' },
-  mentor_response:     { sound: 'mentor_response',     haptic: 'mentor_presence' },
+  app_open:            { sound: 'app_open',             haptic: 'arrival' },
+  micro_move_complete: { sound: 'micro_move_complete',  haptic: 'completion' },
+  milestone_reached:   { sound: 'milestone_reached',    haptic: 'reward' },
+  mentor_response:     { sound: 'mentor_response',      haptic: 'mentor_presence' },
   daily_signal:        { sound: 'daily_signal',         haptic: 'insight' },
   mirror_moment:       { sound: 'insight_arrival',      haptic: 'insight' },
-  app_open:            { sound: 'app_open',             haptic: 'navigation' },
   goal_created:        { sound: 'goal_created',         haptic: 'confirmation' },
   reflection_saved:    { sound: 'reflection_saved',     haptic: 'confirmation' },
   streak_continued:    { sound: 'streak_continued',     haptic: 'reward' },
@@ -70,6 +79,8 @@ export function dispatchFeedback(event: FeedbackEvent): void {
   if (!route) return;
 
   playSound(route.sound, currentPrefs.soundIntensity);
+
+  // triggerHaptic is now async but we fire-and-forget
   triggerHaptic(route.haptic, currentPrefs.hapticsEnabled);
 
   // Visual pulse
