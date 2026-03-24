@@ -148,6 +148,7 @@ export default function Community() {
   const [postAnalysis, setPostAnalysis] = useState<PostAnalysis | null>(null);
   const [showAnalysisResult, setShowAnalysisResult] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ id: string; type: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [feedbackExpanded, setFeedbackExpanded] = useState(true);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
