@@ -123,12 +123,12 @@ export default function Habits() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <Flame className="w-4 h-4 text-primary/70" />
+            <div className="icon-orb">
+              <Flame />
             </div>
             <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight">Habits</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">Build routines that shape your life</p>
+          <p className="page-subtitle">Build routines that shape your life</p>
         </div>
         <Button variant="gold" size="sm" asChild className="shrink-0">
           <Link to="/habits/new">
@@ -144,7 +144,7 @@ export default function Habits() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Today's Progress</p>
+              <p className="section-label text-primary/60">Today's Progress</p>
               <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/40 text-xl">/{habits.length}</span></p>
             </div>
             <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary/[0.05]">
@@ -255,7 +255,7 @@ export default function Habits() {
                         <TrendingUp className="w-3.5 h-3.5" />
                         {weeklyProgress}%
                       </div>
-                      <p className="text-[10px] text-muted-foreground/30 uppercase tracking-wider">week</p>
+                      <p className="section-label">week</p>
                     </div>
                   </div>
                 </CardContent>

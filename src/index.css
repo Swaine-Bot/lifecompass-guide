@@ -301,6 +301,77 @@
     @apply hover:border-primary/30;
   }
   
+  /* ═══ Unified UI Language System ═══ */
+
+  /* Icon orb — primary (screen headers) */
+  .icon-orb {
+    @apply w-8 h-8 rounded-full flex items-center justify-center shrink-0;
+    @apply bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-primary/10;
+  }
+  .icon-orb > svg {
+    @apply w-4 h-4 text-primary/70;
+  }
+
+  /* Icon orb — small (inline sections, compact headers) */
+  .icon-orb-sm {
+    @apply w-6 h-6 rounded-full flex items-center justify-center shrink-0;
+    @apply bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-primary/10;
+  }
+  .icon-orb-sm > svg {
+    @apply w-3 h-3 text-primary/70;
+  }
+
+  /* Section label — uppercase tracked meta label */
+  .section-label {
+    @apply text-[10px] uppercase tracking-[0.12em] text-muted-foreground/40 font-medium;
+  }
+
+  /* Page subtitle — below header */
+  .page-subtitle {
+    @apply text-muted-foreground/50 text-xs uppercase tracking-wider;
+    margin-left: 42px;
+  }
+
+  /* Meta text — timestamps, counters, helper labels */
+  .meta-text {
+    @apply text-[11px] text-muted-foreground/40 tabular-nums;
+  }
+
+  /* Meta text — smaller variant for dense contexts */
+  .meta-text-xs {
+    @apply text-[10px] text-muted-foreground/40 tabular-nums;
+  }
+
+  /* Source badge — AI, Playbook, etc */
+  .source-badge {
+    @apply text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded;
+    @apply bg-primary/[0.06] text-primary/50 font-medium;
+  }
+
+  /* Category chip */
+  .category-chip {
+    @apply text-[10px] uppercase tracking-wider;
+    @apply bg-white/[0.04] border border-white/[0.06] text-muted-foreground/60;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold;
+  }
+
+  /* Status badge base */
+  .status-badge {
+    @apply text-[10px] uppercase tracking-wider border;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold;
+  }
+
+  /* Counter text — "3/10", "done", etc */
+  .counter-text {
+    @apply text-xs text-muted-foreground/50 tabular-nums;
+  }
+
+  /* Action bar button — small actions row */
+  .action-btn {
+    @apply h-7 text-[11px] text-muted-foreground/50 hover:text-foreground;
+    @apply transition-colors;
+  }
+
   /* Streak ring animation */
   @keyframes streak-pulse {
     0%, 100% { box-shadow: 0 0 0 0 hsl(43 74% 52% / 0.4); }

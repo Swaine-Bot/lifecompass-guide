@@ -33,12 +33,12 @@ export default function Mirror() {
       {/* Header — Reflective, intimate */}
       <div className="space-y-1">
         <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-            <Sparkles className="w-4 h-4 text-primary/70" />
+          <div className="icon-orb">
+            <Sparkles />
           </div>
           <h1 className="font-serif text-xl font-bold tracking-tight">Mirror</h1>
         </div>
-        <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">
+        <p className="page-subtitle">
           AI-powered reflections drawn from your journey
         </p>
       </div>
@@ -77,7 +77,7 @@ export default function Mirror() {
       {/* History */}
       {mirrorMoments.length > 1 && (
         <div className="space-y-3">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/30 font-medium px-1">Previous Moments</p>
+          <p className="section-label px-1">Previous Moments</p>
           {mirrorMoments.slice(1).map((moment) => (
             <MirrorMomentCard
               key={moment.id}

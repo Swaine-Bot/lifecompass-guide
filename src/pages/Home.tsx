@@ -325,11 +325,11 @@ export default function Home() {
       <div className="grid grid-cols-3 gap-2.5">
         <Card variant="glass" className="p-3.5 text-center group hover-lift">
           <div className="text-2xl font-bold text-primary font-serif">{completedToday}</div>
-          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Done</div>
+          <div className="section-label mt-0.5">Done</div>
         </Card>
         <Card variant="glass" className="p-3.5 text-center group hover-lift">
           <div className="text-2xl font-bold text-primary font-serif">{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></div>
-          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Habits</div>
+          <div className="section-label mt-0.5">Habits</div>
         </Card>
         <MomentumStreakCard
           currentStreak={streak.current_streak}
@@ -374,7 +374,7 @@ export default function Home() {
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-primary/70 font-semibold mb-1.5">
+                <p className="section-label text-primary/70 mb-1.5">
                   The One Thing
                 </p>
                 <p className="font-serif font-semibold text-lg leading-snug">{oneThingTask.title}</p>
@@ -404,7 +404,7 @@ export default function Home() {
                 </span>
               )}
             </CardTitle>
-            <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider tabular-nums">
+            <span className="section-label tabular-nums">
               {completedTasks.length} done
             </span>
           </div>
@@ -451,12 +451,12 @@ export default function Home() {
                   />
                   <span className="flex-1 text-sm truncate leading-snug">{task.title}</span>
                   {task.created_by === 'ai_mentor' && (
-                    <span className="text-[9px] text-primary/50 uppercase tracking-wider shrink-0 bg-primary/[0.06] px-1.5 py-0.5 rounded">AI</span>
+                    <span className="source-badge shrink-0">AI</span>
                   )}
                   {task.playbook_id && (
-                    <span className="text-[9px] text-muted-foreground/30 uppercase tracking-wider shrink-0">Playbook</span>
+                    <span className="source-badge bg-secondary/50 text-muted-foreground/40 shrink-0">Playbook</span>
                   )}
-                  <span className="text-[11px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums shrink-0">
+                  <span className="meta-text opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     {task.effort_minutes}m
                   </span>
                 </div>
@@ -464,7 +464,7 @@ export default function Home() {
               
               {completedTasks.length > 0 && (
                 <div className="pt-2.5 mt-2 border-t border-white/[0.04]">
-                  <p className="text-[10px] text-muted-foreground/30 mb-1 flex items-center gap-1 uppercase tracking-wider px-2.5">
+                  <p className="section-label mb-1 flex items-center gap-1 px-2.5">
                     <Check className="w-3 h-3" /> Done ({completedTasks.length})
                   </p>
                   {completedTasks.slice(0, 3).map((task) => (

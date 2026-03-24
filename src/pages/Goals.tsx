@@ -144,11 +144,11 @@ export default function Goals() {
       {/* Active Goals */}
       <div className="space-y-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-            <Target className="w-3 h-3 text-primary" />
+          <div className="icon-orb-sm">
+            <Target />
           </div>
           <h2 className="font-serif text-base font-semibold tracking-tight">Active Goals</h2>
-          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider ml-1">{activeGoals.length}</span>
+          <span className="section-label ml-1">{activeGoals.length}</span>
         </div>
 
         {activeGoals.length === 0 ? (
@@ -183,20 +183,20 @@ export default function Goals() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2.5">
                         {goal.category && (
-                          <Badge variant="secondary" className="text-[10px] bg-white/[0.04] border-white/[0.06] text-muted-foreground/60 uppercase tracking-wider">
+                          <span className="category-chip">
                             {goal.category}
-                          </Badge>
+                          </span>
                         )}
-                        <Badge className={cn("text-[10px] border", statusColors[goal.status])}>
+                        <span className={cn("status-badge", statusColors[goal.status])}>
                           {goal.status}
-                        </Badge>
+                        </span>
                       </div>
                       <h3 className="font-serif font-semibold text-base leading-snug mb-1">{goal.title}</h3>
                       {goal.why && (
                         <p className="text-xs text-muted-foreground/50 line-clamp-2 leading-relaxed">{goal.why}</p>
                       )}
                       {goal.target_date && (
-                        <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground/40">
+                        <div className="flex items-center gap-1.5 mt-3 meta-text">
                           <Calendar className="w-3 h-3" />
                           <span>Due {format(new Date(goal.target_date), 'MMM d, yyyy')}</span>
                         </div>

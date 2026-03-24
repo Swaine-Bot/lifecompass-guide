@@ -181,8 +181,8 @@ export default function Mentor() {
       {/* Top bar — Refined presence header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04] bg-card/60 backdrop-blur-2xl shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-1 ring-primary/15">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
+          <div className="icon-orb">
+            <Sparkles />
           </div>
           <h1 className="font-serif text-base font-semibold tracking-tight">AI Mentor</h1>
         </div>

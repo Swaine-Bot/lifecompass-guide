@@ -81,12 +81,12 @@ export default function InsightLibrary() {
         </Button>
         <div>
           <div className="flex items-center gap-2 mb-0.5">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <Lightbulb className="w-3 h-3 text-primary/70" />
+            <div className="icon-orb">
+              <Lightbulb />
             </div>
             <h1 className="font-serif text-lg font-bold tracking-tight">Insight Library</h1>
           </div>
-          <p className="text-muted-foreground/40 text-[10px] uppercase tracking-wider ml-8">{insights.length} saved insight{insights.length !== 1 ? 's' : ''}</p>
+          <p className="page-subtitle">{insights.length} saved insight{insights.length !== 1 ? 's' : ''}</p>
         </div>
       </div>
 

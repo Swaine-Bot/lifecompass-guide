@@ -193,19 +193,19 @@ export default function GoalDetail() {
           </Button>
           <div className="flex items-center gap-2 flex-wrap">
             {goal.category && (
-              <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
+              <span className="category-chip">
                 {goal.category}
-              </Badge>
+              </span>
             )}
-            <Badge className={cn("text-[10px] uppercase tracking-wider border", status.color)}>
+            <span className={cn("status-badge", status.color)}>
               <span className={cn("w-1.5 h-1.5 rounded-full mr-1.5", status.dotColor)} />
               {status.label}
-            </Badge>
+            </span>
             {goal.priority && (
-              <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              <span className="status-badge border-border/40 text-foreground">
                 <Flag className="w-3 h-3 mr-1" />
                 {priorityLabels[goal.priority] || 'Normal'}
-              </Badge>
+              </span>
             )}
           </div>
         </div>
@@ -220,12 +220,12 @@ export default function GoalDetail() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Overall Progress</p>
+              <p className="section-label text-primary/60">Overall Progress</p>
               <p className="text-3xl font-bold font-serif mt-1">{progressPercent}<span className="text-lg text-muted-foreground/40">%</span></p>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium tabular-nums">{doneProgress}<span className="text-muted-foreground/40">/{totalProgress}</span></p>
-              <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Items Done</p>
+              <p className="section-label">Items Done</p>
             </div>
           </div>
           <Progress value={progressPercent} className="h-1.5" />
@@ -287,19 +287,19 @@ export default function GoalDetail() {
           <CardContent className="p-5 space-y-4">
             {goal.why && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Why This Matters</p>
+                <p className="section-label mb-1.5">Why This Matters</p>
                 <p className="text-sm leading-relaxed">{goal.why}</p>
               </div>
             )}
             {goal.success_metric && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Success Metric</p>
+                <p className="section-label mb-1.5">Success Metric</p>
                 <p className="text-sm leading-relaxed">{goal.success_metric}</p>
               </div>
             )}
             {goal.constraints && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Constraints</p>
+                <p className="section-label mb-1.5">Constraints</p>
                 <p className="text-sm leading-relaxed">{goal.constraints}</p>
               </div>
             )}
@@ -310,12 +310,12 @@ export default function GoalDetail() {
       {/* Metadata Row */}
       <div className="flex flex-wrap gap-3 px-1">
         {goal.target_date && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+          <div className="flex items-center gap-1.5 meta-text">
             <Calendar className="w-3.5 h-3.5" />
             Target: {format(new Date(goal.target_date), 'MMM d, yyyy')}
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+        <div className="flex items-center gap-1.5 meta-text">
           <Clock className="w-3.5 h-3.5" />
           Created: {format(new Date(goal.created_at), 'MMM d, yyyy')}
         </div>
@@ -327,7 +327,7 @@ export default function GoalDetail() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Milestones</CardTitle>
-              <span className="text-xs text-muted-foreground/50 tabular-nums">{milestoneDone}/{milestones.length}</span>
+              <span className="counter-text">{milestoneDone}/{milestones.length}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-1.5">
@@ -353,7 +353,7 @@ export default function GoalDetail() {
                     {milestone.title}
                   </span>
                   {milestone.due_date && (
-                    <span className="text-[11px] text-muted-foreground/40 tabular-nums shrink-0">
+                    <span className="meta-text shrink-0">
                       {format(new Date(milestone.due_date), 'MMM d')}
                     </span>
                   )}
@@ -370,7 +370,7 @@ export default function GoalDetail() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Linked Micro-Moves</CardTitle>
-              <span className="text-xs text-muted-foreground/50 tabular-nums">{tasksDone}/{tasks.length}</span>
+              <span className="counter-text">{tasksDone}/{tasks.length}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
@@ -397,10 +397,10 @@ export default function GoalDetail() {
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     {task.effort_minutes && (
-                      <span className="text-[10px] text-muted-foreground/30 tabular-nums">{task.effort_minutes}m</span>
+                      <span className="meta-text-xs">{task.effort_minutes}m</span>
                     )}
                     {task.due_date && (
-                      <span className="text-[11px] text-muted-foreground/40 tabular-nums">
+                      <span className="meta-text">
                         {format(new Date(task.due_date), 'MMM d')}
                       </span>
                     )}
