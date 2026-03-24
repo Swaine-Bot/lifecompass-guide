@@ -225,7 +225,7 @@ export default function GoalDetail() {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium tabular-nums">{doneProgress}<span className="text-muted-foreground/40">/{totalProgress}</span></p>
-              <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">Items Done</p>
+              <p className="section-label">Items Done</p>
             </div>
           </div>
           <Progress value={progressPercent} className="h-1.5" />
