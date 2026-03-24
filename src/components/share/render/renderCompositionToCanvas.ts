@@ -389,29 +389,32 @@ function drawMetaPanel(
 
   ctx.save();
 
-  // Card type label
+  // Proper vertical stack with explicit spacing
   const metaSize = spec.typography.metaFontSize;
+  const lineGap = 8; // explicit gap between stacked items
+  let cursorY = panel.y + pad + metaSize;
+
+  // Card type label
   ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.75;
-  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, panel.y + pad + metaSize);
+  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   ctx.globalAlpha = 1;
 
-  // Time anchor
+  // Time anchor — below card type with safe gap
   if (content.timeAnchor) {
+    cursorY += metaSize + lineGap;
     ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
     ctx.fillStyle = 'rgb(128, 132, 142)';
-    ctx.fillText(content.timeAnchor, panel.x + pad, panel.y + pad + metaSize + metaSize + 4);
+    ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
-  // Domain
+  // Domain — below time anchor with safe gap
   if (content.domain) {
-    const domainY = content.timeAnchor
-      ? panel.y + pad + metaSize * 3 + 8
-      : panel.y + pad + metaSize * 2 + 4;
+    cursorY += (metaSize - 2) + lineGap;
     ctx.font = `400 ${14}px ${FONT_FAMILY}`;
     ctx.fillStyle = 'rgb(100, 105, 115)';
-    ctx.fillText(content.domain.toUpperCase(), panel.x + pad, domainY);
+    ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
   ctx.restore();
