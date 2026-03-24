@@ -1094,26 +1094,38 @@ export default function Community() {
                               </span>
                             </div>
                         
-                        {post.user_id === user?.id && (
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
+                          {post.user_id === user?.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                onClick={() => openEditPost(post)}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={() => setPostToDelete(post.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-primary"
-                              onClick={() => openEditPost(post)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive/70"
+                              onClick={() => setReportTarget({ id: post.id, type: 'post' })}
+                              title="Report content"
                             >
-                              <Pencil className="w-4 h-4" />
+                              <Flag className="w-3.5 h-3.5" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                              onClick={() => setPostToDelete(post.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                       
                       {post.content && (
