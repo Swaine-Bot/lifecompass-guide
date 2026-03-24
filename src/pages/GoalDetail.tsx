@@ -200,12 +200,12 @@ export default function GoalDetail() {
             <span className={cn("status-badge", status.color)}>
               <span className={cn("w-1.5 h-1.5 rounded-full mr-1.5", status.dotColor)} />
               {status.label}
-            </Badge>
+            </span>
             {goal.priority && (
-              <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              <span className="status-badge border-border/40 text-foreground">
                 <Flag className="w-3 h-3 mr-1" />
                 {priorityLabels[goal.priority] || 'Normal'}
-              </Badge>
+              </span>
             )}
           </div>
         </div>
