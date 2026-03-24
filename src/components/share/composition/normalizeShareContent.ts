@@ -188,10 +188,10 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
     imageTreatment = profile.preferredImageTreatment[0] || 'hero';
   }
 
-  // Clamp title and subtitle
+  // Clamp title and subtitle — subtitle is user text, treated generously
   const title = clampToLines(input.data.title, profile.maxTitleLines);
   const subtitle = input.data.subtitle
-    ? clampToLines(input.data.subtitle, profile.maxBodyLines)
+    ? clampToLines(input.data.subtitle, profile.maxBodyLines, true)
     : null;
 
   // Compute visibility
