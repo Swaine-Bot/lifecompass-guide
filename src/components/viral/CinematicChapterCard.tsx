@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Share2, BookOpen, ChevronRight, Archive, Trophy, Zap, PenLine, Calendar } from 'lucide-react';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
