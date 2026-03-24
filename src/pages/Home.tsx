@@ -451,7 +451,7 @@ export default function Home() {
                   />
                   <span className="flex-1 text-sm truncate leading-snug">{task.title}</span>
                   {task.created_by === 'ai_mentor' && (
-                    <span className="text-[9px] text-primary/50 uppercase tracking-wider shrink-0 bg-primary/[0.06] px-1.5 py-0.5 rounded">AI</span>
+                    <span className="source-badge shrink-0">AI</span>
                   )}
                   {task.playbook_id && (
                     <span className="text-[9px] text-muted-foreground/30 uppercase tracking-wider shrink-0">Playbook</span>
