@@ -353,7 +353,7 @@ export default function GoalDetail() {
                     {milestone.title}
                   </span>
                   {milestone.due_date && (
-                    <span className="text-[11px] text-muted-foreground/40 tabular-nums shrink-0">
+                    <span className="meta-text shrink-0">
                       {format(new Date(milestone.due_date), 'MMM d')}
                     </span>
                   )}
