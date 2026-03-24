@@ -12,6 +12,7 @@ import { MentorMessage } from '@/components/mentor/MentorMessage';
 import { MentorImagePreview } from '@/components/mentor/MentorImagePreview';
 import { useMentorConversations } from '@/hooks/useMentorConversations';
 import { cn } from '@/lib/utils';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
