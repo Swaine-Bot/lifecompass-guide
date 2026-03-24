@@ -185,8 +185,8 @@ export default function Home() {
       ));
       
       if (completed) {
+        choreographedDispatch('micro_move_complete');
         triggerReward();
-        toast.success('🎉 Task completed! Keep it up!');
         const result = await awardXP('mind', 20, 'task_completed', taskId);
         if (result?.leveled_up && user) {
           milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
