@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Share2, BookOpen, ChevronRight, Archive, Trophy, Zap, PenLine, Calendar } from 'lucide-react';
+import { Heart, Share2, BookOpen, ChevronRight, Archive, Trophy, Zap, Calendar } from 'lucide-react';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -57,39 +57,39 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
           variant="glass-elevated"
           className={cn(
             'overflow-hidden cursor-pointer transition-all',
-            !report.is_read && 'ring-1 ring-primary/20'
+            !report.is_read && 'ring-1 ring-primary/15'
           )}
           onClick={handleExpand}
         >
-          <div className="p-6">
+          <div className="p-5 sm:p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-xs uppercase tracking-[0.15em] text-primary/60 font-medium">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-primary/50 font-medium">
                     {reportTypeLabels[report.report_type] || report.report_type}
                   </p>
                   <AiContentLabel label="AI-generated" variant="inline" />
                 </div>
-                <h3 className="font-serif text-xl font-semibold leading-tight">{report.title}</h3>
+                <h3 className="font-serif text-lg sm:text-xl font-semibold leading-tight tracking-tight">{report.title}</h3>
               </div>
               <ChevronRight className={cn(
-                'w-5 h-5 text-muted-foreground transition-transform shrink-0 mt-1',
+                'w-4 h-4 text-muted-foreground/30 transition-transform shrink-0 mt-1.5 ml-3',
                 expanded && 'rotate-90'
               )} />
             </div>
 
             {/* Period */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 mb-3">
               <Calendar className="w-3 h-3" />
-              <span>
+              <span className="tabular-nums">
                 {format(new Date(report.period_start), 'MMM d')} — {format(new Date(report.period_end), 'MMM d, yyyy')}
               </span>
             </div>
 
             {/* Narrative */}
             <p className={cn(
-              'text-sm text-muted-foreground leading-relaxed',
+              'text-sm text-foreground/70 leading-relaxed',
               !expanded && 'line-clamp-2'
             )}>
               {report.narrative}
@@ -106,11 +106,11 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
               >
                 {/* Key Stats */}
                 {Object.keys(stats).length > 0 && (
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2.5">
                     {Object.entries(stats).map(([key, value]) => (
-                      <div key={key} className="text-center p-3 rounded-lg bg-secondary/50 border border-border/20">
-                        <div className="text-lg font-bold text-primary">{value}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">
+                      <div key={key} className="text-center p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                        <div className="text-lg font-bold text-primary font-serif">{value}</div>
+                        <div className="text-[9px] text-muted-foreground/40 uppercase tracking-[0.12em] mt-0.5 leading-tight">
                           {key.replace(/_/g, ' ')}
                         </div>
                       </div>
@@ -121,13 +121,13 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 {/* Major Wins */}
                 {report.major_wins.length > 0 && (
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-primary/70 font-semibold flex items-center gap-1.5 mb-2">
-                      <Trophy className="w-3.5 h-3.5" /> Major Wins
+                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-primary/50 font-semibold flex items-center gap-1.5 mb-2.5">
+                      <Trophy className="w-3 h-3" /> Major Wins
                     </h4>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-2">
                       {report.major_wins.map((win, i) => (
-                        <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
+                        <li key={i} className="text-sm text-foreground/75 flex items-start gap-2.5 leading-relaxed">
+                          <span className="text-primary/60 mt-0.5 shrink-0">•</span>
                           {win}
                         </li>
                       ))}
@@ -138,13 +138,13 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 {/* Lessons */}
                 {report.lessons.length > 0 && (
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 mb-2">
-                      <BookOpen className="w-3.5 h-3.5" /> Key Lessons
+                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-semibold flex items-center gap-1.5 mb-2.5">
+                      <BookOpen className="w-3 h-3" /> Key Lessons
                     </h4>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-2">
                       {report.lessons.map((lesson, i) => (
-                        <li key={i} className="text-sm text-foreground/70 flex items-start gap-2">
-                          <span className="text-muted-foreground mt-0.5">—</span>
+                        <li key={i} className="text-sm text-foreground/65 flex items-start gap-2.5 leading-relaxed">
+                          <span className="text-muted-foreground/30 mt-0.5 shrink-0">—</span>
                           {lesson}
                         </li>
                       ))}
@@ -155,13 +155,13 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 {/* Turning Points */}
                 {report.turning_points.length > 0 && (
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 mb-2">
-                      <Zap className="w-3.5 h-3.5" /> Turning Points
+                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-semibold flex items-center gap-1.5 mb-2.5">
+                      <Zap className="w-3 h-3" /> Turning Points
                     </h4>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-2">
                       {report.turning_points.map((tp, i) => (
-                        <li key={i} className="text-sm text-foreground/70 flex items-start gap-2">
-                          <span className="text-warning mt-0.5">⚡</span>
+                        <li key={i} className="text-sm text-foreground/65 flex items-start gap-2.5 leading-relaxed">
+                          <span className="text-warning/60 mt-0.5 shrink-0">⚡</span>
                           {tp}
                         </li>
                       ))}
@@ -170,18 +170,33 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 pt-3 border-t border-border/20">
-                  <Button variant="ghost" size="sm" onClick={() => onFavorite(report.id, report.is_favorite)}>
-                    <Heart className={cn('w-4 h-4 mr-1', report.is_favorite && 'fill-primary text-primary')} />
+                <div className="flex items-center gap-1.5 pt-3 border-t border-white/[0.06]">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    onClick={() => onFavorite(report.id, report.is_favorite)}
+                  >
+                    <Heart className={cn('w-3.5 h-3.5 mr-1', report.is_favorite && 'fill-primary text-primary')} />
                     Save
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setShowShare(true)}>
-                    <Share2 className="w-4 h-4 mr-1" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    onClick={() => setShowShare(true)}
+                  >
+                    <Share2 className="w-3.5 h-3.5 mr-1" />
                     Share
                   </Button>
                   {onArchive && (
-                    <Button variant="ghost" size="sm" onClick={() => onArchive(report.id)} className="ml-auto">
-                      <Archive className="w-4 h-4" />
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="ml-auto text-muted-foreground/30 hover:text-muted-foreground"
+                      onClick={() => onArchive(report.id)}
+                    >
+                      <Archive className="w-3.5 h-3.5" />
                     </Button>
                   )}
                 </div>

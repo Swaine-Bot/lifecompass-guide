@@ -18,23 +18,14 @@ interface MentorMessageProps {
   imageUrl?: string | null;
 }
 
-// Heuristic: show playbook action when response has actionable content
 function hasActionableContent(content: string): boolean {
   if (content.length < 100) return false;
   const indicators = [
-    /\d+\.\s/,               // numbered list
-    /[-•]\s/,                 // bullet list
-    /\bstep\b/i,
-    /\bfirst\b.*\bthen\b/i,
-    /\brecommend\b/i,
-    /\bstart\sby\b/i,
-    /\btry\b.*\bnext\b/i,
-    /\bconsider\b/i,
-    /\baction\b/i,
-    /\bplan\b/i,
+    /\d+\.\s/, /[-•]\s/, /\bstep\b/i, /\bfirst\b.*\bthen\b/i,
+    /\brecommend\b/i, /\bstart\sby\b/i, /\btry\b.*\bnext\b/i,
+    /\bconsider\b/i, /\baction\b/i, /\bplan\b/i,
   ];
-  const matches = indicators.filter(r => r.test(content)).length;
-  return matches >= 2;
+  return indicators.filter(r => r.test(content)).length >= 2;
 }
 
 export function MentorMessage({ role, content, conversationId, imageUrl }: MentorMessageProps) {
@@ -54,9 +45,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
       const { data } = await supabase.storage
         .from('mentor-images')
         .createSignedUrl(imageUrl, 3600);
-      if (!cancelled && data?.signedUrl) {
-        setSignedUrl(data.signedUrl);
-      }
+      if (!cancelled && data?.signedUrl) setSignedUrl(data.signedUrl);
       if (!cancelled) setImageLoading(false);
     };
     load();
@@ -88,7 +77,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
               <img
                 src={signedUrl}
                 alt="Shared image"
-                className="max-h-48 max-w-full rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity border border-border/20"
+                className="max-h-48 max-w-full rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/[0.06]"
                 onClick={() => setLightboxOpen(true)}
               />
             </div>
@@ -102,8 +91,8 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
           )}
           {content && <div className="chat-bubble-user">{content}</div>}
         </div>
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-          <User className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center shrink-0 ring-1 ring-white/[0.06]">
+          <User className="w-3.5 h-3.5 text-foreground/70" />
         </div>
         {lightboxOpen && signedUrl && (
           <MentorImageLightbox src={signedUrl} onClose={() => setLightboxOpen(false)} />
@@ -114,8 +103,8 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
 
   return (
     <div className="flex gap-3">
-      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-        <Bot className="w-4 h-4 text-primary" />
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-primary/10">
+        <Bot className="w-3.5 h-3.5 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="chat-bubble-assistant">
@@ -127,24 +116,18 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-1 flex-wrap">
+        <div className="flex items-center gap-1 mt-1.5 flex-wrap">
           <AiContentLabel label="Mentor AI" variant="inline" />
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+            className="h-6 px-2 text-[11px] text-muted-foreground/40 hover:text-foreground"
             onClick={() => setIsHidden(!isHidden)}
           >
             {isHidden ? (
-              <>
-                <ChevronDown className="w-3 h-3 mr-1" />
-                Show response
-              </>
+              <><ChevronDown className="w-3 h-3 mr-1" /> Show</>
             ) : (
-              <>
-                <ChevronUp className="w-3 h-3 mr-1" />
-                Hide response
-              </>
+              <><ChevronUp className="w-3 h-3 mr-1" /> Hide</>
             )}
           </Button>
           {!isHidden && (
@@ -166,7 +149,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-xs text-primary/80 hover:text-primary gap-1"
+                  className="h-6 px-2 text-[11px] text-primary/60 hover:text-primary gap-1"
                   onClick={handleCreatePlaybook}
                   disabled={generating}
                 >
@@ -182,7 +165,6 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
           )}
         </div>
 
-        {/* Playbook Preview Modal */}
         {preview && (
           <PlaybookPreviewModal
             open={!!preview}
