@@ -233,9 +233,9 @@ function drawInsightPanel(
   const pad = 24;
   const theme = content.theme;
 
-  // Label bar
   ctx.save();
-  // Accent bar
+
+  // Label bar
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.7;
   drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 6, 20, 3);
@@ -250,22 +250,40 @@ function drawInsightPanel(
   ctx.fillText('AI INSIGHT', panel.x + pad + 14, panel.y + pad + 16);
   ctx.globalAlpha = 1;
 
-  // ── Heading-to-body gap (universal spacing token) ──
+  // ── Heading-to-body gap ──
   const insightHeadingGap = 20;
+  const headerH = pad + 20 + insightHeadingGap; // total header region height
 
-  // Insight text
-  const fontSize = spec.typography.insightFontSize;
+  // Insight text — adaptive font sizing to fit within panel
+  let fontSize = spec.typography.insightFontSize;
+  const textX = panel.x + pad;
+  const textMaxW = panel.width - pad * 2;
+  const availableTextH = panel.height - headerH - pad; // available for body text
+
+  // Measure and scale down if needed
+  ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
+  let lineH = fontSize * spec.typography.insightLineHeight;
+  let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
+  let totalH = lines.length * lineH;
+
+  // Scale font down to fit, minimum 18px
+  while (totalH > availableTextH && fontSize > 18) {
+    fontSize -= 2;
+    lineH = fontSize * spec.typography.insightLineHeight;
+    ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
+    lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
+    totalH = lines.length * lineH;
+  }
+
+  // Final clamp: if still too tall, limit lines
+  const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
+  const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
+
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(200, 205, 215)';
 
-  const textX = panel.x + pad;
-  const textMaxW = panel.width - pad * 2;
-  const lineH = fontSize * spec.typography.insightLineHeight;
-  const lines = wrapText(ctx, content.aiInsight, textMaxW, spec.typography.insightMaxLines);
-
-  // pad(24) + labelHeight(20) + insightHeadingGap(20) + fontSize offset
-  let textY = panel.y + pad + 20 + insightHeadingGap + fontSize;
-  for (const line of lines) {
+  let textY = panel.y + headerH + fontSize;
+  for (const line of finalLines) {
     ctx.fillText(line, textX, textY);
     textY += lineH;
   }
@@ -356,39 +374,54 @@ function drawMomentumPanel(
 
   ctx.save();
 
+  // ── Cursor-based vertical layout: measure everything, then place ──
+  const phraseSize = spec.typography.phraseFontSize;
+  // Reserve space for phrase at bottom
+  const phraseReserved = phraseSize + pad;
+  const availableForStat = panel.height - pad - phraseReserved;
+
   // Stat value — stacked vertically, never side-by-side with label
+  let cursorY = panel.y + pad;
+
   if (content.statValue) {
     const displayStat = content.showNumbers ? content.statValue : '•••';
-    // Dynamic font scaling: shrink stat for long values
+    // Dynamic font scaling: fit stat within available space
     let statSize = spec.typography.statFontSize;
-    if (displayStat.length > 6) statSize = Math.round(statSize * 0.7);
-    else if (displayStat.length > 4) statSize = Math.round(statSize * 0.85);
+    if (displayStat.length > 6) statSize = Math.round(statSize * 0.65);
+    else if (displayStat.length > 4) statSize = Math.round(statSize * 0.8);
+
+    // Further scale down if stat + label won't fit above phrase
+    const labelSize = 14;
+    const labelGap = 8;
+    const neededH = statSize * 0.85 + labelGap + labelSize;
+    if (neededH > availableForStat && statSize > 24) {
+      statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
+    }
 
     ctx.font = `700 ${statSize}px ${FONT_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-
-    // Position stat value at top of panel
-    const statY = panel.y + pad + statSize * 0.8;
-    ctx.fillText(displayStat, panel.x + pad, statY, panel.width - pad * 2);
+    cursorY += statSize * 0.8;
+    ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
 
     // Stat label — BELOW stat value, on its own line
     if (content.statLabel) {
-      const labelSize = 14;
-      const labelGap = 6;
+      cursorY += labelGap + labelSize;
       ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
       ctx.fillStyle = 'rgb(128, 132, 142)';
-      const labelY = statY + labelGap + labelSize;
-      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, labelY, panel.width - pad * 2);
+      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     }
   }
 
-  // Phrase — at the bottom with safe padding
-  const phraseSize = spec.typography.phraseFontSize;
-  ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.6;
-  ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, panel.y + panel.height - pad, panel.width - pad * 2);
-  ctx.globalAlpha = 1;
+  // Phrase — anchored at bottom with guaranteed separation
+  const phraseY = panel.y + panel.height - pad;
+  // Only draw phrase if it won't collide with stat content above
+  if (phraseY - cursorY > 8) {
+    ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
+    ctx.fillStyle = theme.accentHex;
+    ctx.globalAlpha = 0.6;
+    ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
+    ctx.globalAlpha = 1;
+  }
 
   ctx.restore();
 }

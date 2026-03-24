@@ -165,8 +165,12 @@ export function computeCompositionSpec(
   const showBottomRow = showMomentum || showMeta;
 
   if (showBottomRow) {
-    // Increase minimum bottom row height to prevent text overlap
-    bottomRowH = isStory ? 120 : 110;
+    // Content-aware bottom row height based on stat font size
+    // Stat needs: pad(20) + statSize*0.8 + gap(6) + labelSize(14) + gap(12) + phraseSize + pad(20)
+    const statFS = typo.statFontSize;
+    const phraseFS = isStory ? 18 : 16;
+    const minMomentumH = 20 + statFS * 0.8 + 6 + 14 + 12 + phraseFS + 20;
+    bottomRowH = Math.max(isStory ? 140 : 130, Math.ceil(minMomentumH));
   }
 
   const panelAreaH = availH - bottomRowH - (showBottomRow ? gap : 0);
