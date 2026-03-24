@@ -233,9 +233,9 @@ function drawInsightPanel(
   const pad = 24;
   const theme = content.theme;
 
-  // Label bar
   ctx.save();
-  // Accent bar
+
+  // Label bar
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.7;
   drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 6, 20, 3);
@@ -250,22 +250,40 @@ function drawInsightPanel(
   ctx.fillText('AI INSIGHT', panel.x + pad + 14, panel.y + pad + 16);
   ctx.globalAlpha = 1;
 
-  // ── Heading-to-body gap (universal spacing token) ──
+  // ── Heading-to-body gap ──
   const insightHeadingGap = 20;
+  const headerH = pad + 20 + insightHeadingGap; // total header region height
 
-  // Insight text
-  const fontSize = spec.typography.insightFontSize;
+  // Insight text — adaptive font sizing to fit within panel
+  let fontSize = spec.typography.insightFontSize;
+  const textX = panel.x + pad;
+  const textMaxW = panel.width - pad * 2;
+  const availableTextH = panel.height - headerH - pad; // available for body text
+
+  // Measure and scale down if needed
+  ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
+  let lineH = fontSize * spec.typography.insightLineHeight;
+  let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
+  let totalH = lines.length * lineH;
+
+  // Scale font down to fit, minimum 18px
+  while (totalH > availableTextH && fontSize > 18) {
+    fontSize -= 2;
+    lineH = fontSize * spec.typography.insightLineHeight;
+    ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
+    lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
+    totalH = lines.length * lineH;
+  }
+
+  // Final clamp: if still too tall, limit lines
+  const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
+  const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
+
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(200, 205, 215)';
 
-  const textX = panel.x + pad;
-  const textMaxW = panel.width - pad * 2;
-  const lineH = fontSize * spec.typography.insightLineHeight;
-  const lines = wrapText(ctx, content.aiInsight, textMaxW, spec.typography.insightMaxLines);
-
-  // pad(24) + labelHeight(20) + insightHeadingGap(20) + fontSize offset
-  let textY = panel.y + pad + 20 + insightHeadingGap + fontSize;
-  for (const line of lines) {
+  let textY = panel.y + headerH + fontSize;
+  for (const line of finalLines) {
     ctx.fillText(line, textX, textY);
     textY += lineH;
   }
