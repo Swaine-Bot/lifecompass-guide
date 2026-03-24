@@ -558,6 +558,7 @@ export default function Journal() {
       const successMessage = scheduledPlaybackAt 
         ? `Journal entry saved! You'll be reminded on ${format(new Date(scheduledPlaybackAt), 'MMM d, yyyy')} at ${format(new Date(scheduledPlaybackAt), 'h:mm a')}`
         : 'Journal entry saved!';
+      choreographedDispatch('reflection_saved');
       toast.success(successMessage);
       
       // Reset all form fields for new entry

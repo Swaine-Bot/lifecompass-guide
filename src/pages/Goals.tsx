@@ -77,6 +77,7 @@ export default function Goals() {
     setGoals(prev => prev.map(g => g.id === goalId ? { ...g, status } : g));
 
     if (status === 'completed' && user) {
+      choreographedDispatch('milestone_reached');
       const goal = goals.find(g => g.id === goalId);
       if (goal) {
         milestonePrompt.checkGoalComplete(goalId, goal.title, user.id);
