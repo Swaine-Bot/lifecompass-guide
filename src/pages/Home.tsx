@@ -374,7 +374,7 @@ export default function Home() {
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-primary/70 font-semibold mb-1.5">
+                <p className="section-label text-primary/70 mb-1.5">
                   The One Thing
                 </p>
                 <p className="font-serif font-semibold text-lg leading-snug">{oneThingTask.title}</p>
