@@ -6,8 +6,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Crown, Shield, FileText, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const CURRENT_TERMS_VERSION = '1.0';
+const CURRENT_PRIVACY_VERSION = '1.0';
+
 interface TermsAcceptanceProps {
-  onAccept: () => void;
+  onAccept: (termsVersion: string, privacyVersion: string) => void;
 }
 
 export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
