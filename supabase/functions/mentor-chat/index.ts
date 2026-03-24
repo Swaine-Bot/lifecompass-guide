@@ -254,8 +254,6 @@ ${identityContext}
 ${intentContext}
 ${wearableContext}
 ${imageInstructions}
-${wearableContext}
-${imageInstructions}
 
 RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
 - NEVER write a wall of text or one massive paragraph. This is your #1 rule.

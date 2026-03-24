@@ -1,17 +1,46 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Auth check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { title, subtitle, contentType, style } = await req.json();
+
+    // Input validation
+    const safeTitle = String(title || "Untitled").slice(0, 200);
+    const safeSubtitle = String(subtitle || "").slice(0, 500);
+    const safeStyle = ["reflective", "bold", "minimal", "motivational", "professional"].includes(style) ? style : "reflective";
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!LOVABLE_API_KEY) throw new Error("AI service unavailable");
 
     const styleGuides: Record<string, string> = {
       reflective: "Write a thoughtful, introspective observation. Tone: calm, wise, contemplative.",
@@ -21,7 +50,7 @@ serve(async (req) => {
       professional: "Write a polished, LinkedIn-appropriate observation. Tone: measured, credible, sophisticated.",
     };
 
-    const styleGuide = styleGuides[style] || styleGuides.reflective;
+    const styleGuide = styleGuides[safeStyle];
 
     const systemPrompt = `You are LifeStack's AI insight generator for share cards. Generate ONE concise, emotionally intelligent insight for a share card.
 
@@ -48,7 +77,7 @@ Content type: ${contentType || 'general'}`;
         model: "google/gemini-2.5-flash-lite",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Title: ${title || 'Untitled'}\nContext: ${subtitle?.slice(0, 200) || 'No additional context'}` },
+          { role: "user", content: `Title: ${safeTitle}\nContext: ${safeSubtitle}` },
         ],
         stream: false,
       }),
@@ -80,7 +109,7 @@ Content type: ${contentType || 'general'}`;
     });
   } catch (e) {
     console.error("generate-share-insight error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "Failed to generate insight" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

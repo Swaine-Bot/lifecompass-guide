@@ -15,7 +15,7 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
-        JSON.stringify({ error: "Missing authorization header" }),
+        JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -26,15 +26,16 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = user.id;
+    const userId = claimsData.claims.sub;
     const today = new Date().toISOString().split('T')[0];
 
     // Check if signal already exists today
@@ -73,7 +74,12 @@ serve(async (req) => {
     const chosenType = signalTypes[Math.floor(Math.random() * signalTypes.length)];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!LOVABLE_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "AI service unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const systemPrompt = `You are the LifeStack Daily Signal engine. Generate a single powerful daily insight for the user.
 
@@ -85,12 +91,6 @@ User context:
 - Recent journal moods: ${JSON.stringify(context.recentJournals.map(j => ({ mood: j.mood, energy: j.energy })))}
 - Today's tasks: ${JSON.stringify(context.todayTasks.map(t => t.title))}
 - Current streak: ${context.streak} days
-
-RESPOND WITH EXACTLY THIS JSON FORMAT (no markdown, no code blocks):
-{
-  "content": "The main insight message (2-4 sentences, direct and meaningful)",
-  "suggested_action": "One specific action they can take today (1 sentence)"
-}
 
 Make the insight feel personal based on their data. Be direct and wise, not generic.`;
 
@@ -139,7 +139,12 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      throw new Error(`AI gateway error: ${response.status}`);
+      const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate signal" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -171,7 +176,13 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
       .select('id, content, signal_type, suggested_action, is_read')
       .single();
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return new Response(
+        JSON.stringify({ error: "Failed to save signal" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
       JSON.stringify({ signal }),
@@ -180,7 +191,7 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
   } catch (error: unknown) {
     console.error("Daily signal error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
