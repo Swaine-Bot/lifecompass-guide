@@ -174,106 +174,102 @@ export default function LifeEvents() {
         title="Life Events"
         subtitle="Track important dates and get mentor reminders"
         actions={
-          <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button variant="gold">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Event
-              </Button>
-            </DialogTrigger>
+          <Button variant="gold" onClick={() => setShowAddDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Event
+          </Button>
         }
       />
-      {/* Dialog content needs to stay outside PageHeader */}
+
       <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingEvent ? 'Edit Event' : 'Add Life Event'}</DialogTitle>
-              <DialogDescription>
-                Add important dates like birthdays, anniversaries, or milestones
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingEvent ? 'Edit Event' : 'Add Life Event'}</DialogTitle>
+            <DialogDescription>
+              Add important dates like birthdays, anniversaries, or milestones
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Event Title *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Mom's Birthday"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="type">Event Type</Label>
-                <Select value={eventType} onValueChange={(v) => setEventType(v as LifeEvent['event_type'])}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="birthday">🎂 Birthday</SelectItem>
-                    <SelectItem value="anniversary">💕 Anniversary</SelectItem>
-                    <SelectItem value="deadline">🚩 Deadline</SelectItem>
-                    <SelectItem value="milestone">⭐ Milestone</SelectItem>
-                    <SelectItem value="custom">📅 Custom</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date">Date *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional notes..."
-                  rows={2}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Recurring Yearly</Label>
-                  <p className="text-xs text-muted-foreground">Repeat this event every year</p>
-                </div>
-                <Switch checked={recurring} onCheckedChange={setRecurring} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="reminders">Reminder Days Before</Label>
-                <Input
-                  id="reminders"
-                  value={reminderDays}
-                  onChange={(e) => setReminderDays(e.target.value)}
-                  placeholder="e.g., 7,1"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Comma-separated days (e.g., "7,1" = remind 7 days and 1 day before)
-                </p>
-              </div>
-
-              <div className="flex gap-2 justify-end pt-4">
-                <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
-                  Cancel
-                </Button>
-                <Button variant="gold" onClick={saveEvent} disabled={loading}>
-                  {editingEvent ? 'Update' : 'Save'} Event
-                </Button>
-              </div>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Event Title *</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Mom's Birthday"
+              />
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="type">Event Type</Label>
+              <Select value={eventType} onValueChange={(v) => setEventType(v as LifeEvent['event_type'])}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="birthday">🎂 Birthday</SelectItem>
+                  <SelectItem value="anniversary">💕 Anniversary</SelectItem>
+                  <SelectItem value="deadline">🚩 Deadline</SelectItem>
+                  <SelectItem value="milestone">⭐ Milestone</SelectItem>
+                  <SelectItem value="custom">📅 Custom</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="date">Date *</Label>
+              <Input
+                id="date"
+                type="date"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Optional notes..."
+                rows={2}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Recurring Yearly</Label>
+                <p className="text-xs text-muted-foreground">Repeat this event every year</p>
+              </div>
+              <Switch checked={recurring} onCheckedChange={setRecurring} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reminders">Reminder Days Before</Label>
+              <Input
+                id="reminders"
+                value={reminderDays}
+                onChange={(e) => setReminderDays(e.target.value)}
+                placeholder="e.g., 7,1"
+              />
+              <p className="text-xs text-muted-foreground">
+                Comma-separated days (e.g., "7,1" = remind 7 days and 1 day before)
+              </p>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
+                Cancel
+              </Button>
+              <Button variant="gold" onClick={saveEvent} disabled={loading}>
+                {editingEvent ? 'Update' : 'Save'} Event
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {events.length === 0 ? (
         <Card variant="glass" className="text-center py-12">
