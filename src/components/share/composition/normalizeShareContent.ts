@@ -90,7 +90,19 @@ function mapImageLayout(layout: string): ImageTreatment {
 }
 
 /** Clamp text to approximate line count (chars per line ~45 for card width) */
-function clampToLines(text: string, maxLines: number): string {
+function clampToLines(text: string, maxLines: number, isUserText = false): string {
+  // User text (subtitle/reflection) gets generous treatment — show full content
+  if (isUserText) {
+    const charsPerLine = 42;
+    const maxChars = maxLines * charsPerLine;
+    if (text.length <= maxChars) return text;
+    // For user text, only clamp at extreme lengths, never mid-sentence
+    const cutoff = text.lastIndexOf('.', maxChars);
+    if (cutoff > maxChars * 0.7) return text.slice(0, cutoff + 1);
+    const spaceCutoff = text.lastIndexOf(' ', maxChars);
+    if (spaceCutoff > maxChars * 0.8) return text.slice(0, spaceCutoff) + '…';
+    return text.slice(0, maxChars - 1).trim() + '…';
+  }
   const charsPerLine = 42;
   const maxChars = maxLines * charsPerLine;
   if (text.length <= maxChars) return text;
