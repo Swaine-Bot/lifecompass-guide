@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { useEngagement } from '@/hooks/useEngagement';
 import { DailySignalCard } from '@/components/engagement/DailySignalCard';
 import { XPDomainBars } from '@/components/engagement/XPDomainBars';
@@ -184,8 +185,8 @@ export default function Home() {
       ));
       
       if (completed) {
+        choreographedDispatch('micro_move_complete');
         triggerReward();
-        toast.success('🎉 Task completed! Keep it up!');
         const result = await awardXP('mind', 20, 'task_completed', taskId);
         if (result?.leveled_up && user) {
           milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);
@@ -248,6 +249,7 @@ export default function Home() {
     });
 
     if (newCompleted) {
+      choreographedDispatch('micro_move_complete');
       toast.success('✨ Habit completed!');
       const result = await awardXP('physical', 20, 'habit_completed', habitId);
       if (result?.leveled_up && user) {

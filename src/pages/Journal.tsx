@@ -31,6 +31,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   DropdownMenu,
@@ -557,6 +558,7 @@ export default function Journal() {
       const successMessage = scheduledPlaybackAt 
         ? `Journal entry saved! You'll be reminded on ${format(new Date(scheduledPlaybackAt), 'MMM d, yyyy')} at ${format(new Date(scheduledPlaybackAt), 'h:mm a')}`
         : 'Journal entry saved!';
+      choreographedDispatch('reflection_saved');
       toast.success(successMessage);
       
       // Reset all form fields for new entry

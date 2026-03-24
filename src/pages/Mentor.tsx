@@ -14,6 +14,7 @@ import { useMentorConversations } from '@/hooks/useMentorConversations';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -139,6 +140,7 @@ export default function Mentor() {
 
       const moderationStatus = response.data?.moderation_status;
       const assistantContent = response.data?.message || "I'm here to help you navigate your journey. What's on your mind?";
+      choreographedDispatch('mentor_response');
       const assistantMessage = { role: 'assistant' as const, content: assistantContent };
       setMessages(prev => [...prev, assistantMessage]);
       await saveMessage(conversationId, 'assistant', assistantContent, null, moderationStatus);

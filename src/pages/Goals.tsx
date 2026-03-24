@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Target, Search, ChevronRight, Calendar, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -76,6 +77,7 @@ export default function Goals() {
     setGoals(prev => prev.map(g => g.id === goalId ? { ...g, status } : g));
 
     if (status === 'completed' && user) {
+      choreographedDispatch('milestone_reached');
       const goal = goals.find(g => g.id === goalId);
       if (goal) {
         milestonePrompt.checkGoalComplete(goalId, goal.title, user.id);

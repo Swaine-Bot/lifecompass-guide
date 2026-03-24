@@ -130,7 +130,13 @@ export function useSensory() {
 /** Register a screen and optionally a subject context */
 export function useEnvironment(screen: ScreenContext, subjectContext?: SubjectContext | null) {
   const { setScreen, setSubjectContext, environment } = useSensory();
-  useEffect(() => { setScreen(screen); }, [screen, setScreen]);
+  useEffect(() => {
+    setScreen(screen);
+    // Sync choreography engine with current screen
+    import('@/engines/choreographyEngine').then(({ setChoreographyScreen }) => {
+      setChoreographyScreen(screen as import('@/engines/choreographyEngine').ChoreographyScreen);
+    });
+  }, [screen, setScreen]);
   useEffect(() => { setSubjectContext(subjectContext ?? null); }, [subjectContext, setSubjectContext]);
   return environment;
 }
