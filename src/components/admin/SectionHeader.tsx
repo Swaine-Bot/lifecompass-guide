@@ -12,8 +12,8 @@ export function SectionHeader({ title, description, icon: Icon, privacyLevel }: 
   return (
     <div className="flex items-center justify-between mb-6">
       <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-primary/10 p-2">
-          <Icon className="h-5 w-5 text-primary" />
+        <div className="icon-orb">
+          <Icon />
         </div>
         <div>
           <h2 className="text-xl font-serif font-semibold text-foreground">{title}</h2>
