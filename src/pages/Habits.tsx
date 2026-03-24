@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Plus, Flame, Check, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
 
 interface Habit {
