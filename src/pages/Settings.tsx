@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus
+  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus, Palette, Volume2, Vibrate
 } from 'lucide-react';
 import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { toast } from 'sonner';
@@ -28,6 +28,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 import { WearableSettings } from '@/components/wearables/WearableSettings';
 import { Watch } from 'lucide-react';
+import { useSensory } from '@/contexts/SensoryContext';
 
 interface PrivacySettings {
   terms_accepted: boolean;
@@ -43,6 +44,98 @@ interface PrivacySettings {
 }
 
 type ExportStatus = 'idle' | 'loading' | 'done';
+
+function SensorySettingsPanel() {
+  const { settings, updateSettings } = useSensory();
+
+  return (
+    <Card variant="glass">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Palette className="w-5 h-5 text-primary" />
+          Sensory Experience
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Label>Visual Mode</Label>
+            <p className="text-xs sm:text-sm text-muted-foreground">Environment animations and overlays</p>
+          </div>
+          <Select
+            value={settings.visualMode}
+            onValueChange={(v) => updateSettings({ visualMode: v as 'static' | 'dynamic' })}
+          >
+            <SelectTrigger className="w-28 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="static">Static</SelectItem>
+              <SelectItem value="dynamic">Dynamic</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Label className="flex items-center gap-2">
+              <Volume2 className="w-4 h-4 shrink-0" />
+              Sound
+            </Label>
+            <p className="text-xs sm:text-sm text-muted-foreground">Audio feedback for actions</p>
+          </div>
+          <Select
+            value={settings.soundIntensity}
+            onValueChange={(v) => updateSettings({ soundIntensity: v as any })}
+          >
+            <SelectTrigger className="w-28 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="off">Off</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Label className="flex items-center gap-2">
+              <Vibrate className="w-4 h-4 shrink-0" />
+              Haptics
+            </Label>
+            <p className="text-xs sm:text-sm text-muted-foreground">Vibration feedback on actions</p>
+          </div>
+          <Switch
+            checked={settings.hapticsEnabled}
+            onCheckedChange={(v) => updateSettings({ hapticsEnabled: v })}
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Label>Performance Mode</Label>
+            <p className="text-xs sm:text-sm text-muted-foreground">Auto adapts to your device</p>
+          </div>
+          <Select
+            value={settings.performanceMode}
+            onValueChange={(v) => updateSettings({ performanceMode: v as any })}
+          >
+            <SelectTrigger className="w-28 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="auto">Auto</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
@@ -327,6 +420,10 @@ export default function Settings() {
             Devices
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="sensory" className="flex items-center gap-1">
+            <Palette className="w-3.5 h-3.5" />
+            Sensory
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -901,6 +998,10 @@ export default function Settings() {
               </Dialog>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="sensory" className="space-y-4">
+          <SensorySettingsPanel />
         </TabsContent>
       </Tabs>
 

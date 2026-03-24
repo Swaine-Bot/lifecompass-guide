@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   DropdownMenu,
@@ -114,6 +115,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 export default function Journal() {
+  useEnvironment('journal');
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
