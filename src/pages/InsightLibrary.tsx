@@ -6,7 +6,7 @@ import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Lightbulb, Share2, Trash2, StickyNote, X } from 'lucide-react';
+import { Lightbulb, Share2, Trash2, StickyNote, X } from 'lucide-react';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
