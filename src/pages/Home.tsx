@@ -329,7 +329,7 @@ export default function Home() {
         </Card>
         <Card variant="glass" className="p-3.5 text-center group hover-lift">
           <div className="text-2xl font-bold text-primary font-serif">{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></div>
-          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Habits</div>
+          <div className="section-label mt-0.5">Habits</div>
         </Card>
         <MomentumStreakCard
           currentStreak={streak.current_streak}
