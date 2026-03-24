@@ -244,15 +244,17 @@
     @apply bg-primary/20 ring-2 ring-primary scale-110;
   }
   
-  /* Chat message bubbles */
+  /* Chat message bubbles — refined contrast */
   .chat-bubble-user {
-    @apply bg-primary/15 text-foreground rounded-2xl rounded-br-md;
+    @apply bg-primary/[0.08] text-foreground rounded-2xl rounded-br-md;
     @apply px-4 py-3 max-w-[85%] ml-auto;
+    border: 1px solid hsl(43 74% 52% / 0.08);
   }
   
   .chat-bubble-assistant {
-    @apply bg-secondary/70 text-foreground rounded-2xl rounded-bl-md;
+    @apply bg-white/[0.04] text-foreground rounded-2xl rounded-bl-md;
     @apply px-5 py-4 max-w-[85%];
+    border: 1px solid hsl(220 15% 25% / 0.15);
   }
 
   /* Mentor markdown prose overrides */
