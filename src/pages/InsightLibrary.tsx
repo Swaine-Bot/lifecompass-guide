@@ -22,6 +22,7 @@ interface SavedInsight {
 }
 
 export default function InsightLibrary() {
+  useEnvironment('insights');
   const { user } = useAuth();
   const navigate = useNavigate();
   const { openShareStudio } = useUniversalShare();

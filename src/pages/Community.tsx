@@ -128,6 +128,7 @@ const REACTION_TYPES = [
 ];
 
 export default function Community() {
+  useEnvironment('community');
   const { user, profile } = useAuth();
   const { openShareStudio } = useUniversalShare();
   const [friends, setFriends] = useState<Friend[]>([]);

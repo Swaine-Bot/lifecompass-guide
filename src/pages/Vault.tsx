@@ -9,8 +9,10 @@ import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
 import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
 import { engagementEventService } from '@/services/engagementEventService';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 export default function Vault() {
+  useEnvironment('vault');
   const navigate = useNavigate();
   const {
     mirrorMoments, cinematicReports, shareCards,

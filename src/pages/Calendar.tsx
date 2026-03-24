@@ -53,6 +53,7 @@ interface CalendarItem {
 }
 
 export default function Calendar() {
+  useEnvironment('calendar');
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week'>('month');

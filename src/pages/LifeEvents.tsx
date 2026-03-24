@@ -44,6 +44,7 @@ const EVENT_COLORS = {
 };
 
 export default function LifeEvents() {
+  useEnvironment('life_events');
   const { user } = useAuth();
   const [events, setEvents] = useState<LifeEvent[]>([]);
   const [showAddDialog, setShowAddDialog] = useState(false);

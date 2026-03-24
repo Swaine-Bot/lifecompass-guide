@@ -27,6 +27,7 @@ interface HabitLog {
 }
 
 export default function Habits() {
+  useEnvironment('habits');
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [loading, setLoading] = useState(true);

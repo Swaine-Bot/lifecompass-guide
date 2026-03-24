@@ -57,6 +57,7 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
 }
 
 export default function ShareStudio() {
+  useEnvironment('share_studio');
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

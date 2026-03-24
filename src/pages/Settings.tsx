@@ -138,6 +138,7 @@ function SensorySettingsPanel() {
 }
 
 export default function Settings() {
+  useEnvironment('settings');
   const { user, profile, signOut, refreshProfile } = useAuth();
   const { tier, isPremium } = useSubscription();
   const navigate = useNavigate();
