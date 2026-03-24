@@ -35,6 +35,10 @@ async function generateVAPIDKeys() {
   return { publicKey, privateKey };
 }
 
+// PUBLIC-BY-DESIGN: This endpoint is intentionally unauthenticated.
+// VAPID public keys must be accessible to any client before push subscription
+// can be established. The public key is not sensitive — it is shared with browsers
+// as part of the Web Push protocol. No user data is exposed.
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
