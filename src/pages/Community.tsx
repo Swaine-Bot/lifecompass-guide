@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ReportContentDialog } from '@/components/moderation/ReportContentDialog';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 
 interface Friend {
   id: string;
