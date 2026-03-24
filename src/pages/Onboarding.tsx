@@ -62,7 +62,7 @@ const activationQuestions: Record<string, { question: string; options: { id: str
     ],
   },
   money: {
-    question: 'What's your wealth focus?',
+    question: "What's your wealth focus?",
     options: [
       { id: 'saving', label: 'Saving' },
       { id: 'earning', label: 'Earning More' },
