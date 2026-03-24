@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, GripVertical } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 interface Task {
   id: string;
