@@ -386,9 +386,11 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      await response.text(); // consume
+      console.error("AI gateway error:", response.status);
+      return new Response(JSON.stringify({ error: "Mentor is temporarily unavailable" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
