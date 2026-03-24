@@ -130,7 +130,7 @@ export default function Onboarding() {
 
   // ── Pre-onboarding handlers ──
 
-  const handleTermsAccept = async () => {
+  const handleTermsAccept = async (termsVersion?: string, privacyVersion?: string) => {
     if (!user) return;
     await supabase.from('privacy_settings').upsert({
       user_id: user.id,
@@ -138,7 +138,9 @@ export default function Onboarding() {
       terms_accepted_at: new Date().toISOString(),
       privacy_policy_accepted: true,
       privacy_policy_accepted_at: new Date().toISOString(),
-    });
+      terms_version: termsVersion || '1.0',
+      privacy_policy_version: privacyVersion || '1.0',
+    } as any);
     setShowTerms(false);
     setShowAccountType(true);
   };
