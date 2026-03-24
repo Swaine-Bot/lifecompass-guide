@@ -24,6 +24,7 @@ import { useMilestonePrompt } from '@/hooks/useMilestonePrompt';
 import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 import { InvitePrompt } from '@/components/viral/InvitePrompt';
 import { StepProgressCard } from '@/components/wearables/StepProgressCard';
+import { useEnvironment } from '@/contexts/SensoryContext';
 
 interface Task {
   id: string;

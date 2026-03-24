@@ -53,19 +53,24 @@ export const AppLayout = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden">
-        <PullToRefresh 
-          onRefresh={handleRefresh}
-          className="flex-1 h-full"
-        >
-          <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6">
-            <Outlet />
-          </div>
-        </PullToRefresh>
-      </main>
-      <BottomNav />
-    </div>
+    <SensoryProvider lifePhase={profile?.life_phase}>
+      <div className="flex min-h-screen bg-background relative">
+        <EnvironmentLayer />
+        <ContextOverlay />
+        <FeedbackPulse />
+        <Sidebar />
+        <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2 }}>
+          <PullToRefresh 
+            onRefresh={handleRefresh}
+            className="flex-1 h-full"
+          >
+            <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6">
+              <Outlet />
+            </div>
+          </PullToRefresh>
+        </main>
+        <BottomNav />
+      </div>
+    </SensoryProvider>
   );
 };
