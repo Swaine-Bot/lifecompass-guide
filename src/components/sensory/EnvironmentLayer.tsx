@@ -45,7 +45,7 @@ export const EnvironmentLayer = memo(function EnvironmentLayer() {
             backgroundImage: `url(${assets.backgroundUrl})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: theme.overlayOpacity * 1.2,
+            opacity: theme.overlayOpacity * 0.85,
             transition: `opacity ${transitionMs}ms ease`,
           }}
         />
