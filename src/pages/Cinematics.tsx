@@ -39,7 +39,7 @@ export default function Cinematics() {
           </div>
           <h1 className="font-serif text-xl font-bold tracking-tight">Life Cinematics</h1>
         </div>
-        <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">
+        <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">
           Your life story, told in chapters
         </p>
       </div>
