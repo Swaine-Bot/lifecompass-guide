@@ -788,7 +788,7 @@ export default function Journal() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Energy</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Energy</label>
               <div className="flex justify-between">
                 {energyOptions.map((option) => (
                   <button
