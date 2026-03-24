@@ -84,7 +84,13 @@ export function useMentorConversations() {
 
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
     if (!user) return null;
-    const ext = file.name.split('.').pop() || 'jpg';
+    // Validate extension against allowlist to prevent non-image uploads
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      toast.error('Unsupported file type. Please upload JPG, PNG, WebP, or GIF.');
+      return null;
+    }
     const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from('mentor-images').upload(path, file, {
       contentType: file.type,

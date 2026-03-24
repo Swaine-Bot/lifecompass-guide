@@ -65,6 +65,30 @@ serve(async (req) => {
 
     const userId = claimsData.claims.sub;
 
+    // --- Rate limiting: 30 journal analyses per user per hour ---
+    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+    const { count: recentCalls } = await supabaseClient
+      .from("engagement_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "journal_analysis")
+      .gte("created_at", oneHourAgo);
+
+    if ((recentCalls || 0) >= 30) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Log this call for rate limiting
+    await supabaseClient.from("engagement_events").insert({
+      user_id: userId,
+      event_type: "journal_analysis",
+      source_engine: "analyze-journal-entry",
+      metadata: {},
+    });
+
     const { content, mediaUrls, mood, energy, gratitude, reflection, goals } = await req.json();
     
     if (!content && (!mediaUrls || mediaUrls.length === 0) && !gratitude && !reflection) {

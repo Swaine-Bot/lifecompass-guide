@@ -6,6 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// SYSTEM/CRON ENDPOINT: This function is designed to be invoked by a scheduled
+// cron job or system trigger, not by end users. It uses SUPABASE_SERVICE_ROLE_KEY
+// to query across users. No user auth is required — access is controlled by
+// the service role key which is only available server-side.
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
