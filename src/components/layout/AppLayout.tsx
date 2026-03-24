@@ -7,6 +7,7 @@ import { useSessionTracking } from '@/hooks/useSessionTracking';
 import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { useProgressiveProfiling } from '@/hooks/useProgressiveProfiling';
 
 export const AppLayout = () => {
   const { user, loading, profile, refreshProfile } = useAuth();
