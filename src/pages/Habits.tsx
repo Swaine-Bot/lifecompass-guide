@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Flame, Check, ChevronRight, TrendingUp } from 'lucide-react';
+import { Plus, Flame, Check, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
@@ -119,16 +119,16 @@ export default function Habits() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header — Disciplined, efficient */}
+      {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <Flame className="w-3.5 h-3.5 text-primary/70" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+              <Flame className="w-4 h-4 text-primary/70" />
             </div>
             <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight">Habits</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">Build routines that shape your life</p>
+          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">Build routines that shape your life</p>
         </div>
         <Button variant="gold" size="sm" asChild className="shrink-0">
           <Link to="/habits/new">
@@ -139,17 +139,17 @@ export default function Habits() {
         </Button>
       </div>
 
-      {/* Today's Progress */}
+      {/* Today's Progress — Hero */}
       <Card variant="gold" className="overflow-hidden">
         <CardContent className="p-5">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Today's Progress</p>
               <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/40 text-xl">/{habits.length}</span></p>
             </div>
             <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary/[0.05]">
               <Flame className={cn(
-                "w-7 h-7",
+                "w-7 h-7 transition-colors",
                 todayCompleted === habits.length && habits.length > 0 
                   ? "text-primary animate-pulse-gold" 
                   : "text-primary/40"
@@ -178,7 +178,7 @@ export default function Habits() {
           </Button>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {habits.map((habit) => {
             const streak = getStreak(habit.id);
             const weeklyProgress = getWeeklyProgress(habit.id);
@@ -188,13 +188,13 @@ export default function Habits() {
 
             return (
               <Card key={habit.id} variant="glass" className="overflow-hidden">
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-4">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start gap-3.5">
                     {/* Check button */}
                     <button
                       onClick={() => toggleHabit(habit.id, today)}
                       className={cn(
-                        "habit-check shrink-0 mt-1",
+                        "habit-check shrink-0 mt-0.5",
                         isTodayComplete && "completed"
                       )}
                       style={{ borderColor: isTodayComplete ? undefined : habit.color }}
@@ -205,16 +205,16 @@ export default function Habits() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{habit.title}</h3>
+                        <h3 className="font-medium text-sm sm:text-base truncate">{habit.title}</h3>
                         {streak > 0 && (
-                          <span className="streak-badge">
+                          <span className="streak-badge shrink-0">
                             <Flame className="w-3 h-3" />
-                            {streak} days
+                            {streak}d
                           </span>
                         )}
                       </div>
                       {habit.description && (
-                        <p className="text-sm text-muted-foreground mb-3">{habit.description}</p>
+                        <p className="text-xs text-muted-foreground/50 mb-2.5 line-clamp-1">{habit.description}</p>
                       )}
 
                       {/* Week View */}
@@ -234,11 +234,11 @@ export default function Habits() {
                               key={dateStr}
                               onClick={() => toggleHabit(habit.id, dateStr)}
                               className={cn(
-                                "w-8 h-8 rounded-lg text-xs font-medium transition-all",
+                                "w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-[10px] sm:text-xs font-medium transition-all",
                                 isComplete
                                   ? "bg-primary text-primary-foreground"
                                   : isToday
-                                    ? "bg-secondary border-2 border-dashed border-primary/30"
+                                    ? "bg-secondary border border-dashed border-primary/30"
                                     : "bg-secondary/50"
                               )}
                             >
@@ -250,12 +250,12 @@ export default function Habits() {
                     </div>
 
                     {/* Stats */}
-                    <div className="text-right shrink-0">
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <TrendingUp className="w-4 h-4" />
+                    <div className="text-right shrink-0 hidden sm:block">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground/60">
+                        <TrendingUp className="w-3.5 h-3.5" />
                         {weeklyProgress}%
                       </div>
-                      <p className="text-xs text-muted-foreground">this week</p>
+                      <p className="text-[10px] text-muted-foreground/30 uppercase tracking-wider">week</p>
                     </div>
                   </div>
                 </CardContent>
