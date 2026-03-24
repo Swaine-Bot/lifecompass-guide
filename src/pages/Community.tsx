@@ -1860,6 +1860,14 @@ export default function Community() {
           fetchPosts();
         }}
       />
+
+      {/* Report Content Dialog */}
+      <ReportContentDialog
+        open={!!reportTarget}
+        onOpenChange={(open) => !open && setReportTarget(null)}
+        targetId={reportTarget?.id || ''}
+        targetType={(reportTarget?.type as any) || 'post'}
+      />
     </div>
   );
 }

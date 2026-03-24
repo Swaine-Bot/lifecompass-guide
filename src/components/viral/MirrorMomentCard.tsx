@@ -5,6 +5,7 @@ import { Heart, Share2, PenLine, Eye, ChevronDown, Loader2, Sparkles, Archive } 
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShareCardPreview } from '@/components/viral/ShareCardPreview';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 
 interface MirrorMomentCardProps {
   moment: {

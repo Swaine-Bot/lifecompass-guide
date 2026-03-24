@@ -56,9 +56,12 @@ export function DailySignalCard({ signal, loading, onReveal }: DailySignalCardPr
               Daily Signal
             </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {signalTypeLabels[signal.signal_type] || signal.signal_type}
-          </span>
+          <div className="flex items-center gap-2">
+            <AiContentLabel variant="chip" />
+            <span className="text-xs text-muted-foreground">
+              {signalTypeLabels[signal.signal_type] || signal.signal_type}
+            </span>
+          </div>
         </div>
 
         {!revealed && !signal.is_read ? (
