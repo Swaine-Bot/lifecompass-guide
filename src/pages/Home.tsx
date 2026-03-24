@@ -394,24 +394,26 @@ export default function Home() {
 
       {/* Today's Micro-Moves */}
       <Card variant="glass">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              Today's Micro-Moves
+            <CardTitle className="text-base flex items-center gap-2">
+              Micro-Moves
               {showReward && (
                 <span className="flex items-center gap-1 text-primary animate-pulse">
-                  <Trophy className="w-4 h-4" />
-                  <Star className="w-3 h-3" />
+                  <Trophy className="w-3.5 h-3.5" />
                 </span>
               )}
             </CardTitle>
+            <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider tabular-nums">
+              {completedTasks.length} done
+            </span>
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
           {/* Quick Add */}
           <div className="flex gap-2 mb-3">
             <Input
-              placeholder="Add a quick task..."
+              placeholder="Add a quick task…"
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addQuickTask()}
@@ -449,23 +451,26 @@ export default function Home() {
                   />
                   <span className="flex-1 text-sm truncate leading-snug">{task.title}</span>
                   {task.created_by === 'ai_mentor' && (
-                    <span className="text-[9px] text-primary/50 uppercase tracking-wider shrink-0">AI</span>
+                    <span className="text-[9px] text-primary/50 uppercase tracking-wider shrink-0 bg-primary/[0.06] px-1.5 py-0.5 rounded">AI</span>
                   )}
-                  <span className="text-[11px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">
+                  {task.playbook_id && (
+                    <span className="text-[9px] text-muted-foreground/30 uppercase tracking-wider shrink-0">Playbook</span>
+                  )}
+                  <span className="text-[11px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums shrink-0">
                     {task.effort_minutes}m
                   </span>
                 </div>
               ))}
               
               {completedTasks.length > 0 && (
-                <div className="pt-3 mt-2 border-t border-white/[0.04]">
-                  <p className="text-[10px] text-muted-foreground/40 mb-1.5 flex items-center gap-1 uppercase tracking-wider">
-                    <Check className="w-3 h-3" /> Completed ({completedTasks.length})
+                <div className="pt-2.5 mt-2 border-t border-white/[0.04]">
+                  <p className="text-[10px] text-muted-foreground/30 mb-1 flex items-center gap-1 uppercase tracking-wider px-2.5">
+                    <Check className="w-3 h-3" /> Done ({completedTasks.length})
                   </p>
                   {completedTasks.slice(0, 3).map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-2.5 py-1.5 px-2.5 text-muted-foreground/40"
+                      className="flex items-center gap-2.5 py-1.5 px-2.5 text-muted-foreground/35"
                     >
                       <Checkbox 
                         checked={true}
