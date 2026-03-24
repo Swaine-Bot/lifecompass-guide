@@ -187,9 +187,9 @@ export default function Goals() {
                             {goal.category}
                           </span>
                         )}
-                        <Badge className={cn("text-[10px] border", statusColors[goal.status])}>
+                        <span className={cn("status-badge", statusColors[goal.status])}>
                           {goal.status}
-                        </Badge>
+                        </span>
                       </div>
                       <h3 className="font-serif font-semibold text-base leading-snug mb-1">{goal.title}</h3>
                       {goal.why && (
