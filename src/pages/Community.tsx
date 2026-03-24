@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
-  Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
+  Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp, Flag,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
   AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail,
   Target, Building2
