@@ -37,14 +37,18 @@ export function usePlaybookGenerator() {
       const { data, error } = await supabase.functions.invoke('generate-playbook', {
         body: { source_type: 'goal', goal, profile },
       });
-      if (error) throw error;
+      if (error) throw new Error(error?.message || 'Edge function call failed');
       if (data?.error) throw new Error(data.error);
+      if (!data?.playbook_title || !Array.isArray(data?.tasks)) throw new Error('Invalid playbook response');
       setPreview(data);
       engagementEventService.log('playbook_generation_completed', 'broadcast', { source: 'goal' });
       return data as PlaybookResult;
     } catch (e: any) {
       console.error('Playbook generation error:', e);
-      toast.error(e?.message || 'Failed to generate playbook');
+      const msg = e?.message?.includes('Rate limit') ? 'Too many requests — please try again shortly.' 
+        : e?.message?.includes('credits') ? 'AI credits exhausted. Please try again later.'
+        : "Couldn't create your playbook just now. Please try again."
+      toast.error(msg);
       engagementEventService.log('playbook_generation_failed', 'broadcast', { source: 'goal' });
       return null;
     } finally {
@@ -59,14 +63,18 @@ export function usePlaybookGenerator() {
       const { data, error } = await supabase.functions.invoke('generate-playbook', {
         body: { source_type: 'mentor', mentor_message: messageContent, profile },
       });
-      if (error) throw error;
+      if (error) throw new Error(error?.message || 'Edge function call failed');
       if (data?.error) throw new Error(data.error);
+      if (!data?.playbook_title || !Array.isArray(data?.tasks)) throw new Error('Invalid playbook response');
       setPreview(data);
       engagementEventService.log('playbook_generation_completed', 'broadcast', { source: 'mentor' });
       return data as PlaybookResult;
     } catch (e: any) {
       console.error('Playbook generation error:', e);
-      toast.error(e?.message || 'Failed to generate playbook');
+      const msg = e?.message?.includes('Rate limit') ? 'Too many requests — please try again shortly.'
+        : e?.message?.includes('credits') ? 'AI credits exhausted. Please try again later.'
+        : "Couldn't create your mentor plan just now. Please try again."
+      toast.error(msg);
       engagementEventService.log('playbook_generation_failed', 'broadcast', { source: 'mentor' });
       return null;
     } finally {
