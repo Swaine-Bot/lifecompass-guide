@@ -249,6 +249,7 @@ export default function Home() {
     });
 
     if (newCompleted) {
+      choreographedDispatch('micro_move_complete');
       toast.success('✨ Habit completed!');
       const result = await awardXP('physical', 20, 'habit_completed', habitId);
       if (result?.leveled_up && user) {
