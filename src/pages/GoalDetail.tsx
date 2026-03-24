@@ -220,7 +220,7 @@ export default function GoalDetail() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Overall Progress</p>
+              <p className="section-label text-primary/60">Overall Progress</p>
               <p className="text-3xl font-bold font-serif mt-1">{progressPercent}<span className="text-lg text-muted-foreground/40">%</span></p>
             </div>
             <div className="text-right">
