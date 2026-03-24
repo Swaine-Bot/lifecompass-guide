@@ -293,7 +293,7 @@ export default function GoalDetail() {
             )}
             {goal.success_metric && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Success Metric</p>
+                <p className="section-label mb-1.5">Success Metric</p>
                 <p className="text-sm leading-relaxed">{goal.success_metric}</p>
               </div>
             )}
