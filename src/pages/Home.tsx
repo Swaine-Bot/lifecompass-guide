@@ -31,6 +31,8 @@ interface Task {
   status: string;
   is_one_thing: boolean;
   effort_minutes: number;
+  created_by?: string;
+  playbook_id?: string;
 }
 
 interface Habit {
@@ -444,6 +446,9 @@ export default function Home() {
                     className="w-4 h-4"
                   />
                   <span className="flex-1 text-sm truncate">{task.title}</span>
+                  {task.created_by === 'ai_mentor' && (
+                    <span className="text-[10px] text-primary/60 shrink-0">AI</span>
+                  )}
                   <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                     {task.effort_minutes}m
                   </span>

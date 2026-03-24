@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Target, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Target, Sparkles, Loader2, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_SHORT_TEXT_LENGTH } from '@/lib/validation';
 import { GoalDeclarationPrompt } from '@/components/viral/GoalDeclarationPrompt';
+import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
+import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
@@ -33,8 +35,11 @@ const priorities = [
 export default function NewGoal() {
   const [loading, setLoading] = useState(false);
   const [showDeclaration, setShowDeclaration] = useState(false);
+  const [savedGoalId, setSavedGoalId] = useState<string | null>(null);
   const [savedGoalTitle, setSavedGoalTitle] = useState('');
   const [savedGoalCategory, setSavedGoalCategory] = useState('');
+  const [showPlaybookOffer, setShowPlaybookOffer] = useState(false);
+  const [savingPlaybook, setSavingPlaybook] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -47,12 +52,12 @@ export default function NewGoal() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { generating, preview, generateFromGoal, savePlaybook, dismiss } = usePlaybookGenerator();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    // Validate form data
     const validation = validateWithSchema(goalSchema, formData);
     if (!validation.success) {
       toast.error('error' in validation ? validation.error : 'Validation failed');
@@ -79,7 +84,6 @@ export default function NewGoal() {
 
       if (error) throw error;
 
-      // Create initial milestones based on goal
       if (goal) {
         await supabase.from('milestones').insert([
           { goal_id: goal.id, title: 'Define clear success criteria', status: 'today' },
@@ -87,7 +91,6 @@ export default function NewGoal() {
           { goal_id: goal.id, title: 'Set up tracking system', status: 'backlog' },
         ]);
 
-        // Create initial task
         await supabase.from('tasks').insert({
           user_id: user.id,
           goal_id: goal.id,
@@ -95,16 +98,45 @@ export default function NewGoal() {
           status: 'today',
           effort_minutes: 15,
         });
+
+        setSavedGoalId(goal.id);
       }
 
       toast.success('Goal created successfully!');
       setSavedGoalTitle(formData.title);
       setSavedGoalCategory(formData.category);
+      setShowPlaybookOffer(true);
       setShowDeclaration(true);
     } catch (err) {
       toast.error('Failed to create goal. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGeneratePlaybook = async () => {
+    await generateFromGoal({
+      id: savedGoalId || '',
+      title: formData.title,
+      category: formData.category,
+      success_metric: formData.success_metric,
+      why: formData.why,
+      constraints: formData.constraints,
+      target_date: formData.target_date,
+    });
+  };
+
+  const handleSavePlaybook = async (tasks: { title: string; description: string; effort_minutes: number }[]) => {
+    if (!preview) return;
+    setSavingPlaybook(true);
+    const success = await savePlaybook(
+      { ...preview, tasks },
+      { goalId: savedGoalId || undefined, sourceType: 'goal' }
+    );
+    setSavingPlaybook(false);
+    if (success) {
+      setShowPlaybookOffer(false);
+      navigate('/');
     }
   };
 
@@ -116,7 +148,59 @@ export default function NewGoal() {
           goalTitle={savedGoalTitle}
           goalCategory={savedGoalCategory}
           targetDate={formData.target_date}
-          onDismiss={() => { setShowDeclaration(false); navigate('/goals'); }}
+          onDismiss={() => { setShowDeclaration(false); if (!showPlaybookOffer) navigate('/goals'); }}
+        />
+      )}
+
+      {/* Playbook Offer */}
+      {showPlaybookOffer && !preview && (
+        <Card variant="glass" className="border-primary/20 animate-fade-in">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Wand2 className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">Build your action playbook?</p>
+                <p className="text-xs text-muted-foreground">Let AI Mentor create a step-by-step plan for "{savedGoalTitle}"</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <Button
+                variant="gold"
+                size="sm"
+                className="gap-1.5"
+                onClick={handleGeneratePlaybook}
+                disabled={generating}
+              >
+                {generating ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
+                ) : (
+                  <><Sparkles className="w-3.5 h-3.5" /> Generate Playbook</>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => { setShowPlaybookOffer(false); navigate('/goals'); }}
+                disabled={generating}
+              >
+                Skip
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Playbook Preview Modal */}
+      {preview && (
+        <PlaybookPreviewModal
+          open={!!preview}
+          title={preview.playbook_title}
+          tasks={preview.tasks}
+          saving={savingPlaybook}
+          onSave={handleSavePlaybook}
+          onDismiss={() => { dismiss(); setShowPlaybookOffer(false); navigate('/goals'); }}
         />
       )}
 
@@ -253,7 +337,7 @@ export default function NewGoal() {
                 type="submit"
                 variant="gold"
                 className="flex-1"
-                disabled={loading || !formData.title.trim()}
+                disabled={loading || !formData.title.trim() || showPlaybookOffer}
               >
                 {loading ? (
                   <>
