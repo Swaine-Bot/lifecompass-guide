@@ -109,9 +109,12 @@ export default function InsightLibrary() {
                   <blockquote className="text-sm font-medium leading-relaxed flex-1 italic">
                     "{insight.quote}"
                   </blockquote>
-                  <span className="text-[10px] uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
-                    {insight.context_tag}
-                  </span>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <AiContentLabel label="AI Insight" variant="chip" />
+                    <span className="text-[10px] uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+                      {insight.context_tag}
+                    </span>
+                  </div>
                 </div>
 
                 {insight.personal_note && editingNote !== insight.id && (

@@ -50,6 +50,22 @@ export function ReportContentDialog({ open, onOpenChange, targetId, targetType, 
         return;
       }
 
+      // Check for duplicate report
+      const { data: existing } = await supabase
+        .from('content_reports')
+        .select('id')
+        .eq('reporter_user_id', session.session.user.id)
+        .eq('target_id', targetId)
+        .eq('target_type', targetType)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (existing) {
+        toast.info('You have already reported this content. It is under review.');
+        setSubmitted(true);
+        return;
+      }
+
       const { error } = await supabase.from('content_reports').insert({
         reporter_user_id: session.session.user.id,
         target_id: targetId,

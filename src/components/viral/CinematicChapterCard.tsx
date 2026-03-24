@@ -65,9 +65,12 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.15em] text-primary/60 font-medium mb-1">
-                  {reportTypeLabels[report.report_type] || report.report_type}
-                </p>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-xs uppercase tracking-[0.15em] text-primary/60 font-medium">
+                    {reportTypeLabels[report.report_type] || report.report_type}
+                  </p>
+                  <AiContentLabel label="AI-generated" variant="inline" />
+                </div>
                 <h3 className="font-serif text-xl font-semibold leading-tight">{report.title}</h3>
               </div>
               <ChevronRight className={cn(

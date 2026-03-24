@@ -214,7 +214,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
             size="lg"
             className="w-full"
             disabled={!canContinue}
-            onClick={onAccept}
+            onClick={() => onAccept(CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION)}
           >
             Continue
             <ChevronRight className="w-5 h-5 ml-1" />
