@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 
 interface DailySignalCardProps {
   signal: {
@@ -55,9 +56,12 @@ export function DailySignalCard({ signal, loading, onReveal }: DailySignalCardPr
               Daily Signal
             </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {signalTypeLabels[signal.signal_type] || signal.signal_type}
-          </span>
+          <div className="flex items-center gap-2">
+            <AiContentLabel variant="chip" />
+            <span className="text-xs text-muted-foreground">
+              {signalTypeLabels[signal.signal_type] || signal.signal_type}
+            </span>
+          </div>
         </div>
 
         {!revealed && !signal.is_read ? (

@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Users, UserPlus, Heart, MessageCircle, Share2, Send, Image, 
-  Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp,
+  Video, MoreHorizontal, X, Check, Clock, Search, ThumbsUp, Flag,
   Sparkles, Star, Lightbulb, HandHeart, Trophy, Bot, ExternalLink,
   AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail,
   Target, Building2
@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ReportContentDialog } from '@/components/moderation/ReportContentDialog';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 
 interface Friend {
   id: string;
@@ -146,6 +148,7 @@ export default function Community() {
   const [postAnalysis, setPostAnalysis] = useState<PostAnalysis | null>(null);
   const [showAnalysisResult, setShowAnalysisResult] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ id: string; type: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [feedbackExpanded, setFeedbackExpanded] = useState(true);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
@@ -1092,26 +1095,38 @@ export default function Community() {
                               </span>
                             </div>
                         
-                        {post.user_id === user?.id && (
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
+                          {post.user_id === user?.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                onClick={() => openEditPost(post)}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={() => setPostToDelete(post.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-primary"
-                              onClick={() => openEditPost(post)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive/70"
+                              onClick={() => setReportTarget({ id: post.id, type: 'post' })}
+                              title="Report content"
                             >
-                              <Pencil className="w-4 h-4" />
+                              <Flag className="w-3.5 h-3.5" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                              onClick={() => setPostToDelete(post.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                       
                       {post.content && (
@@ -1845,6 +1860,14 @@ export default function Community() {
         onPostCreated={() => {
           fetchPosts();
         }}
+      />
+
+      {/* Report Content Dialog */}
+      <ReportContentDialog
+        open={!!reportTarget}
+        onOpenChange={(open) => !open && setReportTarget(null)}
+        targetId={reportTarget?.id || ''}
+        targetType={(reportTarget?.type as any) || 'post'}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { ShareButton } from '@/components/share/ShareButton';
 import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
 import { MentorImageLightbox } from './MentorImageLightbox';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MentorMessageProps {
@@ -87,6 +88,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
           )}
         </div>
         <div className="flex items-center gap-1 mt-1 flex-wrap">
+          <AiContentLabel label="Mentor AI" variant="inline" />
           <Button
             variant="ghost"
             size="sm"
