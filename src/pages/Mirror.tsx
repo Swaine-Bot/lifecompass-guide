@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, PenLine, Flame } from 'lucide-react';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
-import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
+import { EmptyStatePanel, PageHeader, SectionLabel } from '@/components/ds';
 import { engagementEventService } from '@/services/engagementEventService';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
@@ -30,18 +30,11 @@ export default function Mirror() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header — Reflective, intimate */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className="icon-orb">
-            <Sparkles />
-          </div>
-          <h1 className="font-serif text-xl font-bold tracking-tight">Mirror</h1>
-        </div>
-        <p className="page-subtitle">
-          AI-powered reflections drawn from your journey
-        </p>
-      </div>
+      <PageHeader
+        icon={Sparkles}
+        title="Mirror"
+        subtitle="AI-powered reflections drawn from your journey"
+      />
 
       {/* Generate Button */}
       <Button
