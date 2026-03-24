@@ -303,17 +303,36 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle
+  // Subtitle (user text) — adaptive font sizing to fit full content
   if (content.subtitle) {
     cursorY += 8;
-    const subSize = spec.typography.subtitleFontSize;
+    let subSize = spec.typography.subtitleFontSize;
+    const availableH = panel.y + panel.height - pad - cursorY;
+
+    // Measure how many lines we need at current font size
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999); // no limit for measurement
+    let subLineH = subSize * spec.typography.subtitleLineHeight;
+    let totalTextH = subLines.length * subLineH;
+
+    // Adaptive: reduce font size to fit all text, minimum 16px
+    const minSubSize = 16;
+    while (totalTextH > availableH && subSize > minSubSize) {
+      subSize -= 2;
+      subLineH = subSize * spec.typography.subtitleLineHeight;
+      ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+      subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
+      totalTextH = subLines.length * subLineH;
+    }
+
+    // Final pass: if still too tall after min font, apply max lines as last resort
+    const maxVisibleLines = Math.floor(availableH / subLineH);
+    const finalMaxLines = Math.max(maxVisibleLines, 3); // at least 3 lines
+    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
     ctx.fillStyle = 'rgb(140, 145, 155)';
 
-    const subLines = wrapText(ctx, content.subtitle, textMaxW, spec.typography.subtitleMaxLines);
-    const subLineH = subSize * spec.typography.subtitleLineHeight;
-
-    for (const line of subLines) {
+    for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
