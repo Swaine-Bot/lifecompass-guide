@@ -303,17 +303,36 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle
+  // Subtitle (user text) — adaptive font sizing to fit full content
   if (content.subtitle) {
     cursorY += 8;
-    const subSize = spec.typography.subtitleFontSize;
+    let subSize = spec.typography.subtitleFontSize;
+    const availableH = panel.y + panel.height - pad - cursorY;
+
+    // Measure how many lines we need at current font size
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999); // no limit for measurement
+    let subLineH = subSize * spec.typography.subtitleLineHeight;
+    let totalTextH = subLines.length * subLineH;
+
+    // Adaptive: reduce font size to fit all text, minimum 16px
+    const minSubSize = 16;
+    while (totalTextH > availableH && subSize > minSubSize) {
+      subSize -= 2;
+      subLineH = subSize * spec.typography.subtitleLineHeight;
+      ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+      subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
+      totalTextH = subLines.length * subLineH;
+    }
+
+    // Final pass: if still too tall after min font, apply max lines as last resort
+    const maxVisibleLines = Math.floor(availableH / subLineH);
+    const finalMaxLines = Math.max(maxVisibleLines, 3); // at least 3 lines
+    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
     ctx.fillStyle = 'rgb(140, 145, 155)';
 
-    const subLines = wrapText(ctx, content.subtitle, textMaxW, spec.typography.subtitleMaxLines);
-    const subLineH = subSize * spec.typography.subtitleLineHeight;
-
-    for (const line of subLines) {
+    for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
@@ -337,29 +356,38 @@ function drawMomentumPanel(
 
   ctx.save();
 
-  // Stat value
+  // Stat value — stacked vertically, never side-by-side with label
   if (content.statValue) {
     const displayStat = content.showNumbers ? content.statValue : '•••';
-    const statSize = spec.typography.statFontSize;
+    // Dynamic font scaling: shrink stat for long values
+    let statSize = spec.typography.statFontSize;
+    if (displayStat.length > 6) statSize = Math.round(statSize * 0.7);
+    else if (displayStat.length > 4) statSize = Math.round(statSize * 0.85);
+
     ctx.font = `700 ${statSize}px ${FONT_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-    ctx.fillText(displayStat, panel.x + pad, panel.y + pad + statSize * 0.8);
 
-    // Stat label
+    // Position stat value at top of panel
+    const statY = panel.y + pad + statSize * 0.8;
+    ctx.fillText(displayStat, panel.x + pad, statY, panel.width - pad * 2);
+
+    // Stat label — BELOW stat value, on its own line
     if (content.statLabel) {
-      ctx.font = `600 ${14}px ${FONT_FAMILY}`;
+      const labelSize = 14;
+      const labelGap = 6;
+      ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
       ctx.fillStyle = 'rgb(128, 132, 142)';
-      const statW = ctx.measureText(displayStat).width;
-      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad + statW + 12, panel.y + pad + statSize * 0.8);
+      const labelY = statY + labelGap + labelSize;
+      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, labelY, panel.width - pad * 2);
     }
   }
 
-  // Phrase
+  // Phrase — at the bottom with safe padding
   const phraseSize = spec.typography.phraseFontSize;
   ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.6;
-  ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, panel.y + panel.height - pad);
+  ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, panel.y + panel.height - pad, panel.width - pad * 2);
   ctx.globalAlpha = 1;
 
   ctx.restore();
@@ -380,29 +408,32 @@ function drawMetaPanel(
 
   ctx.save();
 
-  // Card type label
+  // Proper vertical stack with explicit spacing
   const metaSize = spec.typography.metaFontSize;
+  const lineGap = 8; // explicit gap between stacked items
+  let cursorY = panel.y + pad + metaSize;
+
+  // Card type label
   ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.75;
-  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, panel.y + pad + metaSize);
+  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   ctx.globalAlpha = 1;
 
-  // Time anchor
+  // Time anchor — below card type with safe gap
   if (content.timeAnchor) {
+    cursorY += metaSize + lineGap;
     ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
     ctx.fillStyle = 'rgb(128, 132, 142)';
-    ctx.fillText(content.timeAnchor, panel.x + pad, panel.y + pad + metaSize + metaSize + 4);
+    ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
-  // Domain
+  // Domain — below time anchor with safe gap
   if (content.domain) {
-    const domainY = content.timeAnchor
-      ? panel.y + pad + metaSize * 3 + 8
-      : panel.y + pad + metaSize * 2 + 4;
+    cursorY += (metaSize - 2) + lineGap;
     ctx.font = `400 ${14}px ${FONT_FAMILY}`;
     ctx.fillStyle = 'rgb(100, 105, 115)';
-    ctx.fillText(content.domain.toUpperCase(), panel.x + pad, domainY);
+    ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
   ctx.restore();
