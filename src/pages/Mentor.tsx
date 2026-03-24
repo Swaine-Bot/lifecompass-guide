@@ -3,8 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Send, Loader2, AlertTriangle, ExternalLink, MapPin, History, ImagePlus } from 'lucide-react';
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import { Sparkles, Send, Loader2, AlertTriangle, ExternalLink, MapPin, History, ImagePlus, ShieldCheck } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocation } from '@/hooks/useLocation';
 import { MAX_MESSAGE_LENGTH } from '@/lib/validation';
 import { MentorSidebar } from '@/components/mentor/MentorSidebar';
@@ -19,7 +19,6 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export default function Mentor() {
   const [input, setInput] = useState('');
-  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -187,15 +186,45 @@ export default function Mentor() {
           <h1 className="font-serif text-lg font-bold">AI Mentor</h1>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 text-xs text-muted-foreground"
-            onClick={() => setDisclaimerOpen(!disclaimerOpen)}
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Disclaimer</span>
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/15 transition-colors text-xs font-medium">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Guidance Only</span>
+                <AlertTriangle className="w-3 h-3 sm:hidden" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 p-4 bg-card border-border/50">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-400" />
+                  <p className="text-sm font-semibold">About Mentor Guidance</p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Your AI Mentor offers reflection support and general life guidance. For medical, mental health, financial, or legal matters, consult qualified professionals.
+                </p>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {professionalLinks.map((link) => (
+                    <a
+                      key={link.query}
+                      href={getMapsSearchUrl(link.query)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-primary hover:underline flex items-center gap-1 px-2 py-1 rounded-md bg-secondary/50"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+                {latitude && longitude && (
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
+                    <MapPin className="w-3 h-3" /> Using your location for results
+                  </p>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
           <Button
             variant={sidebarOpen ? "secondary" : "ghost"}
             size="sm"
@@ -207,41 +236,6 @@ export default function Mentor() {
           </Button>
         </div>
       </div>
-
-      {/* Disclaimer */}
-      <Collapsible open={disclaimerOpen} onOpenChange={setDisclaimerOpen}>
-        <CollapsibleContent>
-          <div className="px-4 py-3 bg-warning/5 border-b border-warning/20">
-            <div className="flex gap-2 items-start max-w-2xl mx-auto">
-              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-2">
-                  This AI mentor provides general guidance only. For medical, mental health, financial, or legal matters, consult qualified professionals.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {professionalLinks.map((link) => (
-                    <a
-                      key={link.query}
-                      href={getMapsSearchUrl(link.query)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-                {latitude && longitude && (
-                  <p className="text-muted-foreground mt-1.5 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> Using your location
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
 
       {/* Main content area */}
       <div className="flex flex-1 min-h-0 overflow-hidden relative">
