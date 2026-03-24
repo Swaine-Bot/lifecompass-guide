@@ -80,7 +80,10 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
               <span className="text-xl">{cat.icon}</span>
               <div>
                 <p className="text-xs uppercase tracking-[0.15em] text-primary/70 font-semibold">Mirror Moment</p>
-                <p className="text-xs text-muted-foreground">{cat.label}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">{cat.label}</p>
+                  <AiContentLabel variant="inline" />
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-1">
