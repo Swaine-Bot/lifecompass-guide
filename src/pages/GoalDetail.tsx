@@ -315,7 +315,7 @@ export default function GoalDetail() {
             Target: {format(new Date(goal.target_date), 'MMM d, yyyy')}
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+        <div className="flex items-center gap-1.5 meta-text">
           <Clock className="w-3.5 h-3.5" />
           Created: {format(new Date(goal.created_at), 'MMM d, yyyy')}
         </div>
