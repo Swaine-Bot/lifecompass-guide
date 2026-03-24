@@ -328,6 +328,10 @@ export default function Settings() {
             Devices
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="sensory" className="flex items-center gap-1">
+            <Palette className="w-3.5 h-3.5" />
+            Sensory
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
