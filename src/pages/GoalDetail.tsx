@@ -299,7 +299,7 @@ export default function GoalDetail() {
             )}
             {goal.constraints && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Constraints</p>
+                <p className="section-label mb-1.5">Constraints</p>
                 <p className="text-sm leading-relaxed">{goal.constraints}</p>
               </div>
             )}
