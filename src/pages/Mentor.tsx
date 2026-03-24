@@ -140,6 +140,7 @@ export default function Mentor() {
 
       const moderationStatus = response.data?.moderation_status;
       const assistantContent = response.data?.message || "I'm here to help you navigate your journey. What's on your mind?";
+      choreographedDispatch('mentor_response');
       const assistantMessage = { role: 'assistant' as const, content: assistantContent };
       setMessages(prev => [...prev, assistantMessage]);
       await saveMessage(conversationId, 'assistant', assistantContent, null, moderationStatus);

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Target, Search, ChevronRight, Calendar, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
