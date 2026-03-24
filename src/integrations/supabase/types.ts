@@ -1053,6 +1053,60 @@ export type Database = {
           },
         ]
       }
+      playbooks: {
+        Row: {
+          created_at: string | null
+          id: string
+          source_conversation_id: string | null
+          source_goal_id: string | null
+          source_message_content: string | null
+          source_type: string
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          source_conversation_id?: string | null
+          source_goal_id?: string | null
+          source_message_content?: string | null
+          source_type?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          source_conversation_id?: string | null
+          source_goal_id?: string | null
+          source_message_content?: string | null
+          source_type?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbooks_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playbooks_source_goal_id_fkey"
+            columns: ["source_goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string | null
@@ -1591,6 +1645,7 @@ export type Database = {
       tasks: {
         Row: {
           created_at: string | null
+          created_by: string
           description: string | null
           due_date: string | null
           effort_minutes: number | null
@@ -1598,6 +1653,10 @@ export type Database = {
           id: string
           is_one_thing: boolean | null
           milestone_id: string | null
+          playbook_id: string | null
+          sequence_order: number | null
+          source_conversation_id: string | null
+          source_type: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           tags: Json | null
           title: string
@@ -1606,6 +1665,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string
           description?: string | null
           due_date?: string | null
           effort_minutes?: number | null
@@ -1613,6 +1673,10 @@ export type Database = {
           id?: string
           is_one_thing?: boolean | null
           milestone_id?: string | null
+          playbook_id?: string | null
+          sequence_order?: number | null
+          source_conversation_id?: string | null
+          source_type?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           tags?: Json | null
           title: string
@@ -1621,6 +1685,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string
           description?: string | null
           due_date?: string | null
           effort_minutes?: number | null
@@ -1628,6 +1693,10 @@ export type Database = {
           id?: string
           is_one_thing?: boolean | null
           milestone_id?: string | null
+          playbook_id?: string | null
+          sequence_order?: number | null
+          source_conversation_id?: string | null
+          source_type?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           tags?: Json | null
           title?: string
@@ -1647,6 +1716,20 @@ export type Database = {
             columns: ["milestone_id"]
             isOneToOne: false
             referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "playbooks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_conversations"
             referencedColumns: ["id"]
           },
         ]
