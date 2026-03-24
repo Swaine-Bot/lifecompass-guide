@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { ShareButton } from '@/components/share/ShareButton';
 import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
 import { MentorImageLightbox } from './MentorImageLightbox';
+import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MentorMessageProps {
