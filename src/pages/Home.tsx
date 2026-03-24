@@ -15,6 +15,7 @@ import { ShareButton } from '@/components/share/ShareButton';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { StatCard, SectionHeader, SourceBadge, MetaText } from '@/components/ds';
 import confetti from 'canvas-confetti';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
 import { useEngagement } from '@/hooks/useEngagement';
@@ -323,14 +324,11 @@ export default function Home() {
 
       {/* Stats Row — Grounded Metrics */}
       <div className="grid grid-cols-3 gap-2.5">
-        <Card variant="glass" className="p-3.5 text-center group hover-lift">
-          <div className="text-2xl font-bold text-primary font-serif">{completedToday}</div>
-          <div className="section-label mt-0.5">Done</div>
-        </Card>
-        <Card variant="glass" className="p-3.5 text-center group hover-lift">
-          <div className="text-2xl font-bold text-primary font-serif">{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></div>
-          <div className="section-label mt-0.5">Habits</div>
-        </Card>
+        <StatCard value={completedToday} label="Done" />
+        <StatCard
+          value={<>{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></>}
+          label="Habits"
+        />
         <MomentumStreakCard
           currentStreak={streak.current_streak}
           longestStreak={streak.longest_streak}

@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Plus, Flame, Check, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
 
 interface Habit {
@@ -119,25 +120,20 @@ export default function Habits() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="icon-orb">
-              <Flame />
-            </div>
-            <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight">Habits</h1>
-          </div>
-          <p className="page-subtitle">Build routines that shape your life</p>
-        </div>
-        <Button variant="gold" size="sm" asChild className="shrink-0">
-          <Link to="/habits/new">
-            <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">New Habit</span>
-            <span className="sm:hidden">New</span>
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        icon={Flame}
+        title="Habits"
+        subtitle="Build routines that shape your life"
+        actions={
+          <Button variant="gold" size="sm" asChild className="shrink-0">
+            <Link to="/habits/new">
+              <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">New Habit</span>
+              <span className="sm:hidden">New</span>
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Today's Progress — Hero */}
       <Card variant="gold" className="overflow-hidden">

@@ -14,6 +14,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, G
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 
 interface Task {
   id: string;
@@ -217,18 +218,11 @@ export default function Calendar() {
 
   return (
     <div className="space-y-5 pb-20 md:pb-0 animate-fade-in">
-      {/* Header — Structured, calm */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="icon-orb">
-              <CalendarDays />
-            </div>
-            <h1 className="text-xl font-serif font-bold tracking-tight">Calendar</h1>
-          </div>
-          <p className="page-subtitle">View and reschedule your tasks, habits, and goals</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={CalendarDays}
+        title="Calendar"
+        subtitle="View and reschedule your tasks, habits, and goals"
+      />
 
       <Card variant="glass">
         <CardHeader className="pb-4">

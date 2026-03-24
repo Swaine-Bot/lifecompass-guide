@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
-import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
+import { PageHeader, EmptyStatePanel } from '@/components/ds';
 import { engagementEventService } from '@/services/engagementEventService';
 import { useEnvironment } from '@/contexts/SensoryContext';
 
@@ -29,18 +29,11 @@ export default function Vault() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header — Premium archive */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className="icon-orb">
-            <Heart />
-          </div>
-          <h1 className="font-serif text-xl font-bold tracking-tight">Vault</h1>
-        </div>
-        <p className="page-subtitle">
-          Your saved moments, chapters, and share cards
-        </p>
-      </div>
+      <PageHeader
+        icon={Heart}
+        title="Vault"
+        subtitle="Your saved moments, chapters, and share cards"
+      />
 
       <Tabs defaultValue="favorites">
         <TabsList className="w-full">

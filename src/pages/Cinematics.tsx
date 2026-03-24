@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Film } from 'lucide-react';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
-import { EmptyStatePanel } from '@/components/viral/EmptyStatePanel';
+import { PageHeader, EmptyStatePanel } from '@/components/ds';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
 
@@ -31,18 +31,11 @@ export default function Cinematics() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header — Cinematic, aspirational */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className="icon-orb">
-            <Film />
-          </div>
-          <h1 className="font-serif text-xl font-bold tracking-tight">Life Cinematics</h1>
-        </div>
-        <p className="page-subtitle">
-          Your life story, told in chapters
-        </p>
-      </div>
+      <PageHeader
+        icon={Film}
+        title="Life Cinematics"
+        subtitle="Your life story, told in chapters"
+      />
 
       {/* Generate Buttons */}
       <div className="grid grid-cols-3 gap-2">

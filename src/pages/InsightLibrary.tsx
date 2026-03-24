@@ -6,12 +6,13 @@ import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Lightbulb, Share2, Trash2, StickyNote, X } from 'lucide-react';
+import { Lightbulb, Share2, Trash2, StickyNote, X } from 'lucide-react';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { engagementEventService } from '@/services/engagementEventService';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 
 interface SavedInsight {
   id: string;
@@ -75,20 +76,13 @@ export default function InsightLibrary() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 animate-fade-in pb-20">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" onClick={() => navigate(-1)} className="text-muted-foreground/40 hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <div className="icon-orb">
-              <Lightbulb />
-            </div>
-            <h1 className="font-serif text-lg font-bold tracking-tight">Insight Library</h1>
-          </div>
-          <p className="page-subtitle">{insights.length} saved insight{insights.length !== 1 ? 's' : ''}</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={Lightbulb}
+        title="Insight Library"
+        subtitle={`${insights.length} saved insight${insights.length !== 1 ? 's' : ''}`}
+        back
+        compact
+      />
 
       {loading ? (
         <div className="space-y-4">
