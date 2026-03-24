@@ -161,15 +161,18 @@ export default function Home() {
     }
   };
 
-  const triggerReward = () => {
+  const triggerReward = (isOneThing: boolean = false) => {
     setShowReward(true);
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#D4AF37', '#FFD700', '#FFA500']
-    });
-    setTimeout(() => setShowReward(false), 2000);
+    // Only fire confetti for "The One Thing" — regular tasks get sensory feedback only
+    if (isOneThing) {
+      confetti({
+        particleCount: 60,
+        spread: 55,
+        origin: { y: 0.6 },
+        colors: ['#D4AF37', '#FFD700', '#FFA500']
+      });
+    }
+    setTimeout(() => setShowReward(false), 1500);
   };
 
   const toggleTask = async (taskId: string, completed: boolean) => {
@@ -185,8 +188,10 @@ export default function Home() {
       ));
       
       if (completed) {
-        choreographedDispatch('micro_move_complete');
-        triggerReward();
+        const isOneThing = tasks.find(t => t.id === taskId)?.is_one_thing ?? false;
+        choreographedDispatch(isOneThing ? 'milestone_reached' : 'micro_move_complete');
+        triggerReward(isOneThing);
+        toast.success(isOneThing ? '🎉 The One Thing — done!' : '✓ Task completed');
         const result = await awardXP('mind', 20, 'task_completed', taskId);
         if (result?.leveled_up && user) {
           milestonePrompt.checkLevelUp('mind', result.new_level, true, user.id);

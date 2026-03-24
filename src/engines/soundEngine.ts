@@ -166,7 +166,11 @@ export function playSound(event: SoundEvent, intensity: SoundIntensity = 'normal
   const slot = SOUND_SLOTS[event];
   if (!slot) return;
 
-  const volume = intensity === 'low' ? 0.06 : 0.12;
+  // Volume scaling: low keeps things barely perceptible, normal is subtle not loud
+  const baseVolume = intensity === 'low' ? 0.04 : 0.10;
+  // Presence/completion sounds sit quieter than reward sounds
+  const categoryScale = slot.category === 'reward' ? 1.0 : slot.category === 'presence' ? 0.7 : 0.85;
+  const volume = baseVolume * categoryScale;
 
   // File-based audio is the primary path
   loadAudioFile(ctx, slot.fileUrl).then((buffer) => {
@@ -225,6 +229,6 @@ export function preloadSound(event: SoundEvent): void {
 
 /** Preload the most commonly used sounds */
 export function preloadCoreSounds(): void {
-  const core: SoundEvent[] = ['micro_move_complete', 'mentor_response', 'daily_signal', 'milestone_reached'];
+  const core: SoundEvent[] = ['micro_move_complete', 'mentor_response', 'milestone_reached', 'reflection_saved', 'goal_created'];
   for (const event of core) preloadSound(event);
 }

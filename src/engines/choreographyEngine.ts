@@ -43,18 +43,18 @@ interface ScreenChoreography {
  */
 const SCREEN_RULES: Record<ChoreographyScreen, ScreenChoreography> = {
   home: {
-    entryFeedback: false, // app_open fires once globally, not per screen visit
+    entryFeedback: false,
     fullFeedbackActions: [
-      'micro_move_complete',
-      'milestone_reached',
+      'milestone_reached',   // The One Thing / real milestones — earned
       'streak_continued',
       'daily_signal',
     ],
     hapticOnlyActions: [
+      'micro_move_complete', // regular tasks — grounded tap, no sound spam
       'goal_created',
     ],
     silentActions: [
-      'mentor_response',  // not on home screen
+      'mentor_response',
       'mirror_moment',
     ],
   },
