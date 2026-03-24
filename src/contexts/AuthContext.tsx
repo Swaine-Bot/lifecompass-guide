@@ -17,6 +17,11 @@ interface Profile {
   last_latitude?: number;
   last_longitude?: number;
   location_updated_at?: string;
+  mentor_style?: string;
+  identity_prompt?: string;
+  primary_intent?: string;
+  age_range?: string;
+  occupation?: string;
 }
 
 interface AuthContextType {
