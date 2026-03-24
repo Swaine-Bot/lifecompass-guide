@@ -325,7 +325,7 @@ export default function Home() {
       <div className="grid grid-cols-3 gap-2.5">
         <Card variant="glass" className="p-3.5 text-center group hover-lift">
           <div className="text-2xl font-bold text-primary font-serif">{completedToday}</div>
-          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mt-0.5">Done</div>
+          <div className="section-label mt-0.5">Done</div>
         </Card>
         <Card variant="glass" className="p-3.5 text-center group hover-lift">
           <div className="text-2xl font-bold text-primary font-serif">{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></div>
