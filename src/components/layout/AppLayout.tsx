@@ -8,6 +8,10 @@ import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useProgressiveProfiling } from '@/hooks/useProgressiveProfiling';
+import { SensoryProvider } from '@/contexts/SensoryContext';
+import { EnvironmentLayer } from '@/components/sensory/EnvironmentLayer';
+import { ContextOverlay } from '@/components/sensory/ContextOverlay';
+import { FeedbackPulse } from '@/components/sensory/FeedbackPulse';
 
 export const AppLayout = () => {
   const { user, loading, profile, refreshProfile } = useAuth();
