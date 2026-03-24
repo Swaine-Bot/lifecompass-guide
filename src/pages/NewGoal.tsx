@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,10 +26,10 @@ const categories = [
 ];
 
 const priorities = [
-  { value: '1', label: 'Critical - Do this first' },
-  { value: '2', label: 'High - Important for this quarter' },
-  { value: '3', label: 'Medium - Nice to achieve' },
-  { value: '4', label: 'Low - Someday goal' },
+  { value: '1', label: 'Critical — Do this first' },
+  { value: '2', label: 'High — Important this quarter' },
+  { value: '3', label: 'Medium — Nice to achieve' },
+  { value: '4', label: 'Low — Someday goal' },
 ];
 
 export default function NewGoal() {
@@ -155,17 +155,17 @@ export default function NewGoal() {
       {/* Playbook Offer */}
       {showPlaybookOffer && !preview && (
         <Card variant="glass" className="border-primary/20 animate-fade-in">
-          <CardContent className="p-4">
+          <CardContent className="p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Wand2 className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">Build your action playbook?</p>
-                <p className="text-xs text-muted-foreground">Let AI Mentor create a step-by-step plan for "{savedGoalTitle}"</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Let AI Mentor create a step-by-step plan for "{savedGoalTitle}"</p>
               </div>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-4">
               <Button
                 variant="gold"
                 size="sm"
@@ -206,42 +206,43 @@ export default function NewGoal() {
 
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button variant="ghost" size="icon" className="shrink-0 rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h1 className="font-serif text-2xl font-bold">New Goal</h1>
-          <p className="text-muted-foreground">Define what you want to achieve</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="font-serif text-2xl font-bold tracking-tight">New Goal</h1>
+            <p className="text-sm text-muted-foreground">Define what you want to achieve</p>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Essential — Goal Title (prominent) */}
         <Card variant="glass">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              Goal Details
-            </CardTitle>
-            <CardDescription>
-              Be specific about what success looks like
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-5 space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="title">Goal Title * <span className="text-muted-foreground text-xs">({formData.title.length}/{MAX_TITLE_LENGTH})</span></Label>
+              <Label htmlFor="title" className="text-xs uppercase tracking-widest text-muted-foreground">
+                Goal Title <span className="text-primary">*</span>
+              </Label>
               <Input
                 id="title"
                 placeholder="e.g., Run a marathon, Launch my side business"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, MAX_TITLE_LENGTH) })}
                 maxLength={MAX_TITLE_LENGTH}
+                className="text-base"
                 required
               />
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Category</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -260,7 +261,7 @@ export default function NewGoal() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="priority">Priority</Label>
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Priority</Label>
                 <Select
                   value={formData.priority}
                   onValueChange={(value) => setFormData({ ...formData, priority: value })}
@@ -280,7 +281,7 @@ export default function NewGoal() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="target_date">Target Date</Label>
+              <Label htmlFor="target_date" className="text-xs uppercase tracking-widest text-muted-foreground">Target Date</Label>
               <Input
                 id="target_date"
                 type="date"
@@ -288,9 +289,18 @@ export default function NewGoal() {
                 onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Deeper context — quieter section */}
+        <Card variant="surface">
+          <CardContent className="p-5 space-y-5">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium">Deeper Context</p>
 
             <div className="space-y-2">
-              <Label htmlFor="success_metric">Success Metric <span className="text-muted-foreground text-xs">({formData.success_metric.length}/{MAX_SHORT_TEXT_LENGTH})</span></Label>
+              <Label htmlFor="success_metric" className="text-xs uppercase tracking-widest text-muted-foreground">
+                Success Metric
+              </Label>
               <Input
                 id="success_metric"
                 placeholder="How will you know you've achieved this?"
@@ -298,10 +308,13 @@ export default function NewGoal() {
                 onChange={(e) => setFormData({ ...formData, success_metric: e.target.value.slice(0, MAX_SHORT_TEXT_LENGTH) })}
                 maxLength={MAX_SHORT_TEXT_LENGTH}
               />
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.success_metric.length}/{MAX_SHORT_TEXT_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="why">Why This Matters <span className="text-muted-foreground text-xs">({formData.why.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
+              <Label htmlFor="why" className="text-xs uppercase tracking-widest text-muted-foreground">
+                Why This Matters
+              </Label>
               <Textarea
                 id="why"
                 placeholder="What's the deeper reason behind this goal?"
@@ -309,11 +322,15 @@ export default function NewGoal() {
                 onChange={(e) => setFormData({ ...formData, why: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={3}
+                className="resize-none"
               />
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.why.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="constraints">Constraints & Challenges <span className="text-muted-foreground text-xs">({formData.constraints.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
+              <Label htmlFor="constraints" className="text-xs uppercase tracking-widest text-muted-foreground">
+                Constraints & Challenges
+              </Label>
               <Textarea
                 id="constraints"
                 placeholder="What obstacles might you face?"
@@ -321,39 +338,42 @@ export default function NewGoal() {
                 onChange={(e) => setFormData({ ...formData, constraints: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={2}
+                className="resize-none"
               />
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => navigate(-1)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="gold"
-                className="flex-1"
-                disabled={loading || !formData.title.trim() || showPlaybookOffer}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Create Goal
-                  </>
-                )}
-              </Button>
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.constraints.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
           </CardContent>
         </Card>
+
+        {/* CTA */}
+        <div className="flex gap-3 pt-2 pb-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="gold"
+            className="flex-1"
+            disabled={loading || !formData.title.trim() || showPlaybookOffer}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Create Goal
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );

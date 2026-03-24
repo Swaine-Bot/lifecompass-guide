@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,7 +48,6 @@ export default function NewHabit() {
     e.preventDefault();
     if (!user) return;
 
-    // Validate form data
     const validation = validateWithSchema(habitSchema, formData);
     if (!validation.success) {
       toast.error('error' in validation ? validation.error : 'Validation failed');
@@ -84,41 +83,42 @@ export default function NewHabit() {
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button variant="ghost" size="icon" className="shrink-0 rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h1 className="font-serif text-2xl font-bold">New Habit</h1>
-          <p className="text-muted-foreground">Build a routine that sticks</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Flame className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="font-serif text-2xl font-bold tracking-tight">New Habit</h1>
+            <p className="text-sm text-muted-foreground">Build a routine that sticks</p>
+          </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Primary — Name & Schedule */}
         <Card variant="glass">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-primary" />
-              Habit Details
-            </CardTitle>
-            <CardDescription>
-              Start small and build consistency
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-5 space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="title">Habit Name * <span className="text-muted-foreground text-xs">({formData.title.length}/{MAX_TITLE_LENGTH})</span></Label>
+              <Label htmlFor="title" className="text-xs uppercase tracking-widest text-muted-foreground">
+                Habit Name <span className="text-primary">*</span>
+              </Label>
               <Input
                 id="title"
                 placeholder="e.g., Morning meditation, Read 20 pages"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, MAX_TITLE_LENGTH) })}
                 maxLength={MAX_TITLE_LENGTH}
+                className="text-base"
                 required
               />
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description <span className="text-muted-foreground text-xs">({formData.description.length}/{MAX_DESCRIPTION_LENGTH})</span></Label>
+              <Label htmlFor="description" className="text-xs uppercase tracking-widest text-muted-foreground">Description</Label>
               <Textarea
                 id="description"
                 placeholder="What does this habit look like when done well?"
@@ -126,11 +126,13 @@ export default function NewHabit() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, MAX_DESCRIPTION_LENGTH) })}
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 rows={2}
+                className="resize-none"
               />
+              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.description.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
-              <Label>Frequency</Label>
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Frequency</Label>
               <Select
                 value={formData.frequency}
                 onValueChange={(value) => setFormData({ ...formData, frequency: value })}
@@ -147,10 +149,17 @@ export default function NewHabit() {
                 </SelectContent>
               </Select>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Secondary — Tracking & Personalization */}
+        <Card variant="surface">
+          <CardContent className="p-5 space-y-5">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium">Tracking & Style</p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="target_value">Target (optional)</Label>
+                <Label htmlFor="target_value" className="text-xs uppercase tracking-widest text-muted-foreground">Target</Label>
                 <Input
                   id="target_value"
                   type="number"
@@ -160,61 +169,64 @@ export default function NewHabit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="metric_unit">Unit (optional)</Label>
+                <Label htmlFor="metric_unit" className="text-xs uppercase tracking-widest text-muted-foreground">Unit</Label>
                 <Input
                   id="metric_unit"
-                  placeholder="e.g., minutes, pages, reps"
+                  placeholder="e.g., minutes, pages"
                   value={formData.metric_unit}
                   onChange={(e) => setFormData({ ...formData, metric_unit: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Color</Label>
-              <div className="flex gap-2 flex-wrap">
+            <div className="space-y-2.5">
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Color</Label>
+              <div className="flex gap-2.5 flex-wrap">
                 {colors.map((color) => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setFormData({ ...formData, color })}
                     className={cn(
-                      "w-10 h-10 rounded-lg transition-all",
-                      formData.color === color && "ring-2 ring-offset-2 ring-offset-background"
+                      "w-9 h-9 rounded-full transition-all duration-200 border-2",
+                      formData.color === color
+                        ? "border-foreground scale-110 shadow-lg"
+                        : "border-transparent hover:scale-105"
                     )}
-                    style={{ backgroundColor: color, '--tw-ring-color': color } as React.CSSProperties}
+                    style={{ backgroundColor: color }}
                   />
                 ))}
               </div>
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => navigate(-1)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="gold"
-                className="flex-1"
-                disabled={loading || !formData.title.trim()}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Habit'
-                )}
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        {/* CTA */}
+        <div className="flex gap-3 pt-2 pb-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="gold"
+            className="flex-1"
+            disabled={loading || !formData.title.trim()}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating…
+              </>
+            ) : (
+              'Create Habit'
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );
