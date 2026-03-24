@@ -123,12 +123,12 @@ export default function Habits() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-              <Flame className="w-4 h-4 text-primary/70" />
+            <div className="icon-orb">
+              <Flame />
             </div>
             <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight">Habits</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[42px]">Build routines that shape your life</p>
+          <p className="page-subtitle">Build routines that shape your life</p>
         </div>
         <Button variant="gold" size="sm" asChild className="shrink-0">
           <Link to="/habits/new">
