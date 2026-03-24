@@ -310,7 +310,7 @@ export default function GoalDetail() {
       {/* Metadata Row */}
       <div className="flex flex-wrap gap-3 px-1">
         {goal.target_date && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+          <div className="flex items-center gap-1.5 meta-text">
             <Calendar className="w-3.5 h-3.5" />
             Target: {format(new Date(goal.target_date), 'MMM d, yyyy')}
           </div>
