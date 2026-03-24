@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 
 interface LifeEvent {
   id: string;
