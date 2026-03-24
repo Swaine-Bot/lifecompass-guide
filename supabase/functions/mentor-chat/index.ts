@@ -185,6 +185,24 @@ If borderline but not explicitly harmful, respond "safe".`
       ? `Their focus areas are: ${profile.focus_areas.join(', ')}.` 
       : '';
 
+    const mentorStyleMap: Record<string, string> = {
+      strategist: 'Be data-driven, systematic, and action-oriented. Prioritize clear plans and measurable outcomes.',
+      challenger: 'Push the user beyond comfort zones. Use tough love, direct feedback, and high standards.',
+      guardian: 'Be warm, supportive, and encouraging. Lead with empathy and celebrate small wins.',
+      sage: 'Be reflective and philosophical. Offer wisdom, ask deep questions, and encourage self-discovery.',
+    };
+    const mentorStyleContext = profile?.mentor_style && mentorStyleMap[profile.mentor_style]
+      ? `\nMENTOR STYLE: ${mentorStyleMap[profile.mentor_style]}`
+      : '';
+
+    const identityContext = profile?.identity_prompt
+      ? `\nUSER IDENTITY: The user describes who they are becoming as: "${profile.identity_prompt}". Weave this aspiration naturally into your guidance when relevant.`
+      : '';
+
+    const intentContext = profile?.primary_intent
+      ? `\nPRIMARY INTENT: The user is currently focused on: "${profile.primary_intent}".`
+      : '';
+
     // Fetch wearable step context for mentor awareness
     let wearableContext = '';
     try {
