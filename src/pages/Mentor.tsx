@@ -14,6 +14,7 @@ import { useMentorConversations } from '@/hooks/useMentorConversations';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
