@@ -26,19 +26,50 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
     
     if (claimsError || !claimsData?.claims) {
-      console.error("Auth error:", claimsError);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = claimsData.claims.sub;
-    console.log("Authenticated user:", userId);
+    const userId = claimsData.claims.sub as string;
+
+    // Rate limit: max 60 mentor messages per hour
+    const { count: mentorHourly } = await supabaseClient
+      .from("engagement_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "api_call_mentor_chat")
+      .gte("created_at", new Date(Date.now() - 3600000).toISOString());
+
+    if ((mentorHourly || 0) >= 60) {
+      return new Response(JSON.stringify({ error: "You've reached the hourly message limit. Please try again later." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    await supabaseClient.from("engagement_events").insert({
+      user_id: userId,
+      event_type: "api_call_mentor_chat",
+      source_engine: "rate_limiter",
+      metadata: {},
+    });
 
     const { messages, profile, imageUrl } = await req.json();
     
