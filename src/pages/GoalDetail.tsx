@@ -287,7 +287,7 @@ export default function GoalDetail() {
           <CardContent className="p-5 space-y-4">
             {goal.why && (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium mb-1.5">Why This Matters</p>
+                <p className="section-label mb-1.5">Why This Matters</p>
                 <p className="text-sm leading-relaxed">{goal.why}</p>
               </div>
             )}
