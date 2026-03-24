@@ -229,6 +229,6 @@ export function preloadSound(event: SoundEvent): void {
 
 /** Preload the most commonly used sounds */
 export function preloadCoreSounds(): void {
-  const core: SoundEvent[] = ['micro_move_complete', 'mentor_response', 'daily_signal', 'milestone_reached'];
+  const core: SoundEvent[] = ['micro_move_complete', 'mentor_response', 'milestone_reached', 'reflection_saved', 'goal_created'];
   for (const event of core) preloadSound(event);
 }
