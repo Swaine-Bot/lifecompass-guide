@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Bot, User, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Bot, User, ChevronDown, ChevronUp, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
@@ -8,6 +8,8 @@ import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
 import { MentorImageLightbox } from './MentorImageLightbox';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
+import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
+import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
@@ -16,11 +18,33 @@ interface MentorMessageProps {
   imageUrl?: string | null;
 }
 
+// Heuristic: show playbook action when response has actionable content
+function hasActionableContent(content: string): boolean {
+  if (content.length < 100) return false;
+  const indicators = [
+    /\d+\.\s/,               // numbered list
+    /[-•]\s/,                 // bullet list
+    /\bstep\b/i,
+    /\bfirst\b.*\bthen\b/i,
+    /\brecommend\b/i,
+    /\bstart\sby\b/i,
+    /\btry\b.*\bnext\b/i,
+    /\bconsider\b/i,
+    /\baction\b/i,
+    /\bplan\b/i,
+  ];
+  const matches = indicators.filter(r => r.test(content)).length;
+  return matches >= 2;
+}
+
 export function MentorMessage({ role, content, conversationId, imageUrl }: MentorMessageProps) {
   const [isHidden, setIsHidden] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(!!imageUrl);
+  const [savingPlaybook, setSavingPlaybook] = useState(false);
+
+  const { generating, preview, generateFromMentor, savePlaybook, dismiss } = usePlaybookGenerator();
 
   useEffect(() => {
     if (!imageUrl) return;
@@ -38,6 +62,22 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
     load();
     return () => { cancelled = true; };
   }, [imageUrl]);
+
+  const handleCreatePlaybook = () => {
+    generateFromMentor(content, conversationId);
+  };
+
+  const handleSavePlaybook = async (tasks: { title: string; description: string; effort_minutes: number }[]) => {
+    if (!preview) return;
+    setSavingPlaybook(true);
+    await savePlaybook(
+      { ...preview, tasks },
+      { conversationId, sourceType: 'mentor', sourceMessageContent: content.slice(0, 500) }
+    );
+    setSavingPlaybook(false);
+  };
+
+  const showPlaybookAction = role === 'assistant' && hasActionableContent(content);
 
   if (role === 'user') {
     return (
@@ -122,9 +162,37 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                   contextTag: 'Life Strategy',
                 }}
               />
+              {showPlaybookAction && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-primary/80 hover:text-primary gap-1"
+                  onClick={handleCreatePlaybook}
+                  disabled={generating}
+                >
+                  {generating ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Wand2 className="w-3 h-3" />
+                  )}
+                  Turn into Moves
+                </Button>
+              )}
             </>
           )}
         </div>
+
+        {/* Playbook Preview Modal */}
+        {preview && (
+          <PlaybookPreviewModal
+            open={!!preview}
+            title={preview.playbook_title}
+            tasks={preview.tasks}
+            saving={savingPlaybook}
+            onSave={handleSavePlaybook}
+            onDismiss={dismiss}
+          />
+        )}
       </div>
     </div>
   );
