@@ -19,6 +19,7 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export default function Mentor() {
+  useEnvironment('mentor');
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<File | null>(null);

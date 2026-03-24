@@ -64,6 +64,7 @@ const energyOptions = [
 ];
 
 export default function Home() {
+  useEnvironment('home');
   const { user, profile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
