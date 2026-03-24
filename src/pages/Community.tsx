@@ -19,6 +19,7 @@ import {
   AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown, Edit, Pencil, Mail,
   Target, Building2
 } from 'lucide-react';
+import { useEnvironment } from '@/contexts/SensoryContext';
 import { InviteFriends } from '@/components/community/InviteFriends';
 import { ShareGoalDialog } from '@/components/community/ShareGoalDialog';
 import { PageSuggestionCard } from '@/components/community/PageSuggestionCard';
