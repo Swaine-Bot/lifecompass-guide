@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
@@ -14,32 +14,42 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Verify user auth
+    // Verify user auth with getClaims
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
+
+    const anonClient = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) {
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
+
+    const userId = claimsData.claims.sub;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
     const { action, provider, metrics } = body;
 
+    // Validate provider
+    const safeProvider = String(provider || '').slice(0, 50);
+
     switch (action) {
       case 'sync_metrics': {
-        // Batch upsert wearable metrics from client
-        if (!metrics || !Array.isArray(metrics)) {
-          return new Response(JSON.stringify({ error: 'metrics array required' }), {
+        if (!metrics || !Array.isArray(metrics) || metrics.length > 100) {
+          return new Response(JSON.stringify({ error: 'Invalid metrics array (max 100)' }), {
             status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
@@ -49,11 +59,11 @@ serve(async (req) => {
 
         for (const m of metrics) {
           const { error } = await supabase.from('wearable_metrics').upsert({
-            user_id: user.id,
-            provider: m.provider || provider,
-            metric_type: m.metric_type,
-            metric_value: m.metric_value,
-            unit: m.unit,
+            user_id: userId,
+            provider: String(m.provider || safeProvider).slice(0, 50),
+            metric_type: String(m.metric_type || '').slice(0, 50),
+            metric_value: Number(m.metric_value) || 0,
+            unit: String(m.unit || '').slice(0, 20),
             source_timestamp: m.source_timestamp || new Date().toISOString(),
             local_date: m.local_date,
             sync_batch_id: batchId,
@@ -63,18 +73,16 @@ serve(async (req) => {
           if (!error) upsertedCount++;
         }
 
-        // Update connection sync status
         await supabase.from('wearable_connections').update({
           last_sync_at: new Date().toISOString(),
           last_sync_status: 'success',
-        }).eq('user_id', user.id).eq('provider', provider);
+        }).eq('user_id', userId).eq('provider', safeProvider);
 
-        // Track analytics event
         await supabase.from('engagement_events').insert({
-          user_id: user.id,
+          user_id: userId,
           event_type: 'wearable_sync_completed',
           source_engine: 'wearable',
-          metadata: { provider, metrics_count: upsertedCount, batch_id: batchId },
+          metadata: { provider: safeProvider, metrics_count: upsertedCount, batch_id: batchId },
         });
 
         return new Response(JSON.stringify({ 
@@ -87,16 +95,14 @@ serve(async (req) => {
       }
 
       case 'get_step_context': {
-        // Returns step data formatted for Mentor context injection
         const today = new Date().toISOString().split('T')[0];
         
         const { data: todayMetrics } = await supabase
           .from('wearable_metrics')
           .select('metric_type, metric_value, provider')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('local_date', today);
 
-        // Get 7-day step history
         const dates: string[] = [];
         for (let i = 6; i >= 0; i--) {
           const d = new Date();
@@ -107,7 +113,7 @@ serve(async (req) => {
         const { data: weekMetrics } = await supabase
           .from('wearable_metrics')
           .select('local_date, metric_value')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('metric_type', 'steps')
           .in('local_date', dates)
           .order('local_date', { ascending: true });

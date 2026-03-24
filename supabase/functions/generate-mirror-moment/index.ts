@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -13,30 +13,52 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableKey = Deno.env.get("LOVABLE_API_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (!lovableKey) {
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No auth header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use anon client with user token for getClaims
+    const anonClient = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error("Unauthorized");
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Check if recent moment exists (limit to weekly)
     const { data: recentMoments } = await supabase
       .from("mirror_moments")
       .select("id, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
     if (recentMoments && recentMoments.length > 0) {
-      // Return existing recent moment
       const { data: existing } = await supabase
         .from("mirror_moments")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(1)
         .single();
@@ -48,17 +70,17 @@ serve(async (req) => {
     // Gather user data for context
     const [journals, habits, goals, streakData, xpData, signals] = await Promise.all([
       supabase.from("journal_entries").select("content, gratitude, reflection, mood, energy, date")
-        .eq("user_id", user.id).order("date", { ascending: false }).limit(10),
+        .eq("user_id", userId).order("date", { ascending: false }).limit(10),
       supabase.from("habits").select("title, description")
-        .eq("user_id", user.id).limit(10),
+        .eq("user_id", userId).limit(10),
       supabase.from("goals").select("title, status, category, created_at")
-        .eq("user_id", user.id).limit(10),
+        .eq("user_id", userId).limit(10),
       supabase.from("momentum_streaks").select("current_streak, longest_streak")
-        .eq("user_id", user.id).maybeSingle(),
+        .eq("user_id", userId).maybeSingle(),
       supabase.from("user_xp").select("domain, total_xp, level")
-        .eq("user_id", user.id),
+        .eq("user_id", userId),
       supabase.from("daily_signals").select("content, signal_type")
-        .eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+        .eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
     ]);
 
     const categories = [
@@ -140,7 +162,9 @@ Rules:
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error("AI gateway error");
+      return new Response(JSON.stringify({ error: "Failed to generate mirror moment" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const aiData = await response.json();
@@ -150,7 +174,6 @@ Rules:
     if (toolCall) {
       momentData = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: parse from content
       const content = aiData.choices?.[0]?.message?.content || "";
       try {
         momentData = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
@@ -174,23 +197,28 @@ Rules:
     const { data: inserted, error: insertError } = await supabase
       .from("mirror_moments")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         category: momentData.category,
-        content: momentData.content,
+        content: String(momentData.content).slice(0, 1000),
         confidence_score: momentData.confidence_score,
         source_categories: momentData.source_categories,
       })
       .select()
       .single();
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return new Response(JSON.stringify({ error: "Failed to save moment" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ moment: inserted, cached: false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("Mirror moment error:", e);
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

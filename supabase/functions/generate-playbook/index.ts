@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,21 +10,53 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Auth check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { source_type, goal, mentor_message, profile } = await req.json();
 
     let prompt = "";
 
     if (source_type === "goal" && goal) {
+      const safeTitle = String(goal.title || "").slice(0, 200);
+      const safeCategory = String(goal.category || "").slice(0, 100);
+      const safeMetric = String(goal.success_metric || "").slice(0, 500);
+      const safeWhy = String(goal.why || "").slice(0, 500);
+      const safeConstraints = String(goal.constraints || "").slice(0, 500);
+
       prompt = `You are a life strategy assistant. Generate a practical, actionable playbook of 4-7 micro moves (tasks) to help achieve this goal.
 
-Goal: ${goal.title}
-${goal.category ? `Category: ${goal.category}` : ""}
-${goal.success_metric ? `Success Metric: ${goal.success_metric}` : ""}
-${goal.why ? `Why it matters: ${goal.why}` : ""}
-${goal.constraints ? `Constraints: ${goal.constraints}` : ""}
+Goal: ${safeTitle}
+${safeCategory ? `Category: ${safeCategory}` : ""}
+${safeMetric ? `Success Metric: ${safeMetric}` : ""}
+${safeWhy ? `Why it matters: ${safeWhy}` : ""}
+${safeConstraints ? `Constraints: ${safeConstraints}` : ""}
 ${goal.target_date ? `Target Date: ${goal.target_date}` : ""}
 ${profile?.life_phase ? `User Life Phase: ${profile.life_phase}` : ""}
 
@@ -36,10 +69,11 @@ Rules:
 - Keep titles under 80 characters
 - Include a brief description (1-2 sentences) for each task`;
     } else if (source_type === "mentor" && mentor_message) {
+      const safeMessage = String(mentor_message).slice(0, 3000);
       prompt = `You are a life strategy assistant. Convert this mentor advice into a practical playbook of 3-6 actionable micro moves (tasks).
 
 Mentor's advice:
-${mentor_message}
+${safeMessage}
 
 ${profile?.life_phase ? `User Life Phase: ${profile.life_phase}` : ""}
 
@@ -52,7 +86,7 @@ Rules:
 - Keep titles under 80 characters
 - Include a brief description (1-2 sentences) for each task`;
     } else {
-      return new Response(JSON.stringify({ error: "Invalid source_type" }), {
+      return new Response(JSON.stringify({ error: "Invalid source_type or missing data" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -119,14 +153,43 @@ Rules:
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      throw new Error("AI gateway error");
+      return new Response(JSON.stringify({ error: "Failed to generate playbook" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) throw new Error("No tool call in response");
+    if (!toolCall) {
+      return new Response(JSON.stringify({ error: "Failed to generate playbook structure" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const playbook = JSON.parse(toolCall.function.arguments);
+    let playbook;
+    try {
+      playbook = JSON.parse(toolCall.function.arguments);
+    } catch {
+      return new Response(JSON.stringify({ error: "Failed to parse generated playbook" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate structure
+    if (!playbook.playbook_title || !Array.isArray(playbook.tasks) || playbook.tasks.length === 0) {
+      return new Response(JSON.stringify({ error: "Generated playbook was incomplete" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Sanitize output
+    playbook.playbook_title = String(playbook.playbook_title).slice(0, 200);
+    playbook.tasks = playbook.tasks.slice(0, 10).map((t: any) => ({
+      title: String(t.title || "").slice(0, 80),
+      description: String(t.description || "").slice(0, 500),
+      effort_minutes: Math.min(Math.max(Number(t.effort_minutes) || 15, 1), 120),
+    }));
 
     return new Response(JSON.stringify(playbook), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -134,7 +197,7 @@ Rules:
   } catch (e) {
     console.error("generate-playbook error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Failed to generate playbook" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

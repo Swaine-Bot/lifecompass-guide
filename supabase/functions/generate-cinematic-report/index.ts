@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -13,30 +13,57 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableKey = Deno.env.get("LOVABLE_API_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (!lovableKey) {
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No auth header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify with getClaims
+    const anonClient = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error("Unauthorized");
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { report_type = "weekly" } = await req.json().catch(() => ({}));
+
+    // Validate report_type
+    const validTypes = ["weekly", "monthly", "quarterly"];
+    const safeType = validTypes.includes(report_type) ? report_type : "weekly";
 
     // Calculate period
     const now = new Date();
     let periodStart: Date;
     const periodEnd = now;
 
-    switch (report_type) {
+    switch (safeType) {
       case "monthly":
         periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
         break;
       case "quarterly":
         periodStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
         break;
-      default: // weekly
+      default:
         periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     }
 
@@ -47,8 +74,8 @@ serve(async (req) => {
     const { data: existing } = await supabase
       .from("cinematic_reports")
       .select("*")
-      .eq("user_id", user.id)
-      .eq("report_type", report_type)
+      .eq("user_id", userId)
+      .eq("report_type", safeType)
       .eq("period_start", startStr)
       .maybeSingle();
 
@@ -61,21 +88,21 @@ serve(async (req) => {
     // Gather period data
     const [journals, habitLogs, goals, tasks, xpEvents, streakData] = await Promise.all([
       supabase.from("journal_entries").select("content, mood, energy, date, gratitude")
-        .eq("user_id", user.id).gte("date", startStr).lte("date", endStr),
+        .eq("user_id", userId).gte("date", startStr).lte("date", endStr),
       supabase.from("habit_logs").select("habit_id, completed, date")
         .gte("date", startStr).lte("date", endStr),
       supabase.from("goals").select("title, status, category, created_at, updated_at")
-        .eq("user_id", user.id),
+        .eq("user_id", userId),
       supabase.from("tasks").select("title, status, created_at")
-        .eq("user_id", user.id).gte("created_at", periodStart.toISOString()),
+        .eq("user_id", userId).gte("created_at", periodStart.toISOString()),
       supabase.from("xp_events").select("domain, xp_amount, source_type, created_at")
-        .eq("user_id", user.id).gte("created_at", periodStart.toISOString()),
+        .eq("user_id", userId).gte("created_at", periodStart.toISOString()),
       supabase.from("momentum_streaks").select("*")
-        .eq("user_id", user.id).maybeSingle(),
+        .eq("user_id", userId).maybeSingle(),
     ]);
 
     const context = {
-      report_type,
+      report_type: safeType,
       period: `${startStr} to ${endStr}`,
       journals: journals.data || [],
       habitLogs: habitLogs.data || [],
@@ -89,9 +116,7 @@ serve(async (req) => {
     const systemPrompt = `You are the LifeStack Narrator — a cinematic storyteller that transforms life data into compelling chapters.
 Your tone: cinematic, aspirational, emotionally intelligent, elegant, slightly mythic but grounded. Never corny.
 
-Generate a ${report_type} life chapter report. Output JSON with tool calling.
-
-Chapter title examples: "The Month You Stopped Hesitating", "Builder Mode Activated", "Quiet Momentum", "Pressure, Then Progress"
+Generate a ${safeType} life chapter report. Output JSON with tool calling.
 
 Rules:
 - Title should be evocative and specific to the period
@@ -111,7 +136,7 @@ Rules:
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate a cinematic ${report_type} report:\n${JSON.stringify(context)}` },
+          { role: "user", content: `Generate a cinematic ${safeType} report:\n${JSON.stringify(context)}` },
         ],
         tools: [{
           type: "function",
@@ -151,7 +176,11 @@ Rules:
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error("AI gateway error");
+      const errText = await response.text();
+      console.error("AI error:", response.status, errText);
+      return new Response(JSON.stringify({ error: "Failed to generate report" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const aiData = await response.json();
@@ -166,7 +195,7 @@ Rules:
         reportData = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
       } catch {
         reportData = {
-          title: `Your ${report_type.charAt(0).toUpperCase() + report_type.slice(1)} Chapter`,
+          title: `Your ${safeType.charAt(0).toUpperCase() + safeType.slice(1)} Chapter`,
           narrative: "Keep building. The data shows momentum.",
           key_stats: { tasks_completed: context.tasksCompleted },
           major_wins: [],
@@ -178,10 +207,10 @@ Rules:
     const { data: inserted, error: insertError } = await supabase
       .from("cinematic_reports")
       .insert({
-        user_id: user.id,
-        report_type,
-        title: reportData.title,
-        narrative: reportData.narrative,
+        user_id: userId,
+        report_type: safeType,
+        title: String(reportData.title).slice(0, 200),
+        narrative: String(reportData.narrative).slice(0, 2000),
         key_stats: reportData.key_stats,
         major_wins: reportData.major_wins,
         lessons: reportData.lessons,
@@ -192,14 +221,19 @@ Rules:
       .select()
       .single();
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return new Response(JSON.stringify({ error: "Failed to save report" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ report: inserted, cached: false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("Cinematic report error:", e);
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
