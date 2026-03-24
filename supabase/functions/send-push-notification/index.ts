@@ -192,7 +192,7 @@ serve(async (req) => {
         });
 
         if (pushResponse.ok || pushResponse.status === 201) {
-          console.log(`Push sent to user ${sub.user_id}`);
+          console.log(`Push sent successfully`);
           sent++;
         } else {
           const errorText = await pushResponse.text();
