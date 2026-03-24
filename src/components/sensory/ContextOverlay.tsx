@@ -2,22 +2,25 @@ import { memo } from 'react';
 import { useSensory } from '@/contexts/SensoryContext';
 
 /**
- * Screen-specific gradient overlay.
- * Subtle color tint that distinguishes mentor/journal/goals contexts.
+ * Screen-specific gradient overlay with mood-aware tinting.
  */
 export const ContextOverlay = memo(function ContextOverlay() {
   const { environment } = useSensory();
-  const { screenOverlay } = environment;
+  const { screenOverlay, theme } = environment;
 
-  if (!screenOverlay) return null;
+  // Use screen overlay if available, otherwise fall back to mood overlay tint
+  const tint = screenOverlay;
+  if (!tint) return null;
+
+  const transitionMs = theme.transitionMs ?? 800;
 
   return (
     <div
       className="fixed inset-0 pointer-events-none"
       style={{
         zIndex: 1,
-        background: `radial-gradient(ellipse at 50% 0%, hsl(${screenOverlay} / 0.08), transparent 60%)`,
-        transition: 'background 600ms ease',
+        background: `radial-gradient(ellipse at 50% 0%, hsl(${tint} / 0.08), transparent 60%)`,
+        transition: `background ${transitionMs}ms ease`,
       }}
       aria-hidden="true"
     />
