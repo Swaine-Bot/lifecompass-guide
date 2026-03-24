@@ -454,7 +454,7 @@ export default function Home() {
                     <span className="source-badge shrink-0">AI</span>
                   )}
                   {task.playbook_id && (
-                    <span className="text-[9px] text-muted-foreground/30 uppercase tracking-wider shrink-0">Playbook</span>
+                    <span className="source-badge bg-secondary/50 text-muted-foreground/40 shrink-0">Playbook</span>
                   )}
                   <span className="text-[11px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums shrink-0">
                     {task.effort_minutes}m
