@@ -193,11 +193,11 @@ export default function GoalDetail() {
           </Button>
           <div className="flex items-center gap-2 flex-wrap">
             {goal.category && (
-              <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
+              <span className="category-chip">
                 {goal.category}
-              </Badge>
+              </span>
             )}
-            <Badge className={cn("text-[10px] uppercase tracking-wider border", status.color)}>
+            <span className={cn("status-badge", status.color)}>
               <span className={cn("w-1.5 h-1.5 rounded-full mr-1.5", status.dotColor)} />
               {status.label}
             </Badge>
