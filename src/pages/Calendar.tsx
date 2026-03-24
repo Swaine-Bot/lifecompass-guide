@@ -14,6 +14,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, G
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { PageHeader } from '@/components/ds';
 
 interface Task {
   id: string;

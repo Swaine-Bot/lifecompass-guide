@@ -169,23 +169,22 @@ export default function LifeEvents() {
 
   return (
     <div className="space-y-5 pb-20 md:pb-0 animate-fade-in">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="icon-orb">
-              <Gift />
-            </div>
-            <h1 className="text-xl font-serif font-bold tracking-tight">Life Events</h1>
-          </div>
-          <p className="page-subtitle">Track important dates and get mentor reminders</p>
-        </div>
-        <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button variant="gold">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Event
-            </Button>
-          </DialogTrigger>
+      <PageHeader
+        icon={Gift}
+        title="Life Events"
+        subtitle="Track important dates and get mentor reminders"
+        actions={
+          <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button variant="gold">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Event
+              </Button>
+            </DialogTrigger>
+        }
+      />
+      {/* Dialog content needs to stay outside PageHeader */}
+      <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingEvent ? 'Edit Event' : 'Add Life Event'}</DialogTitle>

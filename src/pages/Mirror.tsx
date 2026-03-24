@@ -70,7 +70,7 @@ export default function Mirror() {
       {/* History */}
       {mirrorMoments.length > 1 && (
         <div className="space-y-3">
-          <p className="section-label px-1">Previous Moments</p>
+          <SectionLabel className="px-1">Previous Moments</SectionLabel>
           {mirrorMoments.slice(1).map((moment) => (
             <MirrorMomentCard
               key={moment.id}

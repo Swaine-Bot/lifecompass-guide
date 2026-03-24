@@ -144,13 +144,7 @@ export default function Goals() {
 
       {/* Active Goals */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2.5">
-          <div className="icon-orb-sm">
-            <Target />
-          </div>
-          <h2 className="font-serif text-base font-semibold tracking-tight">Active Goals</h2>
-          <span className="section-label ml-1">{activeGoals.length}</span>
-        </div>
+        <SectionHeader icon={Target} title="Active Goals" counter={activeGoals.length} />
 
         {activeGoals.length === 0 ? (
           <Card variant="glass" className="p-8 text-center">
