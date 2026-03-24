@@ -654,14 +654,17 @@ export default function Journal() {
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-serif font-bold flex items-center gap-2">
-            <PenLine className="w-6 h-6 text-primary" />
-            Journal
-          </h1>
-          <p className="text-muted-foreground">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
+    <div className="space-y-5 pb-20 md:pb-0 animate-fade-in">
+      {/* Header — Quiet, reflective */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+              <PenLine className="w-3.5 h-3.5 text-primary/70" />
+            </div>
+            <h1 className="text-xl font-serif font-bold tracking-tight">Journal</h1>
+          </div>
+          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
       </div>
 
@@ -760,14 +763,14 @@ export default function Journal() {
 
       {/* Main Journal Entry Card */}
       <Card variant="glass">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Today's Entry</CardTitle>
+        <CardHeader>
+          <CardTitle>Today's Entry</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Mood & Energy Row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Mood</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Mood</label>
               <div className="flex justify-between">
                 {moodOptions.map((option) => (
                   <button
@@ -785,7 +788,7 @@ export default function Journal() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Energy</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Energy</label>
               <div className="flex justify-between">
                 {energyOptions.map((option) => (
                   <button
@@ -806,37 +809,37 @@ export default function Journal() {
 
           {/* Main Text Area */}
           <div>
-            <label className="text-sm font-medium mb-2 block">What's on your mind?</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">What's on your mind?</label>
             <Textarea
               placeholder="Write about your day, thoughts, or anything you want to reflect on..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 
           {/* Gratitude */}
           <div>
-            <label className="text-sm font-medium mb-2 block">🙏 Gratitude</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">🙏 Gratitude</label>
             <Textarea
               placeholder="What are you grateful for today?"
               value={gratitude}
               onChange={(e) => setGratitude(e.target.value)}
               rows={2}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 
           {/* Reflection */}
           <div>
-            <label className="text-sm font-medium mb-2 block">💭 Reflection</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">💭 Reflection</label>
             <Textarea
               placeholder="Any insights or lessons learned?"
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
               rows={2}
-              className="resize-none"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
             />
           </div>
 

@@ -32,10 +32,10 @@ interface Goal {
 }
 
 const statusColors: Record<string, string> = {
-  active: 'bg-success/15 text-success border-success/20',
-  completed: 'bg-primary/15 text-primary border-primary/20',
-  paused: 'bg-warning/15 text-warning border-warning/20',
-  archived: 'bg-muted text-muted-foreground border-border',
+  active: 'bg-success/10 text-success border-success/15',
+  completed: 'bg-primary/10 text-primary border-primary/15',
+  paused: 'bg-warning/10 text-warning border-warning/15',
+  archived: 'bg-muted/50 text-muted-foreground border-border/30',
 };
 
 const categories = ['All', 'Health', 'Career', 'Money', 'Relationships', 'Mindset', 'Legacy'];
@@ -97,11 +97,11 @@ export default function Goals() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+      {/* Header — Aspirational */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">Goals & Plans</h1>
-          <p className="text-muted-foreground text-sm">Your roadmap to an intentional life</p>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight mb-1">Goals & Plans</h1>
+          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider">Your roadmap to an intentional life</p>
         </div>
         <Button variant="gold" asChild className="shrink-0">
           <Link to="/goals/new">
@@ -112,25 +112,28 @@ export default function Goals() {
         </Button>
       </div>
 
-      {/* Search & Filters */}
+      {/* Search & Filters — Premium Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
           <Input
             placeholder="Search goals..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-white/[0.03] border-white/[0.06] focus:border-primary/30 placeholder:text-muted-foreground/30"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
           {categories.map((cat) => (
             <Button
               key={cat}
-              variant={selectedCategory === cat ? 'default' : 'outline'}
+              variant={selectedCategory === cat ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setSelectedCategory(cat)}
-              className="shrink-0"
+              className={cn(
+                "shrink-0 text-[11px] tracking-wide",
+                selectedCategory !== cat && "text-muted-foreground/50 hover:text-foreground"
+              )}
             >
               {cat}
             </Button>
@@ -140,23 +143,25 @@ export default function Goals() {
 
       {/* Active Goals */}
       <div className="space-y-4">
-        <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
-          <Target className="w-5 h-5 text-primary" />
-          Active Goals
-          <Badge variant="secondary" className="ml-2">{activeGoals.length}</Badge>
-        </h2>
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+            <Target className="w-3 h-3 text-primary" />
+          </div>
+          <h2 className="font-serif text-base font-semibold tracking-tight">Active Goals</h2>
+          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider ml-1">{activeGoals.length}</span>
+        </div>
 
         {activeGoals.length === 0 ? (
           <Card variant="glass" className="p-8 text-center">
-            <Target className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-muted-foreground mb-4">
+            <Target className="w-8 h-8 mx-auto mb-3 text-muted-foreground/20" />
+            <p className="text-muted-foreground/50 text-sm mb-4">
               {searchQuery || selectedCategory !== 'All' 
                 ? 'No goals match your filters'
                 : "You haven't created any goals yet"
               }
             </p>
             {!searchQuery && selectedCategory === 'All' && (
-              <Button variant="outline" asChild>
+              <Button variant="gold-outline" size="sm" asChild>
                 <Link to="/goals/new">
                   <Plus className="w-4 h-4 mr-2" />
                   Create your first goal
@@ -165,45 +170,45 @@ export default function Goals() {
             )}
           </Card>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {activeGoals.map((goal) => (
               <Card 
                 key={goal.id} 
                 variant="glass" 
-                className="hover-lift cursor-pointer"
+                className="hover-lift cursor-pointer group"
                 onClick={() => navigate(`/goals/${goal.id}`)}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2.5">
                         {goal.category && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-[10px] bg-white/[0.04] border-white/[0.06] text-muted-foreground/60 uppercase tracking-wider">
                             {goal.category}
                           </Badge>
                         )}
-                        <Badge className={cn("text-xs border", statusColors[goal.status])}>
+                        <Badge className={cn("text-[10px] border", statusColors[goal.status])}>
                           {goal.status}
                         </Badge>
                       </div>
-                      <h3 className="font-medium text-lg mb-1">{goal.title}</h3>
+                      <h3 className="font-serif font-semibold text-base leading-snug mb-1">{goal.title}</h3>
                       {goal.why && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{goal.why}</p>
+                        <p className="text-xs text-muted-foreground/50 line-clamp-2 leading-relaxed">{goal.why}</p>
                       )}
                       {goal.target_date && (
-                        <div className="flex items-center gap-1 mt-3 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
+                        <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground/40">
+                          <Calendar className="w-3 h-3" />
                           <span>Due {format(new Date(goal.target_date), 'MMM d, yyyy')}</span>
                         </div>
                       )}
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon-sm">
+                        <Button variant="ghost" size="icon-sm" className="text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-white/[0.06]">
                         <DropdownMenuItem onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/goals/${goal.id}`);
@@ -232,29 +237,29 @@ export default function Goals() {
         )}
       </div>
 
-      {/* Other Goals */}
+      {/* Completed & Paused */}
       {otherGoals.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="font-serif text-lg font-semibold text-muted-foreground">
+        <div className="space-y-3">
+          <h2 className="font-serif text-sm font-semibold text-muted-foreground/40 uppercase tracking-wider">
             Completed & Paused
           </h2>
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {otherGoals.map((goal) => (
               <Card 
                 key={goal.id} 
-                variant="outline" 
-                className="opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+                variant="surface" 
+                className="opacity-60 hover:opacity-90 transition-opacity cursor-pointer"
                 onClick={() => navigate(`/goals/${goal.id}`)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Badge className={cn("text-xs border", statusColors[goal.status])}>
+                      <Badge className={cn("text-[10px] border", statusColors[goal.status])}>
                         {goal.status}
                       </Badge>
-                      <span className="font-medium">{goal.title}</span>
+                      <span className="font-medium text-sm">{goal.title}</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/20" />
                   </div>
                 </CardContent>
               </Card>
