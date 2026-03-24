@@ -763,14 +763,14 @@ export default function Journal() {
 
       {/* Main Journal Entry Card */}
       <Card variant="glass">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Today's Entry</CardTitle>
+        <CardHeader>
+          <CardTitle>Today's Entry</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Mood & Energy Row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Mood</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Mood</label>
               <div className="flex justify-between">
                 {moodOptions.map((option) => (
                   <button
