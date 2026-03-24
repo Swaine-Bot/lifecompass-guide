@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Shield, Lock, Trash2, 
   LogOut, Save, Camera, MapPin, Globe, Crown, ExternalLink, Info, Upload, Loader2,
-  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus
+  Bell, BellOff, X, Download, FileDown, Sparkles, UserPlus, Palette, Volume2, Vibrate
 } from 'lucide-react';
 import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { toast } from 'sonner';
