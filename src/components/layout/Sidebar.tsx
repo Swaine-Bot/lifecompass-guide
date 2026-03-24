@@ -53,80 +53,95 @@ export const Sidebar = () => {
       <Link
         key={item.path}
         to={item.path}
-        className={cn("nav-item", isActive && "active")}
+        className={cn(
+          "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
+          isActive 
+            ? "bg-primary/[0.08] text-primary" 
+            : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+        )}
       >
         <div className="relative">
-          <item.icon className="w-5 h-5" />
+          <item.icon className="w-[18px] h-[18px]" />
           {showBadge && (
             <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
               {pendingCount > 9 ? '9+' : pendingCount}
             </span>
           )}
         </div>
-        <span>{item.label}</span>
+        <span className="tracking-wide">{item.label}</span>
       </Link>
     );
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen bg-sidebar border-r border-sidebar-border">
-      <div className="p-6 border-b border-sidebar-border">
-        <Link to="/home" className="flex items-center gap-2">
-          <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8" />
-          <span className="font-serif text-xl font-semibold text-foreground">LifeStack</span>
+    <aside className="hidden lg:flex flex-col w-64 h-screen bg-card/40 backdrop-blur-xl border-r border-white/[0.04]">
+      {/* Logo */}
+      <div className="p-5 pb-4 border-b border-white/[0.04]">
+        <Link to="/home" className="flex items-center gap-2.5">
+          <img src={lifestackLogo} alt="LifeStack" className="w-7 h-7" />
+          <span className="font-serif text-lg font-semibold tracking-tight text-foreground">LifeStack</span>
         </Link>
       </div>
 
       {/* User Info */}
       {profile && (
-        <div className="p-4 mx-4 mt-4 rounded-xl bg-secondary/50 border border-border/30">
+        <div className="p-3.5 mx-3 mt-3 rounded-lg bg-white/[0.03] border border-white/[0.04]">
           <p className="text-sm font-medium text-foreground truncate">{profile.name || 'User'}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-[10px] text-muted-foreground/40 mt-0.5 uppercase tracking-wider">
             {phaseLabels[profile.life_phase] || 'Builder'}
           </p>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-        {/* Primary features */}
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto scrollbar-thin mt-1">
         {mainNavItems.map(renderNavItem)}
 
         {/* Divider */}
-        <div className="h-px bg-border/50 my-3" />
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 px-4 mb-1">More</p>
+        <div className="h-px bg-white/[0.04] my-3" />
+        <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground/25 px-4 mb-1.5 font-medium">More</p>
         {secondaryNavItems.map(renderNavItem)}
 
         {isAdmin && (
           <>
-            <div className="h-px bg-border/50 my-4" />
+            <div className="h-px bg-white/[0.04] my-3" />
             <Link
               to="/admin"
-              className={cn("nav-item", location.pathname.startsWith('/admin') && "active")}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
+                location.pathname.startsWith('/admin')
+                  ? "bg-primary/[0.08] text-primary"
+                  : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+              )}
             >
-              <Crown className="w-5 h-5" />
-              <span>Admin Panel</span>
+              <Crown className="w-[18px] h-[18px]" />
+              <span className="tracking-wide">Admin Panel</span>
             </Link>
           </>
         )}
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-4 border-t border-sidebar-border space-y-1">
+      <div className="p-3 border-t border-white/[0.04] space-y-0.5">
         <Link
           to="/settings"
-          className={cn("nav-item", location.pathname === '/settings' && "active")}
+          className={cn(
+            "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
+            location.pathname === '/settings'
+              ? "bg-primary/[0.08] text-primary"
+              : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+          )}
         >
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
+          <Settings className="w-[18px] h-[18px]" />
+          <span className="tracking-wide">Settings</span>
         </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 px-4 py-3 h-auto text-muted-foreground hover:text-destructive"
+          className="w-full justify-start gap-3 px-4 py-2.5 h-auto text-muted-foreground/40 hover:text-destructive text-sm"
           onClick={handleSignOut}
         >
-          <LogOut className="w-5 h-5" />
-          <span>Sign Out</span>
+          <LogOut className="w-[18px] h-[18px]" />
+          <span className="tracking-wide">Sign Out</span>
         </Button>
       </div>
     </aside>

@@ -1,4 +1,4 @@
-import { Home, Target, BarChart3, Sparkles, Users, Crown, PenLine, MessageCircle } from 'lucide-react';
+import { Home, Target, PenLine, MessageCircle, Users, Crown } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,8 +18,8 @@ export const BottomNav = () => {
   const pendingCount = usePendingFriendRequests();
 
   return (
-    <nav className="bottom-nav lg:hidden">
-      <div className="flex items-center justify-around px-1 py-1.5">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <div className="flex items-center justify-around px-1 py-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/home' && location.pathname.startsWith(item.path));
@@ -30,24 +30,26 @@ export const BottomNav = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "bottom-nav-item flex-1 relative",
-                isActive && "active"
+                "flex flex-col items-center gap-0.5 py-2 px-2 flex-1 relative transition-colors duration-200",
               )}
             >
               <div className="relative">
+                {isActive && (
+                  <div className="absolute -inset-2.5 rounded-full bg-primary/[0.08]" />
+                )}
                 <item.icon className={cn(
-                  "w-5 h-5 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  "w-5 h-5 transition-colors relative z-10",
+                  isActive ? "text-primary" : "text-muted-foreground/40"
                 )} />
                 {showBadge && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1 z-20">
                     {pendingCount > 9 ? '9+' : pendingCount}
                   </span>
                 )}
               </div>
               <span className={cn(
-                "text-xs font-medium",
-                isActive ? "text-primary" : "text-muted-foreground"
+                "text-[10px] font-medium tracking-wide",
+                isActive ? "text-primary" : "text-muted-foreground/30"
               )}>
               {item.label}
               </span>
@@ -57,18 +59,20 @@ export const BottomNav = () => {
         {isAdmin && (
           <Link
             to="/admin"
-            className={cn(
-              "bottom-nav-item flex-1",
-              location.pathname.startsWith('/admin') && "active"
-            )}
+            className="flex flex-col items-center gap-0.5 py-2 px-2 flex-1"
           >
-            <Crown className={cn(
-              "w-5 h-5 transition-colors",
-              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground"
-            )} />
+            <div className="relative">
+              {location.pathname.startsWith('/admin') && (
+                <div className="absolute -inset-2.5 rounded-full bg-primary/[0.08]" />
+              )}
+              <Crown className={cn(
+                "w-5 h-5 transition-colors relative z-10",
+                location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/40"
+              )} />
+            </div>
             <span className={cn(
-              "text-xs font-medium",
-              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground"
+              "text-[10px] font-medium tracking-wide",
+              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/30"
             )}>
               Admin
             </span>
