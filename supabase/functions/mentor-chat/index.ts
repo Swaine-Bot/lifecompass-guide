@@ -26,19 +26,50 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
     
     if (claimsError || !claimsData?.claims) {
-      console.error("Auth error:", claimsError);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = claimsData.claims.sub;
-    console.log("Authenticated user:", userId);
+    const userId = claimsData.claims.sub as string;
+
+    // Rate limit: max 60 mentor messages per hour
+    const { count: mentorHourly } = await supabaseClient
+      .from("engagement_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "api_call_mentor_chat")
+      .gte("created_at", new Date(Date.now() - 3600000).toISOString());
+
+    if ((mentorHourly || 0) >= 60) {
+      return new Response(JSON.stringify({ error: "You've reached the hourly message limit. Please try again later." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    await supabaseClient.from("engagement_events").insert({
+      user_id: userId,
+      event_type: "api_call_mentor_chat",
+      source_engine: "rate_limiter",
+      metadata: {},
+    });
 
     const { messages, profile, imageUrl } = await req.json();
     
@@ -76,7 +107,9 @@ serve(async (req) => {
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // If an image URL is provided, we need to:
@@ -353,9 +386,11 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      await response.text(); // consume
+      console.error("AI gateway error:", response.status);
+      return new Response(JSON.stringify({ error: "Mentor is temporarily unavailable" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
@@ -366,10 +401,9 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Mentor chat error:", error);
-    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    console.error("Mentor chat error:", error instanceof Error ? error.message : "Unknown");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

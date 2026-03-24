@@ -72,7 +72,9 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Get user profile for context
@@ -215,7 +217,7 @@ Keep opportunities to max 2 most relevant. If content is purely personal reflect
     const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content || "{}";
     
-    console.log("Raw AI response:", rawContent);
+    // Response parsed (not logging content for privacy)
 
     let analysis: AnalysisResult;
     try {
@@ -241,10 +243,9 @@ Keep opportunities to max 2 most relevant. If content is purely personal reflect
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Analyze journal entry error:", error);
-    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    console.error("Analyze journal entry error:", error instanceof Error ? error.message : "Unknown");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Journal analysis failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

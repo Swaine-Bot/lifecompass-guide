@@ -14,82 +14,84 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const userId = claimsData.claims.sub;
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
-    // Check if signal already exists today
+    // Check if signal already exists today (natural rate limit)
     const { data: existing } = await supabaseClient
-      .from('daily_signals')
-      .select('id, content, signal_type, suggested_action, is_read')
-      .eq('user_id', userId)
-      .eq('signal_date', today)
+      .from("daily_signals")
+      .select("id, content, signal_type, suggested_action, is_read")
+      .eq("user_id", userId)
+      .eq("signal_date", today)
       .maybeSingle();
 
     if (existing) {
-      return new Response(
-        JSON.stringify({ signal: existing }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ signal: existing }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Gather user context
     const [goalsRes, habitsRes, journalRes, tasksRes, streakRes] = await Promise.all([
-      supabaseClient.from('goals').select('title, status, category').limit(10),
-      supabaseClient.from('habits').select('title').limit(10),
-      supabaseClient.from('journal_entries').select('content, mood, energy, date').order('date', { ascending: false }).limit(5),
-      supabaseClient.from('tasks').select('title, status').eq('status', 'today').limit(10),
-      supabaseClient.from('momentum_streaks').select('current_streak').eq('user_id', userId).maybeSingle(),
+      supabaseClient.from("goals").select("title, status, category").limit(10),
+      supabaseClient.from("habits").select("title").limit(10),
+      supabaseClient.from("journal_entries").select("mood, energy, date").order("date", { ascending: false }).limit(5),
+      supabaseClient.from("tasks").select("title, status").eq("status", "today").limit(10),
+      supabaseClient.from("momentum_streaks").select("current_streak").eq("user_id", userId).maybeSingle(),
     ]);
 
     const context = {
-      goals: goalsRes.data || [],
-      habits: habitsRes.data || [],
-      recentJournals: journalRes.data || [],
-      todayTasks: tasksRes.data || [],
+      goals: (goalsRes.data || []).map((g: any) => g.title),
+      habits: (habitsRes.data || []).map((h: any) => h.title),
+      recentMoods: (journalRes.data || []).map((j: any) => ({ mood: j.mood, energy: j.energy })),
+      todayTasks: (tasksRes.data || []).map((t: any) => t.title),
       streak: streakRes.data?.current_streak || 0,
     };
 
-    const signalTypes = ['strategic_insight', 'reflection', 'encouragement', 'pattern_observation', 'growth_suggestion'];
+    const signalTypes = ["strategic_insight", "reflection", "encouragement", "pattern_observation", "growth_suggestion"];
     const chosenType = signalTypes[Math.floor(Math.random() * signalTypes.length)];
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "AI service unavailable" }),
-        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     const systemPrompt = `You are the LifeStack Daily Signal engine. Generate a single powerful daily insight for the user.
 
 Signal type for today: ${chosenType}
 
 User context:
-- Active goals: ${JSON.stringify(context.goals.map(g => g.title))}
-- Habits tracked: ${JSON.stringify(context.habits.map(h => h.title))}
-- Recent journal moods: ${JSON.stringify(context.recentJournals.map(j => ({ mood: j.mood, energy: j.energy })))}
-- Today's tasks: ${JSON.stringify(context.todayTasks.map(t => t.title))}
+- Active goals: ${JSON.stringify(context.goals)}
+- Habits tracked: ${JSON.stringify(context.habits)}
+- Recent moods: ${JSON.stringify(context.recentMoods)}
+- Today's tasks: ${JSON.stringify(context.todayTasks)}
 - Current streak: ${context.streak} days
 
 Make the insight feel personal based on their data. Be direct and wise, not generic.`;
@@ -115,40 +117,37 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
               type: "object",
               properties: {
                 content: { type: "string", description: "The main insight (2-4 sentences)" },
-                suggested_action: { type: "string", description: "One specific action for today" }
+                suggested_action: { type: "string", description: "One specific action for today" },
               },
               required: ["content", "suggested_action"],
-              additionalProperties: false
-            }
-          }
+              additionalProperties: false,
+            },
+          },
         }],
-        tool_choice: { type: "function", function: { name: "create_signal" } }
+        tool_choice: { type: "function", function: { name: "create_signal" } },
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Rate limit exceeded." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      return new Response(
-        JSON.stringify({ error: "Failed to generate signal" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      await response.text(); // consume
+      console.error("AI gateway error:", response.status);
+      return new Response(JSON.stringify({ error: "Failed to generate signal" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
-    
+
     let content = "Keep building momentum. Every small action compounds.";
     let suggestedAction = "Complete one task that moves your most important goal forward.";
 
@@ -156,16 +155,15 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
       const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
       if (toolCall?.function?.arguments) {
         const parsed = JSON.parse(toolCall.function.arguments);
-        content = parsed.content || content;
-        suggestedAction = parsed.suggested_action || suggestedAction;
+        if (parsed.content && typeof parsed.content === "string") content = String(parsed.content).slice(0, 1000);
+        if (parsed.suggested_action && typeof parsed.suggested_action === "string") suggestedAction = String(parsed.suggested_action).slice(0, 500);
       }
     } catch {
       // Use defaults
     }
 
-    // Save the signal
     const { data: signal, error: insertError } = await supabaseClient
-      .from('daily_signals')
+      .from("daily_signals")
       .insert({
         user_id: userId,
         signal_type: chosenType,
@@ -173,26 +171,23 @@ Make the insight feel personal based on their data. Be direct and wise, not gene
         suggested_action: suggestedAction,
         signal_date: today,
       })
-      .select('id, content, signal_type, suggested_action, is_read')
+      .select("id, content, signal_type, suggested_action, is_read")
       .single();
 
     if (insertError) {
-      console.error("Insert error:", insertError);
-      return new Response(
-        JSON.stringify({ error: "Failed to save signal" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.error("Insert error:", insertError.message);
+      return new Response(JSON.stringify({ error: "Failed to save signal" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ signal }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ signal }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
-    console.error("Daily signal error:", error);
-    return new Response(
-      JSON.stringify({ error: "An unexpected error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.error("Daily signal error:", error instanceof Error ? error.message : "Unknown");
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

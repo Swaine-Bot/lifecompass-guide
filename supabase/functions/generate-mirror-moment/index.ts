@@ -10,9 +10,16 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableKey = Deno.env.get("LOVABLE_API_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseKey || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!lovableKey) {
       return new Response(JSON.stringify({ error: "AI service unavailable" }), {
@@ -27,12 +34,9 @@ serve(async (req) => {
       });
     }
 
-    // Use anon client with user token for getClaims
-    const anonClient = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
@@ -100,9 +104,7 @@ serve(async (req) => {
     };
 
     const dataDepth = (context.journals.length * 2) + context.habits.length + context.goals.length;
-    const hasEnoughData = dataDepth >= 5;
-
-    if (!hasEnoughData) {
+    if (dataDepth < 5) {
       return new Response(JSON.stringify({ moment: null, reason: "insufficient_data" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -155,13 +157,13 @@ Rules:
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("AI error:", response.status, errText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited" }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      await response.text(); // consume
+      console.error("AI error:", response.status);
       return new Response(JSON.stringify({ error: "Failed to generate mirror moment" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -170,24 +172,43 @@ Rules:
     const aiData = await response.json();
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
     let momentData;
-    
+
     if (toolCall) {
-      momentData = JSON.parse(toolCall.function.arguments);
-    } else {
+      try {
+        momentData = JSON.parse(toolCall.function.arguments);
+      } catch {
+        momentData = null;
+      }
+    }
+
+    if (!momentData) {
       const content = aiData.choices?.[0]?.message?.content || "";
       try {
         momentData = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
       } catch {
         momentData = {
           category: "pattern_recognition",
-          content: content.slice(0, 500),
+          content: String(content).slice(0, 500),
           confidence_score: 0.5,
           source_categories: ["journals"],
         };
       }
     }
 
-    // Only store high-confidence moments
+    // Validate parsed data
+    if (!momentData.category || !categories.includes(momentData.category)) {
+      momentData.category = "pattern_recognition";
+    }
+    if (!momentData.content || typeof momentData.content !== "string") {
+      return new Response(JSON.stringify({ moment: null, reason: "generation_failed" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    momentData.confidence_score = Math.min(1, Math.max(0, Number(momentData.confidence_score) || 0.5));
+    if (!Array.isArray(momentData.source_categories)) {
+      momentData.source_categories = ["journals"];
+    }
+
     if (momentData.confidence_score < 0.4) {
       return new Response(JSON.stringify({ moment: null, reason: "low_confidence" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -207,7 +228,7 @@ Rules:
       .single();
 
     if (insertError) {
-      console.error("Insert error:", insertError);
+      console.error("Insert error:", insertError.message);
       return new Response(JSON.stringify({ error: "Failed to save moment" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -217,7 +238,7 @@ Rules:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("Mirror moment error:", e);
+    console.error("Mirror moment error:", e instanceof Error ? e.message : "Unknown");
     return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
