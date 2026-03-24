@@ -183,7 +183,7 @@ export default function Goals() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2.5">
                         {goal.category && (
-                          <Badge variant="secondary" className="text-[10px] bg-white/[0.04] border-white/[0.06] text-muted-foreground/60 uppercase tracking-wider">
+                          <span className="category-chip">
                             {goal.category}
                           </Badge>
                         )}
