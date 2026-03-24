@@ -109,15 +109,15 @@
 }
 
 @layer components {
-  /* Glass card effect */
+  /* Glass card effect — refined for sensory backgrounds */
   .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-white/5 rounded-xl;
-    box-shadow: var(--shadow-soft);
+    @apply bg-card/60 backdrop-blur-xl border border-white/[0.06] rounded-xl;
+    box-shadow: 0 2px 20px -4px hsl(220 20% 0% / 0.5);
   }
   
   .glass-card-elevated {
-    @apply bg-card/80 backdrop-blur-xl border border-white/10 rounded-xl;
-    box-shadow: var(--shadow-elevated);
+    @apply bg-card/75 backdrop-blur-xl border border-white/[0.08] rounded-xl;
+    box-shadow: 0 8px 32px -8px hsl(220 20% 0% / 0.6);
   }
   
   /* Gold text gradient */
@@ -128,10 +128,10 @@
     background-clip: text;
   }
   
-  /* Gold border glow */
+  /* Gold border glow — subtler */
   .gold-glow {
-    box-shadow: 0 0 20px hsl(43 74% 52% / 0.2), inset 0 0 20px hsl(43 74% 52% / 0.05);
-    border-color: hsl(43 74% 52% / 0.3);
+    box-shadow: 0 0 20px hsl(43 74% 52% / 0.12), inset 0 0 20px hsl(43 74% 52% / 0.03);
+    border-color: hsl(43 74% 52% / 0.2);
   }
   
   /* Subtle hover lift */
@@ -141,19 +141,19 @@
   
   .hover-lift:hover {
     @apply -translate-y-0.5;
-    box-shadow: var(--shadow-elevated);
+    box-shadow: 0 8px 32px -8px hsl(220 20% 0% / 0.6);
   }
   
   /* Focus ring style */
   .focus-gold {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background;
   }
   
   /* Premium input styling */
   .input-premium {
-    @apply bg-secondary/50 border-border/50 rounded-lg px-4 py-3;
-    @apply focus:border-primary/50 focus:bg-secondary/70;
-    @apply placeholder:text-muted-foreground/50;
+    @apply bg-white/[0.03] border-white/[0.06] rounded-lg px-4 py-3;
+    @apply focus:border-primary/30 focus:bg-white/[0.05];
+    @apply placeholder:text-muted-foreground/30;
     @apply transition-all duration-200;
   }
   
