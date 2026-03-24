@@ -185,7 +185,7 @@ export default function Goals() {
                         {goal.category && (
                           <span className="category-chip">
                             {goal.category}
-                          </Badge>
+                          </span>
                         )}
                         <Badge className={cn("text-[10px] border", statusColors[goal.status])}>
                           {goal.status}
