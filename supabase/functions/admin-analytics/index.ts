@@ -361,9 +361,8 @@ Deno.serve(async (req) => {
     });
 
   } catch (error: unknown) {
-    console.error('Error in admin-analytics:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
+    console.error('Error in admin-analytics:', error instanceof Error ? error.message : 'Unknown');
+    return new Response(JSON.stringify({ error: 'Analytics unavailable' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

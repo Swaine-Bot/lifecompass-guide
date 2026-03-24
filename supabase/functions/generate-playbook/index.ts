@@ -6,11 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const MAX_CALLS_PER_HOUR = 10;
+const MAX_CALLS_PER_DAY = 30;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -18,11 +20,17 @@ serve(async (req) => {
       });
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
@@ -32,6 +40,8 @@ serve(async (req) => {
       });
     }
 
+    const userId = claimsData.claims.sub as string;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return new Response(JSON.stringify({ error: "AI service unavailable" }), {
@@ -39,7 +49,51 @@ serve(async (req) => {
       });
     }
 
-    const { source_type, goal, mentor_message, profile } = await req.json();
+    // Rate limit: hourly
+    const { count: hourlyCount } = await supabaseClient
+      .from("engagement_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "api_call_generate_playbook")
+      .gte("created_at", new Date(Date.now() - 3600000).toISOString());
+
+    if ((hourlyCount || 0) >= MAX_CALLS_PER_HOUR) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit: daily
+    const { count: dailyCount } = await supabaseClient
+      .from("engagement_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "api_call_generate_playbook")
+      .gte("created_at", new Date(Date.now() - 86400000).toISOString());
+
+    if ((dailyCount || 0) >= MAX_CALLS_PER_DAY) {
+      return new Response(JSON.stringify({ error: "Daily limit reached. Please try again tomorrow." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Log rate limit event
+    await supabaseClient.from("engagement_events").insert({
+      user_id: userId,
+      event_type: "api_call_generate_playbook",
+      source_engine: "rate_limiter",
+      metadata: {},
+    });
+
+    const body = await req.json();
+    const { source_type, goal, mentor_message, profile } = body;
+
+    // Validate source_type
+    if (!["goal", "mentor"].includes(source_type)) {
+      return new Response(JSON.stringify({ error: "Invalid source_type" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     let prompt = "";
 
@@ -50,6 +104,12 @@ serve(async (req) => {
       const safeWhy = String(goal.why || "").slice(0, 500);
       const safeConstraints = String(goal.constraints || "").slice(0, 500);
 
+      if (!safeTitle) {
+        return new Response(JSON.stringify({ error: "Goal title is required" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       prompt = `You are a life strategy assistant. Generate a practical, actionable playbook of 4-7 micro moves (tasks) to help achieve this goal.
 
 Goal: ${safeTitle}
@@ -57,8 +117,8 @@ ${safeCategory ? `Category: ${safeCategory}` : ""}
 ${safeMetric ? `Success Metric: ${safeMetric}` : ""}
 ${safeWhy ? `Why it matters: ${safeWhy}` : ""}
 ${safeConstraints ? `Constraints: ${safeConstraints}` : ""}
-${goal.target_date ? `Target Date: ${goal.target_date}` : ""}
-${profile?.life_phase ? `User Life Phase: ${profile.life_phase}` : ""}
+${goal.target_date ? `Target Date: ${String(goal.target_date).slice(0, 10)}` : ""}
+${profile?.life_phase ? `User Life Phase: ${String(profile.life_phase).slice(0, 50)}` : ""}
 
 Rules:
 - Each task must be specific and actionable (not vague advice)
@@ -70,12 +130,17 @@ Rules:
 - Include a brief description (1-2 sentences) for each task`;
     } else if (source_type === "mentor" && mentor_message) {
       const safeMessage = String(mentor_message).slice(0, 3000);
+      if (!safeMessage.trim()) {
+        return new Response(JSON.stringify({ error: "Mentor message is required" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       prompt = `You are a life strategy assistant. Convert this mentor advice into a practical playbook of 3-6 actionable micro moves (tasks).
 
 Mentor's advice:
 ${safeMessage}
 
-${profile?.life_phase ? `User Life Phase: ${profile.life_phase}` : ""}
+${profile?.life_phase ? `User Life Phase: ${String(profile.life_phase).slice(0, 50)}` : ""}
 
 Rules:
 - Extract actionable steps from the advice
@@ -87,8 +152,7 @@ Rules:
 - Include a brief description (1-2 sentences) for each task`;
     } else {
       return new Response(JSON.stringify({ error: "Invalid source_type or missing data" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -113,15 +177,15 @@ Rules:
               parameters: {
                 type: "object",
                 properties: {
-                  playbook_title: { type: "string", description: "A short descriptive title for this playbook" },
+                  playbook_title: { type: "string" },
                   tasks: {
                     type: "array",
                     items: {
                       type: "object",
                       properties: {
-                        title: { type: "string", description: "Task title, max 80 chars" },
-                        description: { type: "string", description: "Brief description, 1-2 sentences" },
-                        effort_minutes: { type: "number", description: "Estimated minutes to complete (5-30)" },
+                        title: { type: "string" },
+                        description: { type: "string" },
+                        effort_minutes: { type: "number" },
                       },
                       required: ["title", "description", "effort_minutes"],
                       additionalProperties: false,
@@ -141,21 +205,18 @@ Rules:
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited. Please try again shortly." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      await response.text(); // consume
+      console.error("AI gateway error:", response.status);
       return new Response(JSON.stringify({ error: "Failed to generate playbook" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -176,14 +237,12 @@ Rules:
       });
     }
 
-    // Validate structure
     if (!playbook.playbook_title || !Array.isArray(playbook.tasks) || playbook.tasks.length === 0) {
       return new Response(JSON.stringify({ error: "Generated playbook was incomplete" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Sanitize output
     playbook.playbook_title = String(playbook.playbook_title).slice(0, 200);
     playbook.tasks = playbook.tasks.slice(0, 10).map((t: any) => ({
       title: String(t.title || "").slice(0, 80),
@@ -195,10 +254,9 @@ Rules:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("generate-playbook error:", e);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate playbook" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.error("generate-playbook error:", e instanceof Error ? e.message : "Unknown");
+    return new Response(JSON.stringify({ error: "Failed to generate playbook" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

@@ -243,10 +243,9 @@ Keep opportunities to max 2 most relevant. If content is purely personal reflect
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Analyze journal entry error:", error);
-    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    console.error("Analyze journal entry error:", error instanceof Error ? error.message : "Unknown");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Journal analysis failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

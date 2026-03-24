@@ -10,9 +10,16 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableKey = Deno.env.get("LOVABLE_API_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseKey || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!lovableKey) {
       return new Response(JSON.stringify({ error: "AI service unavailable" }), {
@@ -27,12 +34,9 @@ serve(async (req) => {
       });
     }
 
-    // Verify with getClaims
-    const anonClient = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
@@ -47,11 +51,9 @@ serve(async (req) => {
 
     const { report_type = "weekly" } = await req.json().catch(() => ({}));
 
-    // Validate report_type
     const validTypes = ["weekly", "monthly", "quarterly"];
     const safeType = validTypes.includes(report_type) ? report_type : "weekly";
 
-    // Calculate period
     const now = new Date();
     let periodStart: Date;
     const periodEnd = now;
@@ -70,7 +72,6 @@ serve(async (req) => {
     const startStr = periodStart.toISOString().split("T")[0];
     const endStr = periodEnd.toISOString().split("T")[0];
 
-    // Check for existing report this period
     const { data: existing } = await supabase
       .from("cinematic_reports")
       .select("*")
@@ -85,7 +86,6 @@ serve(async (req) => {
       });
     }
 
-    // Gather period data
     const [journals, habitLogs, goals, tasks, xpEvents, streakData] = await Promise.all([
       supabase.from("journal_entries").select("content, mood, energy, date, gratitude")
         .eq("user_id", userId).gte("date", startStr).lte("date", endStr),
@@ -176,8 +176,8 @@ Rules:
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const errText = await response.text();
-      console.error("AI error:", response.status, errText);
+      await response.text(); // consume
+      console.error("AI error:", response.status);
       return new Response(JSON.stringify({ error: "Failed to generate report" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -188,8 +188,14 @@ Rules:
     let reportData;
 
     if (toolCall) {
-      reportData = JSON.parse(toolCall.function.arguments);
-    } else {
+      try {
+        reportData = JSON.parse(toolCall.function.arguments);
+      } catch {
+        reportData = null;
+      }
+    }
+
+    if (!reportData) {
       const content = aiData.choices?.[0]?.message?.content || "";
       try {
         reportData = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
@@ -209,12 +215,12 @@ Rules:
       .insert({
         user_id: userId,
         report_type: safeType,
-        title: String(reportData.title).slice(0, 200),
-        narrative: String(reportData.narrative).slice(0, 2000),
-        key_stats: reportData.key_stats,
-        major_wins: reportData.major_wins,
-        lessons: reportData.lessons,
-        turning_points: reportData.turning_points || [],
+        title: String(reportData.title || "").slice(0, 200),
+        narrative: String(reportData.narrative || "").slice(0, 2000),
+        key_stats: reportData.key_stats || {},
+        major_wins: Array.isArray(reportData.major_wins) ? reportData.major_wins.slice(0, 10) : [],
+        lessons: Array.isArray(reportData.lessons) ? reportData.lessons.slice(0, 10) : [],
+        turning_points: Array.isArray(reportData.turning_points) ? reportData.turning_points.slice(0, 10) : [],
         period_start: startStr,
         period_end: endStr,
       })
@@ -222,7 +228,7 @@ Rules:
       .single();
 
     if (insertError) {
-      console.error("Insert error:", insertError);
+      console.error("Insert error:", insertError.message);
       return new Response(JSON.stringify({ error: "Failed to save report" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -232,7 +238,7 @@ Rules:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("Cinematic report error:", e);
+    console.error("Cinematic report error:", e instanceof Error ? e.message : "Unknown");
     return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

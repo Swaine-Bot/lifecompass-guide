@@ -401,10 +401,9 @@ Your tone: Like a wise friend who has seen a lot of life and genuinely wants to 
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Mentor chat error:", error);
-    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    console.error("Mentor chat error:", error instanceof Error ? error.message : "Unknown");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
