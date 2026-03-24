@@ -18,20 +18,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+      return new Response(JSON.stringify({ error: 'Service configuration error' }), { 
+        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: userData, error: userError } = await adminClient.auth.getUser(token);
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
     
-    if (userError || !userData?.user) {
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
-    const userId = userData.user.id;
+    const userId = claimsData.claims.sub as string;
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const { data: roleData, error: roleError } = await adminClient
       .from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle();
 
