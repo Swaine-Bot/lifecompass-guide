@@ -12,12 +12,15 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Checking for due journal playback reminders...");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceKey) {
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
     // Find journal entries with scheduled playback that are due and haven't been notified
     const now = new Date().toISOString();

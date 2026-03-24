@@ -205,7 +205,7 @@ serve(async (req) => {
           failed++;
         }
       } catch (error) {
-        console.error(`Failed to send push to user ${sub.user_id}:`, error);
+        console.error('Push send error:', error instanceof Error ? error.message : 'Unknown');
         failed++;
       }
     }
