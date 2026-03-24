@@ -397,7 +397,7 @@ export default function GoalDetail() {
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     {task.effort_minutes && (
-                      <span className="text-[10px] text-muted-foreground/30 tabular-nums">{task.effort_minutes}m</span>
+                      <span className="meta-text-xs">{task.effort_minutes}m</span>
                     )}
                     {task.due_date && (
                       <span className="text-[11px] text-muted-foreground/40 tabular-nums">
