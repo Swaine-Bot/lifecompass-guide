@@ -370,7 +370,7 @@ export default function GoalDetail() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Linked Micro-Moves</CardTitle>
-              <span className="text-xs text-muted-foreground/50 tabular-nums">{tasksDone}/{tasks.length}</span>
+              <span className="counter-text">{tasksDone}/{tasks.length}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
