@@ -118,14 +118,19 @@ export default function Habits() {
   ).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-5 animate-fade-in">
+      {/* Header — Disciplined, efficient */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1">Habits</h1>
-          <p className="text-muted-foreground text-sm">Build routines that shape your life</p>
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+              <Flame className="w-3.5 h-3.5 text-primary/70" />
+            </div>
+            <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight">Habits</h1>
+          </div>
+          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">Build routines that shape your life</p>
         </div>
-        <Button variant="gold" asChild className="shrink-0">
+        <Button variant="gold" size="sm" asChild className="shrink-0">
           <Link to="/habits/new">
             <Plus className="w-4 h-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">New Habit</span>
@@ -139,21 +144,21 @@ export default function Habits() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm text-primary/80 font-medium">Today's Progress</p>
-              <p className="text-3xl font-bold">{todayCompleted}/{habits.length}</p>
+              <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Today's Progress</p>
+              <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/40 text-xl">/{habits.length}</span></p>
             </div>
-            <div className="w-16 h-16 rounded-full border-4 border-primary/30 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary/[0.05]">
               <Flame className={cn(
-                "w-8 h-8",
+                "w-7 h-7",
                 todayCompleted === habits.length && habits.length > 0 
                   ? "text-primary animate-pulse-gold" 
-                  : "text-primary/50"
+                  : "text-primary/40"
               )} />
             </div>
           </div>
           <Progress 
             value={habits.length > 0 ? (todayCompleted / habits.length) * 100 : 0} 
-            className="h-2"
+            className="h-1.5"
           />
         </CardContent>
       </Card>
@@ -161,11 +166,11 @@ export default function Habits() {
       {/* Habits List */}
       {habits.length === 0 ? (
         <Card variant="glass" className="p-8 text-center">
-          <Flame className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-          <p className="text-muted-foreground mb-4">
+          <Flame className="w-8 h-8 mx-auto mb-3 text-muted-foreground/20" />
+          <p className="text-muted-foreground/50 text-sm mb-4">
             No habits yet. Start building your routine!
           </p>
-          <Button variant="outline" asChild>
+          <Button variant="gold-outline" size="sm" asChild>
             <Link to="/habits/new">
               <Plus className="w-4 h-4 mr-2" />
               Create your first habit

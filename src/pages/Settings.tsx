@@ -384,23 +384,23 @@ export default function Settings() {
   const timezones = ['UTC', 'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Toronto', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Dubai', 'Australia/Sydney', 'Pacific/Auckland'];
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="space-y-5 pb-6 animate-fade-in">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0" />
+          <img src={lifestackLogo} alt="LifeStack" className="w-7 h-7 shrink-0" />
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-serif font-bold">Settings</h1>
-            <p className="text-muted-foreground text-xs sm:text-sm truncate">Manage your account and preferences</p>
+            <h1 className="text-lg font-serif font-bold tracking-tight">Settings</h1>
+            <p className="text-muted-foreground/40 text-[10px] uppercase tracking-wider truncate">Manage your account and preferences</p>
           </div>
         </div>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           onClick={() => navigate('/home')}
-          className="rounded-full shrink-0"
+          className="rounded-full shrink-0 text-muted-foreground/30 hover:text-foreground"
           aria-label="Close settings"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </Button>
       </div>
 

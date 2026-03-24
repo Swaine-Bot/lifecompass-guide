@@ -29,11 +29,16 @@ export default function Mirror() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-5 animate-fade-in">
+      {/* Header — Reflective, intimate */}
       <div className="space-y-1">
-        <h1 className="font-serif text-3xl font-bold">Mirror</h1>
-        <p className="text-muted-foreground text-sm">
+        <div className="flex items-center gap-2.5 mb-1">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
+            <Sparkles className="w-3.5 h-3.5 text-primary/70" />
+          </div>
+          <h1 className="font-serif text-xl font-bold tracking-tight">Mirror</h1>
+        </div>
+        <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">
           AI-powered reflections drawn from your journey
         </p>
       </div>
