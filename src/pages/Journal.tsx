@@ -115,6 +115,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 export default function Journal() {
+  useEnvironment('journal');
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
