@@ -19,7 +19,6 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export default function Mentor() {
   const [input, setInput] = useState('');
-  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
