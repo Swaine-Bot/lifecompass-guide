@@ -1,8 +1,8 @@
 /**
- * LifeStack Sound Engine v2
+ * LifeStack Sound Engine v3
  * 
- * Enhanced sound slot system with semantic categories.
- * Supports future real audio file slots alongside synthesized fallbacks.
+ * Production-grade sound system with real WAV assets as primary path
+ * and synthesized fallbacks for offline/error scenarios.
  */
 
 export type SoundEvent =
@@ -21,55 +21,87 @@ export type SoundIntensity = 'off' | 'low' | 'normal';
 
 export type SoundCategory = 'completion' | 'reward' | 'presence' | 'alert' | 'ambient';
 
+interface SynthConfig {
+  freq: number;
+  duration: number;
+  type: OscillatorType;
+  harmonics?: number[];
+}
+
 interface SoundSlot {
+  /** Real audio file path (relative to public/) */
+  fileUrl: string;
   /** Synthesizer fallback config */
-  synth: { freq: number; duration: number; type: OscillatorType; harmonics?: number[] };
-  /** Optional real audio file URL — when set, plays instead of synth */
-  fileUrl?: string;
-  /** Semantic category for grouping */
+  synth: SynthConfig;
+  /** Semantic category */
   category: SoundCategory;
 }
 
+/**
+ * Sound slot registry — file-based assets are primary, synth is fallback.
+ * 
+ * Sound design intent per event:
+ * - app_open:            grounded C major arrival (C4+G4+C5)
+ * - mentor_response:     light high-register presence ping
+ * - micro_move_complete: rising E5→G5 completion cue
+ * - daily_signal:        bell-like F5 chime
+ * - milestone_reached:   C5→E5→G5 major arpeggio with shimmer
+ * - warning_drift:       low Bb3 triangle-wave caution tone
+ * - reflection_saved:    gentle D5→C5 descending confirmation
+ * - goal_created:        G4→B4→D5 ascending initiation
+ * - streak_continued:    quick bright G5 tap
+ * - insight_arrival:     crystalline A5 shimmer chord
+ */
 const SOUND_SLOTS: Record<SoundEvent, SoundSlot> = {
   app_open: {
-    synth: { freq: 520, duration: 0.15, type: 'sine' },
+    fileUrl: '/sounds/app-open.wav',
+    synth: { freq: 261.6, duration: 0.5, type: 'sine' },
     category: 'ambient',
   },
-  micro_move_complete: {
-    synth: { freq: 660, duration: 0.12, type: 'sine', harmonics: [1320] },
-    category: 'completion',
-  },
   mentor_response: {
-    synth: { freq: 440, duration: 0.08, type: 'triangle' },
+    fileUrl: '/sounds/mentor-response.wav',
+    synth: { freq: 880, duration: 0.25, type: 'sine' },
     category: 'presence',
   },
+  micro_move_complete: {
+    fileUrl: '/sounds/micro-move-complete.wav',
+    synth: { freq: 660, duration: 0.3, type: 'sine', harmonics: [1320] },
+    category: 'completion',
+  },
   daily_signal: {
-    synth: { freq: 580, duration: 0.18, type: 'sine' },
+    fileUrl: '/sounds/daily-signal.wav',
+    synth: { freq: 698, duration: 0.6, type: 'sine' },
     category: 'ambient',
   },
   milestone_reached: {
-    synth: { freq: 780, duration: 0.3, type: 'sine', harmonics: [1170, 1560] },
+    fileUrl: '/sounds/milestone-reached.wav',
+    synth: { freq: 523, duration: 0.7, type: 'sine', harmonics: [659, 784] },
     category: 'reward',
   },
   warning_drift: {
-    synth: { freq: 320, duration: 0.2, type: 'triangle' },
+    fileUrl: '/sounds/warning-drift.wav',
+    synth: { freq: 233, duration: 0.4, type: 'triangle' },
     category: 'alert',
   },
   reflection_saved: {
-    synth: { freq: 500, duration: 0.1, type: 'sine' },
+    fileUrl: '/sounds/reflection-saved.wav',
+    synth: { freq: 587, duration: 0.3, type: 'sine' },
     category: 'completion',
   },
-  insight_arrival: {
-    synth: { freq: 620, duration: 0.14, type: 'sine', harmonics: [930] },
-    category: 'presence',
-  },
   goal_created: {
-    synth: { freq: 700, duration: 0.2, type: 'sine', harmonics: [1050] },
+    fileUrl: '/sounds/goal-created.wav',
+    synth: { freq: 392, duration: 0.4, type: 'sine', harmonics: [494, 587] },
     category: 'reward',
   },
   streak_continued: {
-    synth: { freq: 740, duration: 0.15, type: 'sine' },
+    fileUrl: '/sounds/streak-continued.wav',
+    synth: { freq: 784, duration: 0.2, type: 'sine' },
     category: 'reward',
+  },
+  insight_arrival: {
+    fileUrl: '/sounds/insight-arrival.wav',
+    synth: { freq: 880, duration: 0.45, type: 'sine', harmonics: [1109, 1319] },
+    category: 'presence',
   },
 };
 
@@ -89,19 +121,23 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-// ─── File audio cache ───────────────────────────────────────────────────────
+// ─── File audio buffer cache ────────────────────────────────────────────────
 
 const audioBufferCache = new Map<string, AudioBuffer>();
+const failedUrls = new Set<string>();
 
 async function loadAudioFile(ctx: AudioContext, url: string): Promise<AudioBuffer | null> {
+  if (failedUrls.has(url)) return null;
   if (audioBufferCache.has(url)) return audioBufferCache.get(url)!;
   try {
     const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const buf = await res.arrayBuffer();
     const decoded = await ctx.decodeAudioData(buf);
     audioBufferCache.set(url, decoded);
     return decoded;
   } catch {
+    failedUrls.add(url);
     return null;
   }
 }
@@ -132,32 +168,30 @@ export function playSound(event: SoundEvent, intensity: SoundIntensity = 'normal
 
   const volume = intensity === 'low' ? 0.06 : 0.12;
 
-  // Try file-based audio first
-  if (slot.fileUrl) {
-    loadAudioFile(ctx, slot.fileUrl).then((buffer) => {
-      if (!buffer) { playSynth(ctx, slot, volume); return; }
-      const source = ctx.createBufferSource();
-      const gain = ctx.createGain();
-      gain.gain.value = volume;
-      source.buffer = buffer;
-      source.connect(gain);
-      gain.connect(ctx.destination);
-      source.start();
-    });
-    return;
-  }
-
-  playSynth(ctx, slot, volume);
+  // File-based audio is the primary path
+  loadAudioFile(ctx, slot.fileUrl).then((buffer) => {
+    if (!buffer) {
+      // Fallback to synth if file fails
+      playSynth(ctx, slot.synth, volume);
+      return;
+    }
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    source.start();
+  });
 }
 
-function playSynth(ctx: AudioContext, slot: SoundSlot, volume: number): void {
-  const { freq, duration, type, harmonics } = slot.synth;
+function playSynth(ctx: AudioContext, synth: SynthConfig, volume: number): void {
+  const { freq, duration, type, harmonics } = synth;
   const masterGain = ctx.createGain();
   masterGain.gain.setValueAtTime(volume, ctx.currentTime);
   masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
   masterGain.connect(ctx.destination);
 
-  // Fundamental
   const osc = ctx.createOscillator();
   osc.type = type;
   osc.frequency.value = freq;
@@ -165,7 +199,6 @@ function playSynth(ctx: AudioContext, slot: SoundSlot, volume: number): void {
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + duration);
 
-  // Harmonics (richer sound for rewards)
   if (harmonics) {
     for (const hFreq of harmonics) {
       const hOsc = ctx.createOscillator();
@@ -182,10 +215,16 @@ function playSynth(ctx: AudioContext, slot: SoundSlot, volume: number): void {
   }
 }
 
-/** Preload a file-based sound into the buffer cache */
+/** Preload sound files into the buffer cache for zero-latency playback */
 export function preloadSound(event: SoundEvent): void {
   const slot = SOUND_SLOTS[event];
   if (!slot?.fileUrl) return;
   const ctx = getAudioContext();
   if (ctx) loadAudioFile(ctx, slot.fileUrl);
+}
+
+/** Preload the most commonly used sounds */
+export function preloadCoreSounds(): void {
+  const core: SoundEvent[] = ['micro_move_complete', 'mentor_response', 'daily_signal', 'milestone_reached'];
+  for (const event of core) preloadSound(event);
 }
