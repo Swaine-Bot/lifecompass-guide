@@ -404,7 +404,7 @@ export default function Home() {
                 </span>
               )}
             </CardTitle>
-            <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider tabular-nums">
+            <span className="section-label tabular-nums">
               {completedTasks.length} done
             </span>
           </div>
