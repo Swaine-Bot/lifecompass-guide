@@ -1119,6 +1119,7 @@ export type Database = {
           notifications_social: boolean | null
           privacy_policy_accepted: boolean | null
           privacy_policy_accepted_at: string | null
+          privacy_policy_version: string | null
           profile_visibility:
             | Database["public"]["Enums"]["post_visibility"]
             | null
@@ -1126,6 +1127,7 @@ export type Database = {
           show_ai_insights_to_friends: boolean | null
           terms_accepted: boolean | null
           terms_accepted_at: string | null
+          terms_version: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1140,6 +1142,7 @@ export type Database = {
           notifications_social?: boolean | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
+          privacy_policy_version?: string | null
           profile_visibility?:
             | Database["public"]["Enums"]["post_visibility"]
             | null
@@ -1147,6 +1150,7 @@ export type Database = {
           show_ai_insights_to_friends?: boolean | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1161,6 +1165,7 @@ export type Database = {
           notifications_social?: boolean | null
           privacy_policy_accepted?: boolean | null
           privacy_policy_accepted_at?: string | null
+          privacy_policy_version?: string | null
           profile_visibility?:
             | Database["public"]["Enums"]["post_visibility"]
             | null
@@ -1168,6 +1173,7 @@ export type Database = {
           show_ai_insights_to_friends?: boolean | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string | null
           user_id?: string
         }
