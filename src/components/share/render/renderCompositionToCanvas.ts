@@ -356,39 +356,54 @@ function drawMomentumPanel(
 
   ctx.save();
 
+  // ── Cursor-based vertical layout: measure everything, then place ──
+  const phraseSize = spec.typography.phraseFontSize;
+  // Reserve space for phrase at bottom
+  const phraseReserved = phraseSize + pad;
+  const availableForStat = panel.height - pad - phraseReserved;
+
   // Stat value — stacked vertically, never side-by-side with label
+  let cursorY = panel.y + pad;
+
   if (content.statValue) {
     const displayStat = content.showNumbers ? content.statValue : '•••';
-    // Dynamic font scaling: shrink stat for long values
+    // Dynamic font scaling: fit stat within available space
     let statSize = spec.typography.statFontSize;
-    if (displayStat.length > 6) statSize = Math.round(statSize * 0.7);
-    else if (displayStat.length > 4) statSize = Math.round(statSize * 0.85);
+    if (displayStat.length > 6) statSize = Math.round(statSize * 0.65);
+    else if (displayStat.length > 4) statSize = Math.round(statSize * 0.8);
+
+    // Further scale down if stat + label won't fit above phrase
+    const labelSize = 14;
+    const labelGap = 8;
+    const neededH = statSize * 0.85 + labelGap + labelSize;
+    if (neededH > availableForStat && statSize > 24) {
+      statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
+    }
 
     ctx.font = `700 ${statSize}px ${FONT_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-
-    // Position stat value at top of panel
-    const statY = panel.y + pad + statSize * 0.8;
-    ctx.fillText(displayStat, panel.x + pad, statY, panel.width - pad * 2);
+    cursorY += statSize * 0.8;
+    ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
 
     // Stat label — BELOW stat value, on its own line
     if (content.statLabel) {
-      const labelSize = 14;
-      const labelGap = 6;
+      cursorY += labelGap + labelSize;
       ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
       ctx.fillStyle = 'rgb(128, 132, 142)';
-      const labelY = statY + labelGap + labelSize;
-      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, labelY, panel.width - pad * 2);
+      ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     }
   }
 
-  // Phrase — at the bottom with safe padding
-  const phraseSize = spec.typography.phraseFontSize;
-  ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.6;
-  ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, panel.y + panel.height - pad, panel.width - pad * 2);
-  ctx.globalAlpha = 1;
+  // Phrase — anchored at bottom with guaranteed separation
+  const phraseY = panel.y + panel.height - pad;
+  // Only draw phrase if it won't collide with stat content above
+  if (phraseY - cursorY > 8) {
+    ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
+    ctx.fillStyle = theme.accentHex;
+    ctx.globalAlpha = 0.6;
+    ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
+    ctx.globalAlpha = 1;
+  }
 
   ctx.restore();
 }
