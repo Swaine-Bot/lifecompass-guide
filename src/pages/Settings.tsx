@@ -28,6 +28,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 import { WearableSettings } from '@/components/wearables/WearableSettings';
 import { Watch } from 'lucide-react';
+import { useSensory } from '@/contexts/SensoryContext';
 
 interface PrivacySettings {
   terms_accepted: boolean;
