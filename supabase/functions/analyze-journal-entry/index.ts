@@ -217,7 +217,7 @@ Keep opportunities to max 2 most relevant. If content is purely personal reflect
     const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content || "{}";
     
-    console.log("Raw AI response:", rawContent);
+    // Response parsed (not logging content for privacy)
 
     let analysis: AnalysisResult;
     try {
