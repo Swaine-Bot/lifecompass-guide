@@ -323,35 +323,35 @@
 
   /* Section label — uppercase tracked meta label */
   .section-label {
-    @apply text-[10px] uppercase tracking-[0.12em] text-muted-foreground/40 font-medium;
+    @apply text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60 font-medium;
   }
 
   /* Page subtitle — below header */
   .page-subtitle {
-    @apply text-muted-foreground/50 text-xs uppercase tracking-wider;
+    @apply text-muted-foreground/70 text-xs uppercase tracking-wider;
     margin-left: 42px;
   }
 
   /* Meta text — timestamps, counters, helper labels */
   .meta-text {
-    @apply text-[11px] text-muted-foreground/40 tabular-nums;
+    @apply text-[11px] text-muted-foreground/60 tabular-nums;
   }
 
   /* Meta text — smaller variant for dense contexts */
   .meta-text-xs {
-    @apply text-[10px] text-muted-foreground/40 tabular-nums;
+    @apply text-[10px] text-muted-foreground/55 tabular-nums;
   }
 
   /* Source badge — AI, Playbook, etc */
   .source-badge {
     @apply text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded;
-    @apply bg-primary/[0.06] text-primary/50 font-medium;
+    @apply bg-primary/[0.08] text-primary/60 font-medium;
   }
 
   /* Category chip */
   .category-chip {
     @apply text-[10px] uppercase tracking-wider;
-    @apply bg-white/[0.04] border border-white/[0.06] text-muted-foreground/60;
+    @apply bg-white/[0.05] border border-white/[0.08] text-muted-foreground/70;
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold;
   }
 
@@ -363,12 +363,12 @@
 
   /* Counter text — "3/10", "done", etc */
   .counter-text {
-    @apply text-xs text-muted-foreground/50 tabular-nums;
+    @apply text-xs text-muted-foreground/65 tabular-nums;
   }
 
   /* Action bar button — small actions row */
   .action-btn {
-    @apply h-7 text-[11px] text-muted-foreground/50 hover:text-foreground;
+    @apply h-7 text-[11px] text-muted-foreground/65 hover:text-foreground;
     @apply transition-colors;
   }
 
