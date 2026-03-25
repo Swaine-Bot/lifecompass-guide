@@ -329,7 +329,7 @@
 
   /* Page subtitle — below header */
   .page-subtitle {
-    @apply text-muted-foreground/80 text-xs uppercase tracking-wider font-medium;
+    @apply text-foreground/70 text-xs uppercase tracking-wider font-medium;
     margin-left: 42px;
   }
 
