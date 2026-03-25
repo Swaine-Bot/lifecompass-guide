@@ -329,7 +329,7 @@
 
   /* Page subtitle — below header */
   .page-subtitle {
-    @apply text-foreground/70 text-xs uppercase tracking-wider font-medium;
+    @apply text-foreground/75 text-xs uppercase tracking-wider font-medium;
     margin-left: 42px;
   }
 
@@ -349,24 +349,25 @@
 
   /* ═══ On-Image Text System — forced readability for bright background zones ═══ */
   .on-image-title {
-    color: hsl(40 15% 96%);
-    text-shadow: 0 1px 3px hsl(220 20% 4% / 0.4);
+    color: hsl(40 15% 97%);
+    text-shadow: 0 1px 4px hsl(220 20% 4% / 0.5);
   }
   .on-image-subtitle {
+    color: hsl(40 12% 92%);
+    text-shadow: 0 1px 3px hsl(220 20% 4% / 0.4);
+  }
+  .on-image-meta {
     color: hsl(40 10% 85%);
     text-shadow: 0 1px 2px hsl(220 20% 4% / 0.3);
   }
-  .on-image-meta {
-    color: hsl(40 8% 75%);
-  }
   .on-image-filter {
-    color: hsl(40 10% 80%);
+    color: hsl(40 10% 88%);
   }
   .on-image-filter:hover {
-    color: hsl(40 15% 95%);
+    color: hsl(40 15% 97%);
   }
   .on-image-placeholder {
-    color: hsl(40 8% 60%);
+    color: hsl(40 8% 70%);
   }
 
   /* Meta text — timestamps, counters, helper labels */

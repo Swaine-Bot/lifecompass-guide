@@ -294,10 +294,10 @@ export default function Home() {
             </Avatar>
           </Link>
           <div className="min-w-0">
-            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight mb-0.5 truncate">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight mb-0.5 truncate on-image-title">
               {greeting}, {profile?.name || 'there'}
             </h1>
-            <p className="text-muted-foreground/70 text-xs tracking-wide uppercase">
+            <p className="on-image-subtitle text-xs tracking-wide uppercase font-medium">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
           </div>
@@ -514,7 +514,7 @@ export default function Home() {
                     )} style={{ borderColor: isCompleted ? undefined : habit.color }}>
                       {isCompleted && <Check className="w-4 h-4" />}
                     </div>
-                    <span className="text-[11px] text-muted-foreground/60 text-center line-clamp-2 leading-tight">
+                    <span className="text-[11px] text-foreground/60 text-center line-clamp-2 leading-tight">
                       {habit.title}
                     </span>
                   </button>
@@ -591,7 +591,7 @@ export default function Home() {
         ].map(({ to, icon: Icon, label }) => (
           <Link key={to} to={to} className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] hover:border-primary/20 transition-all">
             <Icon className="w-4.5 h-4.5 text-primary/70" />
-            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] text-foreground/60 uppercase tracking-wider">{label}</span>
           </Link>
         ))}
       </div>
