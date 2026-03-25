@@ -632,7 +632,7 @@ export default function ShareStudio() {
 
             {/* Sponsor / Partner Tab */}
             <TabsContent value="sponsor" className="mt-4">
-              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-5" style={glassPanel}>
                 <div>
                   <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Sponsor / Partner</span>
                   <p className="text-[10px] text-white/30 mt-1">Add a premium partner attribution to this card.</p>
