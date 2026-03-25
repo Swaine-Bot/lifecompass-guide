@@ -333,26 +333,34 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ Cinematic Background — matches Auth ══ */}
+      {/* ══ Cinematic Environment ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(6px) saturate(1.15) brightness(0.7)' }}
+        style={{ filter: 'blur(12px) saturate(1.25) brightness(0.55)', transform: 'scale(1.08)' }}
       />
-      {/* Dark gradient overlay */}
+      {/* Primary atmosphere overlay */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: `linear-gradient(180deg,
-          hsl(220 20% 3% / 0.7) 0%,
-          hsl(220 20% 4% / 0.5) 25%,
-          hsl(220 20% 3% / 0.6) 60%,
-          hsl(220 20% 2% / 0.88) 100%
+        background: `linear-gradient(170deg,
+          hsl(220 22% 3% / 0.62) 0%,
+          hsl(220 20% 4% / 0.42) 20%,
+          hsl(225 18% 5% / 0.55) 50%,
+          hsl(220 20% 2% / 0.92) 100%
         )`,
       }} />
-      {/* Radial vignette */}
+      {/* Warm ambient bloom — top left */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 30%, transparent 25%, hsl(220 20% 3% / 0.55) 100%)',
+        background: 'radial-gradient(ellipse at 25% 15%, hsl(43 74% 52% / 0.04) 0%, transparent 55%)',
+      }} />
+      {/* Cool depth bloom — bottom right */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 80% 85%, hsl(220 60% 45% / 0.03) 0%, transparent 50%)',
+      }} />
+      {/* Edge vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, hsl(220 20% 2% / 0.5) 100%)',
       }} />
 
       {/* ═══ Content Layer ═══ */}
