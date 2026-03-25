@@ -445,7 +445,7 @@ function drawMetaPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'tertiary');
 
   const pad = 20;
   const theme = content.theme;
