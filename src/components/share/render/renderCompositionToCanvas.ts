@@ -123,9 +123,9 @@ function drawPanelBackground(
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 0.9,
   );
-  const bleedAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  const bleedAlpha = tier === 'hero' ? 0.08 : tier === 'secondary' ? 0.05 : 0.03;
   bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
-  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.3})`));
+  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.35})`));
   bleedGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = bleedGrad;
   ctx.fill();
