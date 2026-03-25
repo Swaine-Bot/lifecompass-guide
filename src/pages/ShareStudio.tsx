@@ -337,82 +337,86 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ Unified Environment — theme-reactive ══ */}
+      {/* ══ ENVIRONMENT — the source of truth for ALL visuals ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(16px) saturate(1.2) brightness(0.45)', transform: 'scale(1.1)' }}
+        style={{ filter: 'blur(24px) saturate(1.15) brightness(0.35)', transform: 'scale(1.15)' }}
       />
-      {/* Primary atmosphere — from environment tone */}
+      {/* Environment atmosphere layers — derived from tone */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.primary }} />
-      {/* Warm bloom — theme-matched */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.warmBloom }} />
-      {/* Cool depth bloom */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.coolBloom }} />
-      {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.vignette }} />
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
-        {/* ═══ HEADER — minimal, non-competing ═══ */}
-        <div className="sticky top-0 z-40 backdrop-blur-2xl border-b border-white/[0.04]"
-          style={{ background: 'hsl(220 20% 4% / 0.4)' }}>
+        {/* ═══ HEADER — dissolved into environment ═══ */}
+        <div className="sticky top-0 z-40" style={{ background: 'transparent' }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/50 hover:text-white/80 -ml-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 -ml-1">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(43 74% 52% / 0.18), hsl(43 74% 52% / 0.06))',
-                    border: '1px solid hsl(43 74% 52% / 0.12)',
+                    background: `linear-gradient(135deg, ${envTone.keyLight.color}, transparent)`,
+                    border: '1px solid rgba(255,255,255,0.06)',
                   }}>
-                  <Sparkles className="w-[14px] h-[14px] text-primary" />
+                  <Sparkles className="w-3.5 h-3.5 text-primary/80" />
                 </div>
                 <div>
-                  <h1 className="text-base font-serif font-bold text-white/90 leading-tight">Share Studio</h1>
-                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/40 font-medium">Compose · Publish</p>
+                  <h1 className="text-sm font-serif font-bold text-white/80 leading-tight">Share Studio</h1>
+                  <p className="text-[8px] uppercase tracking-[0.16em] text-white/30 font-medium">Compose · Publish</p>
                 </div>
               </div>
             </div>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={loadSavedCards}
-              className="text-[10px] gap-1.5 border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/55 hover:text-white/80 h-7"
+              className="text-[10px] gap-1.5 text-white/35 hover:text-white/60 h-7"
             >
-              <LayoutGrid className="w-3 h-3 text-primary/60" />Cards
+              <LayoutGrid className="w-3 h-3" />Cards
             </Button>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-36">
-          {/* ═══ PREVIEW — Window into the artifact ═══ */}
-          <div className="relative flex justify-center py-2">
+        <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
+          {/* ═══ PREVIEW — window INTO the environment, no container ═══ */}
+          <div className="relative flex justify-center py-3">
+            {/* Ambient environment glow behind card — connects card to world */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="w-[70%] h-[80%] rounded-[40px]"
+                style={{
+                  background: `radial-gradient(ellipse, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.12)')}, transparent 70%)`,
+                  filter: 'blur(40px)',
+                }} />
+            </div>
             <div className="relative">
               <CompositionCard
                 content={normalizedContent}
                 platform={platform}
                 maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
               />
-              {/* Soft ambient falloff beneath card — connects card to environment */}
-              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-10 pointer-events-none"
+              {/* Soft shadow dissolution — card melts into environment */}
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[80%] h-12 pointer-events-none"
                 style={{
-                  background: 'radial-gradient(ellipse, hsl(220 20% 2% / 0.6) 0%, transparent 70%)',
-                  filter: 'blur(10px)',
+                  background: `radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%)`,
+                  filter: 'blur(12px)',
                 }} />
             </div>
           </div>
 
-          {/* Canvas dimensions — minimal */}
-          <p className="text-center text-[9px] text-white/25 uppercase tracking-[0.18em] font-medium -mt-2">
+          {/* Canvas dimensions — whisper */}
+          <p className="text-center text-[8px] text-white/20 uppercase tracking-[0.2em] font-medium">
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE ═══ */}
+          {/* ═══ REGENERATE — environment-tinted ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -421,20 +425,23 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all text-[11px] font-medium
-                border border-white/[0.08] bg-white/[0.03] text-white/55 hover:text-white/80 hover:bg-white/[0.06]
-                backdrop-blur-xl"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all text-[10px] font-medium
+                text-white/40 hover:text-white/65"
+              style={{
+                background: `rgba(255,255,255,0.025)`,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
             >
-              <RefreshCw className="w-3 h-3 text-primary/60" />Regenerate language
+              <RefreshCw className="w-3 h-3" />Regenerate language
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL ═══ */}
+          {/* ═══ INSTRUMENT PANEL — subdued, environment-aware ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="rounded-xl p-1 backdrop-blur-2xl"
+            <div className="rounded-xl p-1"
               style={{
-                background: 'hsl(220 18% 8% / 0.4)',
-                border: '1px solid hsl(220 15% 20% / 0.08)',
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.04)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
@@ -450,27 +457,27 @@ export default function ShareStudio() {
 
             {/* Template Tab */}
             <TabsContent value="template" className="mt-4">
-              <Card variant="glass" className="p-5 space-y-5">
+              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
                 {!hasPrefill && (
-                  <div className="border-t border-white/[0.06] pt-5">
-                    <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Card Type</span>
+                  <div className="border-t border-white/[0.04] pt-5">
+                    <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Card Type</span>
                     <div className="grid grid-cols-2 gap-2.5 mt-3">
                       {demoCards.map((card) => (
                         <button key={card.cardType} onClick={() => setSelectedCard(card)}
                           className={cn(
                             'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all border',
                             selectedCard.cardType === card.cardType
-                              ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.15)]'
-                              : 'border-white/[0.06] hover:border-white/[0.12] bg-white/[0.03]'
+                              ? 'border-primary/30 bg-primary/8 ring-1 ring-primary/15'
+                              : 'border-white/[0.04] hover:border-white/[0.08] bg-white/[0.02]'
                           )}>
                           <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
                           <div className="min-w-0">
-                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-white/85')}>
+                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-white/75')}>
                               {CARD_TYPE_LABELS[card.cardType as CardType]}
                             </p>
-                            <p className="text-[10px] text-white/45 truncate">{card.title}</p>
+                            <p className="text-[10px] text-white/35 truncate">{card.title}</p>
                           </div>
                         </button>
                       ))}
@@ -479,24 +486,24 @@ export default function ShareStudio() {
                 )}
 
                 {hasPrefill && (
-                  <div className="border-t border-white/[0.06] pt-5">
-                    <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl border border-primary/40 bg-primary/10 ring-1 ring-primary/20">
+                  <div className="border-t border-white/[0.04] pt-5">
+                    <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl border border-primary/30 bg-primary/8 ring-1 ring-primary/15">
                       <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-primary">
                           {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
                         </p>
-                        <p className="text-[10px] text-white/45 truncate">{selectedCard.title}</p>
+                        <p className="text-[10px] text-white/35 truncate">{selectedCard.title}</p>
                       </div>
                     </div>
                   </div>
                 )}
-              </Card>
+              </div>
             </TabsContent>
 
             {/* AI Insight Tab */}
             <TabsContent value="ai" className="mt-4">
-              <Card variant="glass" className="p-5">
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <AIInsightControls
                   enabled={aiInsightEnabled}
                   onToggle={setAiInsightEnabled}
@@ -508,31 +515,31 @@ export default function ShareStudio() {
                   contentSubtitle={selectedCard.subtitle}
                   contentType={selectedCard.sourceType || selectedCard.cardType}
                 />
-              </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="style" className="mt-4">
-              <Card variant="glass" className="p-5 space-y-4">
+              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <ShareThemeSelector theme={theme} onChange={setTheme} />
-              </Card>
+              </div>
             </TabsContent>
 
             {hasPostImage && (
               <TabsContent value="image" className="mt-4">
-                <Card variant="glass" className="p-5 space-y-5">
+                <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <div>
-                    <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Post Image</span>
-                    <p className="text-[10px] text-white/45 mt-1">Control how the image appears on your share card.</p>
+                    <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Post Image</span>
+                    <p className="text-[10px] text-white/30 mt-1">Control how the image appears on your share card.</p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
-                      <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
+                    <Label className="text-sm font-medium text-white/75 flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 text-primary/70" />Include post image
                     </Label>
                     <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
                   </div>
                   {includePostImage && (
                     <div className="space-y-3">
-                      <Label className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Layout</Label>
+                      <Label className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Layout</Label>
                       <div className="grid grid-cols-3 gap-2">
                         {([
                           { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image dominates' },
@@ -543,89 +550,89 @@ export default function ShareStudio() {
                             className={cn(
                               'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
                               imageLayout === opt.value
-                                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
-                                : 'border-white/[0.06] text-white/60 hover:border-white/[0.12] bg-white/[0.03]'
+                                ? 'border-primary/30 bg-primary/8 text-primary ring-1 ring-primary/15'
+                                : 'border-white/[0.04] text-white/45 hover:border-white/[0.08] bg-white/[0.02]'
                             )}>
                             {opt.icon}
                             <span className="text-[10px] font-medium">{opt.label}</span>
-                            <span className="text-[8px] text-white/40">{opt.desc}</span>
+                            <span className="text-[8px] text-white/30">{opt.desc}</span>
                           </button>
                         ))}
                       </div>
                     </div>
                   )}
-                </Card>
+                </div>
               </TabsContent>
             )}
 
             <TabsContent value="privacy" className="mt-4">
-              <Card variant="glass" className="p-5">
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
-              </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="platform" className="mt-4">
-              <Card variant="glass" className="p-5">
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <PlatformSelector platform={platform} onChange={setPlatform} />
-              </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="link" className="mt-4">
-              <Card variant="glass" className="p-5 space-y-5">
+              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <div>
-                  <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Link & Destination</span>
-                  <p className="text-[10px] text-white/45 mt-1">Smart links route viewers to the app or store.</p>
+                  <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Link & Destination</span>
+                  <p className="text-[10px] text-white/30 mt-1">Smart links route viewers to the app or store.</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
-                    <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
+                  <Label className="text-sm font-medium text-white/75 flex items-center gap-2">
+                    <Link2 className="w-3.5 h-3.5 text-primary/70" />Include smart link
                   </Label>
                   <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
-                    <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
+                  <Label className="text-sm font-medium text-white/75 flex items-center gap-2">
+                    <QrCode className="w-3.5 h-3.5 text-primary/70" />Show QR code on card
                   </Label>
                   <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
                 </div>
                 {includeSmartLink && (
-                  <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full border-white/[0.1] text-white/80">
+                  <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full border-white/[0.06] text-white/60">
                     <Copy className="w-3.5 h-3.5 mr-1.5" />
                     {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
                   </Button>
                 )}
                 {generatedSmartUrl && (
-                  <p className="text-[10px] text-white/40 text-center break-all">{generatedSmartUrl}</p>
+                  <p className="text-[10px] text-white/30 text-center break-all">{generatedSmartUrl}</p>
                 )}
-              </Card>
+              </div>
             </TabsContent>
 
             {/* Sponsor / Partner Tab */}
             <TabsContent value="sponsor" className="mt-4">
-              <Card variant="glass" className="p-5 space-y-5">
+              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <div>
-                  <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Sponsor / Partner</span>
-                  <p className="text-[10px] text-white/45 mt-1">Add a premium partner attribution to this card.</p>
+                  <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Sponsor / Partner</span>
+                  <p className="text-[10px] text-white/30 mt-1">Add a premium partner attribution to this card.</p>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2 min-w-0 flex-1">
-                    <Handshake className="w-3.5 h-3.5 text-primary shrink-0" />Enable partner zone
+                  <Label className="text-sm font-medium text-white/75 flex items-center gap-2 min-w-0 flex-1">
+                    <Handshake className="w-3.5 h-3.5 text-primary/70 shrink-0" />Enable partner zone
                   </Label>
                   <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
                 </div>
                 {sponsorEnabled && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-xs text-white/55">Partner name</Label>
+                      <Label className="text-[10px] text-white/40">Partner name</Label>
                       <Input
                         value={sponsorName}
                         onChange={(e) => setSponsorName(e.target.value)}
                         placeholder="e.g. Discovery Vitality"
-                        className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/25"
+                        className="bg-white/[0.03] border-white/[0.06] text-white placeholder:text-white/20"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-white/55">Attribution type</Label>
+                      <Label className="text-[10px] text-white/40">Attribution type</Label>
                       <div className="grid grid-cols-3 gap-1.5">
                         {([
                           { value: 'sponsored' as const, label: 'Sponsored by' },
@@ -638,8 +645,8 @@ export default function ShareStudio() {
                             className={cn(
                               'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
                               sponsorType === opt.value
-                                ? 'border-primary/40 bg-primary/10 text-primary'
-                                : 'border-white/[0.06] text-white/55 hover:border-white/[0.12]'
+                                ? 'border-primary/30 bg-primary/8 text-primary'
+                                : 'border-white/[0.04] text-white/40 hover:border-white/[0.08]'
                             )}>
                             {opt.label}
                           </button>
@@ -647,49 +654,49 @@ export default function ShareStudio() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-white/55">Message / CTA (optional)</Label>
+                      <Label className="text-[10px] text-white/40">Message / CTA (optional)</Label>
                       <Input
                         value={sponsorMessage}
                         onChange={(e) => setSponsorMessage(e.target.value)}
                         placeholder="e.g. Earn rewards for healthy habits"
-                        className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/25"
+                        className="bg-white/[0.03] border-white/[0.06] text-white placeholder:text-white/20"
                       />
                     </div>
                   </div>
                 )}
-              </Card>
+              </div>
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION ═══ */}
-          <div className="space-y-2.5 pt-2">
+          {/* ═══ PRIMARY ACTION — environment-reactive glow ═══ */}
+          <div className="space-y-2 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
               className="w-full h-13 text-sm font-semibold gap-2 rounded-xl"
               style={{
-                boxShadow: '0 0 32px -8px hsl(43 74% 52% / 0.2), 0 6px 24px -6px hsl(220 20% 2% / 0.35)',
+                boxShadow: `0 0 40px -10px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.25)')}, 0 8px 32px -8px rgba(0,0,0,0.4)`,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
-            {/* Secondary utilities — subdued */}
-            <div className="grid grid-cols-3 gap-2">
-              <Button onClick={handleDownload} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
+            {/* Secondary utilities — whisper level */}
+            <div className="grid grid-cols-3 gap-1.5">
+              <Button onClick={handleDownload} variant="ghost" size="sm"
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
-              <Button onClick={handleCopy} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
+              <Button onClick={handleCopy} variant="ghost" size="sm"
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
-              <Button onClick={handleCopyLink} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
+              <Button onClick={handleCopyLink} variant="ghost" size="sm"
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
-            <Button onClick={handleSave} variant="outline"
-              className="w-full border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/45 hover:text-white/70 h-8 text-[10px]">
-              <Download className="w-3 h-3 mr-1.5 text-primary/40" />Save to Vault
+            <Button onClick={handleSave} variant="ghost"
+              className="w-full text-white/25 hover:text-white/50 h-7 text-[10px]">
+              <Download className="w-3 h-3 mr-1.5" />Save to Vault
             </Button>
           </div>
         </div>
