@@ -121,6 +121,8 @@ export default function Auth() {
               </div>
               {/* Aspirational tagline */}
               <div className="text-center space-y-2">
+                {/* DEBUG MARKER — remove after confirming live */}
+                <span className="text-[8px] text-primary/60 font-mono">AUTH-V2-LIVE</span>
                 <h1 className="text-xl font-serif font-bold text-foreground/95 leading-snug">
                   {isSignUp ? 'Begin your intentional life' : 'Welcome back'}
                 </h1>
