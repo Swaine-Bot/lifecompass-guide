@@ -700,30 +700,35 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ ACTIONS — Clear CTA Hierarchy ═══ */}
-          <div className="space-y-3 pt-2">
+          {/* ═══ PRIMARY ACTION ═══ */}
+          <div className="space-y-3 pt-4">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-13 text-sm font-semibold gap-2.5 shadow-[0_0_32px_-8px_hsl(43_74%_52%/0.3)]"
+              className="w-full h-14 text-sm font-semibold gap-2.5 rounded-xl"
+              style={{
+                boxShadow: '0 0 40px -10px hsl(43 74% 52% / 0.25), 0 8px 32px -8px hsl(220 20% 2% / 0.4)',
+              }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
-            <div className="grid grid-cols-3 gap-2.5">
+
+            {/* Secondary utilities — subdued */}
+            <div className="grid grid-cols-3 gap-2 opacity-80">
               <Button onClick={handleDownload} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <Download className="w-3.5 h-3.5 mr-1.5" />Save
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />Copy
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <Link2 className="w-3.5 h-3.5 mr-1.5" />Link
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="outline"
-              className="w-full border-primary/15 bg-primary/[0.04] hover:bg-primary/[0.08] text-white/75 hover:text-white/90 h-10">
-              <Download className="w-4 h-4 mr-2 text-primary/70" />Save to Vault
+              className="w-full border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/55 hover:text-white/80 h-9 text-[11px]">
+              <Download className="w-3.5 h-3.5 mr-1.5 text-primary/50" />Save to Vault
             </Button>
           </div>
         </div>
