@@ -553,10 +553,10 @@ function drawBrandPanel(
   const bG = Math.round(16 + tg * ta * 3);
   const bB = Math.round(28 + tb * ta * 3);
 
-  // Variable density — lighter at top, denser at bottom
+  // Variable density — lighter, more transparent
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 6}, ${bG + 6}, ${bB + 8}, 0.20)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.35)`);
+  grad.addColorStop(0, `rgba(${bR + 6}, ${bG + 6}, ${bB + 8}, 0.10)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.20)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
