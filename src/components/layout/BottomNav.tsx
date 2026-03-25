@@ -39,7 +39,7 @@ export const BottomNav = () => {
                 )}
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors relative z-10",
-                  isActive ? "text-primary" : "text-muted-foreground/40"
+                  isActive ? "text-primary" : "text-muted-foreground/60"
                 )} />
                 {showBadge && (
                   <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1 z-20">
@@ -49,7 +49,7 @@ export const BottomNav = () => {
               </div>
               <span className={cn(
                 "text-[10px] font-medium tracking-wide transition-colors duration-200",
-                isActive ? "text-primary" : "text-muted-foreground/50"
+                isActive ? "text-primary" : "text-muted-foreground/60"
               )}>
                 {item.label}
               </span>
@@ -67,12 +67,12 @@ export const BottomNav = () => {
               )}
               <Crown className={cn(
                 "w-5 h-5 transition-colors relative z-10",
-                location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/40"
+                location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/60"
               )} />
             </div>
             <span className={cn(
               "text-[10px] font-medium tracking-wide transition-colors duration-200",
-              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/50"
+              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/60"
             )}>
               Admin
             </span>
