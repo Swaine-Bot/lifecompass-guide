@@ -90,42 +90,44 @@ function drawPanelBackground(
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const kl = envTone.keyLight;
 
-  // Soft depth shadow — directional, matching key light
-  const shadowAlpha = tier === 'hero' ? 0.3 : tier === 'secondary' ? 0.18 : 0.1;
-  const shadowBlur = tier === 'hero' ? 28 : tier === 'secondary' ? 16 : 8;
+  // Unified surface — panels are INTERNAL STRUCTURE, not separate objects
+  // Minimal shadow — just enough depth to suggest hierarchy, not separation
+  const shadowAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.06 : 0.03;
+  const shadowBlur = tier === 'hero' ? 12 : tier === 'secondary' ? 6 : 3;
   ctx.shadowColor = `rgba(0, 0, 0, ${shadowAlpha})`;
   ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = (0.5 - kl.x) * 6; // shadow opposite to light
-  ctx.shadowOffsetY = tier === 'hero' ? 5 : 2;
+  ctx.shadowOffsetX = (0.5 - kl.x) * 2;
+  ctx.shadowOffsetY = tier === 'hero' ? 2 : 1;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  ctx.fillStyle = 'rgba(8, 10, 18, 0.35)';
+  ctx.fillStyle = 'rgba(8, 10, 18, 0.15)';
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  // Material fill — environment-tinted, NOT independent
+  // Material fill — continuous with environment, NOT isolated
+  // Lower opacity = more environment bleeds through
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const baseAlpha = tier === 'hero' ? 0.88 : tier === 'secondary' ? 0.78 : 0.65;
-  const tintStrength = tier === 'hero' ? 3 : tier === 'secondary' ? 2.5 : 2;
-  const baseR = Math.round(18 + tr * ta * tintStrength);
-  const baseG = Math.round(20 + tg * ta * tintStrength);
-  const baseB = Math.round(35 + tb * ta * tintStrength);
+  const baseAlpha = tier === 'hero' ? 0.55 : tier === 'secondary' ? 0.40 : 0.28;
+  const tintStrength = tier === 'hero' ? 5 : tier === 'secondary' ? 4 : 3;
+  const baseR = Math.round(14 + tr * ta * tintStrength);
+  const baseG = Math.round(16 + tg * ta * tintStrength);
+  const baseB = Math.round(28 + tb * ta * tintStrength);
 
-  // Gradient follows light direction
+  // Gradient follows light direction — shared across all panels
   const grad = ctx.createLinearGradient(
     panel.x + panel.width * kl.x, panel.y,
     panel.x + panel.width * (1 - kl.x), panel.y + panel.height,
   );
-  grad.addColorStop(0, `rgba(${baseR + 10}, ${baseG + 10}, ${baseB + 12}, ${baseAlpha})`);
-  grad.addColorStop(0.6, `rgba(${baseR + 3}, ${baseG + 3}, ${baseB + 3}, ${baseAlpha - 0.06})`);
-  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.12})`);
+  grad.addColorStop(0, `rgba(${baseR + 8}, ${baseG + 8}, ${baseB + 10}, ${baseAlpha})`);
+  grad.addColorStop(0.5, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 2}, ${baseAlpha - 0.05})`);
+  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.1})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner luminance — from key light direction
-  const glowAlpha = tier === 'hero' ? 0.05 : tier === 'secondary' ? 0.025 : 0.015;
+  // Inner luminance — very subtle, from key light
+  const glowAlpha = tier === 'hero' ? 0.03 : tier === 'secondary' ? 0.015 : 0.008;
   const innerGlow = ctx.createLinearGradient(
     panel.x + panel.width * kl.x * 0.5, panel.y,
     panel.x + panel.width * 0.5, panel.y + panel.height * 0.4,
@@ -135,8 +137,8 @@ function drawPanelBackground(
   ctx.fillStyle = innerGlow;
   ctx.fill();
 
-  // Edge — extremely subtle, shared across all panels
-  const edgeAlpha = tier === 'hero' ? 0.07 : tier === 'secondary' ? 0.04 : 0.025;
+  // Edge — nearly invisible, just enough to suggest structure
+  const edgeAlpha = tier === 'hero' ? 0.04 : tier === 'secondary' ? 0.025 : 0.012;
   ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
   ctx.lineWidth = 0.5;
   ctx.stroke();
