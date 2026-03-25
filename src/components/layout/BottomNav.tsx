@@ -67,7 +67,7 @@ export const BottomNav = () => {
               )}
               <Crown className={cn(
                 "w-5 h-5 transition-colors relative z-10",
-                location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/40"
+                location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/60"
               )} />
             </div>
             <span className={cn(
