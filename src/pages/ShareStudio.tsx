@@ -430,10 +430,10 @@ export default function ShareStudio() {
                 text-white/40 hover:text-white/60 active:scale-[0.97]"
               style={{
                 borderRadius: 999,
-                background: 'rgba(14, 22, 28, 0.35)',
-                backdropFilter: 'blur(60px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-                border: '1px solid rgba(120, 200, 220, 0.06)',
+                background: 'rgba(14, 22, 28, 0.22)',
+                backdropFilter: 'blur(70px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(70px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.02)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
