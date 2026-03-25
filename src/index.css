@@ -549,3 +549,17 @@
 .animate-sensory-pulse {
   animation: sensory-pulse 800ms ease-out forwards;
 }
+
+/* ─── Share Studio Tab ─── */
+.studio-tab {
+  @apply text-xs font-medium flex-shrink-0 px-3 py-1.5 rounded-lg transition-all;
+  color: hsl(220 15% 55%);
+}
+.studio-tab[data-state="active"] {
+  color: hsl(40 15% 95%);
+  background: hsl(220 18% 14%);
+  box-shadow: 0 1px 4px hsl(220 20% 4% / 0.3);
+}
+.studio-tab:hover:not([data-state="active"]) {
+  color: hsl(220 10% 70%);
+}
