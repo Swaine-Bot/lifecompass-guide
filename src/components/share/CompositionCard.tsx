@@ -74,7 +74,7 @@ export function CompositionCard({
       style={{
         width: maxPreviewWidth,
         height: previewHeight,
-        borderRadius: 64,
+        borderRadius: 24,
       }}
     >
       <canvas
@@ -83,20 +83,16 @@ export function CompositionCard({
           width: maxPreviewWidth,
           height: previewHeight,
           display: 'block',
-          borderRadius: 64,
+          borderRadius: 24,
         }}
       />
       {!rendered && (
       <div
           className="absolute inset-0 flex items-center justify-center"
           style={{
-            background: `
-              radial-gradient(ellipse at 30% 25%, rgba(255,160,60,0.10), transparent 45%),
-              radial-gradient(ellipse at 70% 75%, rgba(40,80,180,0.04), transparent 40%),
-              rgba(10, 10, 15, 0.35)
-            `,
-            borderRadius: 64,
-            backdropFilter: 'blur(50px) saturate(160%)',
+            background: 'rgba(14, 22, 28, 0.45)',
+            borderRadius: 24,
+            backdropFilter: 'blur(60px) saturate(140%)',
           }}
         >
           <div className="text-center space-y-2">
