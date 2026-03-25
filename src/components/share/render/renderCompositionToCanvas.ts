@@ -90,42 +90,44 @@ function drawPanelBackground(
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const kl = envTone.keyLight;
 
-  // Soft depth shadow — directional, matching key light
-  const shadowAlpha = tier === 'hero' ? 0.3 : tier === 'secondary' ? 0.18 : 0.1;
-  const shadowBlur = tier === 'hero' ? 28 : tier === 'secondary' ? 16 : 8;
+  // Unified surface — panels are INTERNAL STRUCTURE, not separate objects
+  // Minimal shadow — just enough depth to suggest hierarchy, not separation
+  const shadowAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.06 : 0.03;
+  const shadowBlur = tier === 'hero' ? 12 : tier === 'secondary' ? 6 : 3;
   ctx.shadowColor = `rgba(0, 0, 0, ${shadowAlpha})`;
   ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = (0.5 - kl.x) * 6; // shadow opposite to light
-  ctx.shadowOffsetY = tier === 'hero' ? 5 : 2;
+  ctx.shadowOffsetX = (0.5 - kl.x) * 2;
+  ctx.shadowOffsetY = tier === 'hero' ? 2 : 1;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  ctx.fillStyle = 'rgba(8, 10, 18, 0.35)';
+  ctx.fillStyle = 'rgba(8, 10, 18, 0.15)';
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  // Material fill — environment-tinted, NOT independent
+  // Material fill — continuous with environment, NOT isolated
+  // Lower opacity = more environment bleeds through
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const baseAlpha = tier === 'hero' ? 0.88 : tier === 'secondary' ? 0.78 : 0.65;
-  const tintStrength = tier === 'hero' ? 3 : tier === 'secondary' ? 2.5 : 2;
-  const baseR = Math.round(18 + tr * ta * tintStrength);
-  const baseG = Math.round(20 + tg * ta * tintStrength);
-  const baseB = Math.round(35 + tb * ta * tintStrength);
+  const baseAlpha = tier === 'hero' ? 0.55 : tier === 'secondary' ? 0.40 : 0.28;
+  const tintStrength = tier === 'hero' ? 5 : tier === 'secondary' ? 4 : 3;
+  const baseR = Math.round(14 + tr * ta * tintStrength);
+  const baseG = Math.round(16 + tg * ta * tintStrength);
+  const baseB = Math.round(28 + tb * ta * tintStrength);
 
-  // Gradient follows light direction
+  // Gradient follows light direction — shared across all panels
   const grad = ctx.createLinearGradient(
     panel.x + panel.width * kl.x, panel.y,
     panel.x + panel.width * (1 - kl.x), panel.y + panel.height,
   );
-  grad.addColorStop(0, `rgba(${baseR + 10}, ${baseG + 10}, ${baseB + 12}, ${baseAlpha})`);
-  grad.addColorStop(0.6, `rgba(${baseR + 3}, ${baseG + 3}, ${baseB + 3}, ${baseAlpha - 0.06})`);
-  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.12})`);
+  grad.addColorStop(0, `rgba(${baseR + 8}, ${baseG + 8}, ${baseB + 10}, ${baseAlpha})`);
+  grad.addColorStop(0.5, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 2}, ${baseAlpha - 0.05})`);
+  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.1})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner luminance — from key light direction
-  const glowAlpha = tier === 'hero' ? 0.05 : tier === 'secondary' ? 0.025 : 0.015;
+  // Inner luminance — very subtle, from key light
+  const glowAlpha = tier === 'hero' ? 0.03 : tier === 'secondary' ? 0.015 : 0.008;
   const innerGlow = ctx.createLinearGradient(
     panel.x + panel.width * kl.x * 0.5, panel.y,
     panel.x + panel.width * 0.5, panel.y + panel.height * 0.4,
@@ -135,8 +137,8 @@ function drawPanelBackground(
   ctx.fillStyle = innerGlow;
   ctx.fill();
 
-  // Edge — extremely subtle, shared across all panels
-  const edgeAlpha = tier === 'hero' ? 0.07 : tier === 'secondary' ? 0.04 : 0.025;
+  // Edge — nearly invisible, just enough to suggest structure
+  const edgeAlpha = tier === 'hero' ? 0.04 : tier === 'secondary' ? 0.025 : 0.012;
   ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
   ctx.lineWidth = 0.5;
   ctx.stroke();
@@ -660,7 +662,7 @@ function drawSponsorPanel(
   ctx.restore();
 }
 
-// ─── Main Background — Environment is source of truth ─────────────────
+// ─── Main Background — Card IS the environment ─────────────────
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
@@ -670,7 +672,7 @@ function drawBackground(
 ) {
   const colors = parseGradient(theme.bgGradient);
 
-  // Deep base fill — from theme
+  // Deep continuous base — this IS the LifeStack world
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
       spec.width * 0.1, 0,
@@ -681,61 +683,62 @@ function drawBackground(
     });
     ctx.fillStyle = grad;
   } else {
-    ctx.fillStyle = '#08080d';
+    ctx.fillStyle = '#0a0a10';
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Key light — directional, from environment tone
+  // Key light — broad, atmospheric, not spotlight-like
   const kl = envTone.keyLight;
   const keyGrad = ctx.createRadialGradient(
     spec.width * kl.x, spec.height * kl.y, 0,
-    spec.width * kl.x, spec.height * kl.y, spec.width * 0.8,
+    spec.width * kl.x, spec.height * kl.y, spec.width * 1.0,
   );
   keyGrad.addColorStop(0, kl.color);
-  keyGrad.addColorStop(0.35, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.025})`));
+  keyGrad.addColorStop(0.25, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.04})`));
+  keyGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.015})`));
   keyGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fill light — counterbalance
+  // Fill light — soft counterbalance
   const fl = envTone.fillLight;
   const fillGrad = ctx.createRadialGradient(
     spec.width * fl.x, spec.height * fl.y, 0,
-    spec.width * fl.x, spec.height * fl.y, spec.width * 0.5,
+    spec.width * fl.x, spec.height * fl.y, spec.width * 0.6,
   );
   fillGrad.addColorStop(0, fl.color);
   fillGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Ambient warmth — center gravity
+  // Ambient warmth — broader, more diffuse
   const aw = envTone.ambientWarmth;
   const centerGrad = ctx.createRadialGradient(
-    spec.width * 0.5, spec.height * 0.4, 0,
-    spec.width * 0.5, spec.height * 0.4, spec.width * 0.55,
+    spec.width * 0.5, spec.height * 0.38, 0,
+    spec.width * 0.5, spec.height * 0.38, spec.width * 0.65,
   );
   centerGrad.addColorStop(0, aw.color);
   centerGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine noise — materiality
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.004)';
-  for (let i = 0; i < 120; i++) {
+  // Fine grain — subtle materiality
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
+  for (let i = 0; i < 80; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Edge vignette — environment-driven
+  // Soft vignette — environment-driven, gentle
   const vs = envTone.vignetteStrength;
   const vignetteGrad = ctx.createRadialGradient(
-    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.28,
-    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.74,
+    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.32,
+    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.78,
   );
   vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(0.65, `rgba(0,0,0,${vs * 0.3})`);
-  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs})`);
+  vignetteGrad.addColorStop(0.7, `rgba(0,0,0,${vs * 0.2})`);
+  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs * 0.7})`);
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 }

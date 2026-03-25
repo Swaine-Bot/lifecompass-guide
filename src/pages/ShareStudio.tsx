@@ -386,14 +386,14 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
-          {/* ═══ PREVIEW — window INTO the environment, no container ═══ */}
-          <div className="relative flex justify-center py-3">
-            {/* Ambient environment glow behind card — connects card to world */}
+          {/* ═══ PREVIEW — the artifact exists IN the environment ═══ */}
+          <div className="relative flex justify-center py-6">
+            {/* Broad atmospheric glow — card emerges from the world */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[70%] h-[80%] rounded-[40px]"
+              <div className="w-full h-full"
                 style={{
-                  background: `radial-gradient(ellipse, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.12)')}, transparent 70%)`,
-                  filter: 'blur(40px)',
+                  background: `radial-gradient(ellipse at 50% 45%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.08)')}, transparent 65%)`,
+                  filter: 'blur(60px)',
                 }} />
             </div>
             <div className="relative">
@@ -402,17 +402,11 @@ export default function ShareStudio() {
                 platform={platform}
                 maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
               />
-              {/* Soft shadow dissolution — card melts into environment */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[80%] h-12 pointer-events-none"
-                style={{
-                  background: `radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%)`,
-                  filter: 'blur(12px)',
-                }} />
             </div>
           </div>
 
-          {/* Canvas dimensions — whisper */}
-          <p className="text-center text-[8px] text-white/20 uppercase tracking-[0.2em] font-medium">
+          {/* Canvas dimensions — barely there */}
+          <p className="text-center text-[7px] text-white/15 uppercase tracking-[0.25em] font-medium -mt-2">
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
