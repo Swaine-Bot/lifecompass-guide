@@ -365,11 +365,11 @@ export default function ShareStudio() {
         className="absolute inset-0 w-full h-full object-cover"
         style={{ filter: 'blur(16px) saturate(1.5) brightness(0.38)', transform: 'scale(1.12)' }}
       />
-      {/* Atmosphere — thinner, more transparent overlays */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.10), rgba(6,8,14,0.18))' }} />
+      {/* Atmosphere — near-invisible, just gentle tonal shaping */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.04), rgba(6,8,14,0.08))' }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.warmBloom }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.coolBloom }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.20) 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,0.10) 100%)' }} />
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
