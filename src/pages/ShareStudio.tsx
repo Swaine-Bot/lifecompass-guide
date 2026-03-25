@@ -400,33 +400,52 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 pb-36">
-          {/* ═══ PREVIEW STAGE — Floating Centerpiece ═══ */}
-          <div className="relative">
-            {/* Ambient glow behind card */}
+          {/* ═══ PREVIEW STAGE — Sacred Centerpiece ═══ */}
+          <div className="relative py-4">
+            {/* Multi-layer ambient glow */}
             <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-              <div className="w-80 h-80 rounded-full opacity-[0.08]"
-                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 65%)' }} />
+              <div className="w-96 h-96 rounded-full opacity-[0.06]"
+                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 60%)' }} />
+            </div>
+            <div className="absolute inset-0 flex justify-center items-start pointer-events-none">
+              <div className="w-64 h-64 mt-8 rounded-full opacity-[0.03]"
+                style={{ background: 'radial-gradient(circle, hsl(220 60% 60%), transparent 55%)' }} />
             </div>
 
             {/* Floating composition stage */}
-            <div className="relative rounded-2xl p-8 flex justify-center"
+            <div className="relative rounded-3xl p-10 flex justify-center"
               style={{
-                background: 'linear-gradient(180deg, hsl(220 20% 8% / 0.45) 0%, hsl(220 20% 5% / 0.35) 100%)',
-                border: '1px solid hsl(220 15% 25% / 0.12)',
-                boxShadow: '0 20px 80px -20px hsl(220 20% 3% / 0.5), 0 0 60px -15px hsl(43 74% 52% / 0.04)',
+                background: 'linear-gradient(175deg, hsl(220 20% 10% / 0.35) 0%, hsl(220 18% 6% / 0.25) 50%, hsl(225 20% 4% / 0.4) 100%)',
+                border: '1px solid hsl(220 15% 30% / 0.08)',
+                boxShadow: `
+                  0 32px 100px -24px hsl(220 20% 2% / 0.6),
+                  0 0 80px -20px hsl(43 74% 52% / 0.035),
+                  inset 0 1px 0 hsl(220 15% 40% / 0.06)
+                `,
+                backdropFilter: 'blur(20px)',
               }}
             >
+              {/* Inner subtle depth ring */}
+              <div className="absolute inset-3 rounded-2xl pointer-events-none"
+                style={{ border: '1px solid hsl(220 15% 25% / 0.04)' }} />
+
               <div className="relative">
                 <CompositionCard
                   content={normalizedContent}
                   platform={platform}
                   maxPreviewWidth={Math.min(300, window.innerWidth - 80)}
                 />
+                {/* Card object shadow */}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-8 pointer-events-none"
+                  style={{
+                    background: 'radial-gradient(ellipse, hsl(220 20% 2% / 0.5) 0%, transparent 70%)',
+                    filter: 'blur(8px)',
+                  }} />
               </div>
             </div>
 
             {/* Canvas dimensions label */}
-            <p className="text-center text-[9px] text-white/35 mt-3 uppercase tracking-[0.15em] font-medium">
+            <p className="text-center text-[9px] text-white/30 mt-4 uppercase tracking-[0.18em] font-medium">
               {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
             </p>
           </div>
