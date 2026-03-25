@@ -284,7 +284,7 @@
   }
 
   .chat-bubble-assistant .prose blockquote {
-    @apply border-l-2 border-primary/40 pl-3 my-3 italic text-muted-foreground;
+    @apply border-l-2 border-primary/40 pl-3 my-3 italic text-foreground/70;
   }
 
   .chat-bubble-assistant .prose hr {
