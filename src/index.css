@@ -388,7 +388,7 @@
   /* Category chip */
   .category-chip {
     @apply text-[10px] uppercase tracking-wider;
-    @apply bg-white/[0.05] border border-white/[0.08] text-muted-foreground/70;
+    @apply bg-white/[0.06] border border-white/[0.10] text-foreground/60;
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold;
   }
 
