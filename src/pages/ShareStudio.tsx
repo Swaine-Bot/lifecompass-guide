@@ -333,26 +333,34 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ Cinematic Background — matches Auth ══ */}
+      {/* ══ Cinematic Environment ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(6px) saturate(1.15) brightness(0.7)' }}
+        style={{ filter: 'blur(12px) saturate(1.25) brightness(0.55)', transform: 'scale(1.08)' }}
       />
-      {/* Dark gradient overlay */}
+      {/* Primary atmosphere overlay */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: `linear-gradient(180deg,
-          hsl(220 20% 3% / 0.7) 0%,
-          hsl(220 20% 4% / 0.5) 25%,
-          hsl(220 20% 3% / 0.6) 60%,
-          hsl(220 20% 2% / 0.88) 100%
+        background: `linear-gradient(170deg,
+          hsl(220 22% 3% / 0.62) 0%,
+          hsl(220 20% 4% / 0.42) 20%,
+          hsl(225 18% 5% / 0.55) 50%,
+          hsl(220 20% 2% / 0.92) 100%
         )`,
       }} />
-      {/* Radial vignette */}
+      {/* Warm ambient bloom — top left */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 30%, transparent 25%, hsl(220 20% 3% / 0.55) 100%)',
+        background: 'radial-gradient(ellipse at 25% 15%, hsl(43 74% 52% / 0.04) 0%, transparent 55%)',
+      }} />
+      {/* Cool depth bloom — bottom right */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 80% 85%, hsl(220 60% 45% / 0.03) 0%, transparent 50%)',
+      }} />
+      {/* Edge vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, hsl(220 20% 2% / 0.5) 100%)',
       }} />
 
       {/* ═══ Content Layer ═══ */}
@@ -392,33 +400,52 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 pb-36">
-          {/* ═══ PREVIEW STAGE — Floating Centerpiece ═══ */}
-          <div className="relative">
-            {/* Ambient glow behind card */}
+          {/* ═══ PREVIEW STAGE — Sacred Centerpiece ═══ */}
+          <div className="relative py-4">
+            {/* Multi-layer ambient glow */}
             <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-              <div className="w-80 h-80 rounded-full opacity-[0.08]"
-                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 65%)' }} />
+              <div className="w-96 h-96 rounded-full opacity-[0.06]"
+                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 60%)' }} />
+            </div>
+            <div className="absolute inset-0 flex justify-center items-start pointer-events-none">
+              <div className="w-64 h-64 mt-8 rounded-full opacity-[0.03]"
+                style={{ background: 'radial-gradient(circle, hsl(220 60% 60%), transparent 55%)' }} />
             </div>
 
             {/* Floating composition stage */}
-            <div className="relative rounded-2xl p-8 flex justify-center"
+            <div className="relative rounded-3xl p-10 flex justify-center"
               style={{
-                background: 'linear-gradient(180deg, hsl(220 20% 8% / 0.45) 0%, hsl(220 20% 5% / 0.35) 100%)',
-                border: '1px solid hsl(220 15% 25% / 0.12)',
-                boxShadow: '0 20px 80px -20px hsl(220 20% 3% / 0.5), 0 0 60px -15px hsl(43 74% 52% / 0.04)',
+                background: 'linear-gradient(175deg, hsl(220 20% 10% / 0.35) 0%, hsl(220 18% 6% / 0.25) 50%, hsl(225 20% 4% / 0.4) 100%)',
+                border: '1px solid hsl(220 15% 30% / 0.08)',
+                boxShadow: `
+                  0 32px 100px -24px hsl(220 20% 2% / 0.6),
+                  0 0 80px -20px hsl(43 74% 52% / 0.035),
+                  inset 0 1px 0 hsl(220 15% 40% / 0.06)
+                `,
+                backdropFilter: 'blur(20px)',
               }}
             >
+              {/* Inner subtle depth ring */}
+              <div className="absolute inset-3 rounded-2xl pointer-events-none"
+                style={{ border: '1px solid hsl(220 15% 25% / 0.04)' }} />
+
               <div className="relative">
                 <CompositionCard
                   content={normalizedContent}
                   platform={platform}
                   maxPreviewWidth={Math.min(300, window.innerWidth - 80)}
                 />
+                {/* Card object shadow */}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-8 pointer-events-none"
+                  style={{
+                    background: 'radial-gradient(ellipse, hsl(220 20% 2% / 0.5) 0%, transparent 70%)',
+                    filter: 'blur(8px)',
+                  }} />
               </div>
             </div>
 
             {/* Canvas dimensions label */}
-            <p className="text-center text-[9px] text-white/35 mt-3 uppercase tracking-[0.15em] font-medium">
+            <p className="text-center text-[9px] text-white/30 mt-4 uppercase tracking-[0.18em] font-medium">
               {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
             </p>
           </div>
@@ -440,11 +467,15 @@ export default function ShareStudio() {
             </button>
           </div>
 
-          {/* ═══ CONTROL TABS — Premium Console ═══ */}
+          {/* ═══ INSTRUMENT PANEL ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="rounded-2xl border border-white/[0.06] p-1.5 backdrop-blur-2xl"
-              style={{ background: 'hsl(220 20% 8% / 0.4)' }}>
-              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-1">
+            <div className="rounded-2xl p-1.5 backdrop-blur-2xl"
+              style={{
+                background: 'linear-gradient(180deg, hsl(220 18% 9% / 0.5) 0%, hsl(220 20% 7% / 0.4) 100%)',
+                border: '1px solid hsl(220 15% 22% / 0.1)',
+                boxShadow: 'inset 0 1px 0 hsl(220 15% 35% / 0.05), 0 4px 24px -8px hsl(220 20% 2% / 0.3)',
+              }}>
+              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
                 <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
                 <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
@@ -669,30 +700,35 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ ACTIONS — Clear CTA Hierarchy ═══ */}
-          <div className="space-y-3 pt-2">
+          {/* ═══ PRIMARY ACTION ═══ */}
+          <div className="space-y-3 pt-4">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-13 text-sm font-semibold gap-2.5 shadow-[0_0_32px_-8px_hsl(43_74%_52%/0.3)]"
+              className="w-full h-14 text-sm font-semibold gap-2.5 rounded-xl"
+              style={{
+                boxShadow: '0 0 40px -10px hsl(43 74% 52% / 0.25), 0 8px 32px -8px hsl(220 20% 2% / 0.4)',
+              }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
-            <div className="grid grid-cols-3 gap-2.5">
+
+            {/* Secondary utilities — subdued */}
+            <div className="grid grid-cols-3 gap-2 opacity-80">
               <Button onClick={handleDownload} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <Download className="w-3.5 h-3.5 mr-1.5" />Save
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />Copy
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="outline" size="sm"
-                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
-                <Link2 className="w-3.5 h-3.5 mr-1.5" />Link
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="outline"
-              className="w-full border-primary/15 bg-primary/[0.04] hover:bg-primary/[0.08] text-white/75 hover:text-white/90 h-10">
-              <Download className="w-4 h-4 mr-2 text-primary/70" />Save to Vault
+              className="w-full border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/55 hover:text-white/80 h-9 text-[11px]">
+              <Download className="w-3.5 h-3.5 mr-1.5 text-primary/50" />Save to Vault
             </Button>
           </div>
         </div>
