@@ -172,26 +172,22 @@ export default function ShareStudio() {
         return;
       }
 
-      // Generate smart link & caption separately — NOT included in share payload
       const smartUrl = await generateSmartLink();
       const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
       const nativePreset = PLATFORM_PROFILES[platform].nativeSharePreset;
 
-      // IMAGE-ONLY share — no text/url contamination
       const result = await nativeShare(blob, nativePreset);
 
       await trackShareEvent(user.id, selectedCard.cardType, result.shared ? `native_${nativePreset}` : result.method, platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
 
       if (result.shared) {
-        // Copy caption to clipboard after successful image share
         await copyToClipboard(caption);
         toast.success('Card shared! Caption copied for pasting.', { duration: 4000 });
         setStep('success');
       } else if (result.method === 'cancelled') {
-        // User cancelled — do nothing
+        // User cancelled
       } else {
-        // File sharing unsupported — controlled fallback
         const imgCopied = await copyImageToClipboard(blob);
         if (imgCopied) {
           await copyToClipboard(caption);
@@ -283,17 +279,17 @@ export default function ShareStudio() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center space-y-6 max-w-sm">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[hsl(var(--success))]/10 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-[hsl(var(--success))]/10 flex items-center justify-center ring-1 ring-[hsl(var(--success))]/20">
             <Check className="w-8 h-8 text-[hsl(var(--success))]" />
           </div>
           <h2 className="text-2xl font-serif font-bold text-foreground">Shared Successfully</h2>
-          <p className="text-sm text-muted-foreground">Your card has been shared as a rendered image.</p>
+          <p className="text-sm text-foreground/60">Your card has been shared as a rendered image.</p>
           {generatedSmartUrl && (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Your share link:</p>
+              <p className="text-xs text-foreground/50">Your share link:</p>
               <button onClick={() => { copyToClipboard(generatedSmartUrl); toast.success('Link copied'); }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border/50 text-xs text-foreground hover:bg-secondary transition-colors">
-                <Link2 className="w-3 h-3" />{generatedSmartUrl}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/60 backdrop-blur-xl border border-white/[0.06] text-xs text-foreground hover:bg-card/80 transition-colors">
+                <Link2 className="w-3 h-3 text-primary" />{generatedSmartUrl}
               </button>
             </div>
           )}
@@ -310,33 +306,33 @@ export default function ShareStudio() {
   if (showSaved) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-background/80 backdrop-blur-xl">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => setShowSaved(false)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-serif font-bold">My Shared Cards</h1>
+            <h1 className="text-lg font-serif font-bold text-foreground">My Shared Cards</h1>
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-3">
           {savedCards.length === 0 ? (
             <div className="text-center py-20">
-              <Image className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-              <p className="text-sm text-muted-foreground">No cards generated yet</p>
+              <Image className="w-10 h-10 text-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-foreground/50">No cards generated yet</p>
             </div>
           ) : (
             savedCards.map((card) => (
-              <Card key={card.id} className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
+              <Card key={card.id} variant="glass" className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground">{card.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/50">
                       {card.card_type?.replace(/_/g, ' ')} · {card.theme} · {new Date(card.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <span className={cn(
                     'text-[9px] px-2 py-0.5 rounded-full font-medium',
-                    card.is_shared ? 'bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]' : 'bg-secondary text-muted-foreground'
+                    card.is_shared ? 'bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]' : 'bg-secondary text-foreground/50'
                   )}>
                     {card.is_shared ? 'Shared' : 'Saved'}
                   </span>
@@ -352,81 +348,98 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      {/* ═══ PREMIUM HEADER ═══ */}
+      <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-background/80 backdrop-blur-xl">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-foreground/60 hover:text-foreground">
+              <ArrowLeft className="h-4.5 w-4.5" />
             </Button>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h1 className="text-lg font-serif font-bold">Share Studio</h1>
+            <div className="flex items-center gap-2.5">
+              <div className="icon-orb-sm">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h1 className="text-lg font-serif font-bold text-foreground leading-tight">Share Studio</h1>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/50 font-medium">Compose & publish</p>
+              </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={loadSavedCards} className="text-xs text-muted-foreground">
-            <LayoutGrid className="w-4 h-4 mr-1" />My Cards
+          <Button variant="outline" size="sm" onClick={loadSavedCards} className="text-xs gap-1.5 border-white/[0.08] bg-card/40 hover:bg-card/60">
+            <LayoutGrid className="w-3.5 h-3.5" />My Cards
           </Button>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 pb-32">
-        {/* Card Preview — deterministic canvas, same as export */}
-        <div className="flex justify-center">
-          <CompositionCard
-            content={normalizedContent}
-            platform={platform}
-            maxPreviewWidth={Math.min(320, window.innerWidth - 48)}
-          />
+      <div className="max-w-2xl mx-auto px-4 py-5 space-y-5 pb-32">
+        {/* ═══ PREVIEW CANVAS ═══ */}
+        <div className="relative">
+          {/* Ambient glow behind card */}
+          <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+            <div className="w-64 h-64 rounded-full opacity-[0.06]"
+              style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 70%)' }} />
+          </div>
+          <div className="relative flex justify-center py-4">
+            <CompositionCard
+              content={normalizedContent}
+              platform={platform}
+              maxPreviewWidth={Math.min(320, window.innerWidth - 48)}
+            />
+          </div>
         </div>
 
-        {/* Regenerate */}
+        {/* ═══ REGENERATE ACTION ═══ */}
         <div className="flex justify-center">
-          <Button variant="ghost" size="sm" onClick={() => {
-            const domain = mapLifeDomain(selectedCard.domain);
-            const newPhilosophy = getPhilosophyLine(domain);
-            setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
-            setPhrase(getRandomPhrase());
-          }} className="text-xs text-muted-foreground">
-            <RefreshCw className="w-3 h-3 mr-1.5" />Regenerate language
-          </Button>
+          <button
+            onClick={() => {
+              const domain = mapLifeDomain(selectedCard.domain);
+              const newPhilosophy = getPhilosophyLine(domain);
+              setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
+              setPhrase(getRandomPhrase());
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/[0.08] bg-card/40 backdrop-blur-sm text-xs text-foreground/70 hover:text-foreground hover:border-white/[0.12] transition-all"
+          >
+            <RefreshCw className="w-3 h-3" />Regenerate language
+          </button>
         </div>
 
-        {/* Tabs */}
+        {/* ═══ CONTROL TABS ═══ */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full bg-secondary/50 flex overflow-x-auto scrollbar-hide">
-            <TabsTrigger value="template" className="text-xs flex-shrink-0">Template</TabsTrigger>
-            <TabsTrigger value="ai" className="text-xs flex-shrink-0">AI</TabsTrigger>
-            <TabsTrigger value="style" className="text-xs flex-shrink-0">Style</TabsTrigger>
-            {hasPostImage && <TabsTrigger value="image" className="text-xs flex-shrink-0">Image</TabsTrigger>}
-            <TabsTrigger value="sponsor" className="text-xs flex-shrink-0">Partner</TabsTrigger>
-            <TabsTrigger value="privacy" className="text-xs flex-shrink-0">Privacy</TabsTrigger>
-            <TabsTrigger value="platform" className="text-xs flex-shrink-0">Platform</TabsTrigger>
-            <TabsTrigger value="link" className="text-xs flex-shrink-0">Link</TabsTrigger>
-          </TabsList>
+          <div className="rounded-xl border border-white/[0.06] bg-card/50 backdrop-blur-xl p-1">
+            <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
+              <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
+              <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
+              <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
+              {hasPostImage && <TabsTrigger value="image" className="studio-tab">Image</TabsTrigger>}
+              <TabsTrigger value="sponsor" className="studio-tab">Partner</TabsTrigger>
+              <TabsTrigger value="privacy" className="studio-tab">Privacy</TabsTrigger>
+              <TabsTrigger value="platform" className="studio-tab">Platform</TabsTrigger>
+              <TabsTrigger value="link" className="studio-tab">Link</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Template Tab */}
           <TabsContent value="template" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-4">
+            <Card variant="glass" className="p-5 space-y-5">
               <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
               {!hasPrefill && (
-                <div className="border-t border-border/30 pt-3">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Type</span>
+                <div className="border-t border-white/[0.06] pt-4">
+                  <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Card Type</span>
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     {demoCards.map((card) => (
                       <button key={card.cardType} onClick={() => setSelectedCard(card)}
                         className={cn(
-                          'flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all border',
+                          'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all border',
                           selectedCard.cardType === card.cardType
-                            ? 'border-primary bg-primary/10' : 'border-border/30 hover:border-border/60'
+                            ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20' : 'border-white/[0.06] hover:border-white/[0.12] bg-card/30'
                         )}>
                         <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
-                        <div>
+                        <div className="min-w-0">
                           <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground')}>
                             {CARD_TYPE_LABELS[card.cardType as CardType]}
                           </p>
-                          <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{card.title}</p>
+                          <p className="text-[10px] text-foreground/40 truncate">{card.title}</p>
                         </div>
                       </button>
                     ))}
@@ -435,14 +448,14 @@ export default function ShareStudio() {
               )}
 
               {hasPrefill && (
-                <div className="border-t border-border/30 pt-3">
-                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-primary bg-primary/10">
+                <div className="border-t border-white/[0.06] pt-4">
+                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-primary/40 bg-primary/10 ring-1 ring-primary/20">
                     <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs font-medium text-primary">
                         {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
                       </p>
-                      <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">{selectedCard.title}</p>
+                      <p className="text-[10px] text-foreground/40 truncate">{selectedCard.title}</p>
                     </div>
                   </div>
                 </div>
@@ -452,7 +465,7 @@ export default function ShareStudio() {
 
           {/* AI Insight Tab */}
           <TabsContent value="ai" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
+            <Card variant="glass" className="p-5">
               <AIInsightControls
                 enabled={aiInsightEnabled}
                 onToggle={setAiInsightEnabled}
@@ -468,29 +481,27 @@ export default function ShareStudio() {
           </TabsContent>
 
           <TabsContent value="style" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-4">
+            <Card variant="glass" className="p-5 space-y-4">
               <ShareThemeSelector theme={theme} onChange={setTheme} />
             </Card>
           </TabsContent>
 
           {hasPostImage && (
             <TabsContent value="image" className="mt-3">
-              <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+              <Card variant="glass" className="p-5 space-y-5">
                 <div>
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Post Image</span>
-                  <p className="text-[10px] text-muted-foreground mt-1">Control how the image appears on your share card.</p>
+                  <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Post Image</span>
+                  <p className="text-[10px] text-foreground/40 mt-1">Control how the image appears on your share card.</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
-                    </Label>
-                  </div>
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
+                  </Label>
                   <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
                 </div>
                 {includePostImage && (
                   <div className="space-y-3">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Layout</Label>
+                    <Label className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Layout</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {([
                         { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image dominates' },
@@ -501,12 +512,12 @@ export default function ShareStudio() {
                           className={cn(
                             'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
                             imageLayout === opt.value
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border/30 text-muted-foreground hover:border-border/60'
+                              ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
+                              : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12] bg-card/30'
                           )}>
                           {opt.icon}
                           <span className="text-[10px] font-medium">{opt.label}</span>
-                          <span className="text-[8px] opacity-60">{opt.desc}</span>
+                          <span className="text-[8px] text-foreground/40">{opt.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -517,38 +528,34 @@ export default function ShareStudio() {
           )}
 
           <TabsContent value="privacy" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
+            <Card variant="glass" className="p-5">
               <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
             </Card>
           </TabsContent>
 
-          {/* Platform Tab (replaces Format) */}
+          {/* Platform Tab */}
           <TabsContent value="platform" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl">
+            <Card variant="glass" className="p-5">
               <PlatformSelector platform={platform} onChange={setPlatform} />
             </Card>
           </TabsContent>
 
           <TabsContent value="link" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+            <Card variant="glass" className="p-5 space-y-5">
               <div>
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Link & Destination</span>
-                <p className="text-[10px] text-muted-foreground mt-1">Smart links route viewers to the app or store.</p>
+                <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Link & Destination</span>
+                <p className="text-[10px] text-foreground/40 mt-1">Smart links route viewers to the app or store.</p>
               </div>
               <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
-                  </Label>
-                </div>
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
+                </Label>
                 <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
               </div>
               <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
-                  </Label>
-                </div>
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
+                </Label>
                 <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
               </div>
               {includeSmartLink && (
@@ -558,39 +565,37 @@ export default function ShareStudio() {
                 </Button>
               )}
               {generatedSmartUrl && (
-                <p className="text-[10px] text-muted-foreground text-center break-all">{generatedSmartUrl}</p>
+                <p className="text-[10px] text-foreground/40 text-center break-all">{generatedSmartUrl}</p>
               )}
             </Card>
           </TabsContent>
 
           {/* Sponsor / Partner Tab */}
           <TabsContent value="sponsor" className="mt-3">
-            <Card className="p-4 bg-card/70 border-border/50 backdrop-blur-xl space-y-5">
+            <Card variant="glass" className="p-5 space-y-5">
               <div>
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sponsor / Partner</span>
-                <p className="text-[10px] text-muted-foreground mt-1">Add a premium partner attribution to this card.</p>
+                <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Sponsor / Partner</span>
+                <p className="text-[10px] text-foreground/40 mt-1">Add a premium partner attribution to this card.</p>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Handshake className="w-3.5 h-3.5 text-primary" />Enable partner zone
-                  </Label>
-                </div>
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2 min-w-0 flex-1">
+                  <Handshake className="w-3.5 h-3.5 text-primary shrink-0" />Enable partner zone
+                </Label>
                 <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
               </div>
               {sponsorEnabled && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Partner name</Label>
+                    <Label className="text-xs text-foreground/50">Partner name</Label>
                     <Input
                       value={sponsorName}
                       onChange={(e) => setSponsorName(e.target.value)}
                       placeholder="e.g. Discovery Vitality"
-                      className="bg-secondary/50 border-border/30"
+                      className="bg-card/40 border-white/[0.08]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Attribution type</Label>
+                    <Label className="text-xs text-foreground/50">Attribution type</Label>
                     <div className="grid grid-cols-3 gap-1.5">
                       {([
                         { value: 'sponsored' as const, label: 'Sponsored by' },
@@ -603,8 +608,8 @@ export default function ShareStudio() {
                           className={cn(
                             'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
                             sponsorType === opt.value
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border/30 text-muted-foreground hover:border-border/60'
+                              ? 'border-primary/40 bg-primary/10 text-primary'
+                              : 'border-white/[0.06] text-foreground/50 hover:border-white/[0.12]'
                           )}>
                           {opt.label}
                         </button>
@@ -612,12 +617,12 @@ export default function ShareStudio() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Message / CTA (optional)</Label>
+                    <Label className="text-xs text-foreground/50">Message / CTA (optional)</Label>
                     <Input
                       value={sponsorMessage}
                       onChange={(e) => setSponsorMessage(e.target.value)}
                       placeholder="e.g. Earn rewards for healthy habits"
-                      className="bg-secondary/50 border-border/30"
+                      className="bg-card/40 border-white/[0.08]"
                     />
                   </div>
                 </div>
@@ -626,23 +631,23 @@ export default function ShareStudio() {
           </TabsContent>
         </Tabs>
 
-        {/* Actions */}
-        <div className="space-y-2 pt-2">
-          <Button onClick={handleShare} disabled={sharing} className="w-full">
-            <Share2 className="w-4 h-4 mr-2" />{sharing ? 'Rendering & Sharing...' : 'Share'}
+        {/* ═══ ACTIONS ═══ */}
+        <div className="space-y-2.5 pt-2">
+          <Button onClick={handleShare} disabled={sharing} className="w-full h-11 text-sm font-semibold gap-2">
+            <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share'}
           </Button>
           <div className="grid grid-cols-3 gap-2">
-            <Button onClick={handleDownload} variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-1.5" />Save
+            <Button onClick={handleDownload} variant="outline" size="sm" className="border-white/[0.08] bg-card/30 hover:bg-card/50">
+              <Download className="w-3.5 h-3.5 mr-1.5" />Save
             </Button>
-            <Button onClick={handleCopy} variant="outline" size="sm">
-              <ClipboardCopy className="w-4 h-4 mr-1.5" />Copy
+            <Button onClick={handleCopy} variant="outline" size="sm" className="border-white/[0.08] bg-card/30 hover:bg-card/50">
+              <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />Copy
             </Button>
-            <Button onClick={handleCopyLink} variant="outline" size="sm">
-              <Link2 className="w-4 h-4 mr-1.5" />Link
+            <Button onClick={handleCopyLink} variant="outline" size="sm" className="border-white/[0.08] bg-card/30 hover:bg-card/50">
+              <Link2 className="w-3.5 h-3.5 mr-1.5" />Link
             </Button>
           </div>
-          <Button onClick={handleSave} variant="outline" className="w-full">
+          <Button onClick={handleSave} variant="outline" className="w-full border-white/[0.08] bg-card/30 hover:bg-card/50">
             <Download className="w-4 h-4 mr-2" />Save to Vault
           </Button>
         </div>
