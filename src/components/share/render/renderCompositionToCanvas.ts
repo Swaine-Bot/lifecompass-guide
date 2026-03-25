@@ -320,19 +320,19 @@ function drawTextPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, 'hero');
 
-  const pad = 24;
+  const pad = 28;
   const theme = content.theme;
 
   ctx.save();
 
-  // Title — serif editorial
+  // Title — serif editorial, hero-grade contrast
   const titleSize = spec.typography.titleFontSize;
-  ctx.font = `600 ${titleSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = theme.headlineHex;
+  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  ctx.fillStyle = 'rgb(248, 248, 252)'; // stronger white for hero panel
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * spec.typography.titleLineHeight;
+  const titleLineH = titleSize * 1.18; // tighter title line height
 
   let cursorY = panel.y + pad + titleSize;
   for (const line of titleLines) {
@@ -340,9 +340,9 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle — warm readable tone
+  // Subtitle — tighter coupling to title, then more space before next block
   if (content.subtitle) {
-    cursorY += 12;
+    cursorY += 8; // tighter gap from title (was 12)
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
@@ -364,7 +364,7 @@ function drawTextPanel(
     const finalMaxLines = Math.max(maxVisibleLines, 3);
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = 'rgb(195, 198, 210)';
+    ctx.fillStyle = 'rgb(210, 212, 225)'; // warmer, more readable
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
