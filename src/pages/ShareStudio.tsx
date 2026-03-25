@@ -444,7 +444,7 @@ export default function ShareStudio() {
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — floating glass pill ═══ */}
+          {/* ═══ REGENERATE — floating glass capsule ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -453,15 +453,18 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[10px] font-medium
-                text-white/45 hover:text-white/70"
+              className="inline-flex items-center gap-2 px-6 py-3 transition-all text-[10px] font-medium
+                text-white/35 hover:text-white/60 active:scale-[0.97]"
               style={{
                 borderRadius: 999,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035))',
-                backdropFilter: 'blur(24px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-                border: '1px solid rgba(255,255,255,0.065)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 40px rgba(0,0,0,0.08)',
+                background: `
+                  radial-gradient(ellipse at 30% 20%, rgba(255,160,60,0.04), transparent 50%),
+                  linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))
+                `,
+                backdropFilter: 'blur(36px) saturate(155%)',
+                WebkitBackdropFilter: 'blur(36px) saturate(155%)',
+                border: '1px solid rgba(255,255,255,0.04)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.06)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
