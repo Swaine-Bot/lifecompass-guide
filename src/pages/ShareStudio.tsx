@@ -386,16 +386,20 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
-          {/* ═══ PREVIEW — the artifact exists IN the environment ═══ */}
-          <div className="relative flex justify-center py-6">
-            {/* Broad atmospheric glow — card emerges from the world */}
+          {/* ═══ PREVIEW — artifact condensed FROM the environment ═══ */}
+          <div className="relative flex justify-center py-8">
+            {/* Wide atmospheric diffusion — card emerges from background, no edges */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-full h-full"
+              <div className="w-[140%] h-[140%] -translate-x-[20%]"
                 style={{
-                  background: `radial-gradient(ellipse at 50% 45%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.08)')}, transparent 65%)`,
-                  filter: 'blur(60px)',
+                  background: `
+                    radial-gradient(ellipse at 40% 35%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 60%),
+                    radial-gradient(ellipse at 60% 65%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.05)')}, transparent 55%)
+                  `,
+                  filter: 'blur(80px)',
                 }} />
             </div>
+            {/* No frame, no container — card sits directly in the world */}
             <div className="relative">
               <CompositionCard
                 content={normalizedContent}
