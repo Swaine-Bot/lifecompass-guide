@@ -626,10 +626,10 @@ function drawSponsorPanel(
   const sG = Math.round(18 + tg * ta * 3);
   const sB = Math.round(30 + tb * ta * 3);
 
-  // Atmospheric surface — variable density
+  // Atmospheric surface — lighter, more translucent
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.18)`);
-  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.32)`);
+  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.10)`);
+  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.18)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
