@@ -413,22 +413,24 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
-          {/* ═══ PREVIEW — artifact condensed FROM the environment ═══ */}
-          <div className="relative flex justify-center py-10">
-            {/* Wide atmospheric diffusion — card emerges from background, no edges */}
+          {/* ═══ PREVIEW — floating in the environment, no container ═══ */}
+          <div className="relative flex justify-center py-12">
+            {/* Wide atmospheric glow — warm amber wash behind card */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[200%] h-[200%]"
+              <div className="w-[260%] h-[260%]"
                 style={{
                   background: `
-                    radial-gradient(ellipse at 30% 25%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.18)')}, transparent 50%),
-                    radial-gradient(ellipse at 70% 75%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 45%),
-                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.06), transparent 55%)
+                    radial-gradient(ellipse at 35% 30%, rgba(255,160,60,0.22), transparent 45%),
+                    radial-gradient(ellipse at 65% 70%, rgba(40,90,200,0.08), transparent 40%),
+                    radial-gradient(ellipse at 50% 50%, rgba(255,180,80,0.06), transparent 50%)
                   `,
-                  filter: 'blur(100px)',
+                  filter: 'blur(120px)',
                 }} />
             </div>
-            {/* No frame, no container — card sits directly in the world */}
-            <div className="relative">
+            {/* Card floats directly — zero framing */}
+            <div className="relative" style={{
+              filter: 'drop-shadow(0 24px 80px rgba(0,0,0,0.15)) drop-shadow(0 0 60px rgba(255,140,40,0.05))',
+            }}>
               <CompositionCard
                 content={normalizedContent}
                 platform={platform}
@@ -437,8 +439,8 @@ export default function ShareStudio() {
             </div>
           </div>
 
-          {/* Canvas dimensions — barely there */}
-          <p className="text-center text-[7px] text-white/15 uppercase tracking-[0.25em] font-medium -mt-2">
+          {/* Canvas dimensions — whisper */}
+          <p className="text-center text-[7px] text-white/10 uppercase tracking-[0.25em] font-medium -mt-4">
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
