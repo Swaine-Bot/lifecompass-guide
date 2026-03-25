@@ -89,65 +89,95 @@ function drawPanelBackground(
 
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const kl = envTone.keyLight;
+  const fl = envTone.fillLight;
 
-  // ── ATMOSPHERIC SURFACE — a translucent glass bubble, not a container ──
+  // ── GLASS VOLUME — formed from environment, not placed on it ──
 
+  // LAYER 1: Internal radial bloom — warm center glow, not a flat fill
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const bloomGrad = ctx.createRadialGradient(
+    panel.x + panel.width * 0.35, panel.y + panel.height * 0.3, 0,
+    panel.x + panel.width * 0.5, panel.y + panel.height * 0.5, Math.max(panel.width, panel.height) * 0.7,
+  );
+  const bloomAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  bloomGrad.addColorStop(0, `rgba(${180 + tr}, ${150 + tg}, ${100 + tb}, ${bloomAlpha})`);
+  bloomGrad.addColorStop(0.4, `rgba(${80 + tr}, ${70 + tg}, ${60 + tb}, ${bloomAlpha * 0.4})`);
+  bloomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = bloomGrad;
+  ctx.fill();
 
-  // Variable glass — extremely translucent, warm-tinted
-  const topAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.025 : 0.015;
-  const midAlpha = tier === 'hero' ? 0.07 : tier === 'secondary' ? 0.05 : 0.03;
-  const botAlpha = tier === 'hero' ? 0.11 : tier === 'secondary' ? 0.08 : 0.05;
+  // LAYER 2: Variable glass density — top: clear, bottom: denser
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const topAlpha = tier === 'hero' ? 0.015 : tier === 'secondary' ? 0.01 : 0.006;
+  const botAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
 
-  const tintStrength = tier === 'hero' ? 8 : tier === 'secondary' ? 6 : 4;
-  const baseR = Math.round(18 + tr * ta * tintStrength);
-  const baseG = Math.round(16 + tg * ta * tintStrength);
-  const baseB = Math.round(22 + tb * ta * tintStrength);
+  const tintS = tier === 'hero' ? 6 : tier === 'secondary' ? 4 : 3;
+  const bR = Math.round(24 + tr * ta * tintS);
+  const bG = Math.round(22 + tg * ta * tintS);
+  const bB = Math.round(28 + tb * ta * tintS);
 
-  // Vertical gradient — variable density, warm-tinted glass
-  const grad = ctx.createLinearGradient(
+  const densityGrad = ctx.createLinearGradient(
     panel.x + panel.width * kl.x, panel.y,
     panel.x + panel.width * (1 - kl.x), panel.y + panel.height,
   );
-  grad.addColorStop(0, `rgba(${baseR + 16}, ${baseG + 14}, ${baseB + 12}, ${topAlpha})`);
-  grad.addColorStop(0.3, `rgba(${baseR + 8}, ${baseG + 7}, ${baseB + 6}, ${midAlpha})`);
-  grad.addColorStop(0.7, `rgba(${baseR + 3}, ${baseG + 3}, ${baseB + 2}, ${midAlpha + 0.015})`);
-  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${botAlpha})`);
-  ctx.fillStyle = grad;
+  densityGrad.addColorStop(0, `rgba(${bR + 20}, ${bG + 18}, ${bB + 16}, ${topAlpha})`);
+  densityGrad.addColorStop(0.5, `rgba(${bR + 8}, ${bG + 7}, ${bB + 6}, ${(topAlpha + botAlpha) * 0.4})`);
+  densityGrad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, ${botAlpha})`);
+  ctx.fillStyle = densityGrad;
   ctx.fill();
 
-  // Environment bleed — warm key light tints the panel surface
+  // LAYER 3: Environment bleed — key light warm tint
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const bleedGrad = ctx.createRadialGradient(
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
-    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 1.0,
+    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 1.2,
   );
-  const bleedAlpha = tier === 'hero' ? 0.15 : tier === 'secondary' ? 0.09 : 0.05;
+  const bleedAlpha = tier === 'hero' ? 0.10 : tier === 'secondary' ? 0.06 : 0.035;
   bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
-  bleedGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.3})`));
+  bleedGrad.addColorStop(0.35, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.25})`));
   bleedGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = bleedGrad;
   ctx.fill();
 
-  // Inner luminance — bright top edge highlight for glass feel
-  const lumAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.02;
+  // LAYER 4: Fill light — cool complement from opposite corner
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const coolGrad = ctx.createRadialGradient(
+    panel.x + panel.width * fl.x, panel.y + panel.height * fl.y, 0,
+    panel.x + panel.width * fl.x, panel.y + panel.height * fl.y, panel.width * 0.8,
+  );
+  const coolAlpha = tier === 'hero' ? 0.04 : tier === 'secondary' ? 0.025 : 0.015;
+  coolGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${coolAlpha})`));
+  coolGrad.addColorStop(0.4, fl.color.replace(/[\d.]+\)$/, `${coolAlpha * 0.2})`));
+  coolGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = coolGrad;
+  ctx.fill();
+
+  // LAYER 5: Top-left specular highlight — micro glass reflection
+  const specAlpha = tier === 'hero' ? 0.07 : tier === 'secondary' ? 0.05 : 0.03;
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const specGrad = ctx.createRadialGradient(
+    panel.x + panel.width * 0.15, panel.y + panel.height * 0.05, 0,
+    panel.x + panel.width * 0.3, panel.y + panel.height * 0.25, panel.width * 0.5,
+  );
+  specGrad.addColorStop(0, `rgba(255, 255, 255, ${specAlpha})`);
+  specGrad.addColorStop(0.3, `rgba(255, 255, 255, ${specAlpha * 0.25})`);
+  specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = specGrad;
+  ctx.fill();
+
+  // LAYER 6: Inner luminance — subtle top edge for volumetric feel
+  const lumAlpha = tier === 'hero' ? 0.04 : tier === 'secondary' ? 0.025 : 0.015;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
-    panel.x, panel.y + panel.height * 0.4,
+    panel.x, panel.y + panel.height * 0.25,
   );
   innerLum.addColorStop(0, `rgba(255, 255, 255, ${lumAlpha})`);
   innerLum.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = innerLum;
   ctx.fill();
 
-  // Whisper-thin edge — barely perceptible glass edge
-  if (tier === 'hero' || tier === 'secondary') {
-    drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-    ctx.strokeStyle = `rgba(255, 255, 255, ${tier === 'hero' ? 0.025 : 0.015})`;
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-  }
+  // No visible edge stroke — volumes don't have borders
 
   ctx.restore();
 }
