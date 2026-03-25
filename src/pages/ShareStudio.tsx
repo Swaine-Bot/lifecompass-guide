@@ -467,11 +467,15 @@ export default function ShareStudio() {
             </button>
           </div>
 
-          {/* ═══ CONTROL TABS — Premium Console ═══ */}
+          {/* ═══ INSTRUMENT PANEL ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="rounded-2xl border border-white/[0.06] p-1.5 backdrop-blur-2xl"
-              style={{ background: 'hsl(220 20% 8% / 0.4)' }}>
-              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-1">
+            <div className="rounded-2xl p-1.5 backdrop-blur-2xl"
+              style={{
+                background: 'linear-gradient(180deg, hsl(220 18% 9% / 0.5) 0%, hsl(220 20% 7% / 0.4) 100%)',
+                border: '1px solid hsl(220 15% 22% / 0.1)',
+                boxShadow: 'inset 0 1px 0 hsl(220 15% 35% / 0.05), 0 4px 24px -8px hsl(220 20% 2% / 0.3)',
+              }}>
+              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
                 <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
                 <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
