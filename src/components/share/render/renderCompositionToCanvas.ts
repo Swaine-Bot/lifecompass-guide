@@ -1,16 +1,18 @@
 /**
- * Deterministic Canvas Renderer — Cinematic Edition.
+ * Deterministic Canvas Renderer — Unified Environment Edition.
  *
  * Renders a CompositionSpec + NormalizedShareContent directly to a
  * <canvas> element at exact export dimensions. No DOM capture, no
  * html2canvas, no post-crop/pad.
  *
- * This is the CANONICAL export path.
+ * Uses the shared EnvironmentTone system so card backgrounds match
+ * the Share Studio atmosphere.
  */
 
 import type { CompositionSpec, PanelSpec } from '../composition/computeCompositionSpec';
 import type { NormalizedShareContent } from '../composition/normalizeShareContent';
 import type { ThemeDefinition, SponsorData } from '@/services/shareService';
+import { getEnvironmentTone, type EnvironmentTone } from '../environmentTone';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
@@ -56,60 +58,61 @@ function drawPanelBackground(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
   radius: number,
+  envTone: EnvironmentTone,
   tier: PanelTier = 'secondary',
   glowColor?: string,
 ) {
   ctx.save();
 
-  // Outer depth shadow — cards feel like objects in space
-  const shadowAlpha = tier === 'hero' ? 0.4 : tier === 'secondary' ? 0.25 : 0.15;
-  const shadowBlur = tier === 'hero' ? 40 : tier === 'secondary' ? 24 : 14;
+  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
+
+  // Soft depth shadow — objects in environment
+  const shadowAlpha = tier === 'hero' ? 0.35 : tier === 'secondary' ? 0.2 : 0.12;
+  const shadowBlur = tier === 'hero' ? 32 : tier === 'secondary' ? 18 : 10;
   ctx.shadowColor = `rgba(0, 0, 0, ${shadowAlpha})`;
   ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetY = tier === 'hero' ? 8 : 4;
+  ctx.shadowOffsetY = tier === 'hero' ? 6 : 3;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  ctx.fillStyle = 'rgba(14, 16, 24, 0.5)';
+  ctx.fillStyle = 'rgba(10, 12, 20, 0.4)';
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;
 
-  // Material fill — refined glass with warmth
+  // Material fill — environment-tinted glass
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const materials: Record<PanelTier, [string, string, string]> = {
-    hero:      ['rgba(30, 32, 52, 0.94)', 'rgba(26, 28, 46, 0.88)', 'rgba(22, 24, 40, 0.84)'],
-    secondary: ['rgba(24, 26, 44, 0.86)', 'rgba(20, 22, 38, 0.80)', 'rgba(16, 18, 32, 0.76)'],
-    tertiary:  ['rgba(20, 22, 38, 0.74)', 'rgba(16, 18, 32, 0.68)', 'rgba(14, 16, 28, 0.64)'],
-  };
+  const baseAlpha = tier === 'hero' ? 0.92 : tier === 'secondary' ? 0.84 : 0.72;
+  const baseR = Math.round(22 + tr * ta * 2);
+  const baseG = Math.round(24 + tg * ta * 2);
+  const baseB = Math.round(42 + tb * ta * 2);
 
-  const [c1, c2, c3] = materials[tier];
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width * 0.3, panel.y + panel.height);
-  grad.addColorStop(0, c1);
-  grad.addColorStop(0.5, c2);
-  grad.addColorStop(1, c3);
+  grad.addColorStop(0, `rgba(${baseR + 8}, ${baseG + 8}, ${baseB + 10}, ${baseAlpha})`);
+  grad.addColorStop(0.5, `rgba(${baseR + 4}, ${baseG + 4}, ${baseB + 4}, ${baseAlpha - 0.06})`);
+  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.1})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner luminance — subtle top highlight simulating ambient light
-  const innerGlow = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height * 0.4);
-  const glowAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.035 : 0.02;
+  // Inner luminance — simulating environment key light
+  const glowAlpha = tier === 'hero' ? 0.055 : tier === 'secondary' ? 0.03 : 0.018;
+  const innerGlow = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height * 0.35);
   innerGlow.addColorStop(0, `rgba(255, 255, 255, ${glowAlpha})`);
   innerGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = innerGlow;
   ctx.fill();
 
-  // Edge highlight — refined 1px top/left edge
-  const edgeAlpha = tier === 'hero' ? 0.14 : tier === 'secondary' ? 0.08 : 0.05;
+  // Subtle edge — reduced for sculpted feel
+  const edgeAlpha = tier === 'hero' ? 0.1 : tier === 'secondary' ? 0.06 : 0.035;
   ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
-  ctx.lineWidth = 0.75;
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // Warm ambient glow — hero gets gold, secondary gets subtle
+  // Ambient glow from environment
   if (tier === 'hero' || glowColor) {
-    const gc = glowColor || 'rgba(200, 170, 80, 0.07)';
+    const gc = glowColor || `rgba(${tr}, ${tg}, ${tb}, 0.06)`;
     ctx.shadowColor = gc;
-    ctx.shadowBlur = tier === 'hero' ? 36 : 22;
-    ctx.shadowOffsetY = tier === 'hero' ? 6 : 3;
+    ctx.shadowBlur = tier === 'hero' ? 28 : 16;
+    ctx.shadowOffsetY = tier === 'hero' ? 4 : 2;
     ctx.strokeStyle = 'transparent';
     ctx.stroke();
     ctx.shadowColor = 'transparent';
@@ -172,7 +175,6 @@ function drawMediaPanel(
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
   ctx.clip();
 
-  // Draw image with cover fit
   const imgAspect = img.naturalWidth / img.naturalHeight;
   const panelAspect = panel.width / panel.height;
   let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
@@ -268,17 +270,19 @@ function drawInsightPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', 'rgba(200, 170, 80, 0.1)');
+  const { r: tr, g: tg, b: tb } = envTone.panelTint;
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary', `rgba(${tr}, ${tg}, ${tb}, 0.1)`);
 
   const pad = 24;
   const theme = content.theme;
 
   ctx.save();
 
-  // Accent bar — taller, more presence
+  // Accent bar
   const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + 28);
   barGrad.addColorStop(0, theme.accentHex);
   barGrad.addColorStop(1, 'rgba(200,170,80,0.2)');
@@ -297,7 +301,6 @@ function drawInsightPanel(
   const insightHeadingGap = 20;
   const headerH = pad + 28 + insightHeadingGap;
 
-  // Insight text — high contrast warm white
   let fontSize = spec.typography.insightFontSize;
   const textX = panel.x + pad;
   const textMaxW = panel.width - pad * 2;
@@ -336,24 +339,24 @@ function drawTextPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'hero');
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
 
   const pad = 28;
-  const theme = content.theme;
 
   ctx.save();
 
-  // Title — serif editorial, hero-grade contrast
+  // Title — serif editorial
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = 'rgb(248, 248, 252)'; // stronger white for hero panel
+  ctx.fillStyle = 'rgb(248, 248, 252)';
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.18; // tighter title line height
+  const titleLineH = titleSize * 1.18;
 
   let cursorY = panel.y + pad + titleSize;
   for (const line of titleLines) {
@@ -361,9 +364,9 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle — tighter coupling to title, then more space before next block
+  // Subtitle
   if (content.subtitle) {
-    cursorY += 8; // tighter gap from title (was 12)
+    cursorY += 8;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
@@ -385,7 +388,7 @@ function drawTextPanel(
     const finalMaxLines = Math.max(maxVisibleLines, 3);
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = 'rgb(210, 212, 225)'; // warmer, more readable
+    ctx.fillStyle = 'rgb(212, 214, 228)';
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
@@ -401,10 +404,12 @@ function drawMomentumPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
+  const { r: tr, g: tg, b: tb } = envTone.panelTint;
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary', content.statValue ? `rgba(${tr}, ${tg}, ${tb}, 0.08)` : undefined);
 
   const pad = 20;
   const theme = content.theme;
@@ -430,13 +435,11 @@ function drawMomentumPanel(
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // Stat value — bold serif with gold accent
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     cursorY += statSize * 0.8;
     ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
 
-    // Stat label
     if (content.statLabel) {
       cursorY += labelGap + labelSize;
       ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
@@ -463,10 +466,11 @@ function drawMetaPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'tertiary');
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'tertiary');
 
   const pad = 20;
   const theme = content.theme;
@@ -477,14 +481,12 @@ function drawMetaPanel(
   const lineGap = 10;
   let cursorY = panel.y + pad + metaSize;
 
-  // Card type label
   ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.85;
   ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   ctx.globalAlpha = 1;
 
-  // Time anchor
   if (content.timeAnchor) {
     cursorY += metaSize + lineGap;
     ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
@@ -492,7 +494,6 @@ function drawMetaPanel(
     ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
-  // Domain
   if (content.domain) {
     cursorY += (metaSize - 2) + lineGap;
     ctx.font = `500 ${14}px ${FONT_FAMILY}`;
@@ -508,26 +509,30 @@ function drawBrandPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible) return;
 
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Integrated brand material — seamless continuation, not appended
+  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
+  const bR = Math.round(16 + tr * ta * 1.5);
+  const bG = Math.round(18 + tg * ta * 1.5);
+  const bB = Math.round(30 + tb * ta * 1.5);
+
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(20, 22, 38, 0.75)');
-  grad.addColorStop(0.5, 'rgba(16, 18, 32, 0.70)');
-  grad.addColorStop(1, 'rgba(14, 16, 28, 0.68)');
+  grad.addColorStop(0, `rgba(${bR + 4}, ${bG + 4}, ${bB + 8}, 0.72)`);
+  grad.addColorStop(0.5, `rgba(${bR + 2}, ${bG + 2}, ${bB + 4}, 0.68)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.65)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Subtle top edge — continuity with panels above
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.045)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
   ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // LS icon — refined gold gradient with ambient glow
+  // LS icon
   const iconSize = 36;
   const iconX = panel.x + panel.width / 2 - 80;
   const iconY = panel.y + (panel.height - iconSize) / 2;
@@ -539,9 +544,8 @@ function drawBrandPanel(
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
-  // Icon ambient glow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
-  ctx.shadowBlur = 18;
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.2)';
+  ctx.shadowBlur = 14;
   ctx.shadowOffsetY = 2;
   ctx.fillStyle = iconGrad;
   ctx.fill();
@@ -554,7 +558,6 @@ function drawBrandPanel(
   ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4.5);
   ctx.textAlign = 'left';
 
-  // "Posted from LifeStack" — elegant, integrated
   const brandSize = spec.typography.brandFontSize;
   const textX = iconX + iconSize + 14;
   const textY = panel.y + panel.height / 2 + brandSize / 3;
@@ -578,22 +581,28 @@ function drawSponsorPanel(
   panel: PanelSpec,
   content: NormalizedShareContent,
   spec: CompositionSpec,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible || !content.sponsor) return;
 
   const sponsor = content.sponsor;
   const pad = 20;
+  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
 
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
+  const sR = Math.round(18 + tr * ta * 1.5);
+  const sG = Math.round(20 + tg * ta * 1.5);
+  const sB = Math.round(32 + tb * ta * 1.5);
+
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(22, 24, 36, 0.82)');
-  grad.addColorStop(1, 'rgba(18, 20, 30, 0.76)');
+  grad.addColorStop(0, `rgba(${sR + 4}, ${sG + 4}, ${sB + 4}, 0.8)`);
+  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.74)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(200, 170, 80, 0.14)';
+  ctx.strokeStyle = `rgba(${tr}, ${tg}, ${tb}, 0.12)`;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -630,12 +639,13 @@ function drawSponsorPanel(
   ctx.restore();
 }
 
-// ─── Main Background ─────────────────────────────────────────────────
+// ─── Main Background — Environment-driven ────────────────────────────
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
   spec: CompositionSpec,
   theme: ThemeDefinition,
+  envTone: EnvironmentTone,
 ) {
   const colors = parseGradient(theme.bgGradient);
 
@@ -654,53 +664,57 @@ function drawBackground(
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Warm radial highlight — gold ambient top-left (cinematic key light)
-  const radGrad = ctx.createRadialGradient(
-    spec.width * 0.18, spec.height * 0.1, 0,
-    spec.width * 0.18, spec.height * 0.1, spec.width * 0.75,
+  // Key light — from environment tone
+  const kl = envTone.keyLight;
+  const keyGrad = ctx.createRadialGradient(
+    spec.width * kl.x, spec.height * kl.y, 0,
+    spec.width * kl.x, spec.height * kl.y, spec.width * 0.75,
   );
-  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.065)');
-  radGrad.addColorStop(0.4, 'rgba(200, 170, 80, 0.022)');
-  radGrad.addColorStop(1, 'transparent');
-  ctx.fillStyle = radGrad;
+  keyGrad.addColorStop(0, kl.color);
+  keyGrad.addColorStop(0.4, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.03})`));
+  keyGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Cool depth highlight — blue ambient bottom-right (fill light)
-  const radGrad2 = ctx.createRadialGradient(
-    spec.width * 0.82, spec.height * 0.88, 0,
-    spec.width * 0.82, spec.height * 0.88, spec.width * 0.45,
+  // Fill light — from environment tone
+  const fl = envTone.fillLight;
+  const fillGrad = ctx.createRadialGradient(
+    spec.width * fl.x, spec.height * fl.y, 0,
+    spec.width * fl.x, spec.height * fl.y, spec.width * 0.45,
   );
-  radGrad2.addColorStop(0, 'rgba(70, 90, 170, 0.035)');
-  radGrad2.addColorStop(1, 'transparent');
-  ctx.fillStyle = radGrad2;
+  fillGrad.addColorStop(0, fl.color);
+  fillGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Subtle center warmth — emotional gravity
+  // Ambient warmth — center gravity
+  const aw = envTone.ambientWarmth;
   const centerGrad = ctx.createRadialGradient(
     spec.width * 0.5, spec.height * 0.4, 0,
     spec.width * 0.5, spec.height * 0.4, spec.width * 0.5,
   );
-  centerGrad.addColorStop(0, 'rgba(180, 160, 120, 0.015)');
+  centerGrad.addColorStop(0, aw.color);
   centerGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine noise texture — adds materiality
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.006)';
-  for (let i = 0; i < 200; i++) {
+  // Fine noise texture
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.005)';
+  for (let i = 0; i < 150; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Edge vignette — deeper, more cinematic
+  // Edge vignette — environment-driven strength
+  const vs = envTone.vignetteStrength;
   const vignetteGrad = ctx.createRadialGradient(
     spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.3,
     spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.72,
   );
   vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(0.7, 'rgba(0,0,0,0.08)');
-  vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+  vignetteGrad.addColorStop(0.7, `rgba(0,0,0,${vs * 0.35})`);
+  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs})`);
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 }
@@ -716,6 +730,9 @@ export async function renderCompositionToCanvas(
   canvas.height = spec.height;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2d context');
+
+  // Resolve environment tone from theme
+  const envTone = getEnvironmentTone(content.theme.id);
 
   // Wait for fonts
   if ('fonts' in document) {
@@ -735,23 +752,23 @@ export async function renderCompositionToCanvas(
     }
   }
 
-  // 1. Background
-  drawBackground(ctx, spec, content.theme);
+  // 1. Background — environment-driven
+  drawBackground(ctx, spec, content.theme, envTone);
 
   // 2. Background image (if background treatment)
   if (content.imageTreatment === 'background') {
     drawBackgroundImage(ctx, spec, content, mediaImg);
   }
 
-  // 3. Panels (in z-order)
+  // 3. Panels (in z-order) — all receive envTone
   const panelDrawOrder: [PanelSpec, (ctx: CanvasRenderingContext2D, panel: PanelSpec) => void][] = [
     [spec.panels.media, (c, p) => drawMediaPanel(c, p, content, spec, content.imageTreatment !== 'background' ? mediaImg : null)],
-    [spec.panels.insight, (c, p) => drawInsightPanel(c, p, content, spec)],
-    [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec)],
-    [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec)],
-    [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec)],
-    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec)],
-    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec)],
+    [spec.panels.insight, (c, p) => drawInsightPanel(c, p, content, spec, envTone)],
+    [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec, envTone)],
+    [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone)],
+    [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone)],
+    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone)],
+    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone)],
   ];
 
   // Sort by z-index

@@ -21,6 +21,7 @@ import { normalizeShareContent, type NormalizeInput } from '@/components/share/c
 import type { SharePlatform } from '@/components/share/platformProfiles';
 import { PLATFORM_PROFILES } from '@/components/share/platformProfiles';
 import type { BentoBaseVariant } from '@/components/share/bento/layoutEngine';
+import { getEnvironmentTone } from '@/components/share/environmentTone';
 import {
   ShareCardData, PrivacySettings, ShareTheme,
   DEFAULT_PRIVACY, generateDemoCards, getRandomPhrase, THEMES,
@@ -106,6 +107,9 @@ export default function ShareStudio() {
   const privacyLevel = getPrivacyLevel(privacy);
   const themeObj = THEMES[theme];
   const strategy = templateToStrategy(selectedTemplate);
+
+  // Environment tone — drives BOTH studio atmosphere AND card rendering
+  const envTone = useMemo(() => getEnvironmentTone(theme), [theme]);
 
   const sponsorData = useMemo(() => {
     if (!sponsorEnabled || !sponsorName.trim()) return undefined;
@@ -333,58 +337,44 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ Cinematic Environment ══ */}
+      {/* ══ Unified Environment — theme-reactive ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(12px) saturate(1.25) brightness(0.55)', transform: 'scale(1.08)' }}
+        style={{ filter: 'blur(16px) saturate(1.2) brightness(0.45)', transform: 'scale(1.1)' }}
       />
-      {/* Primary atmosphere overlay */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: `linear-gradient(170deg,
-          hsl(220 22% 3% / 0.62) 0%,
-          hsl(220 20% 4% / 0.42) 20%,
-          hsl(225 18% 5% / 0.55) 50%,
-          hsl(220 20% 2% / 0.92) 100%
-        )`,
-      }} />
-      {/* Warm ambient bloom — top left */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 25% 15%, hsl(43 74% 52% / 0.04) 0%, transparent 55%)',
-      }} />
-      {/* Cool depth bloom — bottom right */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 80% 85%, hsl(220 60% 45% / 0.03) 0%, transparent 50%)',
-      }} />
-      {/* Edge vignette */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, hsl(220 20% 2% / 0.5) 100%)',
-      }} />
+      {/* Primary atmosphere — from environment tone */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.primary }} />
+      {/* Warm bloom — theme-matched */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.warmBloom }} />
+      {/* Cool depth bloom */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.coolBloom }} />
+      {/* Vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.vignette }} />
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
-        {/* ═══ PREMIUM HEADER ═══ */}
-        <div className="sticky top-0 z-40 backdrop-blur-2xl border-b border-white/[0.06]"
-          style={{ background: 'hsl(220 20% 5% / 0.5)' }}>
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+        {/* ═══ HEADER — minimal, non-competing ═══ */}
+        <div className="sticky top-0 z-40 backdrop-blur-2xl border-b border-white/[0.04]"
+          style={{ background: 'hsl(220 20% 4% / 0.4)' }}>
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/60 hover:text-white/90">
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/50 hover:text-white/80 -ml-1">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(43 74% 52% / 0.2), hsl(43 74% 52% / 0.08))',
-                    border: '1px solid hsl(43 74% 52% / 0.15)',
-                    boxShadow: '0 0 20px -4px hsl(43 74% 52% / 0.12)',
+                    background: 'linear-gradient(135deg, hsl(43 74% 52% / 0.18), hsl(43 74% 52% / 0.06))',
+                    border: '1px solid hsl(43 74% 52% / 0.12)',
                   }}>
-                  <Sparkles className="w-[16px] h-[16px] text-primary" />
+                  <Sparkles className="w-[14px] h-[14px] text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-serif font-bold text-white/95 leading-tight tracking-tight">Share Studio</h1>
-                  <p className="text-[10px] uppercase tracking-[0.14em] text-white/50 font-medium mt-0.5">Compose · Style · Publish</p>
+                  <h1 className="text-base font-serif font-bold text-white/90 leading-tight">Share Studio</h1>
+                  <p className="text-[9px] uppercase tracking-[0.14em] text-white/40 font-medium">Compose · Publish</p>
                 </div>
               </div>
             </div>
@@ -392,65 +382,37 @@ export default function ShareStudio() {
               variant="outline"
               size="sm"
               onClick={loadSavedCards}
-              className="text-xs gap-1.5 border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white/70 hover:text-white/90"
+              className="text-[10px] gap-1.5 border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/55 hover:text-white/80 h-7"
             >
-              <LayoutGrid className="w-3.5 h-3.5 text-primary/70" />My Cards
+              <LayoutGrid className="w-3 h-3 text-primary/60" />Cards
             </Button>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 pb-36">
-          {/* ═══ PREVIEW STAGE — Sacred Centerpiece ═══ */}
-          <div className="relative py-4">
-            {/* Multi-layer ambient glow */}
-            <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-              <div className="w-96 h-96 rounded-full opacity-[0.06]"
-                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 60%)' }} />
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-36">
+          {/* ═══ PREVIEW — Window into the artifact ═══ */}
+          <div className="relative flex justify-center py-2">
+            <div className="relative">
+              <CompositionCard
+                content={normalizedContent}
+                platform={platform}
+                maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
+              />
+              {/* Soft ambient falloff beneath card — connects card to environment */}
+              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-10 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse, hsl(220 20% 2% / 0.6) 0%, transparent 70%)',
+                  filter: 'blur(10px)',
+                }} />
             </div>
-            <div className="absolute inset-0 flex justify-center items-start pointer-events-none">
-              <div className="w-64 h-64 mt-8 rounded-full opacity-[0.03]"
-                style={{ background: 'radial-gradient(circle, hsl(220 60% 60%), transparent 55%)' }} />
-            </div>
-
-            {/* Floating composition stage */}
-            <div className="relative rounded-3xl p-10 flex justify-center"
-              style={{
-                background: 'linear-gradient(175deg, hsl(220 20% 10% / 0.35) 0%, hsl(220 18% 6% / 0.25) 50%, hsl(225 20% 4% / 0.4) 100%)',
-                border: '1px solid hsl(220 15% 30% / 0.08)',
-                boxShadow: `
-                  0 32px 100px -24px hsl(220 20% 2% / 0.6),
-                  0 0 80px -20px hsl(43 74% 52% / 0.035),
-                  inset 0 1px 0 hsl(220 15% 40% / 0.06)
-                `,
-                backdropFilter: 'blur(20px)',
-              }}
-            >
-              {/* Inner subtle depth ring */}
-              <div className="absolute inset-3 rounded-2xl pointer-events-none"
-                style={{ border: '1px solid hsl(220 15% 25% / 0.04)' }} />
-
-              <div className="relative">
-                <CompositionCard
-                  content={normalizedContent}
-                  platform={platform}
-                  maxPreviewWidth={Math.min(300, window.innerWidth - 80)}
-                />
-                {/* Card object shadow */}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-8 pointer-events-none"
-                  style={{
-                    background: 'radial-gradient(ellipse, hsl(220 20% 2% / 0.5) 0%, transparent 70%)',
-                    filter: 'blur(8px)',
-                  }} />
-              </div>
-            </div>
-
-            {/* Canvas dimensions label */}
-            <p className="text-center text-[9px] text-white/30 mt-4 uppercase tracking-[0.18em] font-medium">
-              {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
-            </p>
           </div>
 
-          {/* ═══ REGENERATE ACTION ═══ */}
+          {/* Canvas dimensions — minimal */}
+          <p className="text-center text-[9px] text-white/25 uppercase tracking-[0.18em] font-medium -mt-2">
+            {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
+          </p>
+
+          {/* ═══ REGENERATE ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -459,21 +421,20 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all text-xs font-medium
-                border border-white/[0.1] bg-white/[0.04] text-white/70 hover:text-white/90 hover:bg-white/[0.08] hover:border-white/[0.15]
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all text-[11px] font-medium
+                border border-white/[0.08] bg-white/[0.03] text-white/55 hover:text-white/80 hover:bg-white/[0.06]
                 backdrop-blur-xl"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-primary/70" />Regenerate language
+              <RefreshCw className="w-3 h-3 text-primary/60" />Regenerate language
             </button>
           </div>
 
           {/* ═══ INSTRUMENT PANEL ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="rounded-2xl p-1.5 backdrop-blur-2xl"
+            <div className="rounded-xl p-1 backdrop-blur-2xl"
               style={{
-                background: 'linear-gradient(180deg, hsl(220 18% 9% / 0.5) 0%, hsl(220 20% 7% / 0.4) 100%)',
-                border: '1px solid hsl(220 15% 22% / 0.1)',
-                boxShadow: 'inset 0 1px 0 hsl(220 15% 35% / 0.05), 0 4px 24px -8px hsl(220 20% 2% / 0.3)',
+                background: 'hsl(220 18% 8% / 0.4)',
+                border: '1px solid hsl(220 15% 20% / 0.08)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
@@ -488,7 +449,7 @@ export default function ShareStudio() {
             </div>
 
             {/* Template Tab */}
-            <TabsContent value="template" className="mt-5">
+            <TabsContent value="template" className="mt-4">
               <Card variant="glass" className="p-5 space-y-5">
                 <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
@@ -534,7 +495,7 @@ export default function ShareStudio() {
             </TabsContent>
 
             {/* AI Insight Tab */}
-            <TabsContent value="ai" className="mt-5">
+            <TabsContent value="ai" className="mt-4">
               <Card variant="glass" className="p-5">
                 <AIInsightControls
                   enabled={aiInsightEnabled}
@@ -550,14 +511,14 @@ export default function ShareStudio() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="style" className="mt-5">
+            <TabsContent value="style" className="mt-4">
               <Card variant="glass" className="p-5 space-y-4">
                 <ShareThemeSelector theme={theme} onChange={setTheme} />
               </Card>
             </TabsContent>
 
             {hasPostImage && (
-              <TabsContent value="image" className="mt-5">
+              <TabsContent value="image" className="mt-4">
                 <Card variant="glass" className="p-5 space-y-5">
                   <div>
                     <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Post Image</span>
@@ -597,19 +558,19 @@ export default function ShareStudio() {
               </TabsContent>
             )}
 
-            <TabsContent value="privacy" className="mt-5">
+            <TabsContent value="privacy" className="mt-4">
               <Card variant="glass" className="p-5">
                 <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
               </Card>
             </TabsContent>
 
-            <TabsContent value="platform" className="mt-5">
+            <TabsContent value="platform" className="mt-4">
               <Card variant="glass" className="p-5">
                 <PlatformSelector platform={platform} onChange={setPlatform} />
               </Card>
             </TabsContent>
 
-            <TabsContent value="link" className="mt-5">
+            <TabsContent value="link" className="mt-4">
               <Card variant="glass" className="p-5 space-y-5">
                 <div>
                   <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Link & Destination</span>
@@ -640,7 +601,7 @@ export default function ShareStudio() {
             </TabsContent>
 
             {/* Sponsor / Partner Tab */}
-            <TabsContent value="sponsor" className="mt-5">
+            <TabsContent value="sponsor" className="mt-4">
               <Card variant="glass" className="p-5 space-y-5">
                 <div>
                   <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Sponsor / Partner</span>
@@ -701,34 +662,34 @@ export default function ShareStudio() {
           </Tabs>
 
           {/* ═══ PRIMARY ACTION ═══ */}
-          <div className="space-y-3 pt-4">
+          <div className="space-y-2.5 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-14 text-sm font-semibold gap-2.5 rounded-xl"
+              className="w-full h-13 text-sm font-semibold gap-2 rounded-xl"
               style={{
-                boxShadow: '0 0 40px -10px hsl(43 74% 52% / 0.25), 0 8px 32px -8px hsl(220 20% 2% / 0.4)',
+                boxShadow: '0 0 32px -8px hsl(43 74% 52% / 0.2), 0 6px 24px -6px hsl(220 20% 2% / 0.35)',
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
             {/* Secondary utilities — subdued */}
-            <div className="grid grid-cols-3 gap-2 opacity-80">
+            <div className="grid grid-cols-3 gap-2">
               <Button onClick={handleDownload} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="outline" size="sm"
-                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/60 hover:text-white/85 h-9 backdrop-blur-xl text-[11px]">
+                className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/50 hover:text-white/75 h-8 backdrop-blur-xl text-[10px]">
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="outline"
-              className="w-full border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/55 hover:text-white/80 h-9 text-[11px]">
-              <Download className="w-3.5 h-3.5 mr-1.5 text-primary/50" />Save to Vault
+              className="w-full border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-white/45 hover:text-white/70 h-8 text-[10px]">
+              <Download className="w-3 h-3 mr-1.5 text-primary/40" />Save to Vault
             </Button>
           </div>
         </div>
