@@ -151,8 +151,8 @@ export default function Goals() {
 
         {activeGoals.length === 0 ? (
           <Card variant="glass" className="p-8 text-center">
-            <Target className="w-8 h-8 mx-auto mb-3 text-muted-foreground/20" />
-            <p className="text-muted-foreground/50 text-sm mb-4">
+            <Target className="w-8 h-8 mx-auto mb-3 text-muted-foreground/60" />
+            <p className="text-muted-foreground/70 text-sm mb-4">
               {searchQuery || selectedCategory !== 'All' 
                 ? 'No goals match your filters'
                 : "You haven't created any goals yet"
@@ -191,7 +191,7 @@ export default function Goals() {
                       </div>
                       <h3 className="font-serif font-semibold text-base leading-snug mb-1">{goal.title}</h3>
                       {goal.why && (
-                        <p className="text-xs text-muted-foreground/50 line-clamp-2 leading-relaxed">{goal.why}</p>
+                        <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">{goal.why}</p>
                       )}
                       {goal.target_date && (
                         <div className="flex items-center gap-1.5 mt-3 meta-text">
@@ -202,7 +202,7 @@ export default function Goals() {
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon-sm" className="text-muted-foreground/30 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon-sm" className="text-muted-foreground/70 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -238,7 +238,7 @@ export default function Goals() {
       {/* Completed & Paused */}
       {otherGoals.length > 0 && (
         <div className="space-y-3">
-          <h2 className="font-serif text-sm font-semibold text-muted-foreground/40 uppercase tracking-wider">
+          <h2 className="font-serif text-sm font-semibold text-muted-foreground/60 uppercase tracking-wider">
             Completed & Paused
           </h2>
           <div className="grid gap-2">
@@ -257,7 +257,7 @@ export default function Goals() {
                       </Badge>
                       <span className="font-medium text-sm">{goal.title}</span>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/20" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
                   </div>
                 </CardContent>
               </Card>

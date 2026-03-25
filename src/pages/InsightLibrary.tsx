@@ -92,7 +92,7 @@ export default function InsightLibrary() {
         </div>
       ) : insights.length === 0 ? (
         <Card variant="glass" className="p-8 text-center">
-          <Lightbulb className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
+          <Lightbulb className="w-10 h-10 mx-auto mb-3 text-muted-foreground/60" />
           <p className="text-muted-foreground">No saved insights yet.</p>
           <p className="text-sm text-muted-foreground/60 mt-1">
             Save meaningful moments from your AI Mentor conversations.

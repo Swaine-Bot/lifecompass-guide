@@ -114,7 +114,7 @@ export default function NewHabit() {
                 className="text-base"
                 required
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
@@ -128,7 +128,7 @@ export default function NewHabit() {
                 rows={2}
                 className="resize-none"
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.description.length}/{MAX_DESCRIPTION_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.description.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
@@ -155,7 +155,7 @@ export default function NewHabit() {
         {/* Secondary — Tracking & Personalization */}
         <Card variant="surface">
           <CardContent className="p-5 space-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium">Tracking & Style</p>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Tracking & Style</p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">

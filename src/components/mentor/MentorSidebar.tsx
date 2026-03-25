@@ -69,11 +69,11 @@ export function MentorSidebar({
         <div className="p-2 space-y-0.5">
           {conversations.length === 0 ? (
             <div className="text-center py-8 px-4">
-              <MessageSquare className="w-5 h-5 text-muted-foreground/40 mx-auto mb-2" />
+              <MessageSquare className="w-5 h-5 text-muted-foreground/60 mx-auto mb-2" />
               <p className="text-xs text-muted-foreground/60">
                 No conversations yet
               </p>
-              <p className="text-[10px] text-muted-foreground/40 mt-1">
+              <p className="text-[10px] text-muted-foreground/60 mt-1">
                 Start a new conversation to begin
               </p>
             </div>
@@ -91,7 +91,7 @@ export function MentorSidebar({
               >
                 <MessageSquare className={cn(
                   "w-3.5 h-3.5 shrink-0",
-                  activeConversationId === conv.id ? "text-primary/80" : "text-muted-foreground/50"
+                  activeConversationId === conv.id ? "text-primary/80" : "text-muted-foreground/70"
                 )} />
                 <div className="flex-1 min-w-0">
                   <p className={cn(
@@ -101,7 +101,7 @@ export function MentorSidebar({
                     {conv.title || 'New Conversation'}
                   </p>
                   {conv.updated_at && (
-                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                    <p className="text-[10px] text-muted-foreground/70 mt-0.5">
                       {format(new Date(conv.updated_at), 'MMM d, h:mm a')}
                     </p>
                   )}
@@ -112,7 +112,7 @@ export function MentorSidebar({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 text-muted-foreground/50 hover:text-destructive"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 text-muted-foreground/70 hover:text-destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         setDeletingId(conv.id);

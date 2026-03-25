@@ -326,7 +326,7 @@ export default function Home() {
       <div className="grid grid-cols-3 gap-2.5">
         <StatCard value={completedToday} label="Done" />
         <StatCard
-          value={<>{habitsCompleted}<span className="text-muted-foreground/40 text-lg">/{habits.length}</span></>}
+          value={<>{habitsCompleted}<span className="text-muted-foreground/60 text-lg">/{habits.length}</span></>}
           label="Habits"
         />
         <MomentumStreakCard
@@ -415,7 +415,7 @@ export default function Home() {
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addQuickTask()}
-              className="h-9 text-sm bg-secondary/30 border-border/30 focus:border-primary/40 placeholder:text-muted-foreground/40"
+              className="h-9 text-sm bg-secondary/30 border-border/30 focus:border-primary/40 placeholder:text-muted-foreground/60"
               disabled={isAddingTask}
             />
             <Button 
@@ -431,7 +431,7 @@ export default function Home() {
 
           {/* Task List */}
           {microMoves.length === 0 && completedTasks.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground/50">
+            <div className="text-center py-6 text-muted-foreground/70">
               <Target className="w-6 h-6 mx-auto mb-2 opacity-40" />
               <p className="text-xs">Add your first task above</p>
             </div>
@@ -452,7 +452,7 @@ export default function Home() {
                     <span className="source-badge shrink-0">AI</span>
                   )}
                   {task.playbook_id && (
-                    <span className="source-badge bg-secondary/50 text-muted-foreground/40 shrink-0">Playbook</span>
+                    <span className="source-badge bg-secondary/50 text-muted-foreground/60 shrink-0">Playbook</span>
                   )}
                   <span className="meta-text opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     {task.effort_minutes}m
@@ -491,7 +491,7 @@ export default function Home() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Habit Check-in</CardTitle>
-              <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground/50 hover:text-foreground">
+              <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground/70 hover:text-foreground">
                 <Link to="/habits">
                   View all <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
                 </Link>
@@ -591,7 +591,7 @@ export default function Home() {
         ].map(({ to, icon: Icon, label }) => (
           <Link key={to} to={to} className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] hover:border-primary/20 transition-all">
             <Icon className="w-4.5 h-4.5 text-primary/70" />
-            <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{label}</span>
           </Link>
         ))}
       </div>

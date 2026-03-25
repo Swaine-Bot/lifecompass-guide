@@ -53,7 +53,7 @@ export function PlaybookPreviewModal({ open, title, tasks: initialTasks, saving,
               className="group flex items-start gap-2 p-3 rounded-lg bg-secondary/30 border border-border/20 hover:border-primary/20 transition-colors"
             >
               <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-                <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40" />
+                <GripVertical className="w-3.5 h-3.5 text-muted-foreground/60" />
                 <span className="text-xs font-medium text-primary/70 w-5 text-center">{i + 1}</span>
               </div>
               <div className="flex-1 min-w-0 space-y-1">

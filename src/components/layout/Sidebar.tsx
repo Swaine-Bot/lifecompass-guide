@@ -57,7 +57,7 @@ export const Sidebar = () => {
           "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
           isActive 
             ? "bg-primary/[0.08] text-primary" 
-            : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+            : "text-muted-foreground/70 hover:text-foreground hover:bg-white/[0.03]"
         )}
       >
         <div className="relative">
@@ -87,7 +87,7 @@ export const Sidebar = () => {
       {profile && (
         <div className="p-3.5 mx-3 mt-3 rounded-lg bg-white/[0.03] border border-white/[0.04]">
           <p className="text-sm font-medium text-foreground truncate">{profile.name || 'User'}</p>
-          <p className="text-[10px] text-muted-foreground/40 mt-0.5 uppercase tracking-wider">
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5 uppercase tracking-wider">
             {phaseLabels[profile.life_phase] || 'Builder'}
           </p>
         </div>
@@ -111,7 +111,7 @@ export const Sidebar = () => {
                 "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
                 location.pathname.startsWith('/admin')
                   ? "bg-primary/[0.08] text-primary"
-                  : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+                  : "text-muted-foreground/70 hover:text-foreground hover:bg-white/[0.03]"
               )}
             >
               <Crown className="w-[18px] h-[18px]" />
@@ -129,7 +129,7 @@ export const Sidebar = () => {
             "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200",
             location.pathname === '/settings'
               ? "bg-primary/[0.08] text-primary"
-              : "text-muted-foreground/50 hover:text-foreground hover:bg-white/[0.03]"
+              : "text-muted-foreground/70 hover:text-foreground hover:bg-white/[0.03]"
           )}
         >
           <Settings className="w-[18px] h-[18px]" />
@@ -137,7 +137,7 @@ export const Sidebar = () => {
         </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 px-4 py-2.5 h-auto text-muted-foreground/40 hover:text-destructive text-sm"
+          className="w-full justify-start gap-3 px-4 py-2.5 h-auto text-muted-foreground/60 hover:text-destructive text-sm"
           onClick={handleSignOut}
         >
           <LogOut className="w-[18px] h-[18px]" />

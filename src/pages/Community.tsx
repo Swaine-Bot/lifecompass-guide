@@ -970,7 +970,7 @@ export default function Community() {
           </div>
         </div>
         <div className="flex gap-1.5 shrink-0">
-          <Button variant="ghost" size="sm" onClick={() => setShowShareGoal(true)} className="h-8 px-2.5 text-[11px] text-muted-foreground/50 hover:text-foreground">
+          <Button variant="ghost" size="sm" onClick={() => setShowShareGoal(true)} className="h-8 px-2.5 text-[11px] text-muted-foreground/70 hover:text-foreground">
             <Target className="w-3.5 h-3.5 mr-1" />
             <span className="hidden xs:inline">Share</span> Goal
           </Button>

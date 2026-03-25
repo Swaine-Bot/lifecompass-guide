@@ -221,10 +221,10 @@ export default function GoalDetail() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="section-label text-primary/60">Overall Progress</p>
-              <p className="text-3xl font-bold font-serif mt-1">{progressPercent}<span className="text-lg text-muted-foreground/40">%</span></p>
+              <p className="text-3xl font-bold font-serif mt-1">{progressPercent}<span className="text-lg text-muted-foreground/60">%</span></p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium tabular-nums">{doneProgress}<span className="text-muted-foreground/40">/{totalProgress}</span></p>
+              <p className="text-sm font-medium tabular-nums">{doneProgress}<span className="text-muted-foreground/60">/{totalProgress}</span></p>
               <p className="section-label">Items Done</p>
             </div>
           </div>
@@ -344,11 +344,11 @@ export default function GoalDetail() {
                   {isDone ? (
                     <CheckCircle2 className="w-[18px] h-[18px] text-success shrink-0" />
                   ) : (
-                    <Circle className="w-[18px] h-[18px] text-muted-foreground/30 shrink-0" />
+                    <Circle className="w-[18px] h-[18px] text-muted-foreground/70 shrink-0" />
                   )}
                   <span className={cn(
                     "flex-1 text-sm",
-                    isDone && "line-through text-muted-foreground/50"
+                    isDone && "line-through text-muted-foreground/70"
                   )}>
                     {milestone.title}
                   </span>
@@ -391,7 +391,7 @@ export default function GoalDetail() {
                   )}
                   <span className={cn(
                     "flex-1 text-sm truncate",
-                    isDone && "line-through text-muted-foreground/40"
+                    isDone && "line-through text-muted-foreground/60"
                   )}>
                     {task.title}
                   </span>

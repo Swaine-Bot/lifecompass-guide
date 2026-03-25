@@ -62,7 +62,7 @@ export function PageHeader({
               variant="ghost"
               size="icon-sm"
               onClick={handleBack}
-              className="text-muted-foreground/40 hover:text-foreground shrink-0"
+              className="text-muted-foreground/60 hover:text-foreground shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>

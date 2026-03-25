@@ -81,7 +81,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
               <div>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-primary/60 font-semibold">Mirror Moment</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-[11px] text-muted-foreground/50">{cat.label}</p>
+                  <p className="text-[11px] text-muted-foreground/70">{cat.label}</p>
                   <AiContentLabel variant="inline" />
                 </div>
               </div>
@@ -104,7 +104,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
           {!revealed ? (
             <div className="text-center py-8">
               <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground/50 mb-4">A new insight has emerged from your data</p>
+              <p className="text-sm text-muted-foreground/70 mb-4">A new insight has emerged from your data</p>
               <Button variant="gold" onClick={handleReveal} className="px-8">
                 <Eye className="w-4 h-4 mr-2" />
                 Reveal Mirror Moment
@@ -125,7 +125,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                 {/* Source explanation */}
                 <button
                   onClick={() => setShowSources(!showSources)}
-                  className="text-[11px] text-muted-foreground/40 hover:text-muted-foreground/70 flex items-center gap-1 transition-colors"
+                  className="text-[11px] text-muted-foreground/60 hover:text-muted-foreground/70 flex items-center gap-1 transition-colors"
                 >
                   Why am I seeing this?
                   <ChevronDown className={cn('w-3 h-3 transition-transform', showSources && 'rotate-180')} />
@@ -140,7 +140,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                       className="overflow-hidden"
                     >
                       <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                        <p className="text-[10px] text-muted-foreground/40 uppercase tracking-wider mb-2">Generated from</p>
+                        <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-2">Generated from</p>
                         <div className="flex flex-wrap gap-1.5">
                           {(moment.source_categories || []).map((src: string) => (
                             <span key={src} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/[0.06] text-primary/60 border border-primary/10">
@@ -158,7 +158,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    className="h-7 text-[11px] text-muted-foreground/70 hover:text-foreground"
                     onClick={() => onFavorite(moment.id, moment.is_favorite)}
                   >
                     <Heart className={cn('w-3.5 h-3.5 mr-1', moment.is_favorite && 'fill-primary text-primary')} />
@@ -168,7 +168,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                      className="h-7 text-[11px] text-muted-foreground/70 hover:text-foreground"
                       onClick={() => onReflect(moment.content)}
                     >
                       <PenLine className="w-3.5 h-3.5 mr-1" />
@@ -178,7 +178,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    className="h-7 text-[11px] text-muted-foreground/70 hover:text-foreground"
                     onClick={() => setShowShare(true)}
                   >
                     <Share2 className="w-3.5 h-3.5 mr-1" />
@@ -188,7 +188,7 @@ export function MirrorMomentCard({ moment, onFavorite, onReflect, onArchive, onR
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      className="ml-auto text-muted-foreground/30 hover:text-muted-foreground"
+                      className="ml-auto text-muted-foreground/70 hover:text-muted-foreground"
                       onClick={() => onArchive(moment.id)}
                     >
                       <Archive className="w-3.5 h-3.5" />

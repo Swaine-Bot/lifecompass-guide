@@ -141,7 +141,7 @@ export default function Habits() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="section-label text-primary/60">Today's Progress</p>
-              <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/40 text-xl">/{habits.length}</span></p>
+              <p className="text-3xl font-bold font-serif mt-1">{todayCompleted}<span className="text-muted-foreground/60 text-xl">/{habits.length}</span></p>
             </div>
             <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary/[0.05]">
               <Flame className={cn(
@@ -162,8 +162,8 @@ export default function Habits() {
       {/* Habits List */}
       {habits.length === 0 ? (
         <Card variant="glass" className="p-8 text-center">
-          <Flame className="w-8 h-8 mx-auto mb-3 text-muted-foreground/20" />
-          <p className="text-muted-foreground/50 text-sm mb-4">
+          <Flame className="w-8 h-8 mx-auto mb-3 text-muted-foreground/60" />
+          <p className="text-muted-foreground/70 text-sm mb-4">
             No habits yet. Start building your routine!
           </p>
           <Button variant="gold-outline" size="sm" asChild>
@@ -210,7 +210,7 @@ export default function Habits() {
                         )}
                       </div>
                       {habit.description && (
-                        <p className="text-xs text-muted-foreground/50 mb-2.5 line-clamp-1">{habit.description}</p>
+                        <p className="text-xs text-muted-foreground/70 mb-2.5 line-clamp-1">{habit.description}</p>
                       )}
 
                       {/* Week View */}

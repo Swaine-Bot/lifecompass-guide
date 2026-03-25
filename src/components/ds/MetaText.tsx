@@ -63,7 +63,7 @@ export function SourceBadge({ children, variant = 'default', className }: Source
     <span
       className={cn(
         'source-badge',
-        variant === 'muted' && 'bg-secondary/50 text-muted-foreground/40',
+        variant === 'muted' && 'bg-secondary/50 text-muted-foreground/60',
         className
       )}
     >
