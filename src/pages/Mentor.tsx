@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import mentorNightSky from '@/assets/environments/mentor-nightsky-bg.jpg';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
