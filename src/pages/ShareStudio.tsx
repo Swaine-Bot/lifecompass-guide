@@ -365,10 +365,10 @@ export default function ShareStudio() {
       <div className="relative z-10 min-h-screen">
         {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
         <div className="sticky top-0 z-40" style={{
-          background: 'linear-gradient(180deg, rgba(8,10,16,0.16), rgba(8,10,16,0.06))',
-          backdropFilter: 'blur(24px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, rgba(8,10,16,0.08), rgba(8,10,16,0.03))',
+          backdropFilter: 'blur(22px) saturate(145%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(145%)',
+          borderBottom: '1px solid rgba(255,255,255,0.025)',
         }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
