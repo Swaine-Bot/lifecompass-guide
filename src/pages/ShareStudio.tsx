@@ -334,16 +334,16 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── GLASS VOLUME — matching Goals page translucent material ───
+  // ─── GLASS VOLUME — dissolved atmospheric field ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 24,
-    background: 'rgba(14, 22, 28, 0.38)',
-    backdropFilter: 'blur(80px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(140%)',
-    border: '1px solid rgba(120, 200, 220, 0.08)',
+    borderRadius: 48,
+    background: 'rgba(14, 22, 28, 0.28)',
+    backdropFilter: 'blur(80px) saturate(145%)',
+    WebkitBackdropFilter: 'blur(80px) saturate(145%)',
+    border: '1px solid rgba(255,255,255,0.025)',
     boxShadow: `
-      inset 0 1px 0 rgba(255,255,255,0.04),
-      0 12px 40px rgba(0,0,0,0.15)
+      inset 0 1px 0 rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.10)
     `,
   };
 
@@ -365,10 +365,10 @@ export default function ShareStudio() {
       <div className="relative z-10 min-h-screen">
         {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
         <div className="sticky top-0 z-40" style={{
-          background: 'rgba(10, 16, 22, 0.35)',
-          backdropFilter: 'blur(60px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-          borderBottom: '1px solid rgba(120, 200, 220, 0.06)',
+          background: 'rgba(10, 16, 22, 0.20)',
+          backdropFilter: 'blur(70px) saturate(145%)',
+          WebkitBackdropFilter: 'blur(70px) saturate(145%)',
+          borderBottom: '1px solid rgba(255,255,255,0.02)',
         }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -430,10 +430,10 @@ export default function ShareStudio() {
                 text-white/40 hover:text-white/60 active:scale-[0.97]"
               style={{
                 borderRadius: 999,
-                background: 'rgba(14, 22, 28, 0.35)',
-                backdropFilter: 'blur(60px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-                border: '1px solid rgba(120, 200, 220, 0.06)',
+                background: 'rgba(14, 22, 28, 0.22)',
+                backdropFilter: 'blur(70px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(70px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.02)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
@@ -444,11 +444,11 @@ export default function ShareStudio() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1"
               style={{
-                borderRadius: 20,
-                background: 'rgba(14, 22, 28, 0.32)',
-                backdropFilter: 'blur(60px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-                border: '1px solid rgba(120, 200, 220, 0.06)',
+                borderRadius: 40,
+                background: 'rgba(14, 22, 28, 0.22)',
+                backdropFilter: 'blur(70px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(70px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.02)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
