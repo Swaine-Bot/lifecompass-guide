@@ -374,27 +374,29 @@ export default function ShareStudio() {
       <div className="relative z-10 min-h-screen">
         {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
         <div className="sticky top-0 z-40" style={{
-          background: 'linear-gradient(180deg, rgba(8,10,16,0.08), rgba(8,10,16,0.03))',
-          backdropFilter: 'blur(22px) saturate(145%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(145%)',
-          borderBottom: '1px solid rgba(255,255,255,0.025)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.015), transparent)',
+          backdropFilter: 'blur(32px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+          borderBottom: '1px solid rgba(255,255,255,0.015)',
         }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 -ml-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/30 hover:text-white/60 -ml-1"
+                style={{ borderRadius: 999 }}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                <div className="w-7 h-7 rounded-full flex items-center justify-center"
                   style={{
-                    background: `linear-gradient(135deg, ${envTone.keyLight.color}, transparent)`,
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: `radial-gradient(circle at 35% 35%, rgba(255,180,80,0.35), rgba(255,140,40,0.15))`,
+                    border: '1px solid rgba(255,180,80,0.12)',
+                    boxShadow: '0 0 20px rgba(255,140,40,0.10)',
                   }}>
                   <Sparkles className="w-3.5 h-3.5 text-primary/80" />
                 </div>
                 <div>
-                  <h1 className="text-sm font-serif font-bold text-white/80 leading-tight">Share Studio</h1>
-                  <p className="text-[8px] uppercase tracking-[0.16em] text-white/30 font-medium">Compose · Publish</p>
+                  <h1 className="text-sm font-serif font-bold text-white/70 leading-tight">Share Studio</h1>
+                  <p className="text-[8px] uppercase tracking-[0.16em] text-white/20 font-medium">Compose · Publish</p>
                 </div>
               </div>
             </div>
@@ -402,7 +404,7 @@ export default function ShareStudio() {
               variant="ghost"
               size="sm"
               onClick={loadSavedCards}
-              className="text-[10px] gap-1.5 text-white/35 hover:text-white/60 h-7"
+              className="text-[10px] gap-1.5 text-white/25 hover:text-white/50 h-7"
               style={{ borderRadius: 999 }}
             >
               <LayoutGrid className="w-3 h-3" />Cards
