@@ -444,11 +444,11 @@ export default function ShareStudio() {
                 text-white/45 hover:text-white/70"
               style={{
                 borderRadius: 999,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))',
-                backdropFilter: 'blur(24px) saturate(135%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(135%)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 40px rgba(0,0,0,0.12)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035))',
+                backdropFilter: 'blur(24px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+                border: '1px solid rgba(255,255,255,0.065)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 40px rgba(0,0,0,0.08)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
