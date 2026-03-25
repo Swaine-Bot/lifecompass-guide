@@ -444,11 +444,11 @@ export default function ShareStudio() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1"
               style={{
-                borderRadius: 20,
-                background: 'rgba(14, 22, 28, 0.32)',
-                backdropFilter: 'blur(60px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-                border: '1px solid rgba(120, 200, 220, 0.06)',
+                borderRadius: 40,
+                background: 'rgba(14, 22, 28, 0.22)',
+                backdropFilter: 'blur(70px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(70px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.02)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
