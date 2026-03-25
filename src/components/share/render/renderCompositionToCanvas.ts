@@ -383,7 +383,7 @@ function drawMomentumPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
 
   const pad = 20;
   const theme = content.theme;
