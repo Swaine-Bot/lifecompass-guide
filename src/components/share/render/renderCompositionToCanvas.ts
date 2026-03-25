@@ -131,7 +131,7 @@ function drawPanelBackground(
   ctx.fill();
 
   // Inner luminance — brighter ambient light for translucent feel
-  const lumAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.02 : 0.01;
+  const lumAlpha = tier === 'hero' ? 0.05 : tier === 'secondary' ? 0.03 : 0.018;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
