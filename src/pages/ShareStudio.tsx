@@ -350,19 +350,16 @@ export default function ShareStudio() {
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ ENVIRONMENT — source of truth ══ */}
+      {/* ══ ENVIRONMENT — full cinematic background, visible everywhere ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(16px) saturate(1.5) brightness(0.38)', transform: 'scale(1.12)' }}
+        style={{ filter: 'saturate(1.3) brightness(0.55)', transform: 'scale(1.05)' }}
       />
-      {/* Atmosphere — near-invisible, just gentle tonal shaping */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.04), rgba(6,8,14,0.08))' }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.warmBloom }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.coolBloom }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,0.10) 100%)' }} />
+      {/* Minimal atmospheric shaping */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.15) 100%)' }} />
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
