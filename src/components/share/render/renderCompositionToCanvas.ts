@@ -90,58 +90,66 @@ function drawPanelBackground(
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const kl = envTone.keyLight;
 
-  // Unified surface — panels are INTERNAL STRUCTURE, not separate objects
-  // Minimal shadow — just enough depth to suggest hierarchy, not separation
-  const shadowAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.06 : 0.03;
-  const shadowBlur = tier === 'hero' ? 12 : tier === 'secondary' ? 6 : 3;
-  ctx.shadowColor = `rgba(0, 0, 0, ${shadowAlpha})`;
-  ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = (0.5 - kl.x) * 2;
-  ctx.shadowOffsetY = tier === 'hero' ? 2 : 1;
-  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  ctx.fillStyle = 'rgba(8, 10, 18, 0.15)';
-  ctx.fill();
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  // ── ATMOSPHERIC SURFACE — a denser region of the environment, not a container ──
+  // NO drop shadows. Depth via light gradient only.
 
-  // Material fill — continuous with environment, NOT isolated
-  // Lower opacity = more environment bleeds through
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const baseAlpha = tier === 'hero' ? 0.55 : tier === 'secondary' ? 0.40 : 0.28;
-  const tintStrength = tier === 'hero' ? 5 : tier === 'secondary' ? 4 : 3;
+
+  // Variable glass — top clearer, bottom denser (non-uniform opacity)
+  const topAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.12 : 0.08;
+  const midAlpha = tier === 'hero' ? 0.30 : tier === 'secondary' ? 0.22 : 0.15;
+  const botAlpha = tier === 'hero' ? 0.42 : tier === 'secondary' ? 0.32 : 0.22;
+
+  const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
   const baseR = Math.round(14 + tr * ta * tintStrength);
   const baseG = Math.round(16 + tg * ta * tintStrength);
   const baseB = Math.round(28 + tb * ta * tintStrength);
 
-  // Gradient follows light direction — shared across all panels
+  // Vertical gradient — variable density, environment-tinted
   const grad = ctx.createLinearGradient(
     panel.x + panel.width * kl.x, panel.y,
     panel.x + panel.width * (1 - kl.x), panel.y + panel.height,
   );
-  grad.addColorStop(0, `rgba(${baseR + 8}, ${baseG + 8}, ${baseB + 10}, ${baseAlpha})`);
-  grad.addColorStop(0.5, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 2}, ${baseAlpha - 0.05})`);
-  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${baseAlpha - 0.1})`);
+  grad.addColorStop(0, `rgba(${baseR + 12}, ${baseG + 12}, ${baseB + 15}, ${topAlpha})`);
+  grad.addColorStop(0.35, `rgba(${baseR + 6}, ${baseG + 6}, ${baseB + 8}, ${midAlpha})`);
+  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.04})`);
+  grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${botAlpha})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner luminance — very subtle, from key light
-  const glowAlpha = tier === 'hero' ? 0.03 : tier === 'secondary' ? 0.015 : 0.008;
-  const innerGlow = ctx.createLinearGradient(
-    panel.x + panel.width * kl.x * 0.5, panel.y,
-    panel.x + panel.width * 0.5, panel.y + panel.height * 0.4,
+  // Environment bleed — key light color tints the panel surface
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const bleedGrad = ctx.createRadialGradient(
+    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
+    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 0.9,
   );
-  innerGlow.addColorStop(0, `rgba(255, 255, 255, ${glowAlpha})`);
-  innerGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = innerGlow;
+  const bleedAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
+  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.3})`));
+  bleedGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = bleedGrad;
   ctx.fill();
 
-  // Edge — nearly invisible, just enough to suggest structure
-  const edgeAlpha = tier === 'hero' ? 0.04 : tier === 'secondary' ? 0.025 : 0.012;
-  ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
+  // Inner luminance — ambient light from key direction, NOT glow
+  const lumAlpha = tier === 'hero' ? 0.025 : tier === 'secondary' ? 0.012 : 0.006;
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  const innerLum = ctx.createLinearGradient(
+    panel.x, panel.y,
+    panel.x, panel.y + panel.height * 0.5,
+  );
+  innerLum.addColorStop(0, `rgba(255, 255, 255, ${lumAlpha})`);
+  innerLum.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = innerLum;
+  ctx.fill();
+
+  // NO hard border stroke — edges defined by tonal shift only
+  // Whisper-thin edge only on hero for minimal structure hint
+  if (tier === 'hero') {
+    drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+    ctx.strokeStyle = `rgba(255, 255, 255, 0.018)`;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
 
   ctx.restore();
 }
