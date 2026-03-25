@@ -420,7 +420,7 @@ export default function ShareStudio() {
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — micro glass bubble ═══ */}
+          {/* ═══ REGENERATE — glass capsule ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -429,18 +429,14 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-6 py-3 transition-all text-[10px] font-medium
-                text-white/30 hover:text-white/50 active:scale-[0.97]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[10px] font-medium
+                text-white/40 hover:text-white/60 active:scale-[0.97]"
               style={{
                 borderRadius: 999,
-                background: `
-                  radial-gradient(ellipse at 35% 25%, rgba(255,170,70,0.035), transparent 50%),
-                  rgba(255,255,255,0.01)
-                `,
-                backdropFilter: 'blur(50px) saturate(170%)',
-                WebkitBackdropFilter: 'blur(50px) saturate(170%)',
-                border: '1px solid rgba(255,255,255,0.02)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), inset 0 0 20px rgba(255,150,60,0.008)',
+                background: 'rgba(14, 22, 28, 0.35)',
+                backdropFilter: 'blur(60px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
+                border: '1px solid rgba(120, 200, 220, 0.06)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
