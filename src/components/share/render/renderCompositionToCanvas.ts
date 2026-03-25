@@ -635,57 +635,68 @@ function drawBackground(
 ) {
   const colors = parseGradient(theme.bgGradient);
 
+  // Deep base fill
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
-      spec.width * 0.15, 0,
-      spec.width * 0.85, spec.height,
+      spec.width * 0.1, 0,
+      spec.width * 0.9, spec.height,
     );
     colors.forEach((color, i) => {
       grad.addColorStop(i / (colors.length - 1), color);
     });
     ctx.fillStyle = grad;
   } else {
-    ctx.fillStyle = '#0a0a0f';
+    ctx.fillStyle = '#08080d';
   }
-
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Premium warm radial highlight
+  // Warm radial highlight — gold ambient top-left (cinematic key light)
   const radGrad = ctx.createRadialGradient(
-    spec.width * 0.2, spec.height * 0.12, 0,
-    spec.width * 0.2, spec.height * 0.12, spec.width * 0.7,
+    spec.width * 0.18, spec.height * 0.1, 0,
+    spec.width * 0.18, spec.height * 0.1, spec.width * 0.75,
   );
-  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.05)');
-  radGrad.addColorStop(0.5, 'rgba(200, 170, 80, 0.018)');
+  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.065)');
+  radGrad.addColorStop(0.4, 'rgba(200, 170, 80, 0.022)');
   radGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = radGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Second subtle cold radial for depth
+  // Cool depth highlight — blue ambient bottom-right (fill light)
   const radGrad2 = ctx.createRadialGradient(
-    spec.width * 0.8, spec.height * 0.85, 0,
-    spec.width * 0.8, spec.height * 0.85, spec.width * 0.5,
+    spec.width * 0.82, spec.height * 0.88, 0,
+    spec.width * 0.82, spec.height * 0.88, spec.width * 0.45,
   );
-  radGrad2.addColorStop(0, 'rgba(80, 100, 180, 0.025)');
+  radGrad2.addColorStop(0, 'rgba(70, 90, 170, 0.035)');
   radGrad2.addColorStop(1, 'transparent');
   ctx.fillStyle = radGrad2;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Subtle noise texture via tiny dots
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.007)';
-  for (let i = 0; i < 150; i++) {
+  // Subtle center warmth — emotional gravity
+  const centerGrad = ctx.createRadialGradient(
+    spec.width * 0.5, spec.height * 0.4, 0,
+    spec.width * 0.5, spec.height * 0.4, spec.width * 0.5,
+  );
+  centerGrad.addColorStop(0, 'rgba(180, 160, 120, 0.015)');
+  centerGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = centerGrad;
+  ctx.fillRect(0, 0, spec.width, spec.height);
+
+  // Fine noise texture — adds materiality
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.006)';
+  for (let i = 0; i < 200; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Edge vignette
+  // Edge vignette — deeper, more cinematic
   const vignetteGrad = ctx.createRadialGradient(
-    spec.width / 2, spec.height / 2, Math.min(spec.width, spec.height) * 0.35,
-    spec.width / 2, spec.height / 2, Math.max(spec.width, spec.height) * 0.7,
+    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.3,
+    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.72,
   );
   vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
+  vignetteGrad.addColorStop(0.7, 'rgba(0,0,0,0.08)');
+  vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 }
