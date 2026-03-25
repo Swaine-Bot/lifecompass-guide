@@ -1,5 +1,5 @@
 /**
- * Deterministic Canvas Renderer.
+ * Deterministic Canvas Renderer — Cinematic Edition.
  *
  * Renders a CompositionSpec + NormalizedShareContent directly to a
  * <canvas> element at exact export dimensions. No DOM capture, no
@@ -59,24 +59,24 @@ function drawPanelBackground(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Richer glass background with more depth
+  // Rich triple-stop glass background
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(22, 24, 38, 0.88)');
-  grad.addColorStop(0.5, 'rgba(18, 20, 32, 0.82)');
-  grad.addColorStop(1, 'rgba(14, 16, 26, 0.78)');
+  grad.addColorStop(0, 'rgba(24, 26, 42, 0.88)');
+  grad.addColorStop(0.5, 'rgba(20, 22, 36, 0.82)');
+  grad.addColorStop(1, 'rgba(16, 18, 30, 0.78)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner glow edge
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+  // Inner highlight edge
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Outer glow
+  // Outer glow for premium depth
   if (glowColor) {
     ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 4;
     ctx.strokeStyle = 'transparent';
     ctx.stroke();
     ctx.shadowColor = 'transparent';
@@ -162,7 +162,7 @@ function drawMediaPanel(
     Math.max(panel.width, panel.height) * 0.7,
   );
   vignette.addColorStop(0, 'rgba(0,0,0,0)');
-  vignette.addColorStop(1, 'rgba(0,0,0,0.15)');
+  vignette.addColorStop(1, 'rgba(0,0,0,0.2)');
   ctx.fillStyle = vignette;
   ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
@@ -216,7 +216,7 @@ function drawBackgroundImage(
   const sdx = dx - (sdw - dw) / 2;
   const sdy = dy - (sdh - dh) / 2;
 
-  ctx.filter = 'blur(20px) brightness(0.4) saturate(1.2)';
+  ctx.filter = 'blur(20px) brightness(0.35) saturate(1.3)';
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
@@ -238,19 +238,19 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.08)');
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.1)');
 
   const pad = 24;
   const theme = content.theme;
 
   ctx.save();
 
-  // Accent bar
-  const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + 24);
+  // Accent bar — taller, more presence
+  const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + 28);
   barGrad.addColorStop(0, theme.accentHex);
-  barGrad.addColorStop(1, 'rgba(200,170,80,0.3)');
+  barGrad.addColorStop(1, 'rgba(200,170,80,0.2)');
   ctx.fillStyle = barGrad;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 5, 24, 3);
+  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 5, 28, 3);
   ctx.fill();
 
   // "AI INSIGHT" label
@@ -258,13 +258,13 @@ function drawInsightPanel(
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.9;
   ctx.letterSpacing = '2px';
-  ctx.fillText('AI INSIGHT', panel.x + pad + 16, panel.y + pad + 17);
+  ctx.fillText('AI INSIGHT', panel.x + pad + 16, panel.y + pad + 18);
   ctx.globalAlpha = 1;
 
   const insightHeadingGap = 20;
-  const headerH = pad + 24 + insightHeadingGap;
+  const headerH = pad + 28 + insightHeadingGap;
 
-  // Insight text — stronger contrast
+  // Insight text — high contrast warm white
   let fontSize = spec.typography.insightFontSize;
   const textX = panel.x + pad;
   const textMaxW = panel.width - pad * 2;
@@ -287,7 +287,7 @@ function drawInsightPanel(
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(215, 218, 228)';
+  ctx.fillStyle = 'rgb(225, 228, 238)';
 
   let textY = panel.y + headerH + fontSize;
   for (const line of finalLines) {
@@ -313,7 +313,7 @@ function drawTextPanel(
 
   ctx.save();
 
-  // Title — use serif for editorial feel
+  // Title — serif editorial
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `600 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = theme.headlineHex;
@@ -328,7 +328,7 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle (user text) — stronger contrast
+  // Subtitle — warm readable tone
   if (content.subtitle) {
     cursorY += 12;
     let subSize = spec.typography.subtitleFontSize;
@@ -352,7 +352,7 @@ function drawTextPanel(
     const finalMaxLines = Math.max(maxVisibleLines, 3);
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = 'rgb(175, 180, 195)';
+    ctx.fillStyle = 'rgb(195, 198, 210)';
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
@@ -371,7 +371,7 @@ function drawMomentumPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.06)' : undefined);
+  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
 
   const pad = 20;
   const theme = content.theme;
@@ -397,7 +397,7 @@ function drawMomentumPanel(
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // Stat value with serif font
+    // Stat value — bold serif with gold accent
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     cursorY += statSize * 0.8;
@@ -407,7 +407,7 @@ function drawMomentumPanel(
     if (content.statLabel) {
       cursorY += labelGap + labelSize;
       ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
-      ctx.fillStyle = 'rgb(150, 155, 168)';
+      ctx.fillStyle = 'rgb(165, 170, 185)';
       ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     }
   }
@@ -417,7 +417,7 @@ function drawMomentumPanel(
   if (phraseY - cursorY > 8) {
     ctx.font = `italic 500 ${phraseSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-    ctx.globalAlpha = 0.7;
+    ctx.globalAlpha = 0.75;
     ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
     ctx.globalAlpha = 1;
   }
@@ -455,7 +455,7 @@ function drawMetaPanel(
   if (content.timeAnchor) {
     cursorY += metaSize + lineGap;
     ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(145, 150, 165)';
+    ctx.fillStyle = 'rgb(160, 165, 180)';
     ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
@@ -463,7 +463,7 @@ function drawMetaPanel(
   if (content.domain) {
     cursorY += (metaSize - 2) + lineGap;
     ctx.font = `500 ${14}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(120, 125, 140)';
+    ctx.fillStyle = 'rgb(135, 140, 155)';
     ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
@@ -481,18 +481,18 @@ function drawBrandPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Premium brand panel background
+  // Premium brand panel
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(20, 22, 34, 0.85)');
-  grad.addColorStop(1, 'rgba(14, 16, 26, 0.78)');
+  grad.addColorStop(0, 'rgba(22, 24, 38, 0.88)');
+  grad.addColorStop(1, 'rgba(16, 18, 30, 0.82)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // LS icon — premium gold gradient
+  // LS icon — premium gold gradient with glow
   const iconSize = 38;
   const iconX = panel.x + panel.width / 2 - 84;
   const iconY = panel.y + (panel.height - iconSize) / 2;
@@ -504,10 +504,10 @@ function drawBrandPanel(
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
-  // Icon shadow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
-  ctx.shadowBlur = 12;
-  ctx.shadowOffsetY = 2;
+  // Icon shadow glow
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.3)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 3;
   ctx.fillStyle = iconGrad;
   ctx.fill();
   ctx.shadowColor = 'transparent';
@@ -519,13 +519,13 @@ function drawBrandPanel(
   ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 5);
   ctx.textAlign = 'left';
 
-  // "Posted from LifeStack" — refined typography
+  // "Posted from LifeStack" — elegant typography
   const brandSize = spec.typography.brandFontSize;
   const textX = iconX + iconSize + 14;
   const textY = panel.y + panel.height / 2 + brandSize / 3;
 
   ctx.font = `400 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(130, 135, 150)';
+  ctx.fillStyle = 'rgb(155, 160, 175)';
   ctx.fillText('Posted from ', textX, textY);
 
   const postedW = ctx.measureText('Posted from ').width;
@@ -573,18 +573,18 @@ function drawSponsorPanel(
   const centerY = panel.y + panel.height / 2;
 
   ctx.font = `500 ${14}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(115, 120, 135)';
+  ctx.fillStyle = 'rgb(130, 135, 150)';
   ctx.fillText(prefix, textX, centerY - 2);
 
   const prefixW = ctx.measureText(prefix).width;
   ctx.font = `600 ${15}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(195, 190, 180)';
+  ctx.fillStyle = 'rgb(210, 205, 195)';
   ctx.fillText(` ${sponsor.name}`, textX + prefixW, centerY - 2);
 
   const tagline = sponsor.message || sponsor.cta;
   if (tagline) {
     ctx.font = `400 ${12}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(105, 110, 125)';
+    ctx.fillStyle = 'rgb(120, 125, 140)';
     const maxW = panel.width - pad * 2;
     const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
     ctx.fillText(clipped, textX, centerY + 16, maxW);
@@ -604,8 +604,8 @@ function drawBackground(
 
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
-      spec.width * 0.2, 0,
-      spec.width * 0.8, spec.height,
+      spec.width * 0.15, 0,
+      spec.width * 0.85, spec.height,
     );
     colors.forEach((color, i) => {
       grad.addColorStop(i / (colors.length - 1), color);
@@ -617,24 +617,44 @@ function drawBackground(
 
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Richer radial highlight
+  // Premium warm radial highlight
   const radGrad = ctx.createRadialGradient(
-    spec.width * 0.2, spec.height * 0.15, 0,
-    spec.width * 0.2, spec.height * 0.15, spec.width * 0.7,
+    spec.width * 0.2, spec.height * 0.12, 0,
+    spec.width * 0.2, spec.height * 0.12, spec.width * 0.7,
   );
-  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.04)');
-  radGrad.addColorStop(0.5, 'rgba(200, 170, 80, 0.015)');
+  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.05)');
+  radGrad.addColorStop(0.5, 'rgba(200, 170, 80, 0.018)');
   radGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = radGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Subtle noise texture simulation via tiny dots
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.008)';
-  for (let i = 0; i < 120; i++) {
+  // Second subtle cold radial for depth
+  const radGrad2 = ctx.createRadialGradient(
+    spec.width * 0.8, spec.height * 0.85, 0,
+    spec.width * 0.8, spec.height * 0.85, spec.width * 0.5,
+  );
+  radGrad2.addColorStop(0, 'rgba(80, 100, 180, 0.025)');
+  radGrad2.addColorStop(1, 'transparent');
+  ctx.fillStyle = radGrad2;
+  ctx.fillRect(0, 0, spec.width, spec.height);
+
+  // Subtle noise texture via tiny dots
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.007)';
+  for (let i = 0; i < 150; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
+
+  // Edge vignette
+  const vignetteGrad = ctx.createRadialGradient(
+    spec.width / 2, spec.height / 2, Math.min(spec.width, spec.height) * 0.35,
+    spec.width / 2, spec.height / 2, Math.max(spec.width, spec.height) * 0.7,
+  );
+  vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
+  ctx.fillStyle = vignetteGrad;
+  ctx.fillRect(0, 0, spec.width, spec.height);
 }
 
 // ─── Main Render Function ─────────────────────────────────────────────

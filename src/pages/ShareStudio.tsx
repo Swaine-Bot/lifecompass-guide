@@ -346,8 +346,6 @@ export default function ShareStudio() {
               <div>
                 <h1 className="text-xl font-serif font-bold text-foreground leading-tight tracking-tight">Share Studio</h1>
                 <p className="text-[10px] uppercase tracking-[0.14em] text-foreground/55 font-medium mt-0.5">Compose · Style · Publish</p>
-                {/* DEBUG MARKER — remove after confirming live */}
-                <span className="text-[8px] text-primary/60 font-mono">SHARE-STUDIO-V2-LIVE</span>
               </div>
             </div>
           </div>
