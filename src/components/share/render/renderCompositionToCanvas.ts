@@ -493,14 +493,14 @@ function drawBrandPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Premium brand panel
+  // Premium brand panel — tertiary material, subtle presence
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(22, 24, 38, 0.88)');
-  grad.addColorStop(1, 'rgba(16, 18, 30, 0.82)');
+  grad.addColorStop(0, 'rgba(18, 20, 34, 0.72)');
+  grad.addColorStop(1, 'rgba(14, 16, 28, 0.66)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
