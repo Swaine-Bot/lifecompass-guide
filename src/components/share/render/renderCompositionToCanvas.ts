@@ -95,10 +95,10 @@ function drawPanelBackground(
 
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Variable glass — ultra-translucent, top clearer, bottom slightly denser
-  const topAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
-  const midAlpha = tier === 'hero' ? 0.22 : tier === 'secondary' ? 0.16 : 0.10;
-  const botAlpha = tier === 'hero' ? 0.32 : tier === 'secondary' ? 0.24 : 0.16;
+  // Variable glass — ultra-translucent glass bubbles
+  const topAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  const midAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
+  const botAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.13 : 0.08;
 
   const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
   const baseR = Math.round(14 + tr * ta * tintStrength);
