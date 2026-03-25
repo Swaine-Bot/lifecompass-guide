@@ -722,8 +722,8 @@ function drawBackground(
     spec.width * fl.x, spec.height * fl.y, 0,
     spec.width * fl.x, spec.height * fl.y, spec.width * 0.8,
   );
-  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.06})`));
-  fillGrad.addColorStop(0.5, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.02})`));
+  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.09})`));
+  fillGrad.addColorStop(0.5, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.03})`));
   fillGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
