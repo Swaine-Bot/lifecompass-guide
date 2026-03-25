@@ -336,56 +336,67 @@ export default function ShareStudio() {
 
   // ─── Shared glass style for tab content panels ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 28,
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))',
-    backdropFilter: 'blur(38px) saturate(155%)',
-    WebkitBackdropFilter: 'blur(38px) saturate(155%)',
-    border: '1px solid rgba(255,255,255,0.035)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 50px rgba(0,0,0,0.08)',
+    borderRadius: 36,
+    background: `
+      radial-gradient(ellipse at 20% 10%, rgba(255,160,60,0.04), transparent 40%),
+      radial-gradient(ellipse at 80% 90%, rgba(40,80,180,0.03), transparent 40%),
+      linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.008))
+    `,
+    backdropFilter: 'blur(48px) saturate(170%)',
+    WebkitBackdropFilter: 'blur(48px) saturate(170%)',
+    border: '1px solid rgba(255,255,255,0.025)',
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 0 rgba(0,0,0,0.04),
+      0 16px 64px rgba(0,0,0,0.06),
+      0 0 80px rgba(255,140,40,0.015)
+    `,
   };
 
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ ENVIRONMENT — the source of truth for ALL visuals ══ */}
+      {/* ══ ENVIRONMENT — source of truth ══ */}
       <img
         src={cinematicBg}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(28px) saturate(1.35) brightness(0.32)', transform: 'scale(1.18)' }}
+        style={{ filter: 'blur(16px) saturate(1.5) brightness(0.38)', transform: 'scale(1.12)' }}
       />
-      {/* Environment atmosphere layers — derived from tone */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.primary }} />
+      {/* Atmosphere — thinner, more transparent overlays */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.10), rgba(6,8,14,0.18))' }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.warmBloom }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.coolBloom }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.vignette }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.20) 100%)' }} />
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
         {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
         <div className="sticky top-0 z-40" style={{
-          background: 'linear-gradient(180deg, rgba(8,10,16,0.08), rgba(8,10,16,0.03))',
-          backdropFilter: 'blur(22px) saturate(145%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(145%)',
-          borderBottom: '1px solid rgba(255,255,255,0.025)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.015), transparent)',
+          backdropFilter: 'blur(32px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+          borderBottom: '1px solid rgba(255,255,255,0.015)',
         }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 -ml-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/30 hover:text-white/60 -ml-1"
+                style={{ borderRadius: 999 }}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                <div className="w-7 h-7 rounded-full flex items-center justify-center"
                   style={{
-                    background: `linear-gradient(135deg, ${envTone.keyLight.color}, transparent)`,
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: `radial-gradient(circle at 35% 35%, rgba(255,180,80,0.35), rgba(255,140,40,0.15))`,
+                    border: '1px solid rgba(255,180,80,0.12)',
+                    boxShadow: '0 0 20px rgba(255,140,40,0.10)',
                   }}>
                   <Sparkles className="w-3.5 h-3.5 text-primary/80" />
                 </div>
                 <div>
-                  <h1 className="text-sm font-serif font-bold text-white/80 leading-tight">Share Studio</h1>
-                  <p className="text-[8px] uppercase tracking-[0.16em] text-white/30 font-medium">Compose · Publish</p>
+                  <h1 className="text-sm font-serif font-bold text-white/70 leading-tight">Share Studio</h1>
+                  <p className="text-[8px] uppercase tracking-[0.16em] text-white/20 font-medium">Compose · Publish</p>
                 </div>
               </div>
             </div>
@@ -393,7 +404,7 @@ export default function ShareStudio() {
               variant="ghost"
               size="sm"
               onClick={loadSavedCards}
-              className="text-[10px] gap-1.5 text-white/35 hover:text-white/60 h-7"
+              className="text-[10px] gap-1.5 text-white/25 hover:text-white/50 h-7"
               style={{ borderRadius: 999 }}
             >
               <LayoutGrid className="w-3 h-3" />Cards
@@ -402,22 +413,24 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
-          {/* ═══ PREVIEW — artifact condensed FROM the environment ═══ */}
-          <div className="relative flex justify-center py-10">
-            {/* Wide atmospheric diffusion — card emerges from background, no edges */}
+          {/* ═══ PREVIEW — floating in the environment, no container ═══ */}
+          <div className="relative flex justify-center py-12">
+            {/* Wide atmospheric glow — warm amber wash behind card */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[200%] h-[200%]"
+              <div className="w-[260%] h-[260%]"
                 style={{
                   background: `
-                    radial-gradient(ellipse at 30% 25%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.18)')}, transparent 50%),
-                    radial-gradient(ellipse at 70% 75%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 45%),
-                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.06), transparent 55%)
+                    radial-gradient(ellipse at 35% 30%, rgba(255,160,60,0.22), transparent 45%),
+                    radial-gradient(ellipse at 65% 70%, rgba(40,90,200,0.08), transparent 40%),
+                    radial-gradient(ellipse at 50% 50%, rgba(255,180,80,0.06), transparent 50%)
                   `,
-                  filter: 'blur(100px)',
+                  filter: 'blur(120px)',
                 }} />
             </div>
-            {/* No frame, no container — card sits directly in the world */}
-            <div className="relative">
+            {/* Card floats directly — zero framing */}
+            <div className="relative" style={{
+              filter: 'drop-shadow(0 24px 80px rgba(0,0,0,0.15)) drop-shadow(0 0 60px rgba(255,140,40,0.05))',
+            }}>
               <CompositionCard
                 content={normalizedContent}
                 platform={platform}
@@ -426,12 +439,12 @@ export default function ShareStudio() {
             </div>
           </div>
 
-          {/* Canvas dimensions — barely there */}
-          <p className="text-center text-[7px] text-white/15 uppercase tracking-[0.25em] font-medium -mt-2">
+          {/* Canvas dimensions — whisper */}
+          <p className="text-center text-[7px] text-white/10 uppercase tracking-[0.25em] font-medium -mt-4">
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — floating glass pill ═══ */}
+          {/* ═══ REGENERATE — floating glass capsule ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -440,31 +453,37 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[10px] font-medium
-                text-white/45 hover:text-white/70"
+              className="inline-flex items-center gap-2 px-6 py-3 transition-all text-[10px] font-medium
+                text-white/35 hover:text-white/60 active:scale-[0.97]"
               style={{
                 borderRadius: 999,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035))',
-                backdropFilter: 'blur(24px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-                border: '1px solid rgba(255,255,255,0.065)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 40px rgba(0,0,0,0.08)',
+                background: `
+                  radial-gradient(ellipse at 30% 20%, rgba(255,160,60,0.04), transparent 50%),
+                  linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))
+                `,
+                backdropFilter: 'blur(36px) saturate(155%)',
+                WebkitBackdropFilter: 'blur(36px) saturate(155%)',
+                border: '1px solid rgba(255,255,255,0.04)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.06)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — ultra-transparent glass bubble ═══ */}
+          {/* ═══ INSTRUMENT PANEL — liquid glass capsule ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1.5"
               style={{
-                borderRadius: 32,
-                background: 'rgba(255,255,255,0.028)',
-                backdropFilter: 'blur(32px) saturate(150%)',
-                WebkitBackdropFilter: 'blur(32px) saturate(150%)',
-                border: '1px solid rgba(255,255,255,0.04)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.045), 0 8px 30px rgba(0,0,0,0.08)',
+                borderRadius: 999,
+                background: `
+                  radial-gradient(ellipse at 25% 30%, rgba(255,160,60,0.025), transparent 40%),
+                  linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.006))
+                `,
+                backdropFilter: 'blur(44px) saturate(165%)',
+                WebkitBackdropFilter: 'blur(44px) saturate(165%)',
+                border: '1px solid rgba(255,255,255,0.025)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 6px 24px rgba(0,0,0,0.05)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
@@ -691,43 +710,51 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION — atmospheric glass pill ═══ */}
+          {/* ═══ PRIMARY ACTION — atmospheric gold capsule ═══ */}
           <div className="space-y-3 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
               className="w-full h-13 text-sm font-semibold gap-2"
               style={{
                 borderRadius: 999,
-                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12)`,
+                boxShadow: `
+                  0 0 80px -16px rgba(255,160,60,0.25),
+                  0 16px 48px -8px rgba(0,0,0,0.18),
+                  inset 0 1px 0 rgba(255,255,255,0.15),
+                  inset 0 -1px 0 rgba(0,0,0,0.08)
+                `,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
-            {/* Secondary utilities — glass pill row */}
+            {/* Secondary utilities — glass capsule row */}
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.02)',
-                backdropFilter: 'blur(28px) saturate(145%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(145%)',
-                border: '1px solid rgba(255,255,255,0.035)',
+                background: `
+                  radial-gradient(ellipse at 30% 40%, rgba(255,160,60,0.015), transparent 50%),
+                  rgba(255,255,255,0.012)
+                `,
+                backdropFilter: 'blur(36px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(36px) saturate(150%)',
+                border: '1px solid rgba(255,255,255,0.02)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="ghost"
-              className="w-full text-white/25 hover:text-white/50 h-7 text-[10px]" style={{ borderRadius: 999 }}>
+              className="w-full text-white/18 hover:text-white/40 h-7 text-[10px]" style={{ borderRadius: 999 }}>
               <Download className="w-3 h-3 mr-1.5" />Save to Vault
             </Button>
           </div>
