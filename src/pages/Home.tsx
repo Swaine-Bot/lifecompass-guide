@@ -514,7 +514,7 @@ export default function Home() {
                     )} style={{ borderColor: isCompleted ? undefined : habit.color }}>
                       {isCompleted && <Check className="w-4 h-4" />}
                     </div>
-                    <span className="text-[11px] text-muted-foreground/60 text-center line-clamp-2 leading-tight">
+                    <span className="text-[11px] text-foreground/60 text-center line-clamp-2 leading-tight">
                       {habit.title}
                     </span>
                   </button>
