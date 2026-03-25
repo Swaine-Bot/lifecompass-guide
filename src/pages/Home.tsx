@@ -294,7 +294,7 @@ export default function Home() {
             </Avatar>
           </Link>
           <div className="min-w-0">
-            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight mb-0.5 truncate">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight mb-0.5 truncate on-image-title">
               {greeting}, {profile?.name || 'there'}
             </h1>
             <p className="on-image-subtitle text-xs tracking-wide uppercase font-medium">
