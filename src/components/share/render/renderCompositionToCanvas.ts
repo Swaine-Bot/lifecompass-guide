@@ -13,11 +13,11 @@ import type { NormalizedShareContent } from '../composition/normalizeShareConten
 import type { ThemeDefinition, SponsorData } from '@/services/shareService';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
+const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
 function parseGradient(gradient: string): string[] {
-  // Extract color stops from CSS gradient string
   const colorMatches = gradient.match(/hsl[a]?\([^)]+\)/g);
   return colorMatches || ['#0a0a0f', '#0d0d14', '#111118'];
 }
@@ -59,22 +59,23 @@ function drawPanelBackground(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Glass background
+  // Richer glass background with more depth
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(20, 22, 35, 0.82)');
-  grad.addColorStop(1, 'rgba(16, 18, 28, 0.76)');
+  grad.addColorStop(0, 'rgba(22, 24, 38, 0.88)');
+  grad.addColorStop(0.5, 'rgba(18, 20, 32, 0.82)');
+  grad.addColorStop(1, 'rgba(14, 16, 26, 0.78)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  // Inner glow edge
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Glow shadow
+  // Outer glow
   if (glowColor) {
     ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 20;
     ctx.shadowOffsetY = 2;
     ctx.strokeStyle = 'transparent';
     ctx.stroke();
@@ -112,7 +113,6 @@ function wrapText(
     lines.push(currentLine);
   }
 
-  // Add ellipsis to last line if we truncated
   if (lines.length >= maxLines && words.length > 0) {
     const lastLine = lines[lines.length - 1];
     const remaining = text.slice(lines.join(' ').length).trim();
@@ -145,31 +145,44 @@ function drawMediaPanel(
   let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
 
   if (imgAspect > panelAspect) {
-    // Image wider than panel — crop sides
     sw = img.naturalHeight * panelAspect;
     sx = (img.naturalWidth - sw) / 2;
   } else {
-    // Image taller — crop top/bottom
     sh = img.naturalWidth / panelAspect;
     sy = (img.naturalHeight - sh) / 2;
   }
 
   ctx.drawImage(img, sx, sy, sw, sh, panel.x, panel.y, panel.width, panel.height);
 
+  // Cinematic vignette on media
+  const vignette = ctx.createRadialGradient(
+    panel.x + panel.width / 2, panel.y + panel.height / 2,
+    Math.min(panel.width, panel.height) * 0.3,
+    panel.x + panel.width / 2, panel.y + panel.height / 2,
+    Math.max(panel.width, panel.height) * 0.7,
+  );
+  vignette.addColorStop(0, 'rgba(0,0,0,0)');
+  vignette.addColorStop(1, 'rgba(0,0,0,0.15)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
+
   // Image count badge
   if (content.showImageCountBadge && content.mediaCount > 1) {
     const badgeText = `+${content.mediaCount - 1}`;
     ctx.font = `600 ${20}px ${FONT_FAMILY}`;
-    const bw = ctx.measureText(badgeText).width + 20;
-    const bh = 32;
+    const bw = ctx.measureText(badgeText).width + 24;
+    const bh = 34;
     const bx = panel.x + panel.width - bw - 16;
     const by = panel.y + 16;
 
     drawRoundedRect(ctx, bx, by, bw, bh, 100);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
     ctx.fill();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-    ctx.fillText(badgeText, bx + 10, by + 22);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillText(badgeText, bx + 12, by + 23);
   }
 
   ctx.restore();
@@ -185,7 +198,6 @@ function drawBackgroundImage(
 
   ctx.save();
 
-  // Draw blurred background (simulated with scaling)
   const imgAspect = img.naturalWidth / img.naturalHeight;
   const canvasAspect = spec.width / spec.height;
   let dx = 0, dy = 0, dw = spec.width, dh = spec.height;
@@ -198,7 +210,6 @@ function drawBackgroundImage(
     dy = (spec.height - dh) / 2;
   }
 
-  // Scale slightly larger for blur simulation
   const scale = 1.15;
   const sdw = dw * scale;
   const sdh = dh * scale;
@@ -209,7 +220,6 @@ function drawBackgroundImage(
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
-  // Overlay gradient
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
   overlayGrad.addColorStop(0, `rgba(6, 6, 12, 0.4)`);
   overlayGrad.addColorStop(0.5, `rgba(6, 6, 12, ${spec.backgroundOverlayOpacity})`);
@@ -228,45 +238,43 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.06)');
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.08)');
 
   const pad = 24;
   const theme = content.theme;
 
   ctx.save();
 
-  // Label bar
-  ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.7;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 6, 20, 3);
+  // Accent bar
+  const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + 24);
+  barGrad.addColorStop(0, theme.accentHex);
+  barGrad.addColorStop(1, 'rgba(200,170,80,0.3)');
+  ctx.fillStyle = barGrad;
+  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 5, 24, 3);
   ctx.fill();
-  ctx.globalAlpha = 1;
 
-  // "AI Insight" label
+  // "AI INSIGHT" label
   ctx.font = `700 ${14}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.85;
+  ctx.globalAlpha = 0.9;
   ctx.letterSpacing = '2px';
-  ctx.fillText('AI INSIGHT', panel.x + pad + 14, panel.y + pad + 16);
+  ctx.fillText('AI INSIGHT', panel.x + pad + 16, panel.y + pad + 17);
   ctx.globalAlpha = 1;
 
-  // ── Heading-to-body gap ──
   const insightHeadingGap = 20;
-  const headerH = pad + 20 + insightHeadingGap; // total header region height
+  const headerH = pad + 24 + insightHeadingGap;
 
-  // Insight text — adaptive font sizing to fit within panel
+  // Insight text — stronger contrast
   let fontSize = spec.typography.insightFontSize;
   const textX = panel.x + pad;
   const textMaxW = panel.width - pad * 2;
-  const availableTextH = panel.height - headerH - pad; // available for body text
+  const availableTextH = panel.height - headerH - pad;
 
-  // Measure and scale down if needed
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
   let lineH = fontSize * spec.typography.insightLineHeight;
   let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
   let totalH = lines.length * lineH;
 
-  // Scale font down to fit, minimum 18px
   while (totalH > availableTextH && fontSize > 18) {
     fontSize -= 2;
     lineH = fontSize * spec.typography.insightLineHeight;
@@ -275,12 +283,11 @@ function drawInsightPanel(
     totalH = lines.length * lineH;
   }
 
-  // Final clamp: if still too tall, limit lines
   const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
   ctx.font = `italic 400 ${fontSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(200, 205, 215)';
+  ctx.fillStyle = 'rgb(215, 218, 228)';
 
   let textY = panel.y + headerH + fontSize;
   for (const line of finalLines) {
@@ -306,9 +313,9 @@ function drawTextPanel(
 
   ctx.save();
 
-  // Title
+  // Title — use serif for editorial feel
   const titleSize = spec.typography.titleFontSize;
-  ctx.font = `600 ${titleSize}px ${FONT_FAMILY}`;
+  ctx.font = `600 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = theme.headlineHex;
 
   const textMaxW = panel.width - pad * 2;
@@ -321,19 +328,17 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle (user text) — adaptive font sizing to fit full content
+  // Subtitle (user text) — stronger contrast
   if (content.subtitle) {
-    cursorY += 8;
+    cursorY += 12;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
-    // Measure how many lines we need at current font size
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
-    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999); // no limit for measurement
+    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
     let subLineH = subSize * spec.typography.subtitleLineHeight;
     let totalTextH = subLines.length * subLineH;
 
-    // Adaptive: reduce font size to fit all text, minimum 16px
     const minSubSize = 16;
     while (totalTextH > availableH && subSize > minSubSize) {
       subSize -= 2;
@@ -343,12 +348,11 @@ function drawTextPanel(
       totalTextH = subLines.length * subLineH;
     }
 
-    // Final pass: if still too tall after min font, apply max lines as last resort
     const maxVisibleLines = Math.floor(availableH / subLineH);
-    const finalMaxLines = Math.max(maxVisibleLines, 3); // at least 3 lines
+    const finalMaxLines = Math.max(maxVisibleLines, 3);
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = 'rgb(140, 145, 155)';
+    ctx.fillStyle = 'rgb(175, 180, 195)';
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
@@ -367,58 +371,53 @@ function drawMomentumPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.05)' : undefined);
+  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.06)' : undefined);
 
   const pad = 20;
   const theme = content.theme;
 
   ctx.save();
 
-  // ── Cursor-based vertical layout: measure everything, then place ──
   const phraseSize = spec.typography.phraseFontSize;
-  // Reserve space for phrase at bottom
   const phraseReserved = phraseSize + pad;
   const availableForStat = panel.height - pad - phraseReserved;
 
-  // Stat value — stacked vertically, never side-by-side with label
   let cursorY = panel.y + pad;
 
   if (content.statValue) {
     const displayStat = content.showNumbers ? content.statValue : '•••';
-    // Dynamic font scaling: fit stat within available space
     let statSize = spec.typography.statFontSize;
     if (displayStat.length > 6) statSize = Math.round(statSize * 0.65);
     else if (displayStat.length > 4) statSize = Math.round(statSize * 0.8);
 
-    // Further scale down if stat + label won't fit above phrase
     const labelSize = 14;
-    const labelGap = 8;
+    const labelGap = 10;
     const neededH = statSize * 0.85 + labelGap + labelSize;
     if (neededH > availableForStat && statSize > 24) {
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    ctx.font = `700 ${statSize}px ${FONT_FAMILY}`;
+    // Stat value with serif font
+    ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     cursorY += statSize * 0.8;
     ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
 
-    // Stat label — BELOW stat value, on its own line
+    // Stat label
     if (content.statLabel) {
       cursorY += labelGap + labelSize;
       ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
-      ctx.fillStyle = 'rgb(128, 132, 142)';
+      ctx.fillStyle = 'rgb(150, 155, 168)';
       ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     }
   }
 
-  // Phrase — anchored at bottom with guaranteed separation
+  // Phrase — anchored at bottom
   const phraseY = panel.y + panel.height - pad;
-  // Only draw phrase if it won't collide with stat content above
   if (phraseY - cursorY > 8) {
-    ctx.font = `italic 500 ${phraseSize}px ${FONT_FAMILY}`;
+    ctx.font = `italic 500 ${phraseSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-    ctx.globalAlpha = 0.6;
+    ctx.globalAlpha = 0.7;
     ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
     ctx.globalAlpha = 1;
   }
@@ -441,31 +440,30 @@ function drawMetaPanel(
 
   ctx.save();
 
-  // Proper vertical stack with explicit spacing
   const metaSize = spec.typography.metaFontSize;
-  const lineGap = 8; // explicit gap between stacked items
+  const lineGap = 10;
   let cursorY = panel.y + pad + metaSize;
 
   // Card type label
   ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.75;
+  ctx.globalAlpha = 0.85;
   ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   ctx.globalAlpha = 1;
 
-  // Time anchor — below card type with safe gap
+  // Time anchor
   if (content.timeAnchor) {
     cursorY += metaSize + lineGap;
     ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(128, 132, 142)';
+    ctx.fillStyle = 'rgb(145, 150, 165)';
     ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
-  // Domain — below time anchor with safe gap
+  // Domain
   if (content.domain) {
     cursorY += (metaSize - 2) + lineGap;
-    ctx.font = `400 ${14}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(100, 105, 115)';
+    ctx.font = `500 ${14}px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgb(120, 125, 140)';
     ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
   }
 
@@ -483,44 +481,55 @@ function drawBrandPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
+  // Premium brand panel background
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(18, 20, 30, 0.8)');
-  grad.addColorStop(1, 'rgba(14, 16, 24, 0.72)');
+  grad.addColorStop(0, 'rgba(20, 22, 34, 0.85)');
+  grad.addColorStop(1, 'rgba(14, 16, 26, 0.78)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // LS icon
-  const iconSize = 36;
-  const iconX = panel.x + panel.width / 2 - 80;
+  // LS icon — premium gold gradient
+  const iconSize = 38;
+  const iconX = panel.x + panel.width / 2 - 84;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
   drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 10);
   const iconGrad = ctx.createLinearGradient(iconX, iconY, iconX + iconSize, iconY + iconSize);
-  iconGrad.addColorStop(0, 'hsl(43, 74%, 55%)');
-  iconGrad.addColorStop(1, 'hsl(43, 65%, 38%)');
+  iconGrad.addColorStop(0, 'hsl(43, 74%, 58%)');
+  iconGrad.addColorStop(1, 'hsl(43, 65%, 40%)');
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
-  ctx.font = `800 ${12}px ${FONT_FAMILY}`;
+  // Icon shadow
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = iconGrad;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  ctx.font = `800 ${13}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(14, 16, 24)';
   ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 5);
   ctx.textAlign = 'left';
 
-  // "Posted from LifeStack"
+  // "Posted from LifeStack" — refined typography
   const brandSize = spec.typography.brandFontSize;
-  ctx.font = `500 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(110, 115, 128)';
-  const textX = iconX + iconSize + 12;
+  const textX = iconX + iconSize + 14;
   const textY = panel.y + panel.height / 2 + brandSize / 3;
+
+  ctx.font = `400 ${brandSize}px ${FONT_FAMILY}`;
+  ctx.fillStyle = 'rgb(130, 135, 150)';
   ctx.fillText('Posted from ', textX, textY);
 
   const postedW = ctx.measureText('Posted from ').width;
-  ctx.font = `600 ${brandSize}px ${FONT_FAMILY}`;
+  ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
   ctx.fillText('LifeStack', textX + postedW, textY);
 
@@ -541,19 +550,16 @@ function drawSponsorPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Subtle glass background with slight gold tint
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(22, 24, 36, 0.78)');
-  grad.addColorStop(1, 'rgba(18, 20, 30, 0.72)');
+  grad.addColorStop(0, 'rgba(22, 24, 36, 0.82)');
+  grad.addColorStop(1, 'rgba(18, 20, 30, 0.76)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Thin accent border
-  ctx.strokeStyle = 'rgba(200, 170, 80, 0.12)';
+  ctx.strokeStyle = 'rgba(200, 170, 80, 0.14)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Attribution prefix
   const prefixMap: Record<string, string> = {
     sponsored: 'Sponsored by',
     powered: 'Powered by',
@@ -563,25 +569,22 @@ function drawSponsorPanel(
   };
   const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
 
-  // Left side: attribution text
   const textX = panel.x + pad;
   const centerY = panel.y + panel.height / 2;
 
-  // Attribution line
   ctx.font = `500 ${14}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(100, 105, 118)';
+  ctx.fillStyle = 'rgb(115, 120, 135)';
   ctx.fillText(prefix, textX, centerY - 2);
 
   const prefixW = ctx.measureText(prefix).width;
   ctx.font = `600 ${15}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(180, 175, 165)';
+  ctx.fillStyle = 'rgb(195, 190, 180)';
   ctx.fillText(` ${sponsor.name}`, textX + prefixW, centerY - 2);
 
-  // Message / CTA on second line if present
   const tagline = sponsor.message || sponsor.cta;
   if (tagline) {
     ctx.font = `400 ${12}px ${FONT_FAMILY}`;
-    ctx.fillStyle = 'rgb(90, 95, 108)';
+    ctx.fillStyle = 'rgb(105, 110, 125)';
     const maxW = panel.width - pad * 2;
     const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
     ctx.fillText(clipped, textX, centerY + 16, maxW);
@@ -597,7 +600,6 @@ function drawBackground(
   spec: CompositionSpec,
   theme: ThemeDefinition,
 ) {
-  // Parse and draw the background gradient
   const colors = parseGradient(theme.bgGradient);
 
   if (colors.length >= 2) {
@@ -615,15 +617,24 @@ function drawBackground(
 
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Subtle radial highlight
+  // Richer radial highlight
   const radGrad = ctx.createRadialGradient(
-    spec.width * 0.2, spec.height * 0.2, 0,
-    spec.width * 0.2, spec.height * 0.2, spec.width * 0.6,
+    spec.width * 0.2, spec.height * 0.15, 0,
+    spec.width * 0.2, spec.height * 0.15, spec.width * 0.7,
   );
-  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.03)');
+  radGrad.addColorStop(0, 'rgba(200, 170, 80, 0.04)');
+  radGrad.addColorStop(0.5, 'rgba(200, 170, 80, 0.015)');
   radGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = radGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
+
+  // Subtle noise texture simulation via tiny dots
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.008)';
+  for (let i = 0; i < 120; i++) {
+    const nx = Math.random() * spec.width;
+    const ny = Math.random() * spec.height;
+    ctx.fillRect(nx, ny, 1, 1);
+  }
 }
 
 // ─── Main Render Function ─────────────────────────────────────────────

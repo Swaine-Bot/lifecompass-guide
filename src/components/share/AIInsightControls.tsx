@@ -76,9 +76,9 @@ export function AIInsightControls({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Sparkles className="w-4 h-4 text-primary" />
           <Label className="text-sm font-medium text-foreground cursor-pointer">Include AI Insight</Label>
         </div>
@@ -92,10 +92,10 @@ export function AIInsightControls({
             {STYLES.map((s) => (
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
-                  'px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all',
+                  'px-3 py-1.5 rounded-full text-[10px] font-semibold border transition-all',
                   style === s.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border/30 text-muted-foreground hover:border-border/50'
+                    ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
+                    : 'border-white/[0.06] text-foreground/55 hover:border-white/[0.12]'
                 )}>
                 {s.label}
               </button>
@@ -104,22 +104,22 @@ export function AIInsightControls({
 
           {/* Insight preview */}
           {insight ? (
-            <div className="rounded-lg border border-border/30 bg-secondary/30 p-3">
-              <p className="text-xs text-foreground leading-relaxed italic">"{insight}"</p>
+            <div className="rounded-xl border border-white/[0.08] bg-card/50 backdrop-blur-sm p-4">
+              <p className="text-xs text-foreground/80 leading-relaxed italic">"{insight}"</p>
               <Button variant="ghost" size="sm" onClick={() => generateInsight()} disabled={loading}
-                className="mt-2 text-[10px] text-muted-foreground h-7 px-2">
+                className="mt-2.5 text-[10px] text-foreground/50 hover:text-foreground h-7 px-2">
                 <RefreshCw className={cn('w-3 h-3 mr-1', loading && 'animate-spin')} />
-                {loading ? 'Generating...' : 'Regenerate'}
+                {loading ? 'Generating…' : 'Regenerate'}
               </Button>
             </div>
           ) : loading ? (
-            <div className="rounded-lg border border-border/30 bg-secondary/30 p-3 flex items-center gap-2">
-              <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground" />
-              <span className="text-[10px] text-muted-foreground">Generating insight...</span>
+            <div className="rounded-xl border border-white/[0.08] bg-card/50 backdrop-blur-sm p-4 flex items-center gap-2">
+              <RefreshCw className="w-3 h-3 animate-spin text-primary/60" />
+              <span className="text-[10px] text-foreground/50">Generating insight…</span>
             </div>
           ) : null}
 
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[10px] text-foreground/40">
             AI insight is optional and will only appear if you choose to include it.
           </p>
         </div>

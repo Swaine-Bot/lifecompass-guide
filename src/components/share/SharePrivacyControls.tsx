@@ -19,17 +19,15 @@ const controls = [
 
 export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControlsProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Privacy Controls</span>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2.5">
+        <Shield className="w-4 h-4 text-primary" />
+        <span className="text-sm font-medium text-foreground">Privacy Controls</span>
       </div>
 
       {/* Private Aesthetic Mode */}
-      <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-secondary/40 border border-border/30">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-card/50 border border-white/[0.08]">
+        <div className="flex items-center gap-2.5">
           <EyeOff className="w-3.5 h-3.5 text-primary" />
           <Label className="text-xs font-medium text-foreground cursor-pointer">Private Aesthetic Mode</Label>
         </div>
@@ -40,17 +38,17 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
         />
       </div>
       {privacy.privateAestheticMode && (
-        <p className="text-[10px] text-muted-foreground px-1">
+        <p className="text-[10px] text-foreground/40 px-1">
           Hides name, photo, and exact numbers automatically
         </p>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         {controls.map(({ key, label, icon: Icon }) => (
-          <div key={key} className="flex items-center justify-between py-1.5">
-            <div className="flex items-center gap-2">
-              <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-              <Label className="text-xs text-muted-foreground cursor-pointer">{label}</Label>
+          <div key={key} className="flex items-center justify-between py-2 px-1">
+            <div className="flex items-center gap-2.5">
+              <Icon className="w-3.5 h-3.5 text-foreground/40" />
+              <Label className="text-xs text-foreground/70 cursor-pointer">{label}</Label>
             </div>
             <Switch
               checked={privacy[key]}

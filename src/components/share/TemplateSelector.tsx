@@ -25,8 +25,8 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
   const legacyTemplates = TEMPLATE_REGISTRY.filter(t => !t.isBento);
 
   return (
-    <div className="space-y-3">
-      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Bento Cards</span>
+    <div className="space-y-4">
+      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Bento Cards</span>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
         {bentoTemplates.map((tmpl) => (
           <button
@@ -35,8 +35,8 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
             className={cn(
               'flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all min-w-[72px]',
               selected === tmpl.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/30 text-muted-foreground hover:border-border/60'
+                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.2)]'
+                : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12] bg-card/30'
             )}
           >
             {ICONS[tmpl.id]}
@@ -45,7 +45,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
         ))}
       </div>
 
-      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Classic</span>
+      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Classic</span>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
         {legacyTemplates.map((tmpl) => (
           <button
@@ -54,8 +54,8 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
             className={cn(
               'flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all min-w-[72px]',
               selected === tmpl.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/30 text-muted-foreground hover:border-border/60'
+                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.2)]'
+                : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12] bg-card/30'
             )}
           >
             {ICONS[tmpl.id]}
@@ -64,7 +64,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
         ))}
       </div>
       
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-[10px] text-foreground/45">
         {TEMPLATE_REGISTRY.find(t => t.id === selected)?.description} · Best for {TEMPLATE_REGISTRY.find(t => t.id === selected)?.bestFor.join(', ')}
       </p>
     </div>
