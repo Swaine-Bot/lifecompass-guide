@@ -462,7 +462,7 @@ export default function ShareStudio() {
 
             {/* Template Tab */}
             <TabsContent value="template" className="mt-4">
-              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
                 {!hasPrefill && (
@@ -508,7 +508,7 @@ export default function ShareStudio() {
 
             {/* AI Insight Tab */}
             <TabsContent value="ai" className="mt-4">
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <AIInsightControls
                   enabled={aiInsightEnabled}
                   onToggle={setAiInsightEnabled}
@@ -524,14 +524,14 @@ export default function ShareStudio() {
             </TabsContent>
 
             <TabsContent value="style" className="mt-4">
-              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5 space-y-4" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <ShareThemeSelector theme={theme} onChange={setTheme} />
               </div>
             </TabsContent>
 
             {hasPostImage && (
               <TabsContent value="image" className="mt-4">
-                <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                   <div>
                     <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Post Image</span>
                     <p className="text-[10px] text-white/30 mt-1">Control how the image appears on your share card.</p>
@@ -571,19 +571,19 @@ export default function ShareStudio() {
             )}
 
             <TabsContent value="privacy" className="mt-4">
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
               </div>
             </TabsContent>
 
             <TabsContent value="platform" className="mt-4">
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <PlatformSelector platform={platform} onChange={setPlatform} />
               </div>
             </TabsContent>
 
             <TabsContent value="link" className="mt-4">
-              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <div>
                   <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Link & Destination</span>
                   <p className="text-[10px] text-white/30 mt-1">Smart links route viewers to the app or store.</p>
@@ -614,7 +614,7 @@ export default function ShareStudio() {
 
             {/* Sponsor / Partner Tab */}
             <TabsContent value="sponsor" className="mt-4">
-              <div className="rounded-2xl p-5 space-y-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
                 <div>
                   <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Sponsor / Partner</span>
                   <p className="text-[10px] text-white/30 mt-1">Add a premium partner attribution to this card.</p>
