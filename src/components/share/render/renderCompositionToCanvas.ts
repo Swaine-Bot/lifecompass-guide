@@ -684,77 +684,75 @@ function drawBackground(
 ) {
   const colors = parseGradient(theme.bgGradient);
 
-  // ── The environment IS the card. Card is a condensation of this world. ──
-  // Lighter base — card must NOT be darker than its surroundings
+  // ── The environment IS the card — lighter, warmer base ──
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
       spec.width * 0.15, 0,
       spec.width * 0.85, spec.height,
     );
     colors.forEach((color, i) => {
-      // Brighten base slightly so card matches environment luminance
       grad.addColorStop(i / (colors.length - 1), color);
     });
     ctx.fillStyle = grad;
   } else {
-    ctx.fillStyle = '#0c0c14';
+    ctx.fillStyle = '#0e0e16';
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Key light — WIDE atmospheric wash, fills the world
+  // Key light — WIDE cinematic wash, warm amber glow
   const kl = envTone.keyLight;
   const keyGrad = ctx.createRadialGradient(
     spec.width * kl.x, spec.height * kl.y, 0,
-    spec.width * kl.x, spec.height * kl.y, spec.width * 1.3,
+    spec.width * kl.x, spec.height * kl.y, spec.width * 1.5,
   );
-  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.16})`));
-  keyGrad.addColorStop(0.2, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.08})`));
-  keyGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.035})`));
+  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.20})`));
+  keyGrad.addColorStop(0.15, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.12})`));
+  keyGrad.addColorStop(0.4, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.05})`));
   keyGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fill light — complementary atmospheric tone
+  // Fill light — cool complementary
   const fl = envTone.fillLight;
   const fillGrad = ctx.createRadialGradient(
     spec.width * fl.x, spec.height * fl.y, 0,
-    spec.width * fl.x, spec.height * fl.y, spec.width * 0.8,
+    spec.width * fl.x, spec.height * fl.y, spec.width * 0.9,
   );
-  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.09})`));
-  fillGrad.addColorStop(0.5, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.03})`));
+  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.10})`));
+  fillGrad.addColorStop(0.4, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.035})`));
   fillGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Ambient warmth — center gravity, wide and soft
+  // Ambient warmth — center gravity
   const aw = envTone.ambientWarmth;
   const centerGrad = ctx.createRadialGradient(
-    spec.width * 0.5, spec.height * 0.4, 0,
-    spec.width * 0.5, spec.height * 0.4, spec.width * 0.75,
+    spec.width * 0.5, spec.height * 0.38, 0,
+    spec.width * 0.5, spec.height * 0.38, spec.width * 0.8,
   );
-  centerGrad.addColorStop(0, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.06})`));
-  centerGrad.addColorStop(0.5, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.02})`));
+  centerGrad.addColorStop(0, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.08})`));
+  centerGrad.addColorStop(0.45, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.025})`));
   centerGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine grain texture — subtle materiality
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.004)';
-  for (let i = 0; i < 120; i++) {
+  // Fine grain — subtle materiality
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
+  for (let i = 0; i < 80; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Soft vignette — gentle, NOT darkening the card below environment level
+  // Soft vignette — very gentle
   const vs = envTone.vignetteStrength;
   const vignetteGrad = ctx.createRadialGradient(
-    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.4,
-    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.85,
+    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.45,
+    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.9,
   );
   vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(0.7, `rgba(0,0,0,${vs * 0.12})`);
-  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs * 0.4})`);
+  vignetteGrad.addColorStop(0.7, `rgba(0,0,0,${vs * 0.08})`);
+  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs * 0.28})`);
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 }
