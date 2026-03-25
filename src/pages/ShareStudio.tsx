@@ -343,7 +343,7 @@ export default function ShareStudio() {
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'blur(24px) saturate(1.15) brightness(0.35)', transform: 'scale(1.15)' }}
+        style={{ filter: 'blur(28px) saturate(1.35) brightness(0.32)', transform: 'scale(1.18)' }}
       />
       {/* Environment atmosphere layers — derived from tone */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: envTone.studioOverlay.primary }} />
