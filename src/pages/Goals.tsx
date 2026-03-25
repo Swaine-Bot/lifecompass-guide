@@ -98,13 +98,13 @@ export default function Goals() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header zone with contrast scrim */}
+      {/* Header zone with contrast scrim + on-image text */}
       <div className="header-scrim space-y-5">
         {/* Header — Aspirational */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight mb-1">Goals & Plans</h1>
-            <p className="text-muted-foreground/80 text-xs uppercase tracking-wider font-medium">Your roadmap to an intentional life</p>
+            <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight mb-1 on-image-title">Goals & Plans</h1>
+            <p className="on-image-subtitle text-xs uppercase tracking-wider font-medium">Your roadmap to an intentional life</p>
           </div>
           <Button variant="gold" asChild className="shrink-0">
             <Link to="/goals/new">
@@ -115,15 +115,15 @@ export default function Goals() {
           </Button>
         </div>
 
-        {/* Search & Filters — Premium Controls */}
+        {/* Search & Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 on-image-placeholder" />
             <Input
               placeholder="Search goals..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/[0.05] border-white/[0.08] focus:border-primary/30 placeholder:text-muted-foreground/50"
+              className="pl-10 bg-black/20 border-white/[0.12] focus:border-primary/40 placeholder:on-image-placeholder text-foreground"
             />
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
@@ -135,7 +135,7 @@ export default function Goals() {
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
                   "shrink-0 text-[11px] tracking-wide",
-                  selectedCategory !== cat && "text-muted-foreground/70 hover:text-foreground"
+                  selectedCategory !== cat && "on-image-filter hover:text-foreground"
                 )}
               >
                 {cat}
