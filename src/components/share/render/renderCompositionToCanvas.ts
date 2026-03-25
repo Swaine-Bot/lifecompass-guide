@@ -318,7 +318,7 @@ function drawTextPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'hero');
 
   const pad = 24;
   const theme = content.theme;
