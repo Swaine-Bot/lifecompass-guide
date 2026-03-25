@@ -678,47 +678,37 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION — volumetric gold capsule ═══ */}
+          {/* ═══ PRIMARY ACTION ═══ */}
           <div className="space-y-3 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
               className="w-full h-13 text-sm font-semibold gap-2"
               style={{
                 borderRadius: 999,
-                boxShadow: `
-                  0 0 100px -20px rgba(255,160,60,0.22),
-                  0 20px 60px -10px rgba(0,0,0,0.12),
-                  inset 0 1px 0 rgba(255,255,255,0.18),
-                  inset 0 0 30px rgba(255,200,100,0.06),
-                  inset 0 -1px 0 rgba(0,0,0,0.06)
-                `,
+                boxShadow: '0 8px 32px rgba(200,160,60,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
-            {/* Secondary utilities — micro glass bubbles */}
-            <div className="grid grid-cols-3 gap-2"
+            {/* Secondary utilities */}
+            <div className="grid grid-cols-3 gap-2 p-1"
               style={{
-                borderRadius: 999,
-                background: `
-                  radial-gradient(ellipse at 30% 40%, rgba(255,170,70,0.01), transparent 50%),
-                  rgba(255,255,255,0.005)
-                `,
-                backdropFilter: 'blur(50px) saturate(170%)',
-                WebkitBackdropFilter: 'blur(50px) saturate(170%)',
-                border: '1px solid rgba(255,255,255,0.012)',
-                padding: '4px',
+                borderRadius: 16,
+                background: 'rgba(14, 22, 28, 0.32)',
+                backdropFilter: 'blur(60px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
+                border: '1px solid rgba(120, 200, 220, 0.06)',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 12 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 12 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 12 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
