@@ -250,7 +250,7 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.1)');
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', 'rgba(200, 170, 80, 0.1)');
 
   const pad = 24;
   const theme = content.theme;
