@@ -60,34 +60,55 @@ function drawPanelBackground(
   glowColor?: string,
 ) {
   ctx.save();
-  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Material hierarchy — hero panels brighter, tertiary more transparent
+  // Outer depth shadow — cards feel like objects in space
+  const shadowAlpha = tier === 'hero' ? 0.4 : tier === 'secondary' ? 0.25 : 0.15;
+  const shadowBlur = tier === 'hero' ? 40 : tier === 'secondary' ? 24 : 14;
+  ctx.shadowColor = `rgba(0, 0, 0, ${shadowAlpha})`;
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetY = tier === 'hero' ? 8 : 4;
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+  ctx.fillStyle = 'rgba(14, 16, 24, 0.5)';
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Material fill — refined glass with warmth
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const materials: Record<PanelTier, [string, string, string]> = {
-    hero:      ['rgba(28, 30, 48, 0.92)', 'rgba(24, 26, 42, 0.86)', 'rgba(20, 22, 38, 0.82)'],
-    secondary: ['rgba(22, 24, 40, 0.85)', 'rgba(18, 20, 34, 0.78)', 'rgba(14, 16, 28, 0.74)'],
-    tertiary:  ['rgba(18, 20, 34, 0.72)', 'rgba(14, 16, 28, 0.66)', 'rgba(12, 14, 24, 0.62)'],
+    hero:      ['rgba(30, 32, 52, 0.94)', 'rgba(26, 28, 46, 0.88)', 'rgba(22, 24, 40, 0.84)'],
+    secondary: ['rgba(24, 26, 44, 0.86)', 'rgba(20, 22, 38, 0.80)', 'rgba(16, 18, 32, 0.76)'],
+    tertiary:  ['rgba(20, 22, 38, 0.74)', 'rgba(16, 18, 32, 0.68)', 'rgba(14, 16, 28, 0.64)'],
   };
 
   const [c1, c2, c3] = materials[tier];
-  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
+  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width * 0.3, panel.y + panel.height);
   grad.addColorStop(0, c1);
   grad.addColorStop(0.5, c2);
   grad.addColorStop(1, c3);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner highlight — stronger for hero
-  const edgeAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.07 : 0.04;
+  // Inner luminance — subtle top highlight simulating ambient light
+  const innerGlow = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height * 0.4);
+  const glowAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.035 : 0.02;
+  innerGlow.addColorStop(0, `rgba(255, 255, 255, ${glowAlpha})`);
+  innerGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = innerGlow;
+  ctx.fill();
+
+  // Edge highlight — refined 1px top/left edge
+  const edgeAlpha = tier === 'hero' ? 0.14 : tier === 'secondary' ? 0.08 : 0.05;
   ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 0.75;
   ctx.stroke();
 
-  // Outer glow for premium depth — hero gets stronger glow
-  if (glowColor || tier === 'hero') {
-    const glow = glowColor || 'rgba(200, 170, 80, 0.06)';
-    ctx.shadowColor = glow;
-    ctx.shadowBlur = tier === 'hero' ? 32 : 20;
+  // Warm ambient glow — hero gets gold, secondary gets subtle
+  if (tier === 'hero' || glowColor) {
+    const gc = glowColor || 'rgba(200, 170, 80, 0.07)';
+    ctx.shadowColor = gc;
+    ctx.shadowBlur = tier === 'hero' ? 36 : 22;
     ctx.shadowOffsetY = tier === 'hero' ? 6 : 3;
     ctx.strokeStyle = 'transparent';
     ctx.stroke();
