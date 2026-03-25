@@ -443,19 +443,15 @@ export default function ShareStudio() {
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — floating glass volume ═══ */}
+          {/* ═══ INSTRUMENT PANEL — translucent tab bar ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="p-1.5"
+            <div className="p-1"
               style={{
-                borderRadius: 999,
-                background: `
-                  radial-gradient(ellipse at 20% 30%, rgba(255,170,70,0.02), transparent 40%),
-                  rgba(255,255,255,0.006)
-                `,
-                backdropFilter: 'blur(56px) saturate(175%)',
-                WebkitBackdropFilter: 'blur(56px) saturate(175%)',
-                border: '1px solid rgba(255,255,255,0.015)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.025), inset 0 0 30px rgba(255,150,60,0.006)',
+                borderRadius: 20,
+                background: 'rgba(14, 22, 28, 0.32)',
+                backdropFilter: 'blur(60px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(60px) saturate(140%)',
+                border: '1px solid rgba(120, 200, 220, 0.06)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
