@@ -545,23 +545,22 @@ function drawBrandPanel(
 
   ctx.save();
 
-  // Brand panel — minimal separation, continuous with environment
+  // Brand panel — atmospheric, continuous with the world
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
-  const bR = Math.round(14 + tr * ta * 2);
-  const bG = Math.round(16 + tg * ta * 2);
-  const bB = Math.round(28 + tb * ta * 2);
+  const bR = Math.round(14 + tr * ta * 3);
+  const bG = Math.round(16 + tg * ta * 3);
+  const bB = Math.round(28 + tb * ta * 3);
 
-  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 4}, ${bG + 4}, ${bB + 6}, 0.6)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.5)`);
+  // Variable density — lighter at top, denser at bottom
+  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
+  grad.addColorStop(0, `rgba(${bR + 6}, ${bG + 6}, ${bB + 8}, 0.20)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.35)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(255, 255, 255, 0.025)`;
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
+  // No stroke — dissolves into environment
 
   // LS icon
   const iconSize = 36;
