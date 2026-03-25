@@ -74,7 +74,8 @@ export function CompositionCard({
       style={{
         width: maxPreviewWidth,
         height: previewHeight,
-        borderRadius: 24,
+        borderRadius: 20,
+        // No box-shadow, no border — card dissolves into environment
       }}
     >
       <canvas
