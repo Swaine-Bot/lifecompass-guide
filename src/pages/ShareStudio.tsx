@@ -334,16 +334,16 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── GLASS VOLUME — matching Goals page translucent material ───
+  // ─── GLASS VOLUME — dissolved atmospheric field ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 24,
-    background: 'rgba(14, 22, 28, 0.38)',
-    backdropFilter: 'blur(80px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(140%)',
-    border: '1px solid rgba(120, 200, 220, 0.08)',
+    borderRadius: 48,
+    background: 'rgba(14, 22, 28, 0.28)',
+    backdropFilter: 'blur(80px) saturate(145%)',
+    WebkitBackdropFilter: 'blur(80px) saturate(145%)',
+    border: '1px solid rgba(255,255,255,0.025)',
     boxShadow: `
-      inset 0 1px 0 rgba(255,255,255,0.04),
-      0 12px 40px rgba(0,0,0,0.15)
+      inset 0 1px 0 rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.10)
     `,
   };
 
