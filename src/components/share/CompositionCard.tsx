@@ -74,8 +74,7 @@ export function CompositionCard({
       style={{
         width: maxPreviewWidth,
         height: previewHeight,
-        borderRadius: 20,
-        // No box-shadow, no border — card dissolves into environment
+        borderRadius: 48,
       }}
     >
       <canvas
@@ -87,9 +86,9 @@ export function CompositionCard({
         }}
       />
       {!rendered && (
-        <div
+      <div
           className="absolute inset-0 flex items-center justify-center"
-          style={{ background: 'rgba(10, 10, 15, 0.9)' }}
+          style={{ background: 'rgba(10, 10, 15, 0.85)', borderRadius: 48 }}
         >
           <div className="text-center space-y-2">
             <div
