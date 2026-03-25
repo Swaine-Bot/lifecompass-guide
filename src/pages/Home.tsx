@@ -591,7 +591,7 @@ export default function Home() {
         ].map(({ to, icon: Icon, label }) => (
           <Link key={to} to={to} className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.04] hover:bg-white/[0.06] hover:border-primary/20 transition-all">
             <Icon className="w-4.5 h-4.5 text-primary/70" />
-            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] text-foreground/60 uppercase tracking-wider">{label}</span>
           </Link>
         ))}
       </div>
