@@ -334,23 +334,16 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── GLASS VOLUME — not a panel, a formed translucent object ───
+  // ─── GLASS VOLUME — matching Goals page translucent material ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 44,
-    background: `
-      radial-gradient(ellipse at 25% 15%, rgba(255,170,70,0.06), transparent 45%),
-      radial-gradient(ellipse at 75% 85%, rgba(60,100,200,0.035), transparent 40%),
-      radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.012), transparent 60%),
-      rgba(255,255,255,0.008)
-    `,
-    backdropFilter: 'blur(60px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(180%)',
-    border: '1px solid rgba(255,255,255,0.018)',
+    borderRadius: 24,
+    background: 'rgba(14, 22, 28, 0.38)',
+    backdropFilter: 'blur(80px) saturate(140%)',
+    WebkitBackdropFilter: 'blur(80px) saturate(140%)',
+    border: '1px solid rgba(120, 200, 220, 0.08)',
     boxShadow: `
-      inset 0 1px 0 rgba(255,255,255,0.05),
-      inset 0 0 40px rgba(255,160,60,0.012),
-      0 20px 80px rgba(0,0,0,0.04),
-      0 0 120px rgba(255,140,40,0.008)
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      0 12px 40px rgba(0,0,0,0.15)
     `,
   };
 
