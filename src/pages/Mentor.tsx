@@ -342,7 +342,7 @@ export default function Mentor() {
           </div>
 
           {/* ── Input dock — premium composition ── */}
-          <div className="border-t border-white/[0.06] bg-card/50 backdrop-blur-2xl shrink-0">
+          <div className="border-t border-white/[0.06] bg-black/30 backdrop-blur-2xl shrink-0 relative z-10">
             <div className="max-w-2xl mx-auto px-4 py-3">
               {pendingImage && (
                 <div className="mb-3 flex items-center gap-3">
