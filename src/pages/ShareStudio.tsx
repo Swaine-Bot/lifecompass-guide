@@ -334,6 +334,16 @@ export default function ShareStudio() {
     );
   }
 
+  // ─── Shared glass style for tab content panels ───
+  const glassPanel: React.CSSProperties = {
+    borderRadius: 32,
+    background: 'linear-gradient(180deg, rgba(8,10,16,0.18), rgba(8,10,16,0.10))',
+    backdropFilter: 'blur(42px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(42px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.055)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 50px rgba(0,0,0,0.12)',
+  };
+
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -353,8 +363,13 @@ export default function ShareStudio() {
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
-        {/* ═══ HEADER — dissolved into environment ═══ */}
-        <div className="sticky top-0 z-40" style={{ background: 'transparent' }}>
+        {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
+        <div className="sticky top-0 z-40" style={{
+          background: 'linear-gradient(180deg, rgba(8,10,16,0.16), rgba(8,10,16,0.06))',
+          backdropFilter: 'blur(24px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+        }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 -ml-1">
@@ -379,6 +394,7 @@ export default function ShareStudio() {
               size="sm"
               onClick={loadSavedCards}
               className="text-[10px] gap-1.5 text-white/35 hover:text-white/60 h-7"
+              style={{ borderRadius: 999 }}
             >
               <LayoutGrid className="w-3 h-3" />Cards
             </Button>
@@ -415,7 +431,7 @@ export default function ShareStudio() {
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — atmospheric pill ═══ */}
+          {/* ═══ REGENERATE — floating glass pill ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -428,25 +444,27 @@ export default function ShareStudio() {
                 text-white/45 hover:text-white/70"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.03)',
-                backdropFilter: 'blur(24px) saturate(130%)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.15)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))',
+                backdropFilter: 'blur(24px) saturate(135%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(135%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 40px rgba(0,0,0,0.12)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — glass bubble architecture ═══ */}
+          {/* ═══ INSTRUMENT PANEL — ultra-transparent glass bubble ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1.5"
               style={{
-                borderRadius: 32,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))',
-                backdropFilter: 'blur(36px) saturate(140%)',
+                borderRadius: 36,
+                background: 'rgba(12,14,22,0.14)',
+                backdropFilter: 'blur(34px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(34px) saturate(145%)',
                 border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 40px rgba(0,0,0,0.12), 0 8px 40px rgba(0,0,0,0.18)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 40px rgba(0,0,0,0.12)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
@@ -462,7 +480,7 @@ export default function ShareStudio() {
 
             {/* Template Tab */}
             <TabsContent value="template" className="mt-4">
-              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-5" style={glassPanel}>
                 <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
                 {!hasPrefill && (
@@ -508,7 +526,7 @@ export default function ShareStudio() {
 
             {/* AI Insight Tab */}
             <TabsContent value="ai" className="mt-4">
-              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5" style={glassPanel}>
                 <AIInsightControls
                   enabled={aiInsightEnabled}
                   onToggle={setAiInsightEnabled}
@@ -524,14 +542,14 @@ export default function ShareStudio() {
             </TabsContent>
 
             <TabsContent value="style" className="mt-4">
-              <div className="p-5 space-y-4" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-4" style={glassPanel}>
                 <ShareThemeSelector theme={theme} onChange={setTheme} />
               </div>
             </TabsContent>
 
             {hasPostImage && (
               <TabsContent value="image" className="mt-4">
-                <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+                <div className="p-5 space-y-5" style={glassPanel}>
                   <div>
                     <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Post Image</span>
                     <p className="text-[10px] text-white/30 mt-1">Control how the image appears on your share card.</p>
@@ -571,19 +589,19 @@ export default function ShareStudio() {
             )}
 
             <TabsContent value="privacy" className="mt-4">
-              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5" style={glassPanel}>
                 <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
               </div>
             </TabsContent>
 
             <TabsContent value="platform" className="mt-4">
-              <div className="p-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5" style={glassPanel}>
                 <PlatformSelector platform={platform} onChange={setPlatform} />
               </div>
             </TabsContent>
 
             <TabsContent value="link" className="mt-4">
-              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-5" style={glassPanel}>
                 <div>
                   <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Link & Destination</span>
                   <p className="text-[10px] text-white/30 mt-1">Smart links route viewers to the app or store.</p>
@@ -614,7 +632,7 @@ export default function ShareStudio() {
 
             {/* Sponsor / Partner Tab */}
             <TabsContent value="sponsor" className="mt-4">
-              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-5" style={glassPanel}>
                 <div>
                   <span className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.12em]">Sponsor / Partner</span>
                   <p className="text-[10px] text-white/30 mt-1">Add a premium partner attribution to this card.</p>
@@ -679,7 +697,7 @@ export default function ShareStudio() {
               className="w-full h-13 text-sm font-semibold gap-2"
               style={{
                 borderRadius: 999,
-                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12)`,
+                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12)`,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
@@ -689,21 +707,22 @@ export default function ShareStudio() {
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.02)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.04)',
+                background: 'rgba(255,255,255,0.025)',
+                backdropFilter: 'blur(28px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
+                border: '1px solid rgba(255,255,255,0.05)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>

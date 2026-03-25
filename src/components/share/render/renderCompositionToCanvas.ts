@@ -95,10 +95,10 @@ function drawPanelBackground(
 
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Variable glass — top clearer, bottom denser (non-uniform opacity)
-  const topAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.12 : 0.08;
-  const midAlpha = tier === 'hero' ? 0.30 : tier === 'secondary' ? 0.22 : 0.15;
-  const botAlpha = tier === 'hero' ? 0.42 : tier === 'secondary' ? 0.32 : 0.22;
+  // Variable glass — ultra-translucent, top clearer, bottom slightly denser
+  const topAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
+  const midAlpha = tier === 'hero' ? 0.22 : tier === 'secondary' ? 0.16 : 0.10;
+  const botAlpha = tier === 'hero' ? 0.32 : tier === 'secondary' ? 0.24 : 0.16;
 
   const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
   const baseR = Math.round(14 + tr * ta * tintStrength);
@@ -112,7 +112,7 @@ function drawPanelBackground(
   );
   grad.addColorStop(0, `rgba(${baseR + 12}, ${baseG + 12}, ${baseB + 15}, ${topAlpha})`);
   grad.addColorStop(0.35, `rgba(${baseR + 6}, ${baseG + 6}, ${baseB + 8}, ${midAlpha})`);
-  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.04})`);
+  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.03})`);
   grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${botAlpha})`);
   ctx.fillStyle = grad;
   ctx.fill();
@@ -123,15 +123,15 @@ function drawPanelBackground(
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 0.9,
   );
-  const bleedAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  const bleedAlpha = tier === 'hero' ? 0.08 : tier === 'secondary' ? 0.05 : 0.03;
   bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
-  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.3})`));
+  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.35})`));
   bleedGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = bleedGrad;
   ctx.fill();
 
-  // Inner luminance — ambient light from key direction, NOT glow
-  const lumAlpha = tier === 'hero' ? 0.025 : tier === 'secondary' ? 0.012 : 0.006;
+  // Inner luminance — brighter ambient light for translucent feel
+  const lumAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.02 : 0.01;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
