@@ -336,12 +336,21 @@ export default function ShareStudio() {
 
   // ─── Shared glass style for tab content panels ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 28,
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))',
-    backdropFilter: 'blur(38px) saturate(155%)',
-    WebkitBackdropFilter: 'blur(38px) saturate(155%)',
-    border: '1px solid rgba(255,255,255,0.035)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 50px rgba(0,0,0,0.08)',
+    borderRadius: 36,
+    background: `
+      radial-gradient(ellipse at 20% 10%, rgba(255,160,60,0.04), transparent 40%),
+      radial-gradient(ellipse at 80% 90%, rgba(40,80,180,0.03), transparent 40%),
+      linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.008))
+    `,
+    backdropFilter: 'blur(48px) saturate(170%)',
+    WebkitBackdropFilter: 'blur(48px) saturate(170%)',
+    border: '1px solid rgba(255,255,255,0.025)',
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 0 rgba(0,0,0,0.04),
+      0 16px 64px rgba(0,0,0,0.06),
+      0 0 80px rgba(255,140,40,0.015)
+    `,
   };
 
   // ─── Main Studio ───
