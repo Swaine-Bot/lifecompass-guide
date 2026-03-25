@@ -90,63 +90,61 @@ function drawPanelBackground(
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const kl = envTone.keyLight;
 
-  // ── ATMOSPHERIC SURFACE — a denser region of the environment, not a container ──
-  // NO drop shadows. Depth via light gradient only.
+  // ── ATMOSPHERIC SURFACE — a translucent glass bubble, not a container ──
 
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Variable glass — ultra-translucent glass bubbles
-  const topAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
-  const midAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
-  const botAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.13 : 0.08;
+  // Variable glass — extremely translucent, warm-tinted
+  const topAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.025 : 0.015;
+  const midAlpha = tier === 'hero' ? 0.07 : tier === 'secondary' ? 0.05 : 0.03;
+  const botAlpha = tier === 'hero' ? 0.11 : tier === 'secondary' ? 0.08 : 0.05;
 
-  const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
-  const baseR = Math.round(14 + tr * ta * tintStrength);
+  const tintStrength = tier === 'hero' ? 8 : tier === 'secondary' ? 6 : 4;
+  const baseR = Math.round(18 + tr * ta * tintStrength);
   const baseG = Math.round(16 + tg * ta * tintStrength);
-  const baseB = Math.round(28 + tb * ta * tintStrength);
+  const baseB = Math.round(22 + tb * ta * tintStrength);
 
-  // Vertical gradient — variable density, environment-tinted
+  // Vertical gradient — variable density, warm-tinted glass
   const grad = ctx.createLinearGradient(
     panel.x + panel.width * kl.x, panel.y,
     panel.x + panel.width * (1 - kl.x), panel.y + panel.height,
   );
-  grad.addColorStop(0, `rgba(${baseR + 12}, ${baseG + 12}, ${baseB + 15}, ${topAlpha})`);
-  grad.addColorStop(0.35, `rgba(${baseR + 6}, ${baseG + 6}, ${baseB + 8}, ${midAlpha})`);
-  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.03})`);
+  grad.addColorStop(0, `rgba(${baseR + 16}, ${baseG + 14}, ${baseB + 12}, ${topAlpha})`);
+  grad.addColorStop(0.3, `rgba(${baseR + 8}, ${baseG + 7}, ${baseB + 6}, ${midAlpha})`);
+  grad.addColorStop(0.7, `rgba(${baseR + 3}, ${baseG + 3}, ${baseB + 2}, ${midAlpha + 0.015})`);
   grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${botAlpha})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Environment bleed — key light color tints the panel surface
+  // Environment bleed — warm key light tints the panel surface
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const bleedGrad = ctx.createRadialGradient(
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
-    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 0.9,
+    panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 1.0,
   );
-  const bleedAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.07 : 0.04;
+  const bleedAlpha = tier === 'hero' ? 0.15 : tier === 'secondary' ? 0.09 : 0.05;
   bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
-  bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.35})`));
+  bleedGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.3})`));
   bleedGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = bleedGrad;
   ctx.fill();
 
-  // Inner luminance — brighter ambient light for translucent feel
-  const lumAlpha = tier === 'hero' ? 0.05 : tier === 'secondary' ? 0.03 : 0.018;
+  // Inner luminance — bright top edge highlight for glass feel
+  const lumAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.02;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
-    panel.x, panel.y + panel.height * 0.5,
+    panel.x, panel.y + panel.height * 0.4,
   );
   innerLum.addColorStop(0, `rgba(255, 255, 255, ${lumAlpha})`);
   innerLum.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = innerLum;
   ctx.fill();
 
-  // NO hard border stroke — edges defined by tonal shift only
-  // Whisper-thin edge on hero and secondary for subtle structure
+  // Whisper-thin edge — barely perceptible glass edge
   if (tier === 'hero' || tier === 'secondary') {
     drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-    ctx.strokeStyle = `rgba(255, 255, 255, ${tier === 'hero' ? 0.03 : 0.02})`;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${tier === 'hero' ? 0.025 : 0.015})`;
     ctx.lineWidth = 0.5;
     ctx.stroke();
   }
