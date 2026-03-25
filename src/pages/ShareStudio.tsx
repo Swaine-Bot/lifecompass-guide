@@ -406,14 +406,14 @@ export default function ShareStudio() {
           <div className="relative flex justify-center py-10">
             {/* Wide atmospheric diffusion — card emerges from background, no edges */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[160%] h-[160%]"
+              <div className="w-[200%] h-[200%]"
                 style={{
                   background: `
-                    radial-gradient(ellipse at 35% 30%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.14)')}, transparent 55%),
-                    radial-gradient(ellipse at 65% 70%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.07)')}, transparent 50%),
-                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.04), transparent 60%)
+                    radial-gradient(ellipse at 30% 25%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.18)')}, transparent 50%),
+                    radial-gradient(ellipse at 70% 75%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 45%),
+                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.06), transparent 55%)
                   `,
-                  filter: 'blur(90px)',
+                  filter: 'blur(100px)',
                 }} />
             </div>
             {/* No frame, no container — card sits directly in the world */}
