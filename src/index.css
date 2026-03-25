@@ -315,7 +315,7 @@
   /* Icon orb — small (inline sections, compact headers) */
   .icon-orb-sm {
     @apply w-6 h-6 rounded-full flex items-center justify-center shrink-0;
-    @apply bg-gradient-to-br from-primary/20 to-primary/8 ring-1 ring-primary/20;
+    @apply bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20;
     box-shadow: 0 0 8px hsl(43 74% 52% / 0.12);
   }
   .icon-orb-sm > svg {
