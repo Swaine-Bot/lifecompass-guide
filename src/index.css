@@ -309,7 +309,7 @@
     @apply bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-primary/10;
   }
   .icon-orb > svg {
-    @apply w-4 h-4 text-primary/70;
+    @apply w-4 h-4 text-primary/80;
   }
 
   /* Icon orb — small (inline sections, compact headers) */
