@@ -480,7 +480,7 @@ export default function ShareStudio() {
 
             {/* Template Tab */}
             <TabsContent value="template" className="mt-4">
-              <div className="p-5 space-y-5" style={{ borderRadius: 28, background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012))', backdropFilter: 'blur(28px) saturate(130%)', border: '1px solid rgba(255,255,255,0.045)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 30px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 space-y-5" style={glassPanel}>
                 <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
 
                 {!hasPrefill && (
