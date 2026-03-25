@@ -697,7 +697,7 @@ export default function ShareStudio() {
               className="w-full h-13 text-sm font-semibold gap-2"
               style={{
                 borderRadius: 999,
-                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12)`,
+                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12)`,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
@@ -707,21 +707,22 @@ export default function ShareStudio() {
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.02)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.04)',
+                background: 'rgba(255,255,255,0.025)',
+                backdropFilter: 'blur(28px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
+                border: '1px solid rgba(255,255,255,0.05)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/40 hover:text-white/65 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>

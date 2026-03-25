@@ -130,8 +130,8 @@ function drawPanelBackground(
   ctx.fillStyle = bleedGrad;
   ctx.fill();
 
-  // Inner luminance — ambient light from key direction, NOT glow
-  const lumAlpha = tier === 'hero' ? 0.025 : tier === 'secondary' ? 0.012 : 0.006;
+  // Inner luminance — brighter ambient light for translucent feel
+  const lumAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.02 : 0.01;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
