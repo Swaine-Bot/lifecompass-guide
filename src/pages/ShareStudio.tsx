@@ -334,22 +334,23 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── Shared glass style for tab content panels ───
+  // ─── GLASS VOLUME — not a panel, a formed translucent object ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 36,
+    borderRadius: 44,
     background: `
-      radial-gradient(ellipse at 20% 10%, rgba(255,160,60,0.04), transparent 40%),
-      radial-gradient(ellipse at 80% 90%, rgba(40,80,180,0.03), transparent 40%),
-      linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.008))
+      radial-gradient(ellipse at 25% 15%, rgba(255,170,70,0.06), transparent 45%),
+      radial-gradient(ellipse at 75% 85%, rgba(60,100,200,0.035), transparent 40%),
+      radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.012), transparent 60%),
+      rgba(255,255,255,0.008)
     `,
-    backdropFilter: 'blur(48px) saturate(170%)',
-    WebkitBackdropFilter: 'blur(48px) saturate(170%)',
-    border: '1px solid rgba(255,255,255,0.025)',
+    backdropFilter: 'blur(60px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+    border: '1px solid rgba(255,255,255,0.018)',
     boxShadow: `
-      inset 0 1px 0 rgba(255,255,255,0.04),
-      inset 0 -1px 0 rgba(0,0,0,0.04),
-      0 16px 64px rgba(0,0,0,0.06),
-      0 0 80px rgba(255,140,40,0.015)
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      inset 0 0 40px rgba(255,160,60,0.012),
+      0 20px 80px rgba(0,0,0,0.04),
+      0 0 120px rgba(255,140,40,0.008)
     `,
   };
 
