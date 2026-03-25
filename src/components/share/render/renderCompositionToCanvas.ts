@@ -662,7 +662,7 @@ function drawSponsorPanel(
   ctx.restore();
 }
 
-// ─── Main Background — Environment is source of truth ─────────────────
+// ─── Main Background — Card IS the environment ─────────────────
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
@@ -672,7 +672,7 @@ function drawBackground(
 ) {
   const colors = parseGradient(theme.bgGradient);
 
-  // Deep base fill — from theme
+  // Deep continuous base — this IS the LifeStack world
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
       spec.width * 0.1, 0,
@@ -683,61 +683,62 @@ function drawBackground(
     });
     ctx.fillStyle = grad;
   } else {
-    ctx.fillStyle = '#08080d';
+    ctx.fillStyle = '#0a0a10';
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Key light — directional, from environment tone
+  // Key light — broad, atmospheric, not spotlight-like
   const kl = envTone.keyLight;
   const keyGrad = ctx.createRadialGradient(
     spec.width * kl.x, spec.height * kl.y, 0,
-    spec.width * kl.x, spec.height * kl.y, spec.width * 0.8,
+    spec.width * kl.x, spec.height * kl.y, spec.width * 1.0,
   );
   keyGrad.addColorStop(0, kl.color);
-  keyGrad.addColorStop(0.35, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.025})`));
+  keyGrad.addColorStop(0.25, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.04})`));
+  keyGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.015})`));
   keyGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fill light — counterbalance
+  // Fill light — soft counterbalance
   const fl = envTone.fillLight;
   const fillGrad = ctx.createRadialGradient(
     spec.width * fl.x, spec.height * fl.y, 0,
-    spec.width * fl.x, spec.height * fl.y, spec.width * 0.5,
+    spec.width * fl.x, spec.height * fl.y, spec.width * 0.6,
   );
   fillGrad.addColorStop(0, fl.color);
   fillGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Ambient warmth — center gravity
+  // Ambient warmth — broader, more diffuse
   const aw = envTone.ambientWarmth;
   const centerGrad = ctx.createRadialGradient(
-    spec.width * 0.5, spec.height * 0.4, 0,
-    spec.width * 0.5, spec.height * 0.4, spec.width * 0.55,
+    spec.width * 0.5, spec.height * 0.38, 0,
+    spec.width * 0.5, spec.height * 0.38, spec.width * 0.65,
   );
   centerGrad.addColorStop(0, aw.color);
   centerGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine noise — materiality
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.004)';
-  for (let i = 0; i < 120; i++) {
+  // Fine grain — subtle materiality
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
+  for (let i = 0; i < 80; i++) {
     const nx = Math.random() * spec.width;
     const ny = Math.random() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Edge vignette — environment-driven
+  // Soft vignette — environment-driven, gentle
   const vs = envTone.vignetteStrength;
   const vignetteGrad = ctx.createRadialGradient(
-    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.28,
-    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.74,
+    spec.width / 2, spec.height * 0.42, Math.min(spec.width, spec.height) * 0.32,
+    spec.width / 2, spec.height * 0.42, Math.max(spec.width, spec.height) * 0.78,
   );
   vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(0.65, `rgba(0,0,0,${vs * 0.3})`);
-  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs})`);
+  vignetteGrad.addColorStop(0.7, `rgba(0,0,0,${vs * 0.2})`);
+  vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs * 0.7})`);
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 }

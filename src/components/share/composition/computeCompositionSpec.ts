@@ -115,8 +115,8 @@ export function computeCompositionSpec(
   const sz = profile.safeZone;
 
   const isStory = isStoryFormat(platform);
-  const gap = isStory ? 16 : 14;
-  const panelRadius = 28;
+  const gap = isStory ? 10 : 8;
+  const panelRadius = 32;
 
   // Content area within safe zones
   const cx = sz.left;
