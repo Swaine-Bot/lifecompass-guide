@@ -402,24 +402,10 @@ export default function ShareStudio() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
-          {/* ═══ PREVIEW — card IS the environment, no staging ═══ */}
-          <div className="relative flex justify-center py-14">
-            {/* Volumetric light field — the card emerges FROM this */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[320%] h-[320%]"
-                style={{
-                  background: `
-                    radial-gradient(ellipse at 35% 28%, rgba(255,150,50,0.28), transparent 40%),
-                    radial-gradient(ellipse at 60% 68%, rgba(30,70,180,0.10), transparent 35%),
-                    radial-gradient(ellipse at 48% 45%, rgba(255,200,100,0.08), transparent 45%),
-                    radial-gradient(ellipse at 50% 50%, rgba(255,180,80,0.04), transparent 55%)
-                  `,
-                  filter: 'blur(140px)',
-                }} />
-            </div>
-            {/* Card — volumetric glass object, soft environmental shadow */}
+          {/* ═══ PREVIEW — card floats in the environment ═══ */}
+          <div className="relative flex justify-center py-10">
             <div className="relative" style={{
-              filter: 'drop-shadow(0 30px 100px rgba(0,0,0,0.12)) drop-shadow(0 0 80px rgba(255,140,40,0.06))',
+              filter: 'drop-shadow(0 16px 48px rgba(0,0,0,0.25))',
             }}>
               <CompositionCard
                 content={normalizedContent}
