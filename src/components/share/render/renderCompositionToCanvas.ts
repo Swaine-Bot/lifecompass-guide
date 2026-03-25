@@ -95,10 +95,10 @@ function drawPanelBackground(
 
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Variable glass — top clearer, bottom denser (non-uniform opacity)
-  const topAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.12 : 0.08;
-  const midAlpha = tier === 'hero' ? 0.30 : tier === 'secondary' ? 0.22 : 0.15;
-  const botAlpha = tier === 'hero' ? 0.42 : tier === 'secondary' ? 0.32 : 0.22;
+  // Variable glass — ultra-translucent, top clearer, bottom slightly denser
+  const topAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
+  const midAlpha = tier === 'hero' ? 0.22 : tier === 'secondary' ? 0.16 : 0.10;
+  const botAlpha = tier === 'hero' ? 0.32 : tier === 'secondary' ? 0.24 : 0.16;
 
   const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
   const baseR = Math.round(14 + tr * ta * tintStrength);
@@ -112,7 +112,7 @@ function drawPanelBackground(
   );
   grad.addColorStop(0, `rgba(${baseR + 12}, ${baseG + 12}, ${baseB + 15}, ${topAlpha})`);
   grad.addColorStop(0.35, `rgba(${baseR + 6}, ${baseG + 6}, ${baseB + 8}, ${midAlpha})`);
-  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.04})`);
+  grad.addColorStop(0.7, `rgba(${baseR + 2}, ${baseG + 2}, ${baseB + 3}, ${midAlpha + 0.03})`);
   grad.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, ${botAlpha})`);
   ctx.fillStyle = grad;
   ctx.fill();
