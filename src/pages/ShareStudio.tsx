@@ -712,51 +712,52 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION — atmospheric gold capsule ═══ */}
+          {/* ═══ PRIMARY ACTION — volumetric gold capsule ═══ */}
           <div className="space-y-3 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
               className="w-full h-13 text-sm font-semibold gap-2"
               style={{
                 borderRadius: 999,
                 boxShadow: `
-                  0 0 80px -16px rgba(255,160,60,0.25),
-                  0 16px 48px -8px rgba(0,0,0,0.18),
-                  inset 0 1px 0 rgba(255,255,255,0.15),
-                  inset 0 -1px 0 rgba(0,0,0,0.08)
+                  0 0 100px -20px rgba(255,160,60,0.22),
+                  0 20px 60px -10px rgba(0,0,0,0.12),
+                  inset 0 1px 0 rgba(255,255,255,0.18),
+                  inset 0 0 30px rgba(255,200,100,0.06),
+                  inset 0 -1px 0 rgba(0,0,0,0.06)
                 `,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
-            {/* Secondary utilities — glass capsule row */}
+            {/* Secondary utilities — micro glass bubbles */}
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
                 background: `
-                  radial-gradient(ellipse at 30% 40%, rgba(255,160,60,0.015), transparent 50%),
-                  rgba(255,255,255,0.012)
+                  radial-gradient(ellipse at 30% 40%, rgba(255,170,70,0.01), transparent 50%),
+                  rgba(255,255,255,0.005)
                 `,
-                backdropFilter: 'blur(36px) saturate(150%)',
-                WebkitBackdropFilter: 'blur(36px) saturate(150%)',
-                border: '1px solid rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(50px) saturate(170%)',
+                WebkitBackdropFilter: 'blur(50px) saturate(170%)',
+                border: '1px solid rgba(255,255,255,0.012)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]" style={{ borderRadius: 999 }}>
+                className="text-white/25 hover:text-white/50 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="ghost"
-              className="w-full text-white/18 hover:text-white/40 h-7 text-[10px]" style={{ borderRadius: 999 }}>
+              className="w-full text-white/15 hover:text-white/35 h-7 text-[10px]" style={{ borderRadius: 999 }}>
               <Download className="w-3 h-3 mr-1.5" />Save to Vault
             </Button>
           </div>
