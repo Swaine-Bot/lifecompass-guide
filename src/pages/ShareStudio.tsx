@@ -336,12 +336,12 @@ export default function ShareStudio() {
 
   // ─── Shared glass style for tab content panels ───
   const glassPanel: React.CSSProperties = {
-    borderRadius: 32,
-    background: 'linear-gradient(180deg, rgba(8,10,16,0.18), rgba(8,10,16,0.10))',
-    backdropFilter: 'blur(42px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(42px) saturate(150%)',
-    border: '1px solid rgba(255,255,255,0.055)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 50px rgba(0,0,0,0.12)',
+    borderRadius: 28,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))',
+    backdropFilter: 'blur(38px) saturate(155%)',
+    WebkitBackdropFilter: 'blur(38px) saturate(155%)',
+    border: '1px solid rgba(255,255,255,0.035)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 50px rgba(0,0,0,0.08)',
   };
 
   // ─── Main Studio ───
@@ -365,10 +365,10 @@ export default function ShareStudio() {
       <div className="relative z-10 min-h-screen">
         {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
         <div className="sticky top-0 z-40" style={{
-          background: 'linear-gradient(180deg, rgba(8,10,16,0.16), rgba(8,10,16,0.06))',
-          backdropFilter: 'blur(24px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, rgba(8,10,16,0.08), rgba(8,10,16,0.03))',
+          backdropFilter: 'blur(22px) saturate(145%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(145%)',
+          borderBottom: '1px solid rgba(255,255,255,0.025)',
         }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -406,14 +406,14 @@ export default function ShareStudio() {
           <div className="relative flex justify-center py-10">
             {/* Wide atmospheric diffusion — card emerges from background, no edges */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[160%] h-[160%]"
+              <div className="w-[200%] h-[200%]"
                 style={{
                   background: `
-                    radial-gradient(ellipse at 35% 30%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.14)')}, transparent 55%),
-                    radial-gradient(ellipse at 65% 70%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.07)')}, transparent 50%),
-                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.04), transparent 60%)
+                    radial-gradient(ellipse at 30% 25%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.18)')}, transparent 50%),
+                    radial-gradient(ellipse at 70% 75%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 45%),
+                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.06), transparent 55%)
                   `,
-                  filter: 'blur(90px)',
+                  filter: 'blur(100px)',
                 }} />
             </div>
             {/* No frame, no container — card sits directly in the world */}
@@ -444,11 +444,11 @@ export default function ShareStudio() {
                 text-white/45 hover:text-white/70"
               style={{
                 borderRadius: 999,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))',
-                backdropFilter: 'blur(24px) saturate(135%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(135%)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 40px rgba(0,0,0,0.12)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035))',
+                backdropFilter: 'blur(24px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+                border: '1px solid rgba(255,255,255,0.065)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 40px rgba(0,0,0,0.08)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
@@ -459,12 +459,12 @@ export default function ShareStudio() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1.5"
               style={{
-                borderRadius: 36,
-                background: 'rgba(12,14,22,0.14)',
-                backdropFilter: 'blur(34px) saturate(145%)',
-                WebkitBackdropFilter: 'blur(34px) saturate(145%)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 40px rgba(0,0,0,0.12)',
+                borderRadius: 32,
+                background: 'rgba(255,255,255,0.028)',
+                backdropFilter: 'blur(32px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(32px) saturate(150%)',
+                border: '1px solid rgba(255,255,255,0.04)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.045), 0 8px 30px rgba(0,0,0,0.08)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
@@ -707,10 +707,10 @@ export default function ShareStudio() {
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.025)',
-                backdropFilter: 'blur(28px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
-                border: '1px solid rgba(255,255,255,0.05)',
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(28px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.035)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"

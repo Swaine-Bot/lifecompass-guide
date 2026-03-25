@@ -95,10 +95,10 @@ function drawPanelBackground(
 
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Variable glass — ultra-translucent, top clearer, bottom slightly denser
-  const topAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
-  const midAlpha = tier === 'hero' ? 0.22 : tier === 'secondary' ? 0.16 : 0.10;
-  const botAlpha = tier === 'hero' ? 0.32 : tier === 'secondary' ? 0.24 : 0.16;
+  // Variable glass — ultra-translucent glass bubbles
+  const topAlpha = tier === 'hero' ? 0.06 : tier === 'secondary' ? 0.04 : 0.025;
+  const midAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.08 : 0.05;
+  const botAlpha = tier === 'hero' ? 0.18 : tier === 'secondary' ? 0.13 : 0.08;
 
   const tintStrength = tier === 'hero' ? 6 : tier === 'secondary' ? 5 : 3;
   const baseR = Math.round(14 + tr * ta * tintStrength);
@@ -123,7 +123,7 @@ function drawPanelBackground(
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, 0,
     panel.x + panel.width * kl.x, panel.y + panel.height * kl.y, panel.width * 0.9,
   );
-  const bleedAlpha = tier === 'hero' ? 0.08 : tier === 'secondary' ? 0.05 : 0.03;
+  const bleedAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.07 : 0.04;
   bleedGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha})`));
   bleedGrad.addColorStop(0.6, kl.color.replace(/[\d.]+\)$/, `${bleedAlpha * 0.35})`));
   bleedGrad.addColorStop(1, 'transparent');
@@ -131,7 +131,7 @@ function drawPanelBackground(
   ctx.fill();
 
   // Inner luminance — brighter ambient light for translucent feel
-  const lumAlpha = tier === 'hero' ? 0.035 : tier === 'secondary' ? 0.02 : 0.01;
+  const lumAlpha = tier === 'hero' ? 0.05 : tier === 'secondary' ? 0.03 : 0.018;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const innerLum = ctx.createLinearGradient(
     panel.x, panel.y,
@@ -143,10 +143,10 @@ function drawPanelBackground(
   ctx.fill();
 
   // NO hard border stroke — edges defined by tonal shift only
-  // Whisper-thin edge only on hero for minimal structure hint
-  if (tier === 'hero') {
+  // Whisper-thin edge on hero and secondary for subtle structure
+  if (tier === 'hero' || tier === 'secondary') {
     drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-    ctx.strokeStyle = `rgba(255, 255, 255, 0.018)`;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${tier === 'hero' ? 0.03 : 0.02})`;
     ctx.lineWidth = 0.5;
     ctx.stroke();
   }
@@ -553,10 +553,10 @@ function drawBrandPanel(
   const bG = Math.round(16 + tg * ta * 3);
   const bB = Math.round(28 + tb * ta * 3);
 
-  // Variable density — lighter at top, denser at bottom
+  // Variable density — lighter, more transparent
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 6}, ${bG + 6}, ${bB + 8}, 0.20)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.35)`);
+  grad.addColorStop(0, `rgba(${bR + 6}, ${bG + 6}, ${bB + 8}, 0.10)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.20)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
@@ -626,10 +626,10 @@ function drawSponsorPanel(
   const sG = Math.round(18 + tg * ta * 3);
   const sB = Math.round(30 + tb * ta * 3);
 
-  // Atmospheric surface — variable density
+  // Atmospheric surface — lighter, more translucent
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.18)`);
-  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.32)`);
+  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.10)`);
+  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.18)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
@@ -709,9 +709,9 @@ function drawBackground(
     spec.width * kl.x, spec.height * kl.y, 0,
     spec.width * kl.x, spec.height * kl.y, spec.width * 1.3,
   );
-  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.12})`));
-  keyGrad.addColorStop(0.2, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.06})`));
-  keyGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.025})`));
+  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.16})`));
+  keyGrad.addColorStop(0.2, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.08})`));
+  keyGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.035})`));
   keyGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
@@ -722,8 +722,8 @@ function drawBackground(
     spec.width * fl.x, spec.height * fl.y, 0,
     spec.width * fl.x, spec.height * fl.y, spec.width * 0.8,
   );
-  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.06})`));
-  fillGrad.addColorStop(0.5, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.02})`));
+  fillGrad.addColorStop(0, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.09})`));
+  fillGrad.addColorStop(0.5, fl.color.replace(/[\d.]+\)$/, `${fl.intensity * 0.03})`));
   fillGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
@@ -734,8 +734,8 @@ function drawBackground(
     spec.width * 0.5, spec.height * 0.4, 0,
     spec.width * 0.5, spec.height * 0.4, spec.width * 0.75,
   );
-  centerGrad.addColorStop(0, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.04})`));
-  centerGrad.addColorStop(0.5, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.015})`));
+  centerGrad.addColorStop(0, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.06})`));
+  centerGrad.addColorStop(0.5, aw.color.replace(/[\d.]+\)$/, `${aw.intensity * 0.02})`));
   centerGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
