@@ -11,7 +11,7 @@ export function MentorImagePreview({ file, uploading, onRemove }: MentorImagePre
   const previewUrl = URL.createObjectURL(file);
 
   return (
-    <div className="relative inline-block rounded-lg overflow-hidden border border-border/40 bg-secondary/30">
+    <div className="relative inline-block rounded-xl overflow-hidden border border-white/[0.08] bg-secondary/30 shadow-sm">
       <img
         src={previewUrl}
         alt="Preview"

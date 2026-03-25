@@ -77,22 +77,22 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
               <img
                 src={signedUrl}
                 alt="Shared image"
-                className="max-h-48 max-w-full rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/[0.06]"
+                className="max-h-48 max-w-full rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/[0.08] shadow-sm"
                 onClick={() => setLightboxOpen(true)}
               />
             </div>
           )}
           {imageLoading && !signedUrl && (
             <div className="mb-2 flex justify-end">
-              <div className="h-32 w-32 rounded-xl bg-secondary/50 flex items-center justify-center">
+              <div className="h-32 w-32 rounded-xl bg-secondary/50 flex items-center justify-center border border-white/[0.06]">
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
             </div>
           )}
-          {content && <div className="chat-bubble-user">{content}</div>}
+          {content && <div className="chat-bubble-user text-sm leading-relaxed">{content}</div>}
         </div>
-        <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center shrink-0 ring-1 ring-white/[0.06]">
-          <User className="w-3.5 h-3.5 text-foreground/70" />
+        <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center shrink-0 ring-1 ring-white/[0.08]">
+          <User className="w-3.5 h-3.5 text-foreground/80" />
         </div>
         {lightboxOpen && signedUrl && (
           <MentorImageLightbox src={signedUrl} onClose={() => setLightboxOpen(false)} />
@@ -102,26 +102,27 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
   }
 
   return (
-    <div className="flex gap-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-primary/10">
-        <Bot className="w-3.5 h-3.5 text-primary" />
+    <div className="flex gap-3 items-start">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-primary/15 mt-0.5">
+        <Bot className="w-3.5 h-3.5 text-primary/90" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="chat-bubble-assistant">
           {isHidden ? (
-            <p className="text-muted-foreground text-sm italic">Response hidden</p>
+            <p className="text-foreground/50 text-sm italic">Response hidden</p>
           ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+            <div className="prose prose-sm dark:prose-invert max-w-none break-words text-foreground/90">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+        {/* ── Action row ── */}
+        <div className="flex items-center gap-1 mt-2 flex-wrap">
           <AiContentLabel label="Mentor AI" variant="inline" />
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 text-[11px] text-muted-foreground/40 hover:text-foreground"
+            className="action-btn h-6 px-2 text-[11px]"
             onClick={() => setIsHidden(!isHidden)}
           >
             {isHidden ? (
@@ -149,7 +150,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-[11px] text-primary/60 hover:text-primary gap-1"
+                  className="h-6 px-2 text-[11px] text-primary/70 hover:text-primary gap-1"
                   onClick={handleCreatePlaybook}
                   disabled={generating}
                 >
