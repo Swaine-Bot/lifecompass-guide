@@ -143,10 +143,10 @@ function drawPanelBackground(
   ctx.fill();
 
   // NO hard border stroke — edges defined by tonal shift only
-  // Whisper-thin edge only on hero for minimal structure hint
-  if (tier === 'hero') {
+  // Whisper-thin edge on hero and secondary for subtle structure
+  if (tier === 'hero' || tier === 'secondary') {
     drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-    ctx.strokeStyle = `rgba(255, 255, 255, 0.018)`;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${tier === 'hero' ? 0.03 : 0.02})`;
     ctx.lineWidth = 0.5;
     ctx.stroke();
   }
