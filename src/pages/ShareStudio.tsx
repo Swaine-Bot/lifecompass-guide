@@ -707,10 +707,10 @@ export default function ShareStudio() {
             <div className="grid grid-cols-3 gap-2"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.025)',
-                backdropFilter: 'blur(28px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
-                border: '1px solid rgba(255,255,255,0.05)',
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(28px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(145%)',
+                border: '1px solid rgba(255,255,255,0.035)',
                 padding: '4px',
               }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
