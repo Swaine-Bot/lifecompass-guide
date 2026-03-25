@@ -269,8 +269,23 @@ export default function Mentor() {
         )}
 
         {/* ── Chat column ── */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0">
-          <div className="flex-1 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 relative">
+          {/* Night sky background */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={mentorNightSky}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* Darkening overlay for readability */}
+            <div className="absolute inset-0" style={{ background: 'rgba(11, 15, 26, 0.62)' }} />
+            {/* Center darkening where messages appear */}
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center 50%, rgba(11, 15, 26, 0.15) 0%, transparent 70%)' }} />
+            {/* Soft vignette */}
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.3) 100%)' }} />
+          </div>
+          <div className="flex-1 overflow-y-auto overscroll-contain relative z-10" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
               {/* ── Empty state ── */}
               {messages.length === 0 && (
