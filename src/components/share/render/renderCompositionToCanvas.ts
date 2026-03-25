@@ -709,9 +709,9 @@ function drawBackground(
     spec.width * kl.x, spec.height * kl.y, 0,
     spec.width * kl.x, spec.height * kl.y, spec.width * 1.3,
   );
-  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.12})`));
-  keyGrad.addColorStop(0.2, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.06})`));
-  keyGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.025})`));
+  keyGrad.addColorStop(0, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.16})`));
+  keyGrad.addColorStop(0.2, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.08})`));
+  keyGrad.addColorStop(0.5, kl.color.replace(/[\d.]+\)$/, `${kl.intensity * 0.035})`));
   keyGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
