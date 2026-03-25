@@ -334,6 +334,16 @@ export default function ShareStudio() {
     );
   }
 
+  // ─── Shared glass style for tab content panels ───
+  const glassPanel: React.CSSProperties = {
+    borderRadius: 32,
+    background: 'linear-gradient(180deg, rgba(8,10,16,0.18), rgba(8,10,16,0.10))',
+    backdropFilter: 'blur(42px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(42px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.055)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 50px rgba(0,0,0,0.12)',
+  };
+
   // ─── Main Studio ───
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -353,8 +363,13 @@ export default function ShareStudio() {
 
       {/* ═══ Content Layer ═══ */}
       <div className="relative z-10 min-h-screen">
-        {/* ═══ HEADER — dissolved into environment ═══ */}
-        <div className="sticky top-0 z-40" style={{ background: 'transparent' }}>
+        {/* ═══ HEADER — etched into glass, almost invisible ═══ */}
+        <div className="sticky top-0 z-40" style={{
+          background: 'linear-gradient(180deg, rgba(8,10,16,0.16), rgba(8,10,16,0.06))',
+          backdropFilter: 'blur(24px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+        }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 -ml-1">
@@ -379,6 +394,7 @@ export default function ShareStudio() {
               size="sm"
               onClick={loadSavedCards}
               className="text-[10px] gap-1.5 text-white/35 hover:text-white/60 h-7"
+              style={{ borderRadius: 999 }}
             >
               <LayoutGrid className="w-3 h-3" />Cards
             </Button>
@@ -415,7 +431,7 @@ export default function ShareStudio() {
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — atmospheric pill ═══ */}
+          {/* ═══ REGENERATE — floating glass pill ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -428,25 +444,27 @@ export default function ShareStudio() {
                 text-white/45 hover:text-white/70"
               style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.03)',
-                backdropFilter: 'blur(24px) saturate(130%)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.15)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))',
+                backdropFilter: 'blur(24px) saturate(135%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(135%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 40px rgba(0,0,0,0.12)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — glass bubble architecture ═══ */}
+          {/* ═══ INSTRUMENT PANEL — ultra-transparent glass bubble ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1.5"
               style={{
-                borderRadius: 32,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))',
-                backdropFilter: 'blur(36px) saturate(140%)',
+                borderRadius: 36,
+                background: 'rgba(12,14,22,0.14)',
+                backdropFilter: 'blur(34px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(34px) saturate(145%)',
                 border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 40px rgba(0,0,0,0.12), 0 8px 40px rgba(0,0,0,0.18)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 40px rgba(0,0,0,0.12)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
