@@ -328,8 +328,22 @@
 
   /* Page subtitle — below header */
   .page-subtitle {
-    @apply text-muted-foreground/70 text-xs uppercase tracking-wider;
+    @apply text-muted-foreground/80 text-xs uppercase tracking-wider font-medium;
     margin-left: 42px;
+  }
+
+  /* Header contrast scrim — localized top gradient for readability over bright backgrounds */
+  .header-scrim {
+    @apply relative;
+  }
+  .header-scrim::before {
+    content: '';
+    @apply absolute inset-x-0 top-0 pointer-events-none rounded-xl;
+    height: calc(100% + 2rem);
+    background: linear-gradient(180deg, hsl(220 20% 4% / 0.55) 0%, hsl(220 20% 4% / 0.25) 60%, transparent 100%);
+    z-index: -1;
+    margin: -1rem -1rem 0 -1rem;
+    border-radius: 1rem;
   }
 
   /* Meta text — timestamps, counters, helper labels */
