@@ -50,33 +50,45 @@ function drawRoundedRect(
   ctx.closePath();
 }
 
+type PanelTier = 'hero' | 'secondary' | 'tertiary';
+
 function drawPanelBackground(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
   radius: number,
+  tier: PanelTier = 'secondary',
   glowColor?: string,
 ) {
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
 
-  // Rich triple-stop glass background
+  // Material hierarchy — hero panels brighter, tertiary more transparent
+  const materials: Record<PanelTier, [string, string, string]> = {
+    hero:      ['rgba(28, 30, 48, 0.92)', 'rgba(24, 26, 42, 0.86)', 'rgba(20, 22, 38, 0.82)'],
+    secondary: ['rgba(22, 24, 40, 0.85)', 'rgba(18, 20, 34, 0.78)', 'rgba(14, 16, 28, 0.74)'],
+    tertiary:  ['rgba(18, 20, 34, 0.72)', 'rgba(14, 16, 28, 0.66)', 'rgba(12, 14, 24, 0.62)'],
+  };
+
+  const [c1, c2, c3] = materials[tier];
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(24, 26, 42, 0.88)');
-  grad.addColorStop(0.5, 'rgba(20, 22, 36, 0.82)');
-  grad.addColorStop(1, 'rgba(16, 18, 30, 0.78)');
+  grad.addColorStop(0, c1);
+  grad.addColorStop(0.5, c2);
+  grad.addColorStop(1, c3);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Inner highlight edge
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  // Inner highlight — stronger for hero
+  const edgeAlpha = tier === 'hero' ? 0.12 : tier === 'secondary' ? 0.07 : 0.04;
+  ctx.strokeStyle = `rgba(255, 255, 255, ${edgeAlpha})`;
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Outer glow for premium depth
-  if (glowColor) {
-    ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 4;
+  // Outer glow for premium depth — hero gets stronger glow
+  if (glowColor || tier === 'hero') {
+    const glow = glowColor || 'rgba(200, 170, 80, 0.06)';
+    ctx.shadowColor = glow;
+    ctx.shadowBlur = tier === 'hero' ? 32 : 20;
+    ctx.shadowOffsetY = tier === 'hero' ? 6 : 3;
     ctx.strokeStyle = 'transparent';
     ctx.stroke();
     ctx.shadowColor = 'transparent';
@@ -238,7 +250,7 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, 'rgba(200, 170, 80, 0.1)');
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', 'rgba(200, 170, 80, 0.1)');
 
   const pad = 24;
   const theme = content.theme;
@@ -306,21 +318,21 @@ function drawTextPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'hero');
 
-  const pad = 24;
+  const pad = 28;
   const theme = content.theme;
 
   ctx.save();
 
-  // Title — serif editorial
+  // Title — serif editorial, hero-grade contrast
   const titleSize = spec.typography.titleFontSize;
-  ctx.font = `600 ${titleSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = theme.headlineHex;
+  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  ctx.fillStyle = 'rgb(248, 248, 252)'; // stronger white for hero panel
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * spec.typography.titleLineHeight;
+  const titleLineH = titleSize * 1.18; // tighter title line height
 
   let cursorY = panel.y + pad + titleSize;
   for (const line of titleLines) {
@@ -328,9 +340,9 @@ function drawTextPanel(
     cursorY += titleLineH;
   }
 
-  // Subtitle — warm readable tone
+  // Subtitle — tighter coupling to title, then more space before next block
   if (content.subtitle) {
-    cursorY += 12;
+    cursorY += 8; // tighter gap from title (was 12)
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
@@ -352,7 +364,7 @@ function drawTextPanel(
     const finalMaxLines = Math.max(maxVisibleLines, 3);
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = 'rgb(195, 198, 210)';
+    ctx.fillStyle = 'rgb(210, 212, 225)'; // warmer, more readable
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
@@ -371,7 +383,7 @@ function drawMomentumPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'secondary', content.statValue ? 'rgba(200, 170, 80, 0.08)' : undefined);
 
   const pad = 20;
   const theme = content.theme;
@@ -433,7 +445,7 @@ function drawMetaPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius);
+  drawPanelBackground(ctx, panel, spec.panelRadius, 'tertiary');
 
   const pad = 20;
   const theme = content.theme;
@@ -481,14 +493,14 @@ function drawBrandPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Premium brand panel
+  // Premium brand panel — tertiary material, subtle presence
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(22, 24, 38, 0.88)');
-  grad.addColorStop(1, 'rgba(16, 18, 30, 0.82)');
+  grad.addColorStop(0, 'rgba(18, 20, 34, 0.72)');
+  grad.addColorStop(1, 'rgba(14, 16, 28, 0.66)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
