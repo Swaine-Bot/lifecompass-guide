@@ -32,6 +32,7 @@ import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine
 import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import cinematicBg from '@/assets/cinematic-hero-mountains.jpg';
 
 type FlowStep = 'studio' | 'success';
 
@@ -331,335 +332,369 @@ export default function ShareStudio() {
 
   // ─── Main Studio ───
   return (
-    <div className="min-h-screen bg-background">
-      {/* ═══ PREMIUM HEADER ═══ */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-2xl border-b border-white/[0.08]">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-foreground/70 hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* ══ Cinematic Background — matches Auth ══ */}
+      <img
+        src={cinematicBg}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ filter: 'blur(6px) saturate(1.15) brightness(0.7)' }}
+      />
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: `linear-gradient(180deg,
+          hsl(220 20% 3% / 0.7) 0%,
+          hsl(220 20% 4% / 0.5) 25%,
+          hsl(220 20% 3% / 0.6) 60%,
+          hsl(220 20% 2% / 0.88) 100%
+        )`,
+      }} />
+      {/* Radial vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 30%, transparent 25%, hsl(220 20% 3% / 0.55) 100%)',
+      }} />
+
+      {/* ═══ Content Layer ═══ */}
+      <div className="relative z-10 min-h-screen">
+        {/* ═══ PREMIUM HEADER ═══ */}
+        <div className="sticky top-0 z-40 backdrop-blur-2xl border-b border-white/[0.06]"
+          style={{ background: 'hsl(220 20% 5% / 0.5)' }}>
+          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="icon-orb">
-                <Sparkles className="w-[18px] h-[18px]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-serif font-bold text-foreground leading-tight tracking-tight">Share Studio</h1>
-                <p className="text-[10px] uppercase tracking-[0.14em] text-foreground/55 font-medium mt-0.5">Compose · Style · Publish</p>
-              </div>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadSavedCards}
-            className="text-xs gap-1.5 border-primary/20 bg-primary/5 hover:bg-primary/10 text-foreground/80 hover:text-foreground"
-          >
-            <LayoutGrid className="w-3.5 h-3.5 text-primary/70" />My Cards
-          </Button>
-        </div>
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-36">
-        {/* ═══ PREVIEW CANVAS ═══ */}
-        <div className="relative">
-          {/* Premium staging frame */}
-          <div className="relative rounded-2xl p-5 flex justify-center"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220 20% 8% / 0.6) 0%, hsl(220 20% 6% / 0.4) 100%)',
-              border: '1px solid hsl(220 15% 20% / 0.2)',
-              boxShadow: '0 0 80px -20px hsl(43 74% 52% / 0.06), inset 0 1px 0 hsl(220 15% 30% / 0.08)',
-            }}
-          >
-            {/* Ambient glow */}
-            <div className="absolute inset-0 flex justify-center items-center pointer-events-none rounded-2xl overflow-hidden">
-              <div className="w-72 h-72 rounded-full opacity-[0.05]"
-                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 70%)' }} />
-            </div>
-            <div className="relative">
-              <CompositionCard
-                content={normalizedContent}
-                platform={platform}
-                maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
-              />
-            </div>
-          </div>
-          {/* Canvas label */}
-          <p className="text-center text-[9px] text-foreground/40 mt-2.5 uppercase tracking-[0.15em] font-medium">
-            {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
-          </p>
-        </div>
-
-        {/* ═══ REGENERATE ACTION ═══ */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => {
-              const domain = mapLifeDomain(selectedCard.domain);
-              const newPhilosophy = getPhilosophyLine(domain);
-              setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
-              setPhrase(getRandomPhrase());
-            }}
-            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all text-xs font-medium
-              border border-primary/20 bg-primary/5 text-foreground/80 hover:text-foreground hover:bg-primary/10 hover:border-primary/30
-              shadow-[0_0_20px_-6px_hsl(43_74%_52%/0.1)]"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-primary/70" />Regenerate language
-          </button>
-        </div>
-
-        {/* ═══ CONTROL TABS ═══ */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-2xl p-1.5 shadow-[0_2px_12px_-4px_hsl(220_20%_4%/0.4)]">
-            <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
-              <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
-              <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
-              <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
-              {hasPostImage && <TabsTrigger value="image" className="studio-tab">Image</TabsTrigger>}
-              <TabsTrigger value="sponsor" className="studio-tab">Partner</TabsTrigger>
-              <TabsTrigger value="privacy" className="studio-tab">Privacy</TabsTrigger>
-              <TabsTrigger value="platform" className="studio-tab">Platform</TabsTrigger>
-              <TabsTrigger value="link" className="studio-tab">Link</TabsTrigger>
-            </TabsList>
-          </div>
-
-          {/* Template Tab */}
-          <TabsContent value="template" className="mt-4">
-            <Card variant="glass" className="p-5 space-y-5">
-              <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
-
-              {!hasPrefill && (
-                <div className="border-t border-white/[0.06] pt-5">
-                  <span className="text-xs font-semibold text-foreground/65 uppercase tracking-[0.1em]">Card Type</span>
-                  <div className="grid grid-cols-2 gap-2.5 mt-3">
-                    {demoCards.map((card) => (
-                      <button key={card.cardType} onClick={() => setSelectedCard(card)}
-                        className={cn(
-                          'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all border',
-                          selectedCard.cardType === card.cardType
-                            ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.15)]'
-                            : 'border-white/[0.06] hover:border-white/[0.12] bg-card/30'
-                        )}>
-                        <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
-                        <div className="min-w-0">
-                          <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-foreground/90')}>
-                            {CARD_TYPE_LABELS[card.cardType as CardType]}
-                          </p>
-                          <p className="text-[10px] text-foreground/50 truncate">{card.title}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white/60 hover:text-white/90">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(43 74% 52% / 0.2), hsl(43 74% 52% / 0.08))',
+                    border: '1px solid hsl(43 74% 52% / 0.15)',
+                    boxShadow: '0 0 20px -4px hsl(43 74% 52% / 0.12)',
+                  }}>
+                  <Sparkles className="w-[16px] h-[16px] text-primary" />
                 </div>
-              )}
-
-              {hasPrefill && (
-                <div className="border-t border-white/[0.06] pt-5">
-                  <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl border border-primary/40 bg-primary/10 ring-1 ring-primary/20">
-                    <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-primary">
-                        {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
-                      </p>
-                      <p className="text-[10px] text-foreground/50 truncate">{selectedCard.title}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Card>
-          </TabsContent>
-
-          {/* AI Insight Tab */}
-          <TabsContent value="ai" className="mt-4">
-            <Card variant="glass" className="p-5">
-              <AIInsightControls
-                enabled={aiInsightEnabled}
-                onToggle={setAiInsightEnabled}
-                insight={aiInsight}
-                onInsightChange={setAiInsight}
-                style={insightStyle}
-                onStyleChange={setInsightStyle}
-                contentTitle={selectedCard.title}
-                contentSubtitle={selectedCard.subtitle}
-                contentType={selectedCard.sourceType || selectedCard.cardType}
-              />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="style" className="mt-4">
-            <Card variant="glass" className="p-5 space-y-4">
-              <ShareThemeSelector theme={theme} onChange={setTheme} />
-            </Card>
-          </TabsContent>
-
-          {hasPostImage && (
-            <TabsContent value="image" className="mt-4">
-              <Card variant="glass" className="p-5 space-y-5">
                 <div>
-                  <span className="text-xs font-semibold text-foreground/65 uppercase tracking-[0.1em]">Post Image</span>
-                  <p className="text-[10px] text-foreground/50 mt-1">Control how the image appears on your share card.</p>
+                  <h1 className="text-lg font-serif font-bold text-white/95 leading-tight tracking-tight">Share Studio</h1>
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-white/50 font-medium mt-0.5">Compose · Style · Publish</p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
-                  </Label>
-                  <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
-                </div>
-                {includePostImage && (
-                  <div className="space-y-3">
-                    <Label className="text-xs font-semibold text-foreground/65 uppercase tracking-[0.1em]">Layout</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {([
-                        { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image dominates' },
-                        { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: '50/50 balance' },
-                        { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Atmospheric' },
-                      ]).map((opt) => (
-                        <button key={opt.value} onClick={() => setImageLayout(opt.value)}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadSavedCards}
+              className="text-xs gap-1.5 border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white/70 hover:text-white/90"
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-primary/70" />My Cards
+            </Button>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 pb-36">
+          {/* ═══ PREVIEW STAGE — Floating Centerpiece ═══ */}
+          <div className="relative">
+            {/* Ambient glow behind card */}
+            <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+              <div className="w-80 h-80 rounded-full opacity-[0.08]"
+                style={{ background: 'radial-gradient(circle, hsl(43 74% 52%), transparent 65%)' }} />
+            </div>
+
+            {/* Floating composition stage */}
+            <div className="relative rounded-2xl p-8 flex justify-center"
+              style={{
+                background: 'linear-gradient(180deg, hsl(220 20% 8% / 0.45) 0%, hsl(220 20% 5% / 0.35) 100%)',
+                border: '1px solid hsl(220 15% 25% / 0.12)',
+                boxShadow: '0 20px 80px -20px hsl(220 20% 3% / 0.5), 0 0 60px -15px hsl(43 74% 52% / 0.04)',
+              }}
+            >
+              <div className="relative">
+                <CompositionCard
+                  content={normalizedContent}
+                  platform={platform}
+                  maxPreviewWidth={Math.min(300, window.innerWidth - 80)}
+                />
+              </div>
+            </div>
+
+            {/* Canvas dimensions label */}
+            <p className="text-center text-[9px] text-white/35 mt-3 uppercase tracking-[0.15em] font-medium">
+              {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
+            </p>
+          </div>
+
+          {/* ═══ REGENERATE ACTION ═══ */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => {
+                const domain = mapLifeDomain(selectedCard.domain);
+                const newPhilosophy = getPhilosophyLine(domain);
+                setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
+                setPhrase(getRandomPhrase());
+              }}
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all text-xs font-medium
+                border border-white/[0.1] bg-white/[0.04] text-white/70 hover:text-white/90 hover:bg-white/[0.08] hover:border-white/[0.15]
+                backdrop-blur-xl"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-primary/70" />Regenerate language
+            </button>
+          </div>
+
+          {/* ═══ CONTROL TABS — Premium Console ═══ */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="rounded-2xl border border-white/[0.06] p-1.5 backdrop-blur-2xl"
+              style={{ background: 'hsl(220 20% 8% / 0.4)' }}>
+              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-1">
+                <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
+                <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
+                <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
+                {hasPostImage && <TabsTrigger value="image" className="studio-tab">Image</TabsTrigger>}
+                <TabsTrigger value="sponsor" className="studio-tab">Partner</TabsTrigger>
+                <TabsTrigger value="privacy" className="studio-tab">Privacy</TabsTrigger>
+                <TabsTrigger value="platform" className="studio-tab">Platform</TabsTrigger>
+                <TabsTrigger value="link" className="studio-tab">Link</TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Template Tab */}
+            <TabsContent value="template" className="mt-5">
+              <Card variant="glass" className="p-5 space-y-5">
+                <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
+
+                {!hasPrefill && (
+                  <div className="border-t border-white/[0.06] pt-5">
+                    <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Card Type</span>
+                    <div className="grid grid-cols-2 gap-2.5 mt-3">
+                      {demoCards.map((card) => (
+                        <button key={card.cardType} onClick={() => setSelectedCard(card)}
                           className={cn(
-                            'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
-                            imageLayout === opt.value
-                              ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
-                              : 'border-white/[0.06] text-foreground/65 hover:border-white/[0.12] bg-card/30'
+                            'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all border',
+                            selectedCard.cardType === card.cardType
+                              ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.15)]'
+                              : 'border-white/[0.06] hover:border-white/[0.12] bg-white/[0.03]'
                           )}>
-                          {opt.icon}
-                          <span className="text-[10px] font-medium">{opt.label}</span>
-                          <span className="text-[8px] text-foreground/45">{opt.desc}</span>
+                          <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+                          <div className="min-w-0">
+                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-white/85')}>
+                              {CARD_TYPE_LABELS[card.cardType as CardType]}
+                            </p>
+                            <p className="text-[10px] text-white/45 truncate">{card.title}</p>
+                          </div>
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-              </Card>
-            </TabsContent>
-          )}
 
-          <TabsContent value="privacy" className="mt-4">
-            <Card variant="glass" className="p-5">
-              <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="platform" className="mt-4">
-            <Card variant="glass" className="p-5">
-              <PlatformSelector platform={platform} onChange={setPlatform} />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="link" className="mt-4">
-            <Card variant="glass" className="p-5 space-y-5">
-              <div>
-                <span className="text-xs font-semibold text-foreground/65 uppercase tracking-[0.1em]">Link & Destination</span>
-                <p className="text-[10px] text-foreground/50 mt-1">Smart links route viewers to the app or store.</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
-                </Label>
-                <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
-                </Label>
-                <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
-              </div>
-              {includeSmartLink && (
-                <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full">
-                  <Copy className="w-3.5 h-3.5 mr-1.5" />
-                  {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
-                </Button>
-              )}
-              {generatedSmartUrl && (
-                <p className="text-[10px] text-foreground/50 text-center break-all">{generatedSmartUrl}</p>
-              )}
-            </Card>
-          </TabsContent>
-
-          {/* Sponsor / Partner Tab */}
-          <TabsContent value="sponsor" className="mt-4">
-            <Card variant="glass" className="p-5 space-y-5">
-              <div>
-                <span className="text-xs font-semibold text-foreground/65 uppercase tracking-[0.1em]">Sponsor / Partner</span>
-                <p className="text-[10px] text-foreground/50 mt-1">Add a premium partner attribution to this card.</p>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <Label className="text-sm font-medium text-foreground flex items-center gap-2 min-w-0 flex-1">
-                  <Handshake className="w-3.5 h-3.5 text-primary shrink-0" />Enable partner zone
-                </Label>
-                <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
-              </div>
-              {sponsorEnabled && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/60">Partner name</Label>
-                    <Input
-                      value={sponsorName}
-                      onChange={(e) => setSponsorName(e.target.value)}
-                      placeholder="e.g. Discovery Vitality"
-                      className="bg-card/40 border-white/[0.08]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/60">Attribution type</Label>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {([
-                        { value: 'sponsored' as const, label: 'Sponsored by' },
-                        { value: 'powered' as const, label: 'Powered by' },
-                        { value: 'partnership' as const, label: 'Partnership' },
-                        { value: 'rewards' as const, label: 'Rewards by' },
-                        { value: 'productivity' as const, label: 'Prod. partner' },
-                      ]).map((opt) => (
-                        <button key={opt.value} onClick={() => setSponsorType(opt.value)}
-                          className={cn(
-                            'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
-                            sponsorType === opt.value
-                              ? 'border-primary/40 bg-primary/10 text-primary'
-                              : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12]'
-                          )}>
-                          {opt.label}
-                        </button>
-                      ))}
+                {hasPrefill && (
+                  <div className="border-t border-white/[0.06] pt-5">
+                    <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl border border-primary/40 bg-primary/10 ring-1 ring-primary/20">
+                      <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-primary">
+                          {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
+                        </p>
+                        <p className="text-[10px] text-white/45 truncate">{selectedCard.title}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-foreground/60">Message / CTA (optional)</Label>
-                    <Input
-                      value={sponsorMessage}
-                      onChange={(e) => setSponsorMessage(e.target.value)}
-                      placeholder="e.g. Earn rewards for healthy habits"
-                      className="bg-card/40 border-white/[0.08]"
-                    />
-                  </div>
-                </div>
-              )}
-            </Card>
-          </TabsContent>
-        </Tabs>
+                )}
+              </Card>
+            </TabsContent>
 
-        {/* ═══ ACTIONS ═══ */}
-        <div className="space-y-3 pt-3">
-          <Button onClick={handleShare} disabled={sharing}
-            className="w-full h-12 text-sm font-semibold gap-2.5 shadow-[0_0_24px_-6px_hsl(43_74%_52%/0.25)]"
-          >
-            <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
-          </Button>
-          <div className="grid grid-cols-3 gap-2.5">
-            <Button onClick={handleDownload} variant="outline" size="sm"
-              className="border-white/[0.1] bg-card/40 hover:bg-card/60 text-foreground/80 hover:text-foreground h-10">
-              <Download className="w-3.5 h-3.5 mr-1.5" />Save
+            {/* AI Insight Tab */}
+            <TabsContent value="ai" className="mt-5">
+              <Card variant="glass" className="p-5">
+                <AIInsightControls
+                  enabled={aiInsightEnabled}
+                  onToggle={setAiInsightEnabled}
+                  insight={aiInsight}
+                  onInsightChange={setAiInsight}
+                  style={insightStyle}
+                  onStyleChange={setInsightStyle}
+                  contentTitle={selectedCard.title}
+                  contentSubtitle={selectedCard.subtitle}
+                  contentType={selectedCard.sourceType || selectedCard.cardType}
+                />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="style" className="mt-5">
+              <Card variant="glass" className="p-5 space-y-4">
+                <ShareThemeSelector theme={theme} onChange={setTheme} />
+              </Card>
+            </TabsContent>
+
+            {hasPostImage && (
+              <TabsContent value="image" className="mt-5">
+                <Card variant="glass" className="p-5 space-y-5">
+                  <div>
+                    <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Post Image</span>
+                    <p className="text-[10px] text-white/45 mt-1">Control how the image appears on your share card.</p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />Include post image
+                    </Label>
+                    <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
+                  </div>
+                  {includePostImage && (
+                    <div className="space-y-3">
+                      <Label className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Layout</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {([
+                          { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image dominates' },
+                          { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: '50/50 balance' },
+                          { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Atmospheric' },
+                        ]).map((opt) => (
+                          <button key={opt.value} onClick={() => setImageLayout(opt.value)}
+                            className={cn(
+                              'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all',
+                              imageLayout === opt.value
+                                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
+                                : 'border-white/[0.06] text-white/60 hover:border-white/[0.12] bg-white/[0.03]'
+                            )}>
+                            {opt.icon}
+                            <span className="text-[10px] font-medium">{opt.label}</span>
+                            <span className="text-[8px] text-white/40">{opt.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
+            )}
+
+            <TabsContent value="privacy" className="mt-5">
+              <Card variant="glass" className="p-5">
+                <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="platform" className="mt-5">
+              <Card variant="glass" className="p-5">
+                <PlatformSelector platform={platform} onChange={setPlatform} />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="link" className="mt-5">
+              <Card variant="glass" className="p-5 space-y-5">
+                <div>
+                  <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Link & Destination</span>
+                  <p className="text-[10px] text-white/45 mt-1">Smart links route viewers to the app or store.</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
+                    <Link2 className="w-3.5 h-3.5 text-primary" />Include smart link
+                  </Label>
+                  <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2">
+                    <QrCode className="w-3.5 h-3.5 text-primary" />Show QR code on card
+                  </Label>
+                  <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
+                </div>
+                {includeSmartLink && (
+                  <Button onClick={handleCopyLink} variant="outline" size="sm" className="w-full border-white/[0.1] text-white/80">
+                    <Copy className="w-3.5 h-3.5 mr-1.5" />
+                    {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
+                  </Button>
+                )}
+                {generatedSmartUrl && (
+                  <p className="text-[10px] text-white/40 text-center break-all">{generatedSmartUrl}</p>
+                )}
+              </Card>
+            </TabsContent>
+
+            {/* Sponsor / Partner Tab */}
+            <TabsContent value="sponsor" className="mt-5">
+              <Card variant="glass" className="p-5 space-y-5">
+                <div>
+                  <span className="text-xs font-semibold text-white/60 uppercase tracking-[0.1em]">Sponsor / Partner</span>
+                  <p className="text-[10px] text-white/45 mt-1">Add a premium partner attribution to this card.</p>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <Label className="text-sm font-medium text-white/85 flex items-center gap-2 min-w-0 flex-1">
+                    <Handshake className="w-3.5 h-3.5 text-primary shrink-0" />Enable partner zone
+                  </Label>
+                  <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
+                </div>
+                {sponsorEnabled && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-white/55">Partner name</Label>
+                      <Input
+                        value={sponsorName}
+                        onChange={(e) => setSponsorName(e.target.value)}
+                        placeholder="e.g. Discovery Vitality"
+                        className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/25"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-white/55">Attribution type</Label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {([
+                          { value: 'sponsored' as const, label: 'Sponsored by' },
+                          { value: 'powered' as const, label: 'Powered by' },
+                          { value: 'partnership' as const, label: 'Partnership' },
+                          { value: 'rewards' as const, label: 'Rewards by' },
+                          { value: 'productivity' as const, label: 'Prod. partner' },
+                        ]).map((opt) => (
+                          <button key={opt.value} onClick={() => setSponsorType(opt.value)}
+                            className={cn(
+                              'px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-all',
+                              sponsorType === opt.value
+                                ? 'border-primary/40 bg-primary/10 text-primary'
+                                : 'border-white/[0.06] text-white/55 hover:border-white/[0.12]'
+                            )}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-white/55">Message / CTA (optional)</Label>
+                      <Input
+                        value={sponsorMessage}
+                        onChange={(e) => setSponsorMessage(e.target.value)}
+                        placeholder="e.g. Earn rewards for healthy habits"
+                        className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/25"
+                      />
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          {/* ═══ ACTIONS — Clear CTA Hierarchy ═══ */}
+          <div className="space-y-3 pt-2">
+            <Button onClick={handleShare} disabled={sharing} variant="gold"
+              className="w-full h-13 text-sm font-semibold gap-2.5 shadow-[0_0_32px_-8px_hsl(43_74%_52%/0.3)]"
+            >
+              <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
-            <Button onClick={handleCopy} variant="outline" size="sm"
-              className="border-white/[0.1] bg-card/40 hover:bg-card/60 text-foreground/80 hover:text-foreground h-10">
-              <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />Copy
-            </Button>
-            <Button onClick={handleCopyLink} variant="outline" size="sm"
-              className="border-white/[0.1] bg-card/40 hover:bg-card/60 text-foreground/80 hover:text-foreground h-10">
-              <Link2 className="w-3.5 h-3.5 mr-1.5" />Link
+            <div className="grid grid-cols-3 gap-2.5">
+              <Button onClick={handleDownload} variant="outline" size="sm"
+                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
+                <Download className="w-3.5 h-3.5 mr-1.5" />Save
+              </Button>
+              <Button onClick={handleCopy} variant="outline" size="sm"
+                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
+                <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />Copy
+              </Button>
+              <Button onClick={handleCopyLink} variant="outline" size="sm"
+                className="border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/70 hover:text-white/90 h-10 backdrop-blur-xl">
+                <Link2 className="w-3.5 h-3.5 mr-1.5" />Link
+              </Button>
+            </div>
+            <Button onClick={handleSave} variant="outline"
+              className="w-full border-primary/15 bg-primary/[0.04] hover:bg-primary/[0.08] text-white/75 hover:text-white/90 h-10">
+              <Download className="w-4 h-4 mr-2 text-primary/70" />Save to Vault
             </Button>
           </div>
-          <Button onClick={handleSave} variant="outline"
-            className="w-full border-primary/15 bg-primary/5 hover:bg-primary/10 text-foreground/80 hover:text-foreground h-10">
-            <Download className="w-4 h-4 mr-2 text-primary/70" />Save to Vault
-          </Button>
         </div>
       </div>
     </div>
