@@ -473,19 +473,19 @@ export default function ShareStudio() {
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — liquid glass capsule ═══ */}
+          {/* ═══ INSTRUMENT PANEL — floating glass volume ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="p-1.5"
               style={{
                 borderRadius: 999,
                 background: `
-                  radial-gradient(ellipse at 25% 30%, rgba(255,160,60,0.025), transparent 40%),
-                  linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.006))
+                  radial-gradient(ellipse at 20% 30%, rgba(255,170,70,0.02), transparent 40%),
+                  rgba(255,255,255,0.006)
                 `,
-                backdropFilter: 'blur(44px) saturate(165%)',
-                WebkitBackdropFilter: 'blur(44px) saturate(165%)',
-                border: '1px solid rgba(255,255,255,0.025)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 6px 24px rgba(0,0,0,0.05)',
+                backdropFilter: 'blur(56px) saturate(175%)',
+                WebkitBackdropFilter: 'blur(56px) saturate(175%)',
+                border: '1px solid rgba(255,255,255,0.015)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.025), inset 0 0 30px rgba(255,150,60,0.006)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
