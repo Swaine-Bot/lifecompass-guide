@@ -376,7 +376,7 @@
 
   /* Meta text — smaller variant for dense contexts */
   .meta-text-xs {
-    @apply text-[10px] text-muted-foreground/55 tabular-nums;
+    @apply text-[10px] text-muted-foreground/60 tabular-nums;
   }
 
   /* Source badge — AI, Playbook, etc */
