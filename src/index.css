@@ -550,16 +550,19 @@
   animation: sensory-pulse 800ms ease-out forwards;
 }
 
-/* ─── Share Studio Tab ─── */
+/* ─── Share Studio Tab — glass bubble pills ─── */
 .studio-tab {
-  @apply text-xs font-medium flex-shrink-0 px-3 py-1.5 rounded-lg transition-all;
+  @apply text-xs font-medium flex-shrink-0 px-3.5 py-2 transition-all;
+  border-radius: 999px;
   color: hsl(220 15% 55%);
 }
 .studio-tab[data-state="active"] {
-  color: hsl(40 15% 95%);
-  background: hsl(220 18% 14%);
-  box-shadow: 0 1px 4px hsl(220 20% 4% / 0.3);
+  color: hsl(40 15% 96%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 20px rgba(214,140,40,0.06);
+  backdrop-filter: blur(12px);
 }
 .studio-tab:hover:not([data-state="active"]) {
-  color: hsl(220 10% 70%);
+  color: hsl(220 10% 72%);
+  background: rgba(255,255,255,0.03);
 }
