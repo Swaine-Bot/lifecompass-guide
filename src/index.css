@@ -371,7 +371,7 @@
 
   /* Meta text — timestamps, counters, helper labels */
   .meta-text {
-    @apply text-[11px] text-muted-foreground/60 tabular-nums;
+    @apply text-[11px] text-muted-foreground/70 tabular-nums;
   }
 
   /* Meta text — smaller variant for dense contexts */
