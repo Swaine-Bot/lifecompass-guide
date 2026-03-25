@@ -514,57 +514,61 @@ function drawBrandPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  // Premium brand panel — tertiary material, subtle presence
+  // Integrated brand material — seamless continuation, not appended
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, 'rgba(18, 20, 34, 0.72)');
-  grad.addColorStop(1, 'rgba(14, 16, 28, 0.66)');
+  grad.addColorStop(0, 'rgba(20, 22, 38, 0.75)');
+  grad.addColorStop(0.5, 'rgba(16, 18, 32, 0.70)');
+  grad.addColorStop(1, 'rgba(14, 16, 28, 0.68)');
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-  ctx.lineWidth = 1;
+  // Subtle top edge — continuity with panels above
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.045)';
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // LS icon — premium gold gradient with glow
-  const iconSize = 38;
-  const iconX = panel.x + panel.width / 2 - 84;
+  // LS icon — refined gold gradient with ambient glow
+  const iconSize = 36;
+  const iconX = panel.x + panel.width / 2 - 80;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
-  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 10);
+  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 9);
   const iconGrad = ctx.createLinearGradient(iconX, iconY, iconX + iconSize, iconY + iconSize);
-  iconGrad.addColorStop(0, 'hsl(43, 74%, 58%)');
-  iconGrad.addColorStop(1, 'hsl(43, 65%, 40%)');
+  iconGrad.addColorStop(0, 'hsl(43, 74%, 56%)');
+  iconGrad.addColorStop(1, 'hsl(43, 60%, 38%)');
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
-  // Icon shadow glow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.3)';
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetY = 3;
+  // Icon ambient glow
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 2;
   ctx.fillStyle = iconGrad;
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  ctx.font = `800 ${13}px ${FONT_FAMILY}`;
+  ctx.font = `800 ${12}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(14, 16, 24)';
   ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 5);
+  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4.5);
   ctx.textAlign = 'left';
 
-  // "Posted from LifeStack" — elegant typography
+  // "Posted from LifeStack" — elegant, integrated
   const brandSize = spec.typography.brandFontSize;
   const textX = iconX + iconSize + 14;
   const textY = panel.y + panel.height / 2 + brandSize / 3;
 
   ctx.font = `400 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(155, 160, 175)';
+  ctx.fillStyle = 'rgb(145, 150, 168)';
   ctx.fillText('Posted from ', textX, textY);
 
   const postedW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
+  ctx.globalAlpha = 0.9;
   ctx.fillText('LifeStack', textX + postedW, textY);
+  ctx.globalAlpha = 1;
 
   ctx.restore();
 }
