@@ -673,34 +673,42 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION — environment-reactive glow ═══ */}
-          <div className="space-y-2 pt-2">
+          {/* ═══ PRIMARY ACTION — atmospheric glass pill ═══ */}
+          <div className="space-y-3 pt-2">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-13 text-sm font-semibold gap-2 rounded-xl"
+              className="w-full h-13 text-sm font-semibold gap-2"
               style={{
-                boxShadow: `0 0 40px -10px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.25)')}, 0 8px 32px -8px rgba(0,0,0,0.4)`,
+                borderRadius: 999,
+                boxShadow: `0 0 60px -12px ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.30)')}, 0 12px 40px -8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12)`,
               }}
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
             </Button>
 
-            {/* Secondary utilities — whisper level */}
-            <div className="grid grid-cols-3 gap-1.5">
+            {/* Secondary utilities — glass pill row */}
+            <div className="grid grid-cols-3 gap-2"
+              style={{
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.04)',
+                padding: '4px',
+              }}>
               <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Download className="w-3 h-3 mr-1" />Save
               </Button>
               <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <ClipboardCopy className="w-3 h-3 mr-1" />Copy
               </Button>
               <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/30 hover:text-white/55 h-8 text-[10px]">
+                className="text-white/35 hover:text-white/60 h-8 text-[10px]" style={{ borderRadius: 999 }}>
                 <Link2 className="w-3 h-3 mr-1" />Link
               </Button>
             </div>
             <Button onClick={handleSave} variant="ghost"
-              className="w-full text-white/25 hover:text-white/50 h-7 text-[10px]">
+              className="w-full text-white/25 hover:text-white/50 h-7 text-[10px]" style={{ borderRadius: 999 }}>
               <Download className="w-3 h-3 mr-1.5" />Save to Vault
             </Button>
           </div>

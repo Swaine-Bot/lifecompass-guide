@@ -546,7 +546,7 @@ function drawBrandPanel(
   ctx.save();
 
   // Brand panel — atmospheric, continuous with the world
-  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
 
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const bR = Math.round(14 + tr * ta * 3);
