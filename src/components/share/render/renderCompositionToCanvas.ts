@@ -622,19 +622,26 @@ function drawSponsorPanel(
   ctx.save();
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  const sR = Math.round(16 + tr * ta * 2);
-  const sG = Math.round(18 + tg * ta * 2);
-  const sB = Math.round(30 + tb * ta * 2);
+  const sR = Math.round(16 + tr * ta * 3);
+  const sG = Math.round(18 + tg * ta * 3);
+  const sB = Math.round(30 + tb * ta * 3);
 
-  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${sR + 4}, ${sG + 4}, ${sB + 4}, 0.7)`);
-  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.6)`);
+  // Atmospheric surface — variable density
+  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
+  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.18)`);
+  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.32)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(${tr}, ${tg}, ${tb}, 0.08)`;
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
+  // Environment bleed edge tint — no hard stroke
+  const bleedGrad = ctx.createRadialGradient(
+    panel.x, panel.y + panel.height / 2, 0,
+    panel.x, panel.y + panel.height / 2, panel.width * 0.4,
+  );
+  bleedGrad.addColorStop(0, `rgba(${tr}, ${tg}, ${tb}, 0.04)`);
+  bleedGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = bleedGrad;
+  ctx.fill();
 
   const prefixMap: Record<string, string> = {
     sponsored: 'Sponsored by',
