@@ -387,16 +387,17 @@ export default function ShareStudio() {
 
         <div className="max-w-2xl mx-auto px-4 py-4 space-y-5 pb-36">
           {/* ═══ PREVIEW — artifact condensed FROM the environment ═══ */}
-          <div className="relative flex justify-center py-8">
+          <div className="relative flex justify-center py-10">
             {/* Wide atmospheric diffusion — card emerges from background, no edges */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[140%] h-[140%] -translate-x-[20%]"
+              <div className="w-[160%] h-[160%]"
                 style={{
                   background: `
-                    radial-gradient(ellipse at 40% 35%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.10)')}, transparent 60%),
-                    radial-gradient(ellipse at 60% 65%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.05)')}, transparent 55%)
+                    radial-gradient(ellipse at 35% 30%, ${envTone.keyLight.color.replace(/[\d.]+\)$/, '0.14)')}, transparent 55%),
+                    radial-gradient(ellipse at 65% 70%, ${envTone.fillLight.color.replace(/[\d.]+\)$/, '0.07)')}, transparent 50%),
+                    radial-gradient(ellipse at 50% 50%, rgba(214,140,40,0.04), transparent 60%)
                   `,
-                  filter: 'blur(80px)',
+                  filter: 'blur(90px)',
                 }} />
             </div>
             {/* No frame, no container — card sits directly in the world */}
@@ -414,7 +415,7 @@ export default function ShareStudio() {
             {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
           </p>
 
-          {/* ═══ REGENERATE — environment-tinted ═══ */}
+          {/* ═══ REGENERATE — atmospheric pill ═══ */}
           <div className="flex justify-center">
             <button
               onClick={() => {
@@ -423,23 +424,29 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all text-[10px] font-medium
-                text-white/40 hover:text-white/65"
+              className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[10px] font-medium
+                text-white/45 hover:text-white/70"
               style={{
-                background: `rgba(255,255,255,0.025)`,
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(24px) saturate(130%)',
                 border: '1px solid rgba(255,255,255,0.05)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.15)',
               }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate language
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — subdued, environment-aware ═══ */}
+          {/* ═══ INSTRUMENT PANEL — glass bubble architecture ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="rounded-xl p-1"
+            <div className="p-1.5"
               style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.04)',
+                borderRadius: 32,
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015))',
+                backdropFilter: 'blur(36px) saturate(140%)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 40px rgba(0,0,0,0.12), 0 8px 40px rgba(0,0,0,0.18)',
               }}>
               <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
                 <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>

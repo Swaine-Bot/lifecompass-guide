@@ -86,9 +86,9 @@ export function CompositionCard({
         }}
       />
       {!rendered && (
-        <div
+      <div
           className="absolute inset-0 flex items-center justify-center"
-          style={{ background: 'rgba(10, 10, 15, 0.9)' }}
+          style={{ background: 'rgba(10, 10, 15, 0.85)', borderRadius: 48 }}
         >
           <div className="text-center space-y-2">
             <div
