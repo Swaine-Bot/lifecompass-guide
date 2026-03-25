@@ -74,9 +74,7 @@ export function CompositionCard({
       style={{
         width: maxPreviewWidth,
         height: previewHeight,
-        borderRadius: 16,
-        boxShadow: '0 0 80px -20px hsla(0,0%,0%,0.4)',
-        border: '1px solid hsla(0,0%,100%,0.04)',
+        borderRadius: 24,
       }}
     >
       <canvas
