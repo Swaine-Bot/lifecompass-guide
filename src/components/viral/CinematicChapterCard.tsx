@@ -74,13 +74,13 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 <h3 className="font-serif text-lg sm:text-xl font-semibold leading-tight tracking-tight">{report.title}</h3>
               </div>
               <ChevronRight className={cn(
-                'w-4 h-4 text-muted-foreground/30 transition-transform shrink-0 mt-1.5 ml-3',
+                'w-4 h-4 text-muted-foreground/70 transition-transform shrink-0 mt-1.5 ml-3',
                 expanded && 'rotate-90'
               )} />
             </div>
 
             {/* Period */}
-            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 mb-3">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 mb-3">
               <Calendar className="w-3 h-3" />
               <span className="tabular-nums">
                 {format(new Date(report.period_start), 'MMM d')} — {format(new Date(report.period_end), 'MMM d, yyyy')}
@@ -110,7 +110,7 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                     {Object.entries(stats).map(([key, value]) => (
                       <div key={key} className="text-center p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
                         <div className="text-lg font-bold text-primary font-serif">{value}</div>
-                        <div className="text-[9px] text-muted-foreground/40 uppercase tracking-[0.12em] mt-0.5 leading-tight">
+                        <div className="text-[9px] text-muted-foreground/60 uppercase tracking-[0.12em] mt-0.5 leading-tight">
                           {key.replace(/_/g, ' ')}
                         </div>
                       </div>
@@ -138,13 +138,13 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 {/* Lessons */}
                 {report.lessons.length > 0 && (
                   <div>
-                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-semibold flex items-center gap-1.5 mb-2.5">
+                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-semibold flex items-center gap-1.5 mb-2.5">
                       <BookOpen className="w-3 h-3" /> Key Lessons
                     </h4>
                     <ul className="space-y-2">
                       {report.lessons.map((lesson, i) => (
                         <li key={i} className="text-sm text-foreground/65 flex items-start gap-2.5 leading-relaxed">
-                          <span className="text-muted-foreground/30 mt-0.5 shrink-0">—</span>
+                          <span className="text-muted-foreground/70 mt-0.5 shrink-0">—</span>
                           {lesson}
                         </li>
                       ))}
@@ -155,7 +155,7 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                 {/* Turning Points */}
                 {report.turning_points.length > 0 && (
                   <div>
-                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-semibold flex items-center gap-1.5 mb-2.5">
+                    <h4 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-semibold flex items-center gap-1.5 mb-2.5">
                       <Zap className="w-3 h-3" /> Turning Points
                     </h4>
                     <ul className="space-y-2">
@@ -174,7 +174,7 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    className="h-7 text-[11px] text-muted-foreground/70 hover:text-foreground"
                     onClick={() => onFavorite(report.id, report.is_favorite)}
                   >
                     <Heart className={cn('w-3.5 h-3.5 mr-1', report.is_favorite && 'fill-primary text-primary')} />
@@ -183,7 +183,7 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-[11px] text-muted-foreground/50 hover:text-foreground"
+                    className="h-7 text-[11px] text-muted-foreground/70 hover:text-foreground"
                     onClick={() => setShowShare(true)}
                   >
                     <Share2 className="w-3.5 h-3.5 mr-1" />
@@ -193,7 +193,7 @@ export function CinematicChapterCard({ report, onFavorite, onArchive, onRead, ex
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      className="ml-auto text-muted-foreground/30 hover:text-muted-foreground"
+                      className="ml-auto text-muted-foreground/70 hover:text-muted-foreground"
                       onClick={() => onArchive(report.id)}
                     >
                       <Archive className="w-3.5 h-3.5" />

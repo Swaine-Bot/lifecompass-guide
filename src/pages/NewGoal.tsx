@@ -237,7 +237,7 @@ export default function NewGoal() {
                 className="text-base"
                 required
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.title.length}/{MAX_TITLE_LENGTH}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -295,7 +295,7 @@ export default function NewGoal() {
         {/* Deeper context — quieter section */}
         <Card variant="surface">
           <CardContent className="p-5 space-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-medium">Deeper Context</p>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Deeper Context</p>
 
             <div className="space-y-2">
               <Label htmlFor="success_metric" className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -308,7 +308,7 @@ export default function NewGoal() {
                 onChange={(e) => setFormData({ ...formData, success_metric: e.target.value.slice(0, MAX_SHORT_TEXT_LENGTH) })}
                 maxLength={MAX_SHORT_TEXT_LENGTH}
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.success_metric.length}/{MAX_SHORT_TEXT_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.success_metric.length}/{MAX_SHORT_TEXT_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
@@ -324,7 +324,7 @@ export default function NewGoal() {
                 rows={3}
                 className="resize-none"
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.why.length}/{MAX_DESCRIPTION_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.why.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
 
             <div className="space-y-2">
@@ -340,7 +340,7 @@ export default function NewGoal() {
                 rows={2}
                 className="resize-none"
               />
-              <p className="text-[11px] text-muted-foreground/50 text-right">{formData.constraints.length}/{MAX_DESCRIPTION_LENGTH}</p>
+              <p className="text-[11px] text-muted-foreground/70 text-right">{formData.constraints.length}/{MAX_DESCRIPTION_LENGTH}</p>
             </div>
           </CardContent>
         </Card>

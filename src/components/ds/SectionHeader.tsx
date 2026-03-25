@@ -46,7 +46,7 @@ export function SectionHeader({
         <h2
           className={cn(
             'font-serif text-base font-semibold tracking-tight',
-            muted && 'text-sm text-muted-foreground/40 uppercase tracking-wider'
+            muted && 'text-sm text-muted-foreground/60 uppercase tracking-wider'
           )}
         >
           {title}

@@ -390,14 +390,14 @@ export default function Settings() {
           <img src={lifestackLogo} alt="LifeStack" className="w-7 h-7 shrink-0" />
           <div className="min-w-0">
             <h1 className="text-lg font-serif font-bold tracking-tight">Settings</h1>
-            <p className="text-muted-foreground/40 text-[10px] uppercase tracking-wider truncate">Manage your account and preferences</p>
+            <p className="text-muted-foreground/60 text-[10px] uppercase tracking-wider truncate">Manage your account and preferences</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => navigate('/home')}
-          className="rounded-full shrink-0 text-muted-foreground/30 hover:text-foreground"
+          className="rounded-full shrink-0 text-muted-foreground/70 hover:text-foreground"
           aria-label="Close settings"
         >
           <X className="w-4 h-4" />

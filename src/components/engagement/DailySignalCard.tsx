@@ -66,7 +66,7 @@ export function DailySignalCard({ signal, loading, onReveal }: DailySignalCardPr
 
         {!revealed && !signal.is_read ? (
           <div className="text-center py-4">
-            <p className="text-xs text-muted-foreground/50 mb-3">A signal has arrived for today</p>
+            <p className="text-xs text-muted-foreground/70 mb-3">A signal has arrived for today</p>
             <Button
               variant="glass-gold"
               className="px-8"
@@ -87,7 +87,7 @@ export function DailySignalCard({ signal, loading, onReveal }: DailySignalCardPr
               {/* Type badge */}
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{typeInfo.icon}</span>
-                <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">{typeInfo.label}</span>
+                <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{typeInfo.label}</span>
               </div>
 
               {/* Content */}

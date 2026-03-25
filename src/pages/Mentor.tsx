@@ -365,11 +365,11 @@ export default function Mentor() {
                     disabled={loading}
                     maxLength={MAX_MESSAGE_LENGTH}
                     rows={2}
-                    className="min-h-[56px] max-h-[160px] resize-none rounded-xl bg-white/[0.04] border-white/[0.08] hover:border-white/[0.12] focus:border-primary/30 pr-14 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50"
+                    className="min-h-[56px] max-h-[160px] resize-none rounded-xl bg-white/[0.04] border-white/[0.08] hover:border-white/[0.12] focus:border-primary/30 pr-14 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/70"
                   />
                   <span className={cn(
                     "absolute right-3 bottom-2 text-[9px] tabular-nums",
-                    charWarning ? "text-warning/70" : "text-muted-foreground/40"
+                    charWarning ? "text-warning/70" : "text-muted-foreground/60"
                   )}>
                     {charCount}/{MAX_MESSAGE_LENGTH}
                   </span>

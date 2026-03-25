@@ -664,7 +664,7 @@ export default function Journal() {
             </div>
             <h1 className="text-xl font-serif font-bold tracking-tight">Journal</h1>
           </div>
-          <p className="text-muted-foreground/50 text-xs uppercase tracking-wider ml-[38px]">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
+          <p className="text-muted-foreground/70 text-xs uppercase tracking-wider ml-[38px]">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
       </div>
 
@@ -770,7 +770,7 @@ export default function Journal() {
           {/* Mood & Energy Row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Mood</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">Mood</label>
               <div className="flex justify-between">
                 {moodOptions.map((option) => (
                   <button
@@ -788,7 +788,7 @@ export default function Journal() {
               </div>
             </div>
             <div>
-              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">Energy</label>
+              <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">Energy</label>
               <div className="flex justify-between">
                 {energyOptions.map((option) => (
                   <button
@@ -809,7 +809,7 @@ export default function Journal() {
 
           {/* Main Text Area */}
           <div>
-            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">What's on your mind?</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">What's on your mind?</label>
             <Textarea
               placeholder="Write about your day, thoughts, or anything you want to reflect on..."
               value={content}
@@ -821,7 +821,7 @@ export default function Journal() {
 
           {/* Gratitude */}
           <div>
-            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">🙏 Gratitude</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">🙏 Gratitude</label>
             <Textarea
               placeholder="What are you grateful for today?"
               value={gratitude}
@@ -833,7 +833,7 @@ export default function Journal() {
 
           {/* Reflection */}
           <div>
-            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/50">💭 Reflection</label>
+            <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">💭 Reflection</label>
             <Textarea
               placeholder="Any insights or lessons learned?"
               value={reflection}
