@@ -72,7 +72,7 @@ export const BottomNav = () => {
             </div>
             <span className={cn(
               "text-[10px] font-medium tracking-wide transition-colors duration-200",
-              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/50"
+              location.pathname.startsWith('/admin') ? "text-primary" : "text-muted-foreground/60"
             )}>
               Admin
             </span>
