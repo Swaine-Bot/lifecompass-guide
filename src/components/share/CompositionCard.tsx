@@ -74,7 +74,8 @@ export function CompositionCard({
       style={{
         width: maxPreviewWidth,
         height: previewHeight,
-        borderRadius: 24,
+        borderRadius: 28,
+        boxShadow: '0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.03)',
       }}
     >
       <canvas
@@ -83,24 +84,25 @@ export function CompositionCard({
           width: maxPreviewWidth,
           height: previewHeight,
           display: 'block',
-          borderRadius: 24,
+          borderRadius: 28,
         }}
       />
       {!rendered && (
       <div
           className="absolute inset-0 flex items-center justify-center"
           style={{
-            background: 'rgba(14, 22, 28, 0.45)',
-            borderRadius: 24,
-            backdropFilter: 'blur(60px) saturate(140%)',
+            background: 'rgba(14, 22, 28, 0.5)',
+            borderRadius: 28,
+            backdropFilter: 'blur(80px) saturate(145%)',
+            WebkitBackdropFilter: 'blur(80px) saturate(145%)',
           }}
         >
           <div className="text-center space-y-2">
             <div
               className="w-6 h-6 mx-auto border-2 border-t-transparent rounded-full animate-spin"
-              style={{ borderColor: 'hsla(43, 74%, 52%, 0.4)', borderTopColor: 'transparent' }}
+              style={{ borderColor: 'hsla(43, 74%, 52%, 0.3)', borderTopColor: 'transparent' }}
             />
-            <p style={{ fontSize: 11, color: 'hsl(40,10%,55%)', fontFamily: 'Inter, sans-serif' }}>
+            <p style={{ fontSize: 10, color: 'hsl(40,10%,45%)', fontFamily: '"Playfair Display", serif', letterSpacing: '0.08em' }}>
               Composing…
             </p>
           </div>

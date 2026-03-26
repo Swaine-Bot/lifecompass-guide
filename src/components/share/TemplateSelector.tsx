@@ -26,18 +26,25 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
 
   return (
     <div className="space-y-4">
-      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Bento Cards</span>
+      <span className="text-[9px] font-semibold text-white/35 uppercase tracking-[0.15em]">Bento Cards</span>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
         {bentoTemplates.map((tmpl) => (
           <button
             key={tmpl.id}
             onClick={() => onChange(tmpl.id)}
             className={cn(
-              'flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all min-w-[72px]',
-              selected === tmpl.id
-                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.2)]'
-                : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12] bg-card/30'
+              'flex-shrink-0 flex flex-col items-center gap-1.5 p-3.5 transition-all min-w-[72px]',
+              selected === tmpl.id ? 'text-primary' : 'text-white/40 hover:text-white/60'
             )}
+            style={{
+              borderRadius: 20,
+              background: selected === tmpl.id
+                ? 'rgba(200,160,60,0.06)' : 'rgba(255,255,255,0.015)',
+              border: `1px solid ${selected === tmpl.id
+                ? 'rgba(200,160,60,0.12)' : 'rgba(255,255,255,0.025)'}`,
+              boxShadow: selected === tmpl.id
+                ? '0 0 20px rgba(200,160,60,0.06)' : 'none',
+            }}
           >
             {ICONS[tmpl.id]}
             <span className="text-[10px] font-medium whitespace-nowrap">{tmpl.label}</span>
@@ -45,18 +52,25 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
         ))}
       </div>
 
-      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Classic</span>
+      <span className="text-[9px] font-semibold text-white/35 uppercase tracking-[0.15em]">Classic</span>
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
         {legacyTemplates.map((tmpl) => (
           <button
             key={tmpl.id}
             onClick={() => onChange(tmpl.id)}
             className={cn(
-              'flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all min-w-[72px]',
-              selected === tmpl.id
-                ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20 shadow-[0_0_16px_-4px_hsl(43_74%_52%/0.2)]'
-                : 'border-white/[0.06] text-foreground/60 hover:border-white/[0.12] bg-card/30'
+              'flex-shrink-0 flex flex-col items-center gap-1.5 p-3.5 transition-all min-w-[72px]',
+              selected === tmpl.id ? 'text-primary' : 'text-white/40 hover:text-white/60'
             )}
+            style={{
+              borderRadius: 20,
+              background: selected === tmpl.id
+                ? 'rgba(200,160,60,0.06)' : 'rgba(255,255,255,0.015)',
+              border: `1px solid ${selected === tmpl.id
+                ? 'rgba(200,160,60,0.12)' : 'rgba(255,255,255,0.025)'}`,
+              boxShadow: selected === tmpl.id
+                ? '0 0 20px rgba(200,160,60,0.06)' : 'none',
+            }}
           >
             {ICONS[tmpl.id]}
             <span className="text-[10px] font-medium whitespace-nowrap">{tmpl.label}</span>
@@ -64,7 +78,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
         ))}
       </div>
       
-      <p className="text-[10px] text-foreground/45">
+      <p className="text-[10px] text-white/25">
         {TEMPLATE_REGISTRY.find(t => t.id === selected)?.description} · Best for {TEMPLATE_REGISTRY.find(t => t.id === selected)?.bestFor.join(', ')}
       </p>
     </div>

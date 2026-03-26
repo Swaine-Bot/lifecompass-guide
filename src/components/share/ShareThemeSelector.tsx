@@ -11,27 +11,36 @@ const themeList = Object.values(THEMES);
 export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps) {
   return (
     <div className="space-y-3">
-      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-[0.1em]">Theme</span>
-      <div className="grid grid-cols-5 gap-1.5">
+      <span className="text-[9px] font-semibold text-white/35 uppercase tracking-[0.15em]">Theme</span>
+      <div className="grid grid-cols-5 gap-2">
         {themeList.map((t) => (
           <button
             key={t.id}
             onClick={() => onChange(t.id)}
             className={cn(
-              'flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all',
-              theme === t.id
-                ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20'
-                : 'border-white/[0.06] hover:border-white/[0.12] bg-card/30'
+              'flex flex-col items-center gap-2 p-3 transition-all',
+              theme === t.id ? 'text-primary' : 'text-white/40 hover:text-white/60'
             )}
+            style={{
+              borderRadius: 20,
+              background: theme === t.id
+                ? 'rgba(200,160,60,0.06)' : 'rgba(255,255,255,0.015)',
+              border: `1px solid ${theme === t.id
+                ? 'rgba(200,160,60,0.12)' : 'rgba(255,255,255,0.025)'}`,
+              boxShadow: theme === t.id
+                ? '0 0 20px rgba(200,160,60,0.06)' : 'none',
+            }}
           >
             <div
-              className="w-7 h-7 rounded-full shadow-inner ring-1 ring-white/[0.08]"
-              style={{ backgroundColor: t.accentHex }}
+              className="w-7 h-7 shadow-inner"
+              style={{
+                borderRadius: 999,
+                backgroundColor: t.accentHex,
+                boxShadow: `0 2px 12px ${t.accentHex}30`,
+                border: `1px solid rgba(255,255,255,0.08)`,
+              }}
             />
-            <span className={cn(
-              'text-[8px] font-semibold leading-tight text-center',
-              theme === t.id ? 'text-primary' : 'text-foreground/55'
-            )}>
+            <span className="text-[8px] font-semibold leading-tight text-center">
               {t.label.split(' ')[0]}
             </span>
           </button>
