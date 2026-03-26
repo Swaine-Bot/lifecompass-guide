@@ -5,7 +5,7 @@
  * on native or navigator.share on web.
  */
 
-import { supportsNativeShare, supportsNativeFilesystem } from '@/lib/nativeCapabilities';
+import { supportsNativeShare } from '@/lib/nativeCapabilities';
 
 interface ShareResult {
   shared: boolean;
@@ -42,16 +42,29 @@ export async function shareText(
 // ── Native (Capacitor) paths ──
 
 async function nativeShareImage(blob: Blob, filename: string): Promise<ShareResult> {
+  let tempFilePath: string | null = null;
   try {
-    const { saveFileNative } = await import('./nativeFileSaveAdapter');
-    const filePath = await saveFileNative(blob, filename, true);
-    if (!filePath) return { shared: false, method: 'file_save_failed' };
+    const { saveFileNative, cleanupTempFiles } = await import('./nativeFileSaveAdapter');
+    tempFilePath = await saveFileNative(blob, filename, true);
+    if (!tempFilePath) return { shared: false, method: 'file_save_failed' };
 
     const { Share } = await import('@capacitor/share');
-    await Share.share({ files: [filePath] });
+    await Share.share({ files: [tempFilePath] });
+
+    // Schedule cleanup after share completes
+    setTimeout(() => {
+      if (tempFilePath) cleanupTempFiles([tempFilePath]);
+    }, 5000);
+
     return { shared: true, method: 'native_share' };
   } catch (e: any) {
-    if (e?.message?.includes('cancel') || e?.message?.includes('Cancel')) {
+    // Clean up on error too
+    if (tempFilePath) {
+      import('./nativeFileSaveAdapter').then(({ cleanupTempFiles }) => {
+        cleanupTempFiles([tempFilePath!]);
+      });
+    }
+    if (e?.message?.includes('cancel') || e?.message?.includes('Cancel') || e?.message?.includes('dismissed')) {
       return { shared: false, method: 'cancelled' };
     }
     console.warn('[NativeShare] Image share failed:', e);
@@ -65,7 +78,7 @@ async function nativeShareText(text: string, title?: string, url?: string): Prom
     await Share.share({ text, title, url, dialogTitle: title });
     return { shared: true, method: 'native_share' };
   } catch (e: any) {
-    if (e?.message?.includes('cancel') || e?.message?.includes('Cancel')) {
+    if (e?.message?.includes('cancel') || e?.message?.includes('Cancel') || e?.message?.includes('dismissed')) {
       return { shared: false, method: 'cancelled' };
     }
     return { shared: false, method: 'native_error' };
