@@ -15,6 +15,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface Task {
   id: string;
