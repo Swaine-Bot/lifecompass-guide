@@ -109,6 +109,7 @@ export default function ShareStudio() {
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
   const [phrase, setPhrase] = useState(getRandomPhrase());
   const [sharing, setSharing] = useState(false);
+  const [isReleasing, setIsReleasing] = useState(false);
   const [step, setStep] = useState<FlowStep>('studio');
   const [activeTab, setActiveTab] = useState('template');
 
