@@ -11,6 +11,7 @@ import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
 import { PageHeader, EmptyStatePanel } from '@/components/ds';
 import { engagementEventService } from '@/services/engagementEventService';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { useUniversalShare } from '@/hooks/useUniversalShare';
 
 export default function Vault() {
   useEnvironment('vault');
