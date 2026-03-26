@@ -66,7 +66,25 @@ export function usePushNotifications() {
 
   // Check current subscription status
   const checkSubscription = useCallback(async () => {
-    if (!checkSupport() || !user) {
+    if (!user) {
+      setState(prev => ({ ...prev, loading: false }));
+      return;
+    }
+
+    // On native, report native push state instead
+    if (shouldSkipWebPush()) {
+      const nState = getNativePushState();
+      setState(prev => ({
+        ...prev,
+        isSupported: true,
+        isSubscribed: nState.registered,
+        permission: nState.registered ? 'granted' : 'default',
+        loading: false,
+      }));
+      return;
+    }
+
+    if (!checkSupport()) {
       setState(prev => ({ ...prev, loading: false }));
       return;
     }
