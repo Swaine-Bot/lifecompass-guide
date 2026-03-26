@@ -376,7 +376,7 @@ function drawTextPanel(
 
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * spec.typography.subtitleLineHeight;
+    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.05);
     let totalTextH = subLines.length * subLineH;
 
     const minSubSize = 16;
