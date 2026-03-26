@@ -112,7 +112,7 @@ export default function Auth() {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="p-4 pt-5">
+        <header className="p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
           <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white/90 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>

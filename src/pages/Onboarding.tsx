@@ -279,7 +279,7 @@ export default function Onboarding() {
 
   if (showAccountType) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 safe-area-top safe-area-bottom">
         <div className="w-full max-w-md">
           <div className="flex items-center justify-center gap-2 mb-8">
             <Crown className="w-6 h-6 text-primary" />
@@ -297,7 +297,7 @@ export default function Onboarding() {
 
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 safe-area-top safe-area-bottom">
         <IntroVideo onComplete={() => setShowIntro(false)} />
       </div>
     );
@@ -648,7 +648,7 @@ export default function Onboarding() {
   const canProceed = step === 0 ? formData.name.trim().length > 0 : true;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
       {/* Progress Header */}
       <div className="p-4 border-b border-border/30">
         <div className="max-w-md mx-auto">
