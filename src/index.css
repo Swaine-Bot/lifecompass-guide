@@ -556,48 +556,68 @@
   animation: sensory-pulse 800ms ease-out forwards;
 }
 
-/* ─── Share Studio Tab — translucent glass tabs ─── */
-.studio-tab {
-  @apply text-[11px] font-medium flex-shrink-0 px-4 py-2.5 transition-all duration-300;
-  border-radius: 999px;
-  color: rgba(255,255,255,0.30);
-  background: transparent;
-}
-.studio-tab[data-state="active"] {
-  color: rgba(255,255,255,0.92);
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 0 20px rgba(200,160,60,0.06);
-}
-.studio-tab:hover:not([data-state="active"]) {
-  color: rgba(255,255,255,0.50);
-  background: rgba(255,255,255,0.025);
-}
+/* ═══ Share Studio — Atmospheric Glass Material System ═══ */
 
-/* ─── Share Studio Atmospheric Glass System ─── */
+/* Keyframes */
 @keyframes glass-breathe {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.003); opacity: 0.97; }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.002); }
 }
-
 @keyframes glass-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
 @keyframes card-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-5px) rotate(0.15deg); }
+  66% { transform: translateY(-3px) rotate(-0.1deg); }
 }
-
 @keyframes env-vignette-pulse {
-  0%, 100% { opacity: 0.55; }
+  0%, 100% { opacity: 0.6; }
   50% { opacity: 0.45; }
 }
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
 
+/* ─── HERO GLASS — primary panels, deepest material ─── */
+.studio-glass-hero {
+  border-radius: 36px;
+  background: rgba(14, 22, 28, 0.28);
+  backdrop-filter: blur(80px) saturate(160%);
+  -webkit-backdrop-filter: blur(80px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 -1px 0 rgba(0,0,0,0.15),
+    0 32px 80px rgba(0,0,0,0.45),
+    0 0 0 0.5px rgba(255,255,255,0.02);
+  position: relative;
+  overflow: hidden;
+  animation: glass-breathe 10s ease-in-out infinite;
+}
+.studio-glass-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.08) 30%, rgba(200,160,60,0.06) 50%, rgba(255,255,255,0.08) 70%, transparent 95%);
+  pointer-events: none;
+}
+.studio-glass-hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40%; height: 40%;
+  background: radial-gradient(ellipse at 20% 20%, rgba(200,160,60,0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ─── SECONDARY GLASS — control panels, tab content ─── */
 .studio-glass-panel {
   border-radius: 32px;
-  background: rgba(14, 22, 28, 0.22);
+  background: rgba(14, 22, 28, 0.20);
   backdrop-filter: blur(60px) saturate(150%);
   -webkit-backdrop-filter: blur(60px) saturate(150%);
   border: 1px solid rgba(255,255,255,0.025);
@@ -609,34 +629,97 @@
   overflow: hidden;
   animation: glass-breathe 8s ease-in-out infinite;
 }
-
 .studio-glass-panel::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.06) 50%, transparent 90%);
+  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.05) 50%, transparent 90%);
   pointer-events: none;
 }
-
 .studio-glass-panel:hover::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.015) 50%, transparent 60%);
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.012) 50%, transparent 60%);
   background-size: 200% 100%;
   animation: glass-shimmer 3s ease-in-out;
   pointer-events: none;
 }
 
-.studio-card-float {
-  animation: card-float 6s ease-in-out infinite;
-  filter: drop-shadow(0 20px 60px rgba(0,0,0,0.5));
+/* ─── TERTIARY GLASS — invisible support, inner controls ─── */
+.studio-glass-tertiary {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(30px) saturate(130%);
+  -webkit-backdrop-filter: blur(30px) saturate(130%);
+  border: 1px solid rgba(255,255,255,0.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 
+/* ─── Studio tabs ─── */
+.studio-tab {
+  @apply text-[11px] font-medium flex-shrink-0 px-4 py-2.5 transition-all duration-300;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.30);
+  background: transparent;
+  border: 1px solid transparent;
+}
+.studio-tab[data-state="active"] {
+  color: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.06);
+  box-shadow:
+    0 0 24px rgba(200,160,60,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.studio-tab:hover:not([data-state="active"]) {
+  color: rgba(255,255,255,0.50);
+  background: rgba(255,255,255,0.02);
+}
+
+/* ─── Card float + stage ─── */
+.studio-card-float {
+  animation: card-float 6s ease-in-out infinite;
+  filter: drop-shadow(0 24px 64px rgba(0,0,0,0.55));
+}
+.studio-card-glow {
+  animation: glow-pulse 8s ease-in-out infinite;
+}
 .studio-env-vignette {
   animation: env-vignette-pulse 12s ease-in-out infinite;
+}
+
+/* ─── Glass option pill (selectors) ─── */
+.studio-option-pill {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  transition: all 0.3s ease;
+}
+.studio-option-pill:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+.studio-option-pill[data-active="true"],
+.studio-option-pill.active {
+  background: rgba(200, 160, 60, 0.06);
+  border-color: rgba(200, 160, 60, 0.14);
+  box-shadow: 0 0 20px rgba(200,160,60,0.06), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* ─── Switch row styling ─── */
+.studio-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background 0.2s;
+}
+.studio-switch-row:hover {
+  background: rgba(255, 255, 255, 0.025);
 }
