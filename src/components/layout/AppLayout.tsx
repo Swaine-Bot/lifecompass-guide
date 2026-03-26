@@ -59,7 +59,7 @@ export const AppLayout = () => {
         <ContextOverlay />
         <FeedbackPulse />
         <Sidebar />
-        <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2, paddingTop: 'var(--safe-area-top, 0px)' }}>
+        <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}>
           <PullToRefresh 
             onRefresh={handleRefresh}
             className="flex-1 h-full"

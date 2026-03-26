@@ -105,12 +105,36 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background font-sans antialiased;
     font-family: 'Poppins', system-ui, sans-serif;
+    color: hsl(0 0% 100%);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', Georgia, serif;
+    color: hsl(0 0% 100%);
+  }
+
+  /* Global white-based text hierarchy */
+  p, span, div, li, td, th, label, a {
+    color: inherit;
+  }
+
+  .text-muted-foreground {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  ::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* Safe-area global enforcement */
+  .safe-area-top {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 }
 
