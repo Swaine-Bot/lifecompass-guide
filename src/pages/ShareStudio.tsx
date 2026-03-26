@@ -393,17 +393,27 @@ export default function ShareStudio() {
 
   // ─── Main Studio — Full-Screen Immersive Environment ───
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <motion.div
+      className="min-h-screen relative overflow-hidden"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+    >
 
       {/* ══ LAYER 1: Atmospheric Background ══ */}
       <img src={cinematicBg} alt="" aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
         style={{ filter: 'saturate(1.3) brightness(0.28)', transform: 'scale(1.1)' }}
       />
-      {/* Dark overlay gradient — top lighter, bottom darker */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
-      }} />
+      {/* Dark overlay — darkens during release ritual */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: isReleasing ? 1.15 : 1 }}
+        transition={{ duration: 0.12 }}
+        style={{
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+        }}
+      />
       {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none studio-env-vignette" style={{
         background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.55) 100%)',
