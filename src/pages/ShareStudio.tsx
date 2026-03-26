@@ -497,14 +497,25 @@ export default function ShareStudio() {
                 transform: 'translateY(-20px)',
               }} />
             </div>
-            {/* The card itself — floating artifact */}
-            <div className="relative studio-card-float">
+            {/* The card itself — floating artifact with release ritual animation */}
+            <motion.div
+              className="relative studio-card-float"
+              initial={{ scale: 0.97, opacity: 0 }}
+              animate={{
+                scale: isReleasing ? 0.986 : 1,
+                opacity: 1,
+              }}
+              transition={isReleasing
+                ? { scale: { duration: 0.09, ease: 'easeIn' } }
+                : { scale: { duration: 0.36, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.36 } }
+              }
+            >
               <CompositionCard
                 content={normalizedContent}
                 platform={platform}
                 maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
               />
-            </div>
+            </motion.div>
           </div>
 
           {/* Regenerate — whisper-level */}
