@@ -79,7 +79,7 @@ export function AIInsightControls({
 
       {enabled && (
         <div className="space-y-3">
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
             {STYLES.map((s) => (
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
