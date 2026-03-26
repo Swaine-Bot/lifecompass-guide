@@ -57,42 +57,16 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
   }
 }
 
-/* ─── Shared crystal glass inline styles ─── */
+/* ─── Crystal glass inline styles — ultra translucent ─── */
 const GLASS = {
-  header: {
-    background: 'rgba(255, 255, 255, 0.025)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
-    backdropFilter: 'blur(40px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12)',
-  } as React.CSSProperties,
   capsule: {
     borderRadius: 999,
-    background: 'rgba(255, 255, 255, 0.035)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+    background: 'rgba(255, 255, 255, 0.02)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 100%)',
     backdropFilter: 'blur(40px) saturate(150%)',
     WebkitBackdropFilter: 'blur(40px) saturate(150%)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 12px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
-  } as React.CSSProperties,
-  tabBar: {
-    borderRadius: 999,
-    background: 'rgba(255, 255, 255, 0.03)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
-    backdropFilter: 'blur(40px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-    border: '1px solid rgba(255,255,255,0.14)',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 40px rgba(255,255,255,0.02)',
-  } as React.CSSProperties,
-  actionBar: {
-    borderRadius: 34,
-    background: 'rgba(255, 255, 255, 0.03)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.015) 100%)',
-    backdropFilter: 'blur(40px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.12)',
   } as React.CSSProperties,
 };
 
