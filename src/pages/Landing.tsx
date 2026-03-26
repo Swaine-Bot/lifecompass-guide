@@ -133,15 +133,18 @@ export default function Landing() {
             </Button>
             <Button variant="ghost" className="gap-2"
               onClick={async () => {
-                const shareData = {
-                  title: 'LifeStack - Your Life Operating System',
-                  text: 'Guide your life from your first job to your last breath.',
-                  url: 'https://lifecompass-guide.lovable.app',
-                };
-                if (navigator.share && navigator.canShare(shareData)) {
-                  try { await navigator.share(shareData); toast.success('Thanks for sharing!'); }
-                  catch (err) { if ((err as Error).name !== 'AbortError') { await navigator.clipboard.writeText(shareData.url); toast.success('Link copied!'); } }
-                } else { await navigator.clipboard.writeText(shareData.url); toast.success('Link copied!'); }
+                const { shareText } = await import('@/services/share/nativeShareAdapter');
+                const { copyText } = await import('@/services/share/nativeClipboardAdapter');
+                const result = await shareText(
+                  'Guide your life from your first job to your last breath.',
+                  'LifeStack - Your Life Operating System',
+                  'https://lifecompass-guide.lovable.app',
+                );
+                if (result.shared) { toast.success('Thanks for sharing!'); }
+                else if (result.method !== 'cancelled') {
+                  await copyText('https://lifecompass-guide.lovable.app');
+                  toast.success('Link copied!');
+                }
               }}>
               <Share2 className="w-4 h-4" />Share App
             </Button>

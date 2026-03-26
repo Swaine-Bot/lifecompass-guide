@@ -349,14 +349,9 @@ export default function Settings() {
       }
 
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `lifestack-data-export-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const { saveFile } = await import('@/services/share/nativeFileSaveAdapter');
+      const result = await saveFile(blob, `lifestack-data-export-${new Date().toISOString().split('T')[0]}.json`);
+      if (!result.success) throw new Error('Save failed');
       toast.success('Data exported successfully');
       setExportStatus('done');
     } catch {

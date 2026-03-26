@@ -232,13 +232,13 @@ export default function ShareStudio() {
     try {
       const blob = await exportCompositionToBlob(normalizedContent, platform);
       if (!blob) { toast.error('Render failed'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `lifestack-${platform}-${selectedCard.cardType}-${Date.now()}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('Image saved');
+      const { saveFile } = await import('@/services/share/nativeFileSaveAdapter');
+      const result = await saveFile(blob, `lifestack-${platform}-${selectedCard.cardType}-${Date.now()}.png`);
+      if (result.success) {
+        toast.success('Image saved');
+      } else {
+        toast.error('Download failed');
+      }
     } catch {
       toast.error('Download failed');
     }
