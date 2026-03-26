@@ -269,11 +269,9 @@ export default function ShareStudio() {
   // ─── Success Screen ───
   if (step === 'success') {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        <img src={cinematicBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'saturate(1.2) brightness(0.3)', transform: 'scale(1.08)' }} />
+      <div className="fixed inset-0 z-50 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.65) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)',
         }} />
         <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
           <div className="text-center space-y-6 max-w-sm">
