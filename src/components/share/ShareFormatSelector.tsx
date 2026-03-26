@@ -20,7 +20,7 @@ export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorPro
   return (
     <div className="space-y-2">
       <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Format</span>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {formats.map((f) => {
           const dim = FORMAT_DIMENSIONS[f];
           const ratio = dim.w / dim.h;
