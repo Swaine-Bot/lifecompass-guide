@@ -198,6 +198,13 @@ export default function ShareStudio() {
       const smartUrl = await generateSmartLink();
       const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
       const nativePreset = PLATFORM_PROFILES[platform].nativeSharePreset;
+
+      // ── Pre-share ritual: decision → commitment → release ──
+      setIsReleasing(true);
+      triggerHaptic('confirmation');
+      await new Promise(r => setTimeout(r, 160));
+      setIsReleasing(false);
+
       const result = await nativeShare(blob, nativePreset);
       await trackShareEvent(user.id, selectedCard.cardType, result.shared ? `native_${nativePreset}` : result.method, platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
@@ -229,6 +236,7 @@ export default function ShareStudio() {
       toast.error('Share failed — try the Copy or Download buttons');
     } finally {
       setSharing(false);
+      setIsReleasing(false);
     }
   }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink]);
 
