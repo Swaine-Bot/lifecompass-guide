@@ -8,6 +8,7 @@ import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
 import { PageHeader, EmptyStatePanel } from '@/components/ds';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { ShareButton } from '@/components/share/ShareButton';
 
 export default function Cinematics() {
   useEnvironment('cinematics');
