@@ -16,6 +16,7 @@ import { useUniversalShare } from '@/hooks/useUniversalShare';
 export default function Vault() {
   useEnvironment('vault');
   const navigate = useNavigate();
+  const { openShareStudio } = useUniversalShare();
   const {
     mirrorMoments, cinematicReports, shareCards,
     toggleFavorite, archiveItem,
