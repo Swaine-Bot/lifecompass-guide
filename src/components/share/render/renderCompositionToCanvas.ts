@@ -370,7 +370,7 @@ function drawTextPanel(
 
   // Subtitle
   if (content.subtitle) {
-    cursorY += 8;
+    cursorY += 12;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
