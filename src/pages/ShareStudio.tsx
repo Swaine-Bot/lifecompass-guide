@@ -432,7 +432,12 @@ export default function ShareStudio() {
         background: 'radial-gradient(ellipse at 85% 90%, rgba(100,140,200,0.015) 0%, transparent 40%)',
       }} />
 
-      {/* ══ LAYER 2: Glass Chamber — one continuous surface ══ */}
+      {/* Light bloom — edge glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.03) 0%, transparent 50%)',
+      }} />
+
+      {/* ══ LAYER 2: Crystal Glass Chamber — luminous continuous surface ══ */}
       <div className="relative z-10 min-h-screen flex flex-col">
 
         {/* ─── Ghost Header — glass orb back, minimal title, My Cards pill ─── */}
