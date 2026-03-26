@@ -47,6 +47,8 @@ import ShareStudio from "./pages/ShareStudio";
 import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
 
+const queryClient = new QueryClient();
+
 /** Registers React Router navigate for native deep-link routing */
 function DeepLinkBridge() {
   const navigate = useNavigate();
