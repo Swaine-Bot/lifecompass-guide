@@ -206,8 +206,9 @@ export function AIAnalyst() {
     }
   };
 
-  const handleCopy = (content: string) => {
-    navigator.clipboard.writeText(content);
+  const handleCopy = async (content: string) => {
+    const { copyText } = await import('@/services/share/nativeClipboardAdapter');
+    await copyText(content);
     toast({ title: 'Copied to clipboard' });
   };
 

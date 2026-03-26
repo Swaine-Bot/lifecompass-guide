@@ -18,7 +18,7 @@ export const BottomNav = () => {
   const pendingCount = usePendingFriendRequests();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04]" style={{ paddingBottom: 'var(--safe-area-bottom, env(safe-area-inset-bottom, 0px))' }}>
       <div className="flex items-center justify-around px-1 py-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 

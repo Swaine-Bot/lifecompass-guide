@@ -66,7 +66,8 @@ export function InviteFriends({ userName = 'A friend' }: InviteFriendsProps) {
 
   const copyInviteLink = async () => {
     try {
-      await navigator.clipboard.writeText(inviteMessage);
+      const { copyText } = await import('@/services/share/nativeClipboardAdapter');
+      await copyText(inviteMessage);
       setCopied(true);
       toast.success('Invite message copied!');
       setTimeout(() => setCopied(false), 2000);

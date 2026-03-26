@@ -257,7 +257,8 @@ export default function LaunchVideo() {
   const [activeTab, setActiveTab] = useState("video");
 
   const copyScript = async () => {
-    await navigator.clipboard.writeText(narrationScript);
+    const { copyText } = await import('@/services/share/nativeClipboardAdapter');
+    await copyText(narrationScript);
     setCopiedScript(true);
     toast.success("Script copied to clipboard!");
     setTimeout(() => setCopiedScript(false), 2000);

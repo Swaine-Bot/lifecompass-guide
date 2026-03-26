@@ -392,66 +392,26 @@ export async function nativeShare(
   imageBlob: Blob,
   preset: NativeSharePreset = 'post',
 ): Promise<{ shared: boolean; method: string }> {
-  if (!navigator.share) {
-    console.warn('[Share] navigator.share not available');
-    return { shared: false, method: 'unsupported' };
-  }
-
-  if (!imageBlob || imageBlob.size === 0) {
-    console.warn('[Share] No image blob or empty blob');
-    return { shared: false, method: 'no_blob' };
-  }
-
-  const fileName = `lifestack-${preset}-share.png`;
-  const file = new File([imageBlob], fileName, { type: 'image/png' });
-
-  // Debug logging
-  console.log('[Share] Payload debug:', {
-    mode: 'social_image_only',
-    hasFiles: true,
-    fileMIME: file.type,
-    fileSize: file.size,
-    hasText: false,
-    hasUrl: false,
-    hasTitle: false,
-    canShareFiles: navigator.canShare ? navigator.canShare({ files: [file] }) : 'canShare_unavailable',
-  });
-
-  // IMAGE-ONLY share — no text, no url, no title
-  try {
-    const shareData: ShareData = { files: [file] };
-    if (navigator.canShare && navigator.canShare(shareData)) {
-      await navigator.share(shareData);
-      console.log('[Share] Image-only share succeeded');
-      return { shared: true, method: 'native_file' };
-    } else {
-      console.warn('[Share] canShare({ files }) returned false');
-    }
-  } catch (err: any) {
-    if (err?.name === 'AbortError') {
-      console.log('[Share] User cancelled share');
-      return { shared: false, method: 'cancelled' };
-    }
-    console.warn('[Share] Image-only share failed:', err?.message);
-  }
-
-  console.warn('[Share] Device does not support file sharing');
-  return { shared: false, method: 'file_unsupported' };
+  // Route through native adapter
+  const { shareImage } = await import('./share/nativeShareAdapter');
+  return shareImage(imageBlob, `lifestack-${preset}-share.png`);
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {
-  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
+  const { copyText } = await import('./share/nativeClipboardAdapter');
+  return copyText(text);
 }
 
 export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
-  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); return true; } catch { return false; }
+  const { copyImage } = await import('./share/nativeClipboardAdapter');
+  return copyImage(blob);
 }
 
 export async function downloadImage(canvas: HTMLCanvasElement, filename: string) {
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) return;
+  const { saveFile } = await import('./share/nativeFileSaveAdapter');
+  await saveFile(blob, filename);
 }
 
 // ─── DETERMINISTIC CANVAS RENDERER ──────────────────────────────────

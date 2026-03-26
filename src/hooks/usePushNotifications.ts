@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { shouldSkipWebPush, getNativePushState } from '@/services/nativePushService';
 
 export interface PushNotificationState {
   isSupported: boolean;
@@ -65,7 +66,25 @@ export function usePushNotifications() {
 
   // Check current subscription status
   const checkSubscription = useCallback(async () => {
-    if (!checkSupport() || !user) {
+    if (!user) {
+      setState(prev => ({ ...prev, loading: false }));
+      return;
+    }
+
+    // On native, report native push state instead
+    if (shouldSkipWebPush()) {
+      const nState = getNativePushState();
+      setState(prev => ({
+        ...prev,
+        isSupported: true,
+        isSubscribed: nState.registered,
+        permission: nState.registered ? 'granted' : 'default',
+        loading: false,
+      }));
+      return;
+    }
+
+    if (!checkSupport()) {
       setState(prev => ({ ...prev, loading: false }));
       return;
     }
@@ -91,6 +110,12 @@ export function usePushNotifications() {
   const subscribe = async (): Promise<boolean> => {
     if (!user) {
       toast.error('Please log in to enable notifications');
+      return false;
+    }
+
+    // On native, push is handled by nativePushService
+    if (shouldSkipWebPush()) {
+      toast.info('Push notifications are managed by your device settings.');
       return false;
     }
 
@@ -210,9 +235,14 @@ export function usePushNotifications() {
 
   // Check subscription on mount
   useEffect(() => {
+    // On native, skip service worker registration entirely
+    if (shouldSkipWebPush()) {
+      checkSubscription();
+      return;
+    }
+
     const isSupported = checkSupport();
     if (isSupported) {
-      // Register service worker on load
       registerServiceWorker().then(() => {
         checkSubscription();
       });

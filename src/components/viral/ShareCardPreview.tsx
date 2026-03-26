@@ -88,18 +88,15 @@ export function ShareCardPreview({
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `LifeStack — ${title}`,
-          text: `${title}${subtitle ? '\n' + subtitle : ''}\n\n${phrase}\n\nlifestack.app`,
-        });
-        await handleSave();
-      } catch {
-        // User cancelled
-      }
-    } else {
-      await navigator.clipboard.writeText(`${title}${subtitle ? '\n' + subtitle : ''}\n\n${phrase}\n\nlifestack.app`);
+    const { shareText } = await import('@/services/share/nativeShareAdapter');
+    const { copyText } = await import('@/services/share/nativeClipboardAdapter');
+    const text = `${title}${subtitle ? '\n' + subtitle : ''}\n\n${phrase}\n\nlifestack.app`;
+    
+    const result = await shareText(text, `LifeStack — ${title}`);
+    if (result.shared) {
+      await handleSave();
+    } else if (result.method !== 'cancelled') {
+      await copyText(text);
       toast.success('Copied to clipboard');
       await handleSave();
     }

@@ -182,14 +182,14 @@ export default function ShareStudio() {
           await copyToClipboard(caption);
           toast.success('Card image copied to clipboard — paste it into any app! Caption also copied.');
         } else {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `lifestack-${platform}-share.png`;
-          a.click();
-          URL.revokeObjectURL(url);
-          await copyToClipboard(caption);
-          toast.success('Card saved to downloads. Caption copied for pasting.');
+          const { saveFile } = await import('@/services/share/nativeFileSaveAdapter');
+          const saveResult = await saveFile(blob, `lifestack-${platform}-share.png`);
+          if (saveResult.success) {
+            await copyToClipboard(caption);
+            toast.success('Card saved. Caption copied for pasting.');
+          } else {
+            toast.error('Save failed');
+          }
         }
         setStep('success');
       }
@@ -232,13 +232,13 @@ export default function ShareStudio() {
     try {
       const blob = await exportCompositionToBlob(normalizedContent, platform);
       if (!blob) { toast.error('Render failed'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `lifestack-${platform}-${selectedCard.cardType}-${Date.now()}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('Image saved');
+      const { saveFile } = await import('@/services/share/nativeFileSaveAdapter');
+      const result = await saveFile(blob, `lifestack-${platform}-${selectedCard.cardType}-${Date.now()}.png`);
+      if (result.success) {
+        toast.success('Image saved');
+      } else {
+        toast.error('Download failed');
+      }
     } catch {
       toast.error('Download failed');
     }
