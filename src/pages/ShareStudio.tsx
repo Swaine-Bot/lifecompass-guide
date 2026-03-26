@@ -380,70 +380,66 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── Main Studio — Cinematic Environment ───
+  // ─── Main Studio — One Continuous Surface ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ ENVIRONMENT — full cinematic background ══ */}
+      {/* ══ ENVIRONMENT ══ */}
       <img src={cinematicBg} alt="" aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'saturate(1.3) brightness(0.35)', transform: 'scale(1.08)' }}
+        style={{ filter: 'saturate(1.3) brightness(0.3)', transform: 'scale(1.08)' }}
       />
-
-      {/* Multi-layer atmospheric depth */}
       <div className="absolute inset-0 pointer-events-none studio-env-vignette" style={{
-        background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%)',
+        background: 'radial-gradient(ellipse at 50% 25%, transparent 15%, rgba(0,0,0,0.65) 100%)',
       }} />
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 15% 8%, rgba(200,160,60,0.035) 0%, transparent 45%)',
+        background: 'radial-gradient(ellipse at 12% 5%, rgba(200,160,60,0.03) 0%, transparent 40%)',
       }} />
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 85% 90%, rgba(100,130,180,0.02) 0%, transparent 40%)',
+        background: 'radial-gradient(ellipse at 88% 92%, rgba(100,130,180,0.015) 0%, transparent 35%)',
       }} />
 
-      {/* ═══ Content Layer ═══ */}
+      {/* ═══ Single Continuous Surface ═══ */}
       <div className="relative z-10 min-h-screen">
 
-        {/* ═══ HEADER — ghost glass ═══ */}
-        <div className="sticky top-0 z-40" style={GLASS.header}>
+        {/* Ghost header — barely there */}
+        <div className="sticky top-0 z-40" style={{
+          background: 'rgba(10, 16, 22, 0.06)',
+          backdropFilter: 'blur(80px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(80px) saturate(160%)',
+        }}>
           <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate(-1)}
-                className="text-white/25 hover:text-white/50 -ml-1" style={{ borderRadius: 999 }}>
+                className="text-white/20 hover:text-white/45 -ml-1" style={{ borderRadius: 999 }}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-2.5">
-                <div className="icon-orb-sm">
-                  <Sparkles className="w-3 h-3" />
-                </div>
-                <div>
-                  <h1 className="text-sm font-serif font-bold text-white/80 leading-tight">Share Studio</h1>
-                  <p className="text-[7px] uppercase tracking-[0.2em] text-white/18 font-medium">Compose · Publish</p>
-                </div>
+              <div>
+                <h1 className="text-[11px] font-serif font-bold text-white/50 leading-tight tracking-wide">Share Studio</h1>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={loadSavedCards}
-              className="text-[10px] gap-1.5 text-white/20 hover:text-white/45 h-7" style={{ borderRadius: 999 }}>
-              <LayoutGrid className="w-3 h-3" />Cards
+              className="text-[9px] gap-1.5 text-white/15 hover:text-white/35 h-7" style={{ borderRadius: 999 }}>
+              <LayoutGrid className="w-3 h-3" />
             </Button>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-5 py-4 space-y-6 pb-36">
+        <div className="max-w-2xl mx-auto px-5 pb-36">
 
-          {/* ═══ PREVIEW STAGE — precious floating object ═══ */}
-          <div className="relative flex justify-center py-14">
-            {/* Multi-ring ambient glow */}
+          {/* ═══ THE PREVIEW — absolute center of gravity ═══ */}
+          <div className="relative flex justify-center py-16">
+            {/* Deep ambient halo */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="studio-card-glow" style={{
-                width: 320, height: 320, borderRadius: '50%',
-                background: `radial-gradient(circle, ${themeObj.accentHex}0A 0%, ${themeObj.accentHex}04 40%, transparent 70%)`,
-                filter: 'blur(30px)',
+                width: 380, height: 380, borderRadius: '50%',
+                background: `radial-gradient(circle, ${themeObj.accentHex}0C 0%, ${themeObj.accentHex}05 35%, transparent 65%)`,
+                filter: 'blur(40px)',
               }} />
             </div>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div style={{
-                width: 200, height: 200, borderRadius: '50%',
-                background: `radial-gradient(circle, ${themeObj.accentHex}06 0%, transparent 60%)`,
+                width: 500, height: 400, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.008) 0%, transparent 50%)',
                 filter: 'blur(60px)',
               }} />
             </div>
@@ -456,13 +452,8 @@ export default function ShareStudio() {
             </div>
           </div>
 
-          {/* Canvas dims — ghost whisper */}
-          <p className="text-center text-[7px] text-white/[0.06] uppercase tracking-[0.3em] font-medium -mt-4">
-            {PLATFORM_PROFILES[platform].label} · {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height}
-          </p>
-
-          {/* ═══ REGENERATE — floating glass capsule ═══ */}
-          <div className="flex justify-center">
+          {/* Regenerate — ghosted into the surface */}
+          <div className="flex justify-center -mt-4 mb-8">
             <button
               onClick={() => {
                 const domain = mapLifeDomain(selectedCard.domain);
@@ -470,275 +461,233 @@ export default function ShareStudio() {
                 setSelectedCard(prev => ({ ...prev, philosophy: newPhilosophy }));
                 setPhrase(getRandomPhrase());
               }}
-              className="inline-flex items-center gap-2 px-6 py-3 transition-all text-[10px] font-medium
-                text-white/30 hover:text-white/55 active:scale-[0.97]"
-              style={GLASS.capsule}
+              className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[9px] font-medium
+                text-white/20 hover:text-white/45 active:scale-[0.97]"
+              style={{ borderRadius: 999 }}
             >
-              <RefreshCw className="w-3 h-3" />Regenerate language
+              <RefreshCw className="w-3 h-3" />Regenerate
             </button>
           </div>
 
-          {/* ═══ INSTRUMENT PANEL — atmospheric tab system ═══ */}
+          {/* ═══ MODE SELECTOR — dissolved into the surface ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="p-1.5" style={GLASS.tabBar}>
-              <TabsList className="w-full bg-transparent flex overflow-x-auto scrollbar-hide gap-0.5">
-                <TabsTrigger value="template" className="studio-tab">Template</TabsTrigger>
-                <TabsTrigger value="ai" className="studio-tab">AI</TabsTrigger>
-                <TabsTrigger value="style" className="studio-tab">Style</TabsTrigger>
-                {hasPostImage && <TabsTrigger value="image" className="studio-tab">Image</TabsTrigger>}
-                <TabsTrigger value="sponsor" className="studio-tab">Partner</TabsTrigger>
-                <TabsTrigger value="privacy" className="studio-tab">Privacy</TabsTrigger>
-                <TabsTrigger value="platform" className="studio-tab">Platform</TabsTrigger>
-                <TabsTrigger value="link" className="studio-tab">Link</TabsTrigger>
+            <div className="flex justify-center mb-8">
+              <TabsList className="bg-transparent flex gap-1 p-0">
+                {[
+                  { value: 'template', label: 'Template' },
+                  { value: 'ai', label: 'AI' },
+                  { value: 'style', label: 'Style' },
+                  ...(hasPostImage ? [{ value: 'image', label: 'Image' }] : []),
+                  { value: 'sponsor', label: 'Partner' },
+                  { value: 'privacy', label: 'Privacy' },
+                  { value: 'platform', label: 'Platform' },
+                  { value: 'link', label: 'Link' },
+                ].map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}
+                    className="studio-mode-dot"
+                    data-label={tab.label}
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </div>
 
-            {/* Template Tab */}
-            <TabsContent value="template" className="mt-5">
-              <div className="studio-glass-hero p-6 space-y-5">
-                <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
-                {!hasPrefill && (
-                  <div className="border-t border-white/[0.03] pt-5">
-                    <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Card Type</span>
-                    <div className="grid grid-cols-2 gap-2.5 mt-3">
-                      {demoCards.map((card) => (
-                        <button key={card.cardType} onClick={() => setSelectedCard(card)}
-                          className={cn(
-                            'studio-option-pill flex items-center gap-2.5 px-4 py-3.5 text-left transition-all',
-                            selectedCard.cardType === card.cardType && 'active'
-                          )}>
-                          <span className="text-lg">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
-                          <div className="min-w-0">
-                            <p className={cn('text-xs font-medium', selectedCard.cardType === card.cardType ? 'text-primary' : 'text-white/60')}>
-                              {CARD_TYPE_LABELS[card.cardType as CardType]}
-                            </p>
-                            <p className="text-[10px] text-white/20 truncate">{card.title}</p>
-                          </div>
-                        </button>
-                      ))}
+            {/* ═══ CONTENT ZONES — no panels, no containers, just content on the surface ═══ */}
+
+            <TabsContent value="template" className="studio-content-zone">
+              <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
+              {!hasPrefill && (
+                <div className="pt-6">
+                  <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]">Card Type</span>
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    {demoCards.map((card) => (
+                      <button key={card.cardType} onClick={() => setSelectedCard(card)}
+                        className={cn(
+                          'studio-option-pill flex items-center gap-2.5 px-3.5 py-3 text-left transition-all',
+                          selectedCard.cardType === card.cardType && 'active'
+                        )}>
+                        <span className="text-base opacity-70">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
+                        <div className="min-w-0">
+                          <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white/45')}>
+                            {CARD_TYPE_LABELS[card.cardType as CardType]}
+                          </p>
+                          <p className="text-[9px] text-white/15 truncate">{card.title}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {hasPrefill && (
+                <div className="pt-6">
+                  <div className="studio-option-pill active flex items-center gap-2.5 px-3.5 py-3">
+                    <span className="text-base opacity-70">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-medium text-primary/80">{CARD_TYPE_LABELS[selectedCard.cardType as CardType]}</p>
+                      <p className="text-[9px] text-white/15 truncate">{selectedCard.title}</p>
                     </div>
                   </div>
-                )}
-                {hasPrefill && (
-                  <div className="border-t border-white/[0.03] pt-5">
-                    <div className="studio-option-pill active flex items-center gap-2.5 px-4 py-3.5">
-                      <span className="text-lg">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-primary">
-                          {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
-                        </p>
-                        <p className="text-[10px] text-white/20 truncate">{selectedCard.title}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </TabsContent>
 
-            {/* AI Insight Tab */}
-            <TabsContent value="ai" className="mt-5">
-              <div className="studio-glass-hero p-6">
-                <AIInsightControls
-                  enabled={aiInsightEnabled}
-                  onToggle={setAiInsightEnabled}
-                  insight={aiInsight}
-                  onInsightChange={setAiInsight}
-                  style={insightStyle}
-                  onStyleChange={setInsightStyle}
-                  contentTitle={selectedCard.title}
-                  contentSubtitle={selectedCard.subtitle}
-                  contentType={selectedCard.sourceType || selectedCard.cardType}
-                />
-              </div>
+            <TabsContent value="ai" className="studio-content-zone">
+              <AIInsightControls
+                enabled={aiInsightEnabled}
+                onToggle={setAiInsightEnabled}
+                insight={aiInsight}
+                onInsightChange={setAiInsight}
+                style={insightStyle}
+                onStyleChange={setInsightStyle}
+                contentTitle={selectedCard.title}
+                contentSubtitle={selectedCard.subtitle}
+                contentType={selectedCard.sourceType || selectedCard.cardType}
+              />
             </TabsContent>
 
-            <TabsContent value="style" className="mt-5">
-              <div className="studio-glass-hero p-6 space-y-4">
-                <ShareThemeSelector theme={theme} onChange={setTheme} />
-              </div>
+            <TabsContent value="style" className="studio-content-zone">
+              <ShareThemeSelector theme={theme} onChange={setTheme} />
             </TabsContent>
 
             {hasPostImage && (
-              <TabsContent value="image" className="mt-5">
-                <div className="studio-glass-hero p-6 space-y-5">
-                  <div>
-                    <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Post Image</span>
-                    <p className="text-[10px] text-white/18 mt-1">Control how the image appears on your share card.</p>
-                  </div>
-                  <div className="studio-switch-row">
-                    <Label className="text-xs font-medium text-white/65 flex items-center gap-2">
-                      <ImageIcon className="w-3.5 h-3.5 text-primary/60" />Include post image
-                    </Label>
-                    <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
-                  </div>
-                  {includePostImage && (
-                    <div className="space-y-3">
-                      <Label className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Layout</Label>
-                      <div className="grid grid-cols-3 gap-2.5">
-                        {([
-                          { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-4 h-4" />, desc: 'Image dominates' },
-                          { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-4 h-4" />, desc: '50/50 balance' },
-                          { value: 'background_image' as ImageLayout, label: 'Background', icon: <Layers className="w-4 h-4" />, desc: 'Atmospheric' },
-                        ]).map((opt) => (
-                          <button key={opt.value} onClick={() => setImageLayout(opt.value)}
-                            className={cn(
-                              'studio-option-pill flex flex-col items-center gap-1.5 p-3.5 transition-all',
-                              imageLayout === opt.value && 'active'
-                            )}>
-                            {opt.icon}
-                            <span className="text-[10px] font-medium">{opt.label}</span>
-                            <span className="text-[8px] text-white/18">{opt.desc}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              <TabsContent value="image" className="studio-content-zone space-y-5">
+                <div className="studio-switch-row">
+                  <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                    <ImageIcon className="w-3.5 h-3.5 text-primary/40" />Include image
+                  </Label>
+                  <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
                 </div>
+                {includePostImage && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-3.5 h-3.5" /> },
+                      { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-3.5 h-3.5" /> },
+                      { value: 'background_image' as ImageLayout, label: 'Atmos', icon: <Layers className="w-3.5 h-3.5" /> },
+                    ]).map((opt) => (
+                      <button key={opt.value} onClick={() => setImageLayout(opt.value)}
+                        className={cn(
+                          'studio-option-pill flex flex-col items-center gap-1 p-3 transition-all',
+                          imageLayout === opt.value && 'active'
+                        )}>
+                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white/25'}>{opt.icon}</span>
+                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white/25')}>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             )}
 
-            <TabsContent value="privacy" className="mt-5">
-              <div className="studio-glass-hero p-6">
-                <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
-              </div>
+            <TabsContent value="privacy" className="studio-content-zone">
+              <SharePrivacyControls privacy={privacy} onChange={setPrivacy} />
             </TabsContent>
 
-            <TabsContent value="platform" className="mt-5">
-              <div className="studio-glass-hero p-6">
-                <PlatformSelector platform={platform} onChange={setPlatform} />
-              </div>
+            <TabsContent value="platform" className="studio-content-zone">
+              <PlatformSelector platform={platform} onChange={setPlatform} />
             </TabsContent>
 
-            <TabsContent value="link" className="mt-5">
-              <div className="studio-glass-hero p-6 space-y-5">
-                <div>
-                  <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Link & Destination</span>
-                  <p className="text-[10px] text-white/18 mt-1">Smart links route viewers to the app or store.</p>
-                </div>
-                <div className="studio-switch-row">
-                  <Label className="text-xs font-medium text-white/65 flex items-center gap-2">
-                    <Link2 className="w-3.5 h-3.5 text-primary/60" />Include smart link
-                  </Label>
-                  <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
-                </div>
-                <div className="studio-switch-row">
-                  <Label className="text-xs font-medium text-white/65 flex items-center gap-2">
-                    <QrCode className="w-3.5 h-3.5 text-primary/60" />Show QR code on card
-                  </Label>
-                  <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
-                </div>
-                {includeSmartLink && (
-                  <Button onClick={handleCopyLink} variant="outline" size="sm"
-                    className="w-full text-white/45 h-10 hover:text-white/65"
-                    style={{
-                      borderRadius: 999,
-                      background: 'rgba(255,255,255,0.02)',
-                      borderColor: 'rgba(255,255,255,0.04)',
-                    }}>
-                    <Copy className="w-3.5 h-3.5 mr-1.5" />
-                    {generatedSmartUrl ? 'Copy Share Link' : 'Generate & Copy Link'}
-                  </Button>
-                )}
-                {generatedSmartUrl && (
-                  <p className="text-[10px] text-white/18 text-center break-all">{generatedSmartUrl}</p>
-                )}
+            <TabsContent value="link" className="studio-content-zone space-y-4">
+              <div className="studio-switch-row">
+                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                  <Link2 className="w-3.5 h-3.5 text-primary/40" />Smart link
+                </Label>
+                <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
               </div>
+              <div className="studio-switch-row">
+                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                  <QrCode className="w-3.5 h-3.5 text-primary/40" />QR code
+                </Label>
+                <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
+              </div>
+              {includeSmartLink && (
+                <button onClick={handleCopyLink}
+                  className="w-full text-[10px] text-white/30 hover:text-white/50 py-2.5 transition-colors flex items-center justify-center gap-1.5">
+                  <Copy className="w-3 h-3" />
+                  {generatedSmartUrl ? 'Copy link' : 'Generate link'}
+                </button>
+              )}
+              {generatedSmartUrl && (
+                <p className="text-[9px] text-white/12 text-center break-all">{generatedSmartUrl}</p>
+              )}
             </TabsContent>
 
-            {/* Sponsor / Partner Tab */}
-            <TabsContent value="sponsor" className="mt-5">
-              <div className="studio-glass-hero p-6 space-y-5">
-                <div>
-                  <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Sponsor / Partner</span>
-                  <p className="text-[10px] text-white/18 mt-1">Add a premium partner attribution to this card.</p>
-                </div>
-                <div className="studio-switch-row">
-                  <Label className="text-xs font-medium text-white/65 flex items-center gap-2 min-w-0 flex-1">
-                    <Handshake className="w-3.5 h-3.5 text-primary/60 shrink-0" />Enable partner zone
-                  </Label>
-                  <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
-                </div>
-                {sponsorEnabled && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] text-white/25">Partner name</Label>
-                      <Input
-                        value={sponsorName}
-                        onChange={(e) => setSponsorName(e.target.value)}
-                        placeholder="e.g. Discovery Vitality"
-                        className="bg-white/[0.02] border-white/[0.03] text-white placeholder:text-white/12"
-                        style={{ borderRadius: 20 }}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] text-white/25">Attribution type</Label>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {([
-                          { value: 'sponsored' as const, label: 'Sponsored by' },
-                          { value: 'powered' as const, label: 'Powered by' },
-                          { value: 'partnership' as const, label: 'Partnership' },
-                          { value: 'rewards' as const, label: 'Rewards by' },
-                          { value: 'productivity' as const, label: 'Prod. partner' },
-                        ]).map((opt) => (
-                          <button key={opt.value} onClick={() => setSponsorType(opt.value)}
-                            className={cn(
-                              'studio-option-pill px-2.5 py-2 text-[10px] font-medium transition-all',
-                              sponsorType === opt.value && 'active'
-                            )}
-                            style={{ borderRadius: 14 }}>
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] text-white/25">Message / CTA (optional)</Label>
-                      <Input
-                        value={sponsorMessage}
-                        onChange={(e) => setSponsorMessage(e.target.value)}
-                        placeholder="e.g. Earn rewards for healthy habits"
-                        className="bg-white/[0.02] border-white/[0.03] text-white placeholder:text-white/12"
-                        style={{ borderRadius: 20 }}
-                      />
-                    </div>
+            <TabsContent value="sponsor" className="studio-content-zone space-y-4">
+              <div className="studio-switch-row">
+                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2 min-w-0 flex-1">
+                  <Handshake className="w-3.5 h-3.5 text-primary/40 shrink-0" />Partner zone
+                </Label>
+                <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
+              </div>
+              {sponsorEnabled && (
+                <div className="space-y-3">
+                  <Input
+                    value={sponsorName}
+                    onChange={(e) => setSponsorName(e.target.value)}
+                    placeholder="Partner name"
+                    className="bg-transparent border-white/[0.03] text-white/70 placeholder:text-white/12 text-[11px] h-9"
+                    style={{ borderRadius: 999 }}
+                  />
+                  <div className="flex gap-1 flex-wrap">
+                    {([
+                      { value: 'sponsored' as const, label: 'Sponsored' },
+                      { value: 'powered' as const, label: 'Powered' },
+                      { value: 'partnership' as const, label: 'Partner' },
+                      { value: 'rewards' as const, label: 'Rewards' },
+                      { value: 'productivity' as const, label: 'Prod.' },
+                    ]).map((opt) => (
+                      <button key={opt.value} onClick={() => setSponsorType(opt.value)}
+                        className={cn(
+                          'px-2.5 py-1 text-[9px] font-medium transition-all',
+                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/20 hover:text-white/35'
+                        )}
+                        style={{ borderRadius: 999 }}>
+                        {opt.label}
+                      </button>
+                    ))}
                   </div>
-                )}
-              </div>
+                  <Input
+                    value={sponsorMessage}
+                    onChange={(e) => setSponsorMessage(e.target.value)}
+                    placeholder="CTA (optional)"
+                    className="bg-transparent border-white/[0.03] text-white/70 placeholder:text-white/12 text-[11px] h-9"
+                    style={{ borderRadius: 999 }}
+                  />
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 
-          {/* ═══ PRIMARY ACTION — premium floating CTA ═══ */}
-          <div className="space-y-3 pt-4">
+          {/* ═══ ACTION — emerges from the surface ═══ */}
+          <div className="pt-10 space-y-3">
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-14 text-sm font-semibold gap-2"
+              className="w-full h-13 text-[13px] font-semibold gap-2"
               style={{
                 borderRadius: 999,
-                boxShadow: '0 16px 48px rgba(200,160,60,0.18), 0 0 0 1px rgba(200,160,60,0.08), inset 0 1px 0 rgba(255,255,255,0.12)',
+                boxShadow: '0 20px 60px rgba(200,160,60,0.15), 0 0 0 1px rgba(200,160,60,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
               }}
             >
-              <Share2 className="w-4 h-4" />{sharing ? 'Rendering & Sharing…' : 'Share Card'}
+              <Share2 className="w-4 h-4" />{sharing ? 'Composing…' : 'Share'}
             </Button>
 
-            {/* Secondary utilities — atmospheric glass row */}
-            <div className="grid grid-cols-3 gap-2 p-1.5" style={GLASS.actionBar}>
-              <Button onClick={handleDownload} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-9 text-[10px]" style={{ borderRadius: 20 }}>
-                <Download className="w-3 h-3 mr-1" />Save
-              </Button>
-              <Button onClick={handleCopy} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-9 text-[10px]" style={{ borderRadius: 20 }}>
-                <ClipboardCopy className="w-3 h-3 mr-1" />Copy
-              </Button>
-              <Button onClick={handleCopyLink} variant="ghost" size="sm"
-                className="text-white/25 hover:text-white/50 h-9 text-[10px]" style={{ borderRadius: 20 }}>
-                <Link2 className="w-3 h-3 mr-1" />Link
-              </Button>
+            <div className="flex items-center justify-center gap-6 pt-1">
+              <button onClick={handleDownload}
+                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
+                <Download className="w-3 h-3" />Save
+              </button>
+              <button onClick={handleCopy}
+                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
+                <ClipboardCopy className="w-3 h-3" />Copy
+              </button>
+              <button onClick={handleCopyLink}
+                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
+                <Link2 className="w-3 h-3" />Link
+              </button>
+              <button onClick={handleSave}
+                className="text-white/[0.08] hover:text-white/20 transition-colors text-[9px] flex items-center gap-1">
+                <Download className="w-3 h-3" />Vault
+              </button>
             </div>
-
-            <Button onClick={handleSave} variant="ghost"
-              className="w-full text-white/[0.08] hover:text-white/25 h-8 text-[10px]" style={{ borderRadius: 999 }}>
-              <Download className="w-3 h-3 mr-1.5" />Save to Vault
-            </Button>
           </div>
         </div>
       </div>
