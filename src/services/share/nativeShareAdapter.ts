@@ -43,7 +43,7 @@ export async function shareText(
 
 async function nativeShareImage(blob: Blob, filename: string): Promise<ShareResult> {
   try {
-    const { saveFileNative } from './nativeFileSaveAdapter';
+    const { saveFileNative } = await import('./nativeFileSaveAdapter');
     const filePath = await saveFileNative(blob, filename, true);
     if (!filePath) return { shared: false, method: 'file_save_failed' };
 
