@@ -11,36 +11,37 @@ const themeList = Object.values(THEMES);
 export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps) {
   return (
     <div className="space-y-3">
-      <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Theme</span>
-      <div className="grid grid-cols-5 gap-2">
-        {themeList.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => onChange(t.id)}
-            className={cn(
-              'studio-option-pill flex flex-col items-center gap-2 p-3 transition-all',
-              theme === t.id && 'active'
-            )}
-          >
-            <div
-              className="w-7 h-7"
-              style={{
-                borderRadius: 999,
-                backgroundColor: t.accentHex,
-                boxShadow: theme === t.id
-                  ? `0 4px 16px ${t.accentHex}40`
-                  : `0 2px 8px ${t.accentHex}20`,
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}
-            />
-            <span className={cn(
-              'text-[8px] font-semibold leading-tight text-center',
-              theme === t.id ? 'text-primary' : 'text-white/40'
-            )}>
-              {t.label.split(' ')[0]}
-            </span>
-          </button>
-        ))}
+      <div className="flex gap-3 justify-center">
+        {themeList.map((t) => {
+          const isActive = theme === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => onChange(t.id)}
+              className="flex flex-col items-center gap-2 transition-all duration-500"
+            >
+              <div
+                style={{
+                  width: isActive ? 28 : 22,
+                  height: isActive ? 28 : 22,
+                  borderRadius: 999,
+                  backgroundColor: t.accentHex,
+                  boxShadow: isActive
+                    ? `0 4px 20px ${t.accentHex}50, 0 0 0 2px rgba(255,255,255,0.06)`
+                    : `0 2px 8px ${t.accentHex}15`,
+                  transition: 'all 0.5s ease',
+                  opacity: isActive ? 1 : 0.5,
+                }}
+              />
+              <span className={cn(
+                'text-[8px] font-medium transition-all duration-500',
+                isActive ? 'text-white/55' : 'text-white/15'
+              )}>
+                {t.label.split(' ')[0]}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
