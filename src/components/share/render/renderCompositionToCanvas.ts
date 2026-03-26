@@ -252,14 +252,16 @@ function drawBackgroundImage(
   const sdx = dx - (sdw - dw) / 2;
   const sdy = dy - (sdh - dh) / 2;
 
-  ctx.filter = 'blur(20px) brightness(0.35) saturate(1.3)';
+  ctx.filter = 'blur(18px) brightness(0.30) saturate(1.4)';
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
+  // Cinematic atmospheric overlay — ensures text legibility
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  overlayGrad.addColorStop(0, `rgba(6, 6, 12, 0.4)`);
-  overlayGrad.addColorStop(0.5, `rgba(6, 6, 12, ${spec.backgroundOverlayOpacity})`);
-  overlayGrad.addColorStop(1, `rgba(6, 6, 12, 0.8)`);
+  overlayGrad.addColorStop(0, `rgba(6, 6, 12, 0.45)`);
+  overlayGrad.addColorStop(0.4, `rgba(6, 6, 12, ${spec.backgroundOverlayOpacity * 1.1})`);
+  overlayGrad.addColorStop(0.7, `rgba(6, 6, 12, ${Math.min(spec.backgroundOverlayOpacity * 1.2, 0.85)})`);
+  overlayGrad.addColorStop(1, `rgba(6, 6, 12, 0.85)`);
   ctx.fillStyle = overlayGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
