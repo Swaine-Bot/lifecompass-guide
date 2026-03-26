@@ -556,7 +556,7 @@
   animation: sensory-pulse 800ms ease-out forwards;
 }
 
-/* ═══ Share Studio — Atmospheric Glass Material System ═══ */
+/* ═══ Share Studio — Immersive 3-Layer Environment ═══ */
 
 /* Keyframes */
 @keyframes glass-breathe {
@@ -569,30 +569,37 @@
 }
 @keyframes card-float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-5px) rotate(0.15deg); }
+  33% { transform: translateY(-6px) rotate(0.15deg); }
   66% { transform: translateY(-3px) rotate(-0.1deg); }
 }
 @keyframes env-vignette-pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.45; }
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 0.5; }
 }
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+@keyframes stage-glow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.55; }
+}
+@keyframes zone-emerge {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── HERO GLASS — primary panels, deepest material ─── */
+/* ─── Layer 2: Hero Glass — the singular chamber surface ─── */
 .studio-glass-hero {
   border-radius: 36px;
-  background: rgba(14, 22, 28, 0.28);
-  backdrop-filter: blur(80px) saturate(160%);
-  -webkit-backdrop-filter: blur(80px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(36px) saturate(150%);
+  -webkit-backdrop-filter: blur(36px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.10);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    inset 0 -1px 0 rgba(0,0,0,0.15),
-    0 32px 80px rgba(0,0,0,0.45),
-    0 0 0 0.5px rgba(255,255,255,0.02);
+    0 24px 80px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.12);
   position: relative;
   overflow: hidden;
   animation: glass-breathe 10s ease-in-out infinite;
@@ -602,140 +609,152 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.08) 30%, rgba(200,160,60,0.06) 50%, rgba(255,255,255,0.08) 70%, transparent 95%);
+  background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.10) 30%, rgba(200,160,60,0.08) 50%, rgba(255,255,255,0.10) 70%, transparent 95%);
   pointer-events: none;
 }
 .studio-glass-hero::after {
   content: '';
   position: absolute;
   top: 0; left: 0;
-  width: 40%; height: 40%;
-  background: radial-gradient(ellipse at 20% 20%, rgba(200,160,60,0.03) 0%, transparent 70%);
+  width: 45%; height: 45%;
+  background: radial-gradient(ellipse at 15% 15%, rgba(200,160,60,0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
-/* ─── SECONDARY GLASS — control panels, tab content ─── */
+/* ─── Secondary Glass — refinement zones ─── */
 .studio-glass-panel {
-  border-radius: 32px;
-  background: rgba(14, 22, 28, 0.20);
-  backdrop-filter: blur(60px) saturate(150%);
-  -webkit-backdrop-filter: blur(60px) saturate(150%);
-  border: 1px solid rgba(255,255,255,0.025);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.03),
-    inset 0 -1px 0 rgba(0,0,0,0.1),
-    0 24px 64px rgba(0,0,0,0.35);
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 16px 48px rgba(0,0,0,0.30);
   position: relative;
   overflow: hidden;
-  animation: glass-breathe 8s ease-in-out infinite;
 }
 .studio-glass-panel::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.05) 50%, transparent 90%);
-  pointer-events: none;
-}
-.studio-glass-panel:hover::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.012) 50%, transparent 60%);
-  background-size: 200% 100%;
-  animation: glass-shimmer 3s ease-in-out;
+  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.06) 50%, transparent 90%);
   pointer-events: none;
 }
 
-/* ─── TERTIARY GLASS — invisible support, inner controls ─── */
+/* ─── Tertiary Glass — whisper-level support ─── */
 .studio-glass-tertiary {
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.015);
-  backdrop-filter: blur(30px) saturate(130%);
-  -webkit-backdrop-filter: blur(30px) saturate(130%);
-  border: 1px solid rgba(255,255,255,0.02);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ─── Mode dots — dissolved tab replacement ─── */
+/* ─── Mode ribbon — floating glass selector ─── */
 .studio-mode-dot {
-  @apply text-[10px] font-medium flex-shrink-0 px-3.5 py-2 transition-all duration-500;
+  @apply text-[10px] font-medium flex-shrink-0 px-4 py-2.5 transition-all duration-500;
   border-radius: 999px;
-  color: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.22);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   position: relative;
 }
 .studio-mode-dot[data-state="active"] {
-  color: rgba(255,255,255,0.75);
-  text-shadow: 0 0 20px rgba(200,160,60,0.15);
-}
-.studio-mode-dot[data-state="active"]::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 3px; height: 3px;
-  border-radius: 50%;
-  background: rgba(200,160,60,0.4);
-  box-shadow: 0 0 8px rgba(200,160,60,0.3);
+  color: rgba(255,255,255,0.85);
+  background: rgba(200,160,60,0.06);
+  border-color: rgba(200,160,60,0.12);
+  box-shadow: 0 0 20px rgba(200,160,60,0.08), 0 4px 16px rgba(0,0,0,0.2);
+  text-shadow: 0 0 16px rgba(200,160,60,0.2);
+  transform: scale(1.01);
 }
 .studio-mode-dot:hover:not([data-state="active"]) {
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.02);
 }
 
-/* ─── Content zone — no container, just content on the surface ─── */
+/* ─── Content zone — dissolved into surface ─── */
 .studio-content-zone {
   padding: 0 4px;
   animation: zone-emerge 0.4s ease-out;
-}
-@keyframes zone-emerge {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Card float + stage ─── */
 .studio-card-float {
   animation: card-float 6s ease-in-out infinite;
-  filter: drop-shadow(0 28px 72px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 32px 80px rgba(0,0,0,0.65));
 }
 .studio-card-glow {
   animation: glow-pulse 8s ease-in-out infinite;
+}
+.studio-stage-halo {
+  animation: stage-glow 6s ease-in-out infinite;
 }
 .studio-env-vignette {
   animation: env-vignette-pulse 12s ease-in-out infinite;
 }
 
-/* ─── Glass option pill (selectors) ─── */
+/* ─── Glass option pill ─── */
 .studio-option-pill {
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.012);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.025);
   transition: all 0.35s ease;
 }
 .studio-option-pill:hover {
-  background: rgba(255, 255, 255, 0.025);
-  border-color: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.04);
 }
 .studio-option-pill[data-active="true"],
 .studio-option-pill.active {
-  background: rgba(200, 160, 60, 0.04);
-  border-color: rgba(200, 160, 60, 0.10);
-  box-shadow: 0 0 16px rgba(200,160,60,0.04);
+  background: rgba(200, 160, 60, 0.05);
+  border-color: rgba(200, 160, 60, 0.12);
+  box-shadow: 0 0 20px rgba(200,160,60,0.05);
 }
 
-/* ─── Switch row styling ─── */
+/* ─── Switch row ─── */
 .studio-switch-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.015);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.02);
   transition: background 0.3s;
 }
 .studio-switch-row:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* ─── Primary action — share button glow ─── */
+.studio-primary-action {
+  border-radius: 999px;
+  box-shadow:
+    0 24px 64px rgba(200,160,60,0.18),
+    0 0 0 1px rgba(200,160,60,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: all 0.4s ease;
+}
+.studio-primary-action:hover {
+  box-shadow:
+    0 28px 72px rgba(200,160,60,0.25),
+    0 0 0 1px rgba(200,160,60,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+/* ─── Secondary action pills ─── */
+.studio-secondary-action {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+.studio-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
 }

@@ -380,69 +380,103 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── Main Studio — One Continuous Surface ───
+  // ─── Main Studio — Full-Screen Immersive Environment ───
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* ══ ENVIRONMENT ══ */}
+
+      {/* ══ LAYER 1: Atmospheric Background ══ */}
       <img src={cinematicBg} alt="" aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'saturate(1.3) brightness(0.3)', transform: 'scale(1.08)' }}
+        style={{ filter: 'saturate(1.3) brightness(0.28)', transform: 'scale(1.1)' }}
       />
+      {/* Dark overlay gradient — top lighter, bottom darker */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+      }} />
+      {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none studio-env-vignette" style={{
-        background: 'radial-gradient(ellipse at 50% 25%, transparent 15%, rgba(0,0,0,0.65) 100%)',
+        background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.55) 100%)',
       }} />
+      {/* Ambient gold light — upper left */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 12% 5%, rgba(200,160,60,0.03) 0%, transparent 40%)',
+        background: 'radial-gradient(ellipse at 15% 8%, rgba(200,160,60,0.04) 0%, transparent 45%)',
       }} />
+      {/* Cool accent — lower right */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 88% 92%, rgba(100,130,180,0.015) 0%, transparent 35%)',
+        background: 'radial-gradient(ellipse at 85% 90%, rgba(100,140,200,0.015) 0%, transparent 40%)',
       }} />
 
-      {/* ═══ Single Continuous Surface ═══ */}
-      <div className="relative z-10 min-h-screen">
+      {/* ══ LAYER 2: Glass Chamber — one continuous surface ══ */}
+      <div className="relative z-10 min-h-screen flex flex-col">
 
-        {/* Ghost header — barely there */}
-        <div className="sticky top-0 z-40" style={{
-          background: 'rgba(10, 16, 22, 0.06)',
-          backdropFilter: 'blur(80px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(80px) saturate(160%)',
+        {/* ─── Ghost Header — glass orb back, minimal title, My Cards pill ─── */}
+        <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
+          background: 'rgba(0, 0, 0, 0.12)',
+          backdropFilter: 'blur(40px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(140%)',
         }}>
-          <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)}
-                className="text-white/20 hover:text-white/45 -ml-1" style={{ borderRadius: 999 }}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div>
-                <h1 className="text-[11px] font-serif font-bold text-white/50 leading-tight tracking-wide">Share Studio</h1>
-              </div>
+          <div className="flex items-center gap-3.5">
+            {/* Glass orb back button */}
+            <button onClick={() => navigate(-1)}
+              className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105"
+              style={{
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+              }}>
+              <ArrowLeft className="h-3.5 w-3.5 text-white/50" />
+            </button>
+            <div>
+              <h1 className="text-[12px] font-serif font-bold text-white/70 tracking-wide">Share Studio</h1>
+              <p className="text-[9px] text-white/25 tracking-wider">Shape the moment before release</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={loadSavedCards}
-              className="text-[9px] gap-1.5 text-white/15 hover:text-white/35 h-7" style={{ borderRadius: 999 }}>
-              <LayoutGrid className="w-3 h-3" />
-            </Button>
           </div>
+          <button onClick={loadSavedCards}
+            className="studio-secondary-action flex items-center gap-1.5 px-3.5 py-1.5 text-[9px] font-medium text-white/30 hover:text-white/55">
+            <LayoutGrid className="w-3 h-3" />My Cards
+          </button>
         </div>
 
-        <div className="max-w-2xl mx-auto px-5 pb-36">
+        {/* ─── Continuous content flow ─── */}
+        <div className="flex-1 max-w-2xl mx-auto w-full px-5 pb-40">
 
-          {/* ═══ THE PREVIEW — absolute center of gravity ═══ */}
-          <div className="relative flex justify-center py-16">
-            {/* Deep ambient halo */}
+          {/* ══ LAYER 3: Preview — dominant floating artifact ══ */}
+          <div className="relative flex justify-center py-20">
+            {/* Deep shadow pool */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none" style={{
+              width: 280, height: 40, borderRadius: '50%',
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%)',
+              filter: 'blur(20px)',
+            }} />
+            {/* Primary halo — theme-colored */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="studio-card-glow" style={{
-                width: 380, height: 380, borderRadius: '50%',
-                background: `radial-gradient(circle, ${themeObj.accentHex}0C 0%, ${themeObj.accentHex}05 35%, transparent 65%)`,
-                filter: 'blur(40px)',
+              <div className="studio-stage-halo" style={{
+                width: 420, height: 420, borderRadius: '50%',
+                background: `radial-gradient(circle, ${themeObj.accentHex}10 0%, ${themeObj.accentHex}06 30%, transparent 60%)`,
+                filter: 'blur(50px)',
               }} />
             </div>
+            {/* Secondary ambient halo */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div style={{
-                width: 500, height: 400, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(255,255,255,0.008) 0%, transparent 50%)',
+                width: 560, height: 450, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.01) 0%, transparent 45%)',
                 filter: 'blur(60px)',
               }} />
             </div>
+            {/* Gold diffusion light */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div style={{
+                width: 300, height: 300, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(200,160,60,0.025) 0%, transparent 55%)',
+                filter: 'blur(40px)',
+                transform: 'translateY(-20px)',
+              }} />
+            </div>
+            {/* The card itself — floating artifact */}
             <div className="relative studio-card-float">
               <CompositionCard
                 content={normalizedContent}
@@ -452,8 +486,8 @@ export default function ShareStudio() {
             </div>
           </div>
 
-          {/* Regenerate — ghosted into the surface */}
-          <div className="flex justify-center -mt-4 mb-8">
+          {/* Regenerate — whisper-level */}
+          <div className="flex justify-center -mt-6 mb-10">
             <button
               onClick={() => {
                 const domain = mapLifeDomain(selectedCard.domain);
@@ -462,44 +496,52 @@ export default function ShareStudio() {
                 setPhrase(getRandomPhrase());
               }}
               className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[9px] font-medium
-                text-white/20 hover:text-white/45 active:scale-[0.97]"
+                text-white/18 hover:text-white/40 active:scale-[0.97]"
               style={{ borderRadius: 999 }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate
             </button>
           </div>
 
-          {/* ═══ MODE SELECTOR — dissolved into the surface ═══ */}
+          {/* ═══ MODE RIBBON — floating glass selector ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-center mb-8">
-              <TabsList className="bg-transparent flex gap-1 p-0">
-                {[
-                  { value: 'template', label: 'Template' },
-                  { value: 'ai', label: 'AI' },
-                  { value: 'style', label: 'Style' },
-                  ...(hasPostImage ? [{ value: 'image', label: 'Image' }] : []),
-                  { value: 'sponsor', label: 'Partner' },
-                  { value: 'privacy', label: 'Privacy' },
-                  { value: 'platform', label: 'Platform' },
-                  { value: 'link', label: 'Link' },
-                ].map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}
-                    className="studio-mode-dot"
-                    data-label={tab.label}
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex gap-0.5 px-2 py-1.5" style={{
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.025)',
+                border: '1px solid rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(28px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+              }}>
+                <TabsList className="bg-transparent flex gap-0 p-0">
+                  {[
+                    { value: 'template', label: 'Template' },
+                    { value: 'ai', label: 'AI' },
+                    { value: 'style', label: 'Style' },
+                    ...(hasPostImage ? [{ value: 'image', label: 'Image' }] : []),
+                    { value: 'sponsor', label: 'Partner' },
+                    { value: 'privacy', label: 'Privacy' },
+                    { value: 'platform', label: 'Platform' },
+                    { value: 'link', label: 'Link' },
+                  ].map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value}
+                      className="studio-mode-dot"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
             </div>
 
-            {/* ═══ CONTENT ZONES — no panels, no containers, just content on the surface ═══ */}
+            {/* ═══ REFINEMENT ZONES — continuous, no containers ═══ */}
 
             <TabsContent value="template" className="studio-content-zone">
               <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
               {!hasPrefill && (
                 <div className="pt-6">
-                  <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]">Card Type</span>
+                  <span className="text-[8px] font-semibold text-white/20 uppercase tracking-[0.2em]">Card Type</span>
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     {demoCards.map((card) => (
                       <button key={card.cardType} onClick={() => setSelectedCard(card)}
@@ -512,7 +554,7 @@ export default function ShareStudio() {
                           <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white/45')}>
                             {CARD_TYPE_LABELS[card.cardType as CardType]}
                           </p>
-                          <p className="text-[9px] text-white/15 truncate">{card.title}</p>
+                          <p className="text-[9px] text-white/18 truncate">{card.title}</p>
                         </div>
                       </button>
                     ))}
@@ -525,7 +567,7 @@ export default function ShareStudio() {
                     <span className="text-base opacity-70">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
                     <div className="min-w-0">
                       <p className="text-[11px] font-medium text-primary/80">{CARD_TYPE_LABELS[selectedCard.cardType as CardType]}</p>
-                      <p className="text-[9px] text-white/15 truncate">{selectedCard.title}</p>
+                      <p className="text-[9px] text-white/18 truncate">{selectedCard.title}</p>
                     </div>
                   </div>
                 </div>
@@ -608,7 +650,7 @@ export default function ShareStudio() {
                 </button>
               )}
               {generatedSmartUrl && (
-                <p className="text-[9px] text-white/12 text-center break-all">{generatedSmartUrl}</p>
+                <p className="text-[9px] text-white/15 text-center break-all">{generatedSmartUrl}</p>
               )}
             </TabsContent>
 
@@ -625,7 +667,7 @@ export default function ShareStudio() {
                     value={sponsorName}
                     onChange={(e) => setSponsorName(e.target.value)}
                     placeholder="Partner name"
-                    className="bg-transparent border-white/[0.03] text-white/70 placeholder:text-white/12 text-[11px] h-9"
+                    className="bg-transparent border-white/[0.04] text-white/70 placeholder:text-white/15 text-[11px] h-9"
                     style={{ borderRadius: 999 }}
                   />
                   <div className="flex gap-1 flex-wrap">
@@ -639,7 +681,7 @@ export default function ShareStudio() {
                       <button key={opt.value} onClick={() => setSponsorType(opt.value)}
                         className={cn(
                           'px-2.5 py-1 text-[9px] font-medium transition-all',
-                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/20 hover:text-white/35'
+                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/22 hover:text-white/35'
                         )}
                         style={{ borderRadius: 999 }}>
                         {opt.label}
@@ -650,7 +692,7 @@ export default function ShareStudio() {
                     value={sponsorMessage}
                     onChange={(e) => setSponsorMessage(e.target.value)}
                     placeholder="CTA (optional)"
-                    className="bg-transparent border-white/[0.03] text-white/70 placeholder:text-white/12 text-[11px] h-9"
+                    className="bg-transparent border-white/[0.04] text-white/70 placeholder:text-white/15 text-[11px] h-9"
                     style={{ borderRadius: 999 }}
                   />
                 </div>
@@ -658,34 +700,36 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ ACTION — emerges from the surface ═══ */}
-          <div className="pt-10 space-y-3">
+          {/* ═══ ACTION STAGE ═══ */}
+          <div className="pt-12 space-y-5">
+            {/* Primary — Release */}
             <Button onClick={handleShare} disabled={sharing} variant="gold"
-              className="w-full h-13 text-[13px] font-semibold gap-2"
-              style={{
-                borderRadius: 999,
-                boxShadow: '0 20px 60px rgba(200,160,60,0.15), 0 0 0 1px rgba(200,160,60,0.06), inset 0 1px 0 rgba(255,255,255,0.1)',
-              }}
+              className="studio-primary-action w-full h-14 text-[13px] font-semibold gap-2.5"
             >
-              <Share2 className="w-4 h-4" />{sharing ? 'Composing…' : 'Share'}
+              <Share2 className="w-4 h-4" />{sharing ? 'Composing…' : 'Release'}
             </Button>
 
-            <div className="flex items-center justify-center gap-6 pt-1">
-              <button onClick={handleDownload}
-                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
-                <Download className="w-3 h-3" />Save
-              </button>
+            {/* Secondary actions — equal glass pills */}
+            <div className="flex items-center justify-center gap-3">
               <button onClick={handleCopy}
-                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
                 <ClipboardCopy className="w-3 h-3" />Copy
               </button>
+              <button onClick={handleDownload}
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
+                <Download className="w-3 h-3" />Save
+              </button>
               <button onClick={handleCopyLink}
-                className="text-white/15 hover:text-white/35 transition-colors text-[9px] flex items-center gap-1">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
                 <Link2 className="w-3 h-3" />Link
               </button>
+            </div>
+
+            {/* Tertiary — Save to Vault */}
+            <div className="flex justify-center pt-2">
               <button onClick={handleSave}
-                className="text-white/[0.08] hover:text-white/20 transition-colors text-[9px] flex items-center gap-1">
-                <Download className="w-3 h-3" />Vault
+                className="text-white/[0.10] hover:text-white/25 transition-all text-[9px] flex items-center gap-1.5 tracking-wider uppercase">
+                <Download className="w-2.5 h-2.5" />Save to Vault
               </button>
             </div>
           </div>
