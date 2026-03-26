@@ -9,27 +9,22 @@ interface SharePrivacyControlsProps {
 }
 
 const controls = [
-  { key: 'includeName' as const, label: 'Include my name', icon: User },
-  { key: 'includePhoto' as const, label: 'Include profile photo', icon: User },
-  { key: 'includeExactNumbers' as const, label: 'Include exact numbers', icon: Hash },
-  { key: 'includeMentorQuote' as const, label: 'Include mentor quote', icon: MessageSquare },
-  { key: 'includeDateTime' as const, label: 'Include date/time', icon: Clock },
-  { key: 'includeFooter' as const, label: 'Include LifeStack footer', icon: Type },
+  { key: 'includeName' as const, label: 'Name', icon: User },
+  { key: 'includePhoto' as const, label: 'Photo', icon: User },
+  { key: 'includeExactNumbers' as const, label: 'Numbers', icon: Hash },
+  { key: 'includeMentorQuote' as const, label: 'Mentor quote', icon: MessageSquare },
+  { key: 'includeDateTime' as const, label: 'Date/time', icon: Clock },
+  { key: 'includeFooter' as const, label: 'Footer', icon: Type },
 ];
 
 export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControlsProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2.5">
-        <Shield className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium text-white/80">Privacy Controls</span>
-      </div>
-
       {/* Private Aesthetic Mode */}
       <div className="studio-switch-row">
-        <div className="flex items-center gap-2.5">
-          <EyeOff className="w-3.5 h-3.5 text-primary" />
-          <Label className="text-xs font-medium text-white/70 cursor-pointer">Private Aesthetic Mode</Label>
+        <div className="flex items-center gap-2">
+          <EyeOff className="w-3.5 h-3.5 text-primary/40" />
+          <Label className="text-[11px] font-medium text-white/55 cursor-pointer">Private mode</Label>
         </div>
         <Switch
           checked={privacy.privateAestheticMode}
@@ -37,29 +32,19 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
           className="scale-75"
         />
       </div>
-      {privacy.privateAestheticMode && (
-        <p className="text-[10px] text-white/30 px-1">
-          Hides name, photo, and exact numbers automatically
-        </p>
-      )}
 
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         {controls.map(({ key, label, icon: Icon }) => (
-          <div key={key} className="flex items-center justify-between py-2.5 px-4"
-            style={{
-              borderRadius: 16,
-              transition: 'background 0.2s',
-            }}
-          >
-            <div className="flex items-center gap-2.5">
-              <Icon className="w-3.5 h-3.5 text-white/30" />
-              <Label className="text-xs text-white/60 cursor-pointer">{label}</Label>
+          <div key={key} className="flex items-center justify-between py-2 px-3">
+            <div className="flex items-center gap-2">
+              <Icon className="w-3 h-3 text-white/15" />
+              <Label className="text-[10px] text-white/40 cursor-pointer">{label}</Label>
             </div>
             <Switch
               checked={privacy[key]}
               disabled={privacy.privateAestheticMode && ['includeName', 'includePhoto', 'includeExactNumbers'].includes(key)}
               onCheckedChange={(checked) => onChange({ ...privacy, [key]: checked })}
-              className="scale-75"
+              className="scale-[0.65]"
             />
           </div>
         ))}

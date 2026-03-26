@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Sparkles, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,49 +70,43 @@ export function AIInsightControls({
   return (
     <div className="space-y-4">
       <div className="studio-switch-row">
-        <div className="flex items-center gap-2.5">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <Label className="text-sm font-medium text-white/75 cursor-pointer">Include AI Insight</Label>
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-primary/40" />
+          <Label className="text-[11px] font-medium text-white/55 cursor-pointer">AI Insight</Label>
         </div>
         <Switch checked={enabled} onCheckedChange={handleToggle} />
       </div>
 
       {enabled && (
-        <div className="space-y-3 pl-1">
-          {/* Style selector */}
-          <div className="flex gap-1.5 flex-wrap">
+        <div className="space-y-3">
+          <div className="flex gap-1 flex-wrap">
             {STYLES.map((s) => (
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
-                  'studio-option-pill px-3 py-1.5 text-[10px] font-semibold transition-all',
-                  style === s.id && 'active'
+                  'px-3 py-1.5 text-[9px] font-medium transition-all duration-400',
+                  style === s.id ? 'text-primary/60' : 'text-white/18 hover:text-white/30'
                 )}
                 style={{ borderRadius: 999 }}>
-                <span className={style === s.id ? 'text-primary' : 'text-white/50'}>{s.label}</span>
+                {s.label}
               </button>
             ))}
           </div>
 
-          {/* Insight preview */}
           {insight ? (
-            <div className="studio-glass-tertiary p-4">
-              <p className="text-xs text-white/75 leading-relaxed italic">"{insight}"</p>
-              <Button variant="ghost" size="sm" onClick={() => generateInsight()} disabled={loading}
-                className="mt-2.5 text-[10px] text-white/40 hover:text-white/60 h-7 px-2">
-                <RefreshCw className={cn('w-3 h-3 mr-1', loading && 'animate-spin')} />
+            <div className="py-3">
+              <p className="text-[11px] text-white/55 leading-relaxed italic">"{insight}"</p>
+              <button onClick={() => generateInsight()} disabled={loading}
+                className="mt-2 text-[9px] text-white/20 hover:text-white/40 flex items-center gap-1 transition-colors">
+                <RefreshCw className={cn('w-2.5 h-2.5', loading && 'animate-spin')} />
                 {loading ? 'Generating…' : 'Regenerate'}
-              </Button>
+              </button>
             </div>
           ) : loading ? (
-            <div className="studio-glass-tertiary p-4 flex items-center gap-2">
-              <RefreshCw className="w-3 h-3 animate-spin text-primary/60" />
-              <span className="text-[10px] text-white/40">Generating insight…</span>
+            <div className="py-3 flex items-center gap-2">
+              <RefreshCw className="w-2.5 h-2.5 animate-spin text-primary/30" />
+              <span className="text-[9px] text-white/25">Generating…</span>
             </div>
           ) : null}
-
-          <p className="text-[10px] text-white/25">
-            AI insight is optional and will only appear if you choose to include it.
-          </p>
         </div>
       )}
     </div>
