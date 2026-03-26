@@ -37,6 +37,7 @@ export async function initializeNativeApp(): Promise<void> {
 
     // Back button (Android) — respect router history
     App.addListener('backButton', ({ canGoBack }) => {
+      console.log('[NativeApp] Back button — canGoBack:', canGoBack);
       if (canGoBack) {
         window.history.back();
       } else {

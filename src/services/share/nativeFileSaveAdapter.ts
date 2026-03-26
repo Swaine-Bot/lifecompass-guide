@@ -74,6 +74,7 @@ export async function saveFileNative(
       recursive: true,
     });
 
+    console.log('[NativeFileSave] wrote:', path, 'uri:', result.uri);
     return result.uri;
   } catch (e) {
     console.warn('[NativeFileSave] Write failed:', e);

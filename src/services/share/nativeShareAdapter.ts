@@ -44,9 +44,14 @@ export async function shareText(
 async function nativeShareImage(blob: Blob, filename: string): Promise<ShareResult> {
   let tempFilePath: string | null = null;
   try {
+    console.log('[NativeShare] start blob_size:', blob.size, 'filename:', filename);
     const { saveFileNative, cleanupTempFiles } = await import('./nativeFileSaveAdapter');
     tempFilePath = await saveFileNative(blob, filename, true);
-    if (!tempFilePath) return { shared: false, method: 'file_save_failed' };
+    if (!tempFilePath) {
+      console.warn('[NativeShare] file_save_failed');
+      return { shared: false, method: 'file_save_failed' };
+    }
+    console.log('[NativeShare] temp_file:', tempFilePath);
 
     const { Share } = await import('@capacitor/share');
     await Share.share({ files: [tempFilePath] });
@@ -56,6 +61,7 @@ async function nativeShareImage(blob: Blob, filename: string): Promise<ShareResu
       if (tempFilePath) cleanupTempFiles([tempFilePath]);
     }, 5000);
 
+    console.log('[NativeShare] completed');
     return { shared: true, method: 'native_share' };
   } catch (e: any) {
     // Clean up on error too
