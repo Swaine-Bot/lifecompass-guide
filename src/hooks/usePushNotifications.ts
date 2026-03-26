@@ -113,6 +113,12 @@ export function usePushNotifications() {
       return false;
     }
 
+    // On native, push is handled by nativePushService
+    if (shouldSkipWebPush()) {
+      toast.info('Push notifications are managed by your device settings.');
+      return false;
+    }
+
     setState(prev => ({ ...prev, loading: true }));
 
     try {
