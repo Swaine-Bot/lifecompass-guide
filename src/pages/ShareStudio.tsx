@@ -437,9 +437,12 @@ export default function ShareStudio() {
 
         {/* ─── Ghost Header — glass orb back, minimal title, My Cards pill ─── */}
         <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
-          background: 'rgba(0, 0, 0, 0.12)',
-          backdropFilter: 'blur(40px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(140%)',
+          background: 'rgba(255, 255, 255, 0.02)',
+          backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%)',
+          backdropFilter: 'blur(40px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
         }}>
           <div className="flex items-center gap-3.5">
             {/* Glass orb back button */}
