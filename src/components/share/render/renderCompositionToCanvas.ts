@@ -351,20 +351,22 @@ function drawTextPanel(
 
   ctx.save();
 
-  // Title — serif editorial, environment-warm white
+  // Title — serif editorial, environment-warm white, generous spacing
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
+  (ctx as any).letterSpacing = '0.5px';
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.18;
+  const titleLineH = titleSize * 1.22;
 
   let cursorY = panel.y + pad + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
   }
+  (ctx as any).letterSpacing = '0px';
 
   // Subtitle
   if (content.subtitle) {
