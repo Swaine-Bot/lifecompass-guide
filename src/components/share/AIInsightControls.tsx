@@ -48,11 +48,8 @@ export function AIInsightControls({
       });
       if (error) throw error;
       const text = data?.insight || data?.text;
-      if (text) {
-        onInsightChange(text);
-      } else {
-        toast.error('Could not generate insight');
-      }
+      if (text) onInsightChange(text);
+      else toast.error('Could not generate insight');
     } catch (e) {
       console.error('AI insight error:', e);
       toast.error('AI insight unavailable');
@@ -63,24 +60,20 @@ export function AIInsightControls({
 
   const handleToggle = async (on: boolean) => {
     onToggle(on);
-    if (on && !insight) {
-      await generateInsight();
-    }
+    if (on && !insight) await generateInsight();
   };
 
   const handleStyleChange = async (s: InsightStyle) => {
     onStyleChange(s);
-    if (enabled) {
-      await generateInsight(s);
-    }
+    if (enabled) await generateInsight(s);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="studio-switch-row">
         <div className="flex items-center gap-2.5">
           <Sparkles className="w-4 h-4 text-primary" />
-          <Label className="text-sm font-medium text-foreground cursor-pointer">Include AI Insight</Label>
+          <Label className="text-sm font-medium text-white/75 cursor-pointer">Include AI Insight</Label>
         </div>
         <Switch checked={enabled} onCheckedChange={handleToggle} />
       </div>
@@ -92,34 +85,33 @@ export function AIInsightControls({
             {STYLES.map((s) => (
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
-                  'px-3 py-1.5 rounded-full text-[10px] font-semibold border transition-all',
-                  style === s.id
-                    ? 'border-primary/40 bg-primary/10 text-primary ring-1 ring-primary/20'
-                    : 'border-white/[0.06] text-foreground/55 hover:border-white/[0.12]'
-                )}>
-                {s.label}
+                  'studio-option-pill px-3 py-1.5 text-[10px] font-semibold transition-all',
+                  style === s.id && 'active'
+                )}
+                style={{ borderRadius: 999 }}>
+                <span className={style === s.id ? 'text-primary' : 'text-white/50'}>{s.label}</span>
               </button>
             ))}
           </div>
 
           {/* Insight preview */}
           {insight ? (
-            <div className="rounded-xl border border-white/[0.08] bg-card/50 backdrop-blur-sm p-4">
-              <p className="text-xs text-foreground/80 leading-relaxed italic">"{insight}"</p>
+            <div className="studio-glass-tertiary p-4">
+              <p className="text-xs text-white/75 leading-relaxed italic">"{insight}"</p>
               <Button variant="ghost" size="sm" onClick={() => generateInsight()} disabled={loading}
-                className="mt-2.5 text-[10px] text-foreground/50 hover:text-foreground h-7 px-2">
+                className="mt-2.5 text-[10px] text-white/40 hover:text-white/60 h-7 px-2">
                 <RefreshCw className={cn('w-3 h-3 mr-1', loading && 'animate-spin')} />
                 {loading ? 'Generating…' : 'Regenerate'}
               </Button>
             </div>
           ) : loading ? (
-            <div className="rounded-xl border border-white/[0.08] bg-card/50 backdrop-blur-sm p-4 flex items-center gap-2">
+            <div className="studio-glass-tertiary p-4 flex items-center gap-2">
               <RefreshCw className="w-3 h-3 animate-spin text-primary/60" />
-              <span className="text-[10px] text-foreground/50">Generating insight…</span>
+              <span className="text-[10px] text-white/40">Generating insight…</span>
             </div>
           ) : null}
 
-          <p className="text-[10px] text-foreground/40">
+          <p className="text-[10px] text-white/25">
             AI insight is optional and will only appear if you choose to include it.
           </p>
         </div>
