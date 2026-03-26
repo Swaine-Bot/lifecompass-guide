@@ -34,7 +34,7 @@ import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { triggerHaptic } from '@/engines/hapticEngine';
-import cinematicBg from '@/assets/cinematic-hero-mountains.jpg';
+
 
 type FlowStep = 'studio' | 'success';
 
@@ -269,11 +269,9 @@ export default function ShareStudio() {
   // ─── Success Screen ───
   if (step === 'success') {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        <img src={cinematicBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'saturate(1.2) brightness(0.3)', transform: 'scale(1.08)' }} />
+      <div className="fixed inset-0 z-50 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.65) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)',
         }} />
         <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
           <div className="text-center space-y-6 max-w-sm">
@@ -318,11 +316,9 @@ export default function ShareStudio() {
   // ─── Saved Cards ───
   if (showSaved) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        <img src={cinematicBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'saturate(1.2) brightness(0.3)', transform: 'scale(1.08)' }} />
+      <div className="fixed inset-0 z-50 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)',
         }} />
         <div className="relative z-10">
           <div className="sticky top-0 z-40" style={{
@@ -375,44 +371,27 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── Main Studio — Crystal Chamber Rising from the Environment ───
+  // ─── Main Studio — Pure glass overlay on existing environment ───
   return (
     <motion.div
-      className="min-h-screen relative overflow-hidden"
+      className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden"
       initial={{ opacity: 0, y: 18, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
     >
 
-      {/* ══ LAYER 1: Full-bleed atmospheric background — visible through everything ══ */}
-      <img src={cinematicBg} alt="" aria-hidden
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'saturate(1.35) brightness(0.38)', transform: 'scale(1.1)' }}
-      />
-      {/* Subtle atmospheric deepening — NOT a dark slab */}
+      {/* ══ Subtle dimming — focus layer, NOT a background ══ */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
-        animate={{ opacity: isReleasing ? 0.7 : 0.5 }}
+        className="fixed inset-0 pointer-events-none"
+        animate={{ opacity: isReleasing ? 0.85 : 1 }}
         transition={{ duration: 0.12 }}
         style={{
-          background: 'radial-gradient(ellipse at 50% 35%, transparent 15%, rgba(0,0,0,0.4) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)',
         }}
       />
-      {/* Warm gold environmental diffusion — upper atmosphere */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 25% 10%, rgba(200,160,60,0.05) 0%, transparent 50%)',
-      }} />
-      {/* Cool reflection — lower field */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 75% 85%, rgba(100,150,220,0.02) 0%, transparent 45%)',
-      }} />
-      {/* Central luminous bloom — where the chamber forms */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 25%, rgba(255,255,255,0.035) 0%, transparent 55%)',
-      }} />
 
-      {/* ══ LAYER 2: Content — dissolves into the atmosphere, no box ══ */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      {/* ══ Content — pure glass interface over the existing world ══ */}
+      <div className="relative z-10 min-h-full flex flex-col">
 
         {/* ─── Ghost Header — nearly invisible, no panel feel ─── */}
         <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
