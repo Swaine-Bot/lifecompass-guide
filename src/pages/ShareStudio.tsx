@@ -325,7 +325,12 @@ export default function ShareStudio() {
           background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%)',
         }} />
         <div className="relative z-10">
-          <div className="sticky top-0 z-40" style={GLASS.header}>
+          <div className="sticky top-0 z-40" style={{
+            background: 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(40px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}>
             <div className="max-w-2xl mx-auto px-5 py-3 flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => setShowSaved(false)}
                 className="text-white/35 hover:text-white/55" style={{ borderRadius: 999 }}>
