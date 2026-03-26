@@ -390,8 +390,8 @@ export default function ShareStudio() {
         }}
       />
 
-      {/* ══ LAYER 2: Content — dissolves into the atmosphere, no box ══ */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      {/* ══ Content — pure glass interface over the existing world ══ */}
+      <div className="relative z-10 min-h-full flex flex-col">
 
         {/* ─── Ghost Header — nearly invisible, no panel feel ─── */}
         <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
