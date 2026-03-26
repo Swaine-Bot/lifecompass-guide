@@ -1,6 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine
 import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { triggerHaptic } from '@/engines/hapticEngine';
 import cinematicBg from '@/assets/cinematic-hero-mountains.jpg';
 
 type FlowStep = 'studio' | 'success';
@@ -107,6 +109,7 @@ export default function ShareStudio() {
   const [privacy, setPrivacy] = useState<PrivacySettings>(DEFAULT_PRIVACY);
   const [phrase, setPhrase] = useState(getRandomPhrase());
   const [sharing, setSharing] = useState(false);
+  const [isReleasing, setIsReleasing] = useState(false);
   const [step, setStep] = useState<FlowStep>('studio');
   const [activeTab, setActiveTab] = useState('template');
 
@@ -195,6 +198,13 @@ export default function ShareStudio() {
       const smartUrl = await generateSmartLink();
       const caption = buildShareCaption(selectedCard, phrase, aiInsight, aiInsightEnabled, smartUrl);
       const nativePreset = PLATFORM_PROFILES[platform].nativeSharePreset;
+
+      // ── Pre-share ritual: decision → commitment → release ──
+      setIsReleasing(true);
+      triggerHaptic('confirmation');
+      await new Promise(r => setTimeout(r, 160));
+      setIsReleasing(false);
+
       const result = await nativeShare(blob, nativePreset);
       await trackShareEvent(user.id, selectedCard.cardType, result.shared ? `native_${nativePreset}` : result.method, platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
@@ -226,6 +236,7 @@ export default function ShareStudio() {
       toast.error('Share failed — try the Copy or Download buttons');
     } finally {
       setSharing(false);
+      setIsReleasing(false);
     }
   }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink]);
 
@@ -382,17 +393,27 @@ export default function ShareStudio() {
 
   // ─── Main Studio — Full-Screen Immersive Environment ───
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <motion.div
+      className="min-h-screen relative overflow-hidden"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+    >
 
       {/* ══ LAYER 1: Atmospheric Background ══ */}
       <img src={cinematicBg} alt="" aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
         style={{ filter: 'saturate(1.3) brightness(0.28)', transform: 'scale(1.1)' }}
       />
-      {/* Dark overlay gradient — top lighter, bottom darker */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
-      }} />
+      {/* Dark overlay — darkens during release ritual */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: isReleasing ? 1.15 : 1 }}
+        transition={{ duration: 0.12 }}
+        style={{
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+        }}
+      />
       {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none studio-env-vignette" style={{
         background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.55) 100%)',
@@ -476,14 +497,25 @@ export default function ShareStudio() {
                 transform: 'translateY(-20px)',
               }} />
             </div>
-            {/* The card itself — floating artifact */}
-            <div className="relative studio-card-float">
+            {/* The card itself — floating artifact with release ritual animation */}
+            <motion.div
+              className="relative studio-card-float"
+              initial={{ scale: 0.97, opacity: 0 }}
+              animate={{
+                scale: isReleasing ? 0.986 : 1,
+                opacity: 1,
+              }}
+              transition={isReleasing
+                ? { scale: { duration: 0.09, ease: 'easeIn' } }
+                : { scale: { duration: 0.36, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.36 } }
+              }
+            >
               <CompositionCard
                 content={normalizedContent}
                 platform={platform}
                 maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
               />
-            </div>
+            </motion.div>
           </div>
 
           {/* Regenerate — whisper-level */}
@@ -735,6 +767,6 @@ export default function ShareStudio() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

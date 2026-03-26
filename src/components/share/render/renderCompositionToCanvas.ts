@@ -252,14 +252,16 @@ function drawBackgroundImage(
   const sdx = dx - (sdw - dw) / 2;
   const sdy = dy - (sdh - dh) / 2;
 
-  ctx.filter = 'blur(20px) brightness(0.35) saturate(1.3)';
+  ctx.filter = 'blur(18px) brightness(0.30) saturate(1.4)';
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
+  // Cinematic atmospheric overlay — ensures text legibility
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  overlayGrad.addColorStop(0, `rgba(6, 6, 12, 0.4)`);
-  overlayGrad.addColorStop(0.5, `rgba(6, 6, 12, ${spec.backgroundOverlayOpacity})`);
-  overlayGrad.addColorStop(1, `rgba(6, 6, 12, 0.8)`);
+  overlayGrad.addColorStop(0, `rgba(6, 6, 12, 0.45)`);
+  overlayGrad.addColorStop(0.4, `rgba(6, 6, 12, ${spec.backgroundOverlayOpacity * 1.1})`);
+  overlayGrad.addColorStop(0.7, `rgba(6, 6, 12, ${Math.min(spec.backgroundOverlayOpacity * 1.2, 0.85)})`);
+  overlayGrad.addColorStop(1, `rgba(6, 6, 12, 0.85)`);
   ctx.fillStyle = overlayGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
@@ -349,30 +351,32 @@ function drawTextPanel(
 
   ctx.save();
 
-  // Title — serif editorial, environment-warm white
+  // Title — serif editorial, environment-warm white, generous spacing
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
+  (ctx as any).letterSpacing = '0.5px';
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.18;
+  const titleLineH = titleSize * 1.22;
 
   let cursorY = panel.y + pad + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
   }
+  (ctx as any).letterSpacing = '0px';
 
   // Subtitle
   if (content.subtitle) {
-    cursorY += 8;
+    cursorY += 12;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
     ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
     let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * spec.typography.subtitleLineHeight;
+    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.05);
     let totalTextH = subLines.length * subLineH;
 
     const minSubSize = 16;
@@ -562,13 +566,13 @@ function drawBrandPanel(
   const textY = panel.y + panel.height / 2 + brandSize / 3;
 
   ctx.font = `400 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.6, 'meta');
+  ctx.fillStyle = envWhite(envTone, 0.45, 'meta');
   ctx.fillText('Posted from ', textX, textY);
 
   const postedW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
-  ctx.globalAlpha = 0.8;
+  ctx.globalAlpha = 0.6;
   ctx.fillText('LifeStack', textX + postedW, textY);
   ctx.globalAlpha = 1;
 
@@ -800,6 +804,16 @@ export async function renderCompositionToCanvas(
       draw(ctx, panel);
     }
   }
+
+  // 4. Card shell — premium rounded clip + subtle outer glow
+  // Re-apply rounded clip to ensure no hard clipping edges leak
+  const shellRadius = Math.max(spec.panelRadius, 34);
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-in';
+  drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+  ctx.restore();
 
   return canvas;
 }

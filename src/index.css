@@ -674,10 +674,10 @@
   background: rgba(255,255,255,0.02);
 }
 
-/* ─── Content zone — dissolved into surface ─── */
+/* ─── Content zone — dissolved into surface, cinematic transition ─── */
 .studio-content-zone {
   padding: 0 4px;
-  animation: zone-emerge 0.4s ease-out;
+  animation: zone-emerge 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ─── Card float + stage ─── */
