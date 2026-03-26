@@ -450,11 +450,12 @@ export default function ShareStudio() {
               className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105"
               style={{
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                background: 'rgba(255,255,255,0.04)',
+                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}>
               <ArrowLeft className="h-3.5 w-3.5 text-white/50" />
             </button>
