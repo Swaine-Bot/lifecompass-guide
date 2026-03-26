@@ -57,37 +57,42 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
   }
 }
 
-/* ─── Shared glass inline styles ─── */
+/* ─── Shared crystal glass inline styles ─── */
 const GLASS = {
   header: {
-    background: 'rgba(10, 16, 22, 0.10)',
-    backdropFilter: 'blur(80px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(160%)',
-    borderBottom: '1px solid rgba(255,255,255,0.015)',
+    background: 'rgba(255, 255, 255, 0.025)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
+    backdropFilter: 'blur(40px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12)',
   } as React.CSSProperties,
   capsule: {
     borderRadius: 999,
-    background: 'rgba(14, 22, 28, 0.15)',
-    backdropFilter: 'blur(60px) saturate(145%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(145%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+    background: 'rgba(255, 255, 255, 0.035)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+    backdropFilter: 'blur(40px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    boxShadow: '0 12px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
   } as React.CSSProperties,
   tabBar: {
     borderRadius: 999,
-    background: 'rgba(14, 22, 28, 0.15)',
-    backdropFilter: 'blur(80px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(160%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
+    background: 'rgba(255, 255, 255, 0.03)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
+    backdropFilter: 'blur(40px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 40px rgba(255,255,255,0.02)',
   } as React.CSSProperties,
   actionBar: {
-    borderRadius: 28,
-    background: 'rgba(14, 22, 28, 0.18)',
-    backdropFilter: 'blur(60px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
+    borderRadius: 34,
+    background: 'rgba(255, 255, 255, 0.03)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.015) 100%)',
+    backdropFilter: 'blur(40px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
   } as React.CSSProperties,
 };
 
@@ -395,8 +400,8 @@ export default function ShareStudio() {
   return (
     <motion.div
       className="min-h-screen relative overflow-hidden"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
     >
 
@@ -411,7 +416,7 @@ export default function ShareStudio() {
         animate={{ opacity: isReleasing ? 1.15 : 1 }}
         transition={{ duration: 0.12 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 100%)',
         }}
       />
       {/* Vignette */}
@@ -427,14 +432,22 @@ export default function ShareStudio() {
         background: 'radial-gradient(ellipse at 85% 90%, rgba(100,140,200,0.015) 0%, transparent 40%)',
       }} />
 
-      {/* ══ LAYER 2: Glass Chamber — one continuous surface ══ */}
+      {/* Light bloom — edge glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.03) 0%, transparent 50%)',
+      }} />
+
+      {/* ══ LAYER 2: Crystal Glass Chamber — luminous continuous surface ══ */}
       <div className="relative z-10 min-h-screen flex flex-col">
 
         {/* ─── Ghost Header — glass orb back, minimal title, My Cards pill ─── */}
         <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
-          background: 'rgba(0, 0, 0, 0.12)',
-          backdropFilter: 'blur(40px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(140%)',
+          background: 'rgba(255, 255, 255, 0.02)',
+          backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%)',
+          backdropFilter: 'blur(40px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
         }}>
           <div className="flex items-center gap-3.5">
             {/* Glass orb back button */}
@@ -442,11 +455,12 @@ export default function ShareStudio() {
               className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105"
               style={{
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                background: 'rgba(255,255,255,0.04)',
+                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}>
               <ArrowLeft className="h-3.5 w-3.5 text-white/50" />
             </button>
@@ -540,11 +554,12 @@ export default function ShareStudio() {
             <div className="flex justify-center mb-10">
               <div className="inline-flex gap-0.5 px-2 py-1.5" style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(28px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+                background: 'rgba(255,255,255,0.03)',
+                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(40px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+                boxShadow: '0 16px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 40px rgba(255,255,255,0.02)',
               }}>
                 <TabsList className="bg-transparent flex gap-0 p-0">
                   {[
