@@ -67,6 +67,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <DeepLinkBridge />
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
