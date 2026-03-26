@@ -17,7 +17,7 @@ const PLATFORM_ICONS: Record<SharePlatform, string> = {
 export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) {
   return (
     <div className="space-y-3">
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
         {PLATFORM_LIST.map((p) => {
           const profile = PLATFORM_PROFILES[p];
           const isActive = platform === p;
@@ -26,7 +26,7 @@ export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) 
               key={p}
               onClick={() => onChange(p)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
+                'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
                 isActive ? 'text-white' : 'text-white hover:text-white'
               )}
               style={{ borderRadius: 999 }}

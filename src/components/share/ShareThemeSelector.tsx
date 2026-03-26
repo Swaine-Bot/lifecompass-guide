@@ -11,14 +11,14 @@ const themeList = Object.values(THEMES);
 export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps) {
   return (
     <div className="space-y-3">
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
         {themeList.map((t) => {
           const isActive = theme === t.id;
           return (
             <button
               key={t.id}
               onClick={() => onChange(t.id)}
-              className="flex flex-col items-center gap-2 transition-all duration-500"
+              className="flex-shrink-0 flex flex-col items-center gap-2 transition-all duration-500"
             >
               <div
                 style={{
