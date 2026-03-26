@@ -767,6 +767,6 @@ export default function ShareStudio() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
