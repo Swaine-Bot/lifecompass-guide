@@ -57,42 +57,16 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
   }
 }
 
-/* ─── Shared crystal glass inline styles ─── */
+/* ─── Crystal glass inline styles — ultra translucent ─── */
 const GLASS = {
-  header: {
-    background: 'rgba(255, 255, 255, 0.025)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
-    backdropFilter: 'blur(40px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12)',
-  } as React.CSSProperties,
   capsule: {
     borderRadius: 999,
-    background: 'rgba(255, 255, 255, 0.035)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+    background: 'rgba(255, 255, 255, 0.02)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 100%)',
     backdropFilter: 'blur(40px) saturate(150%)',
     WebkitBackdropFilter: 'blur(40px) saturate(150%)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 12px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
-  } as React.CSSProperties,
-  tabBar: {
-    borderRadius: 999,
-    background: 'rgba(255, 255, 255, 0.03)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
-    backdropFilter: 'blur(40px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-    border: '1px solid rgba(255,255,255,0.14)',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 40px rgba(255,255,255,0.02)',
-  } as React.CSSProperties,
-  actionBar: {
-    borderRadius: 34,
-    background: 'rgba(255, 255, 255, 0.03)',
-    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.015) 100%)',
-    backdropFilter: 'blur(40px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.12)',
   } as React.CSSProperties,
 };
 
@@ -351,7 +325,12 @@ export default function ShareStudio() {
           background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%)',
         }} />
         <div className="relative z-10">
-          <div className="sticky top-0 z-40" style={GLASS.header}>
+          <div className="sticky top-0 z-40" style={{
+            background: 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(40px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}>
             <div className="max-w-2xl mx-auto px-5 py-3 flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => setShowSaved(false)}
                 className="text-white/35 hover:text-white/55" style={{ borderRadius: 999 }}>
@@ -396,144 +375,140 @@ export default function ShareStudio() {
     );
   }
 
-  // ─── Main Studio — Full-Screen Immersive Environment ───
+  // ─── Main Studio — Crystal Chamber Rising from the Environment ───
   return (
     <motion.div
       className="min-h-screen relative overflow-hidden"
-      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      initial={{ opacity: 0, y: 18, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
     >
 
-      {/* ══ LAYER 1: Atmospheric Background ══ */}
+      {/* ══ LAYER 1: Full-bleed atmospheric background — visible through everything ══ */}
       <img src={cinematicBg} alt="" aria-hidden
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'saturate(1.3) brightness(0.28)', transform: 'scale(1.1)' }}
+        style={{ filter: 'saturate(1.35) brightness(0.38)', transform: 'scale(1.1)' }}
       />
-      {/* Dark overlay — darkens during release ritual */}
+      {/* Subtle atmospheric deepening — NOT a dark slab */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
-        animate={{ opacity: isReleasing ? 1.15 : 1 }}
+        animate={{ opacity: isReleasing ? 0.7 : 0.5 }}
         transition={{ duration: 0.12 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 100%)',
+          background: 'radial-gradient(ellipse at 50% 35%, transparent 15%, rgba(0,0,0,0.4) 100%)',
         }}
       />
-      {/* Vignette */}
-      <div className="absolute inset-0 pointer-events-none studio-env-vignette" style={{
-        background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.55) 100%)',
-      }} />
-      {/* Ambient gold light — upper left */}
+      {/* Warm gold environmental diffusion — upper atmosphere */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 15% 8%, rgba(200,160,60,0.04) 0%, transparent 45%)',
+        background: 'radial-gradient(ellipse at 25% 10%, rgba(200,160,60,0.05) 0%, transparent 50%)',
       }} />
-      {/* Cool accent — lower right */}
+      {/* Cool reflection — lower field */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 85% 90%, rgba(100,140,200,0.015) 0%, transparent 40%)',
+        background: 'radial-gradient(ellipse at 75% 85%, rgba(100,150,220,0.02) 0%, transparent 45%)',
+      }} />
+      {/* Central luminous bloom — where the chamber forms */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at 50% 25%, rgba(255,255,255,0.035) 0%, transparent 55%)',
       }} />
 
-      {/* Light bloom — edge glow */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.03) 0%, transparent 50%)',
-      }} />
-
-      {/* ══ LAYER 2: Crystal Glass Chamber — luminous continuous surface ══ */}
+      {/* ══ LAYER 2: Content — dissolves into the atmosphere, no box ══ */}
       <div className="relative z-10 min-h-screen flex flex-col">
 
-        {/* ─── Ghost Header — glass orb back, minimal title, My Cards pill ─── */}
+        {/* ─── Ghost Header — nearly invisible, no panel feel ─── */}
         <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
-          background: 'rgba(255, 255, 255, 0.02)',
-          backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%)',
-          backdropFilter: 'blur(40px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
+          background: 'rgba(255, 255, 255, 0.012)',
+          backdropFilter: 'blur(48px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(48px) saturate(160%)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}>
           <div className="flex items-center gap-3.5">
-            {/* Glass orb back button */}
             <button onClick={() => navigate(-1)}
               className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105"
               style={{
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.04)',
-                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 backdropFilter: 'blur(30px)',
                 WebkitBackdropFilter: 'blur(30px)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
               }}>
-              <ArrowLeft className="h-3.5 w-3.5 text-white/50" />
+              <ArrowLeft className="h-3.5 w-3.5 text-white/45" />
             </button>
             <div>
-              <h1 className="text-[12px] font-serif font-bold text-white/70 tracking-wide">Share Studio</h1>
-              <p className="text-[9px] text-white/25 tracking-wider">Shape the moment before release</p>
+              <h1 className="text-[12px] font-serif font-bold text-white/65 tracking-wide"
+                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>Share Studio</h1>
+              <p className="text-[9px] text-white/22 tracking-wider"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>Shape the moment before release</p>
             </div>
           </div>
           <button onClick={loadSavedCards}
-            className="studio-secondary-action flex items-center gap-1.5 px-3.5 py-1.5 text-[9px] font-medium text-white/30 hover:text-white/55">
+            className="studio-secondary-action flex items-center gap-1.5 px-3.5 py-1.5 text-[9px] font-medium text-white/28 hover:text-white/50">
             <LayoutGrid className="w-3 h-3" />My Cards
           </button>
         </div>
 
-        {/* ─── Continuous content flow ─── */}
+        {/* ─── Continuous content flow — no container boundaries ─── */}
         <div className="flex-1 max-w-2xl mx-auto w-full px-5 pb-40">
 
-          {/* ══ LAYER 3: Preview — dominant floating artifact ══ */}
-          <div className="relative flex justify-center py-20">
-            {/* Deep shadow pool */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none" style={{
-              width: 280, height: 40, borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%)',
-              filter: 'blur(20px)',
-            }} />
-            {/* Primary halo — theme-colored */}
+          {/* ══ PREVIEW STAGE — floating relic in a luminous glass cradle ══ */}
+          <div className="relative flex justify-center py-16">
+            {/* Warm environmental halo — world warming the chamber */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="studio-stage-halo" style={{
-                width: 420, height: 420, borderRadius: '50%',
-                background: `radial-gradient(circle, ${themeObj.accentHex}10 0%, ${themeObj.accentHex}06 30%, transparent 60%)`,
+              <div style={{
+                width: 500, height: 460, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(200,160,60,0.03) 0%, rgba(200,160,60,0.01) 35%, transparent 65%)',
                 filter: 'blur(50px)',
               }} />
             </div>
-            {/* Secondary ambient halo */}
+            {/* Cool internal reflection — artifact cooling the stage */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div style={{
-                width: 560, height: 450, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(255,255,255,0.01) 0%, transparent 45%)',
-                filter: 'blur(60px)',
-              }} />
-            </div>
-            {/* Gold diffusion light */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div style={{
-                width: 300, height: 300, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(200,160,60,0.025) 0%, transparent 55%)',
+                width: 350, height: 380, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(120,160,220,0.015) 0%, transparent 50%)',
                 filter: 'blur(40px)',
-                transform: 'translateY(-20px)',
+                transform: 'translateY(10px)',
               }} />
             </div>
-            {/* The card itself — floating artifact with release ritual animation */}
-            <motion.div
-              className="relative studio-card-float"
-              initial={{ scale: 0.97, opacity: 0 }}
-              animate={{
-                scale: isReleasing ? 0.986 : 1,
-                opacity: 1,
-              }}
-              transition={isReleasing
-                ? { scale: { duration: 0.09, ease: 'easeIn' } }
-                : { scale: { duration: 0.36, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.36 } }
-              }
-            >
-              <CompositionCard
-                content={normalizedContent}
-                platform={platform}
-                maxPreviewWidth={Math.min(300, window.innerWidth - 64)}
-              />
-            </motion.div>
+            {/* Theme-colored halo */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="studio-stage-halo" style={{
+                width: 380, height: 380, borderRadius: '50%',
+                background: `radial-gradient(circle, ${themeObj.accentHex}0C 0%, ${themeObj.accentHex}04 35%, transparent 60%)`,
+                filter: 'blur(45px)',
+              }} />
+            </div>
+            {/* Shadow pool beneath artifact */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none" style={{
+              width: 240, height: 32, borderRadius: '50%',
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.35) 0%, transparent 70%)',
+              filter: 'blur(18px)',
+            }} />
+            {/* Glass cradle — the ceremonial stage */}
+            <div className="studio-preview-cradle p-6 relative">
+              {/* The card itself — floating artifact */}
+              <motion.div
+                className="relative studio-card-float"
+                initial={{ scale: 0.97, opacity: 0 }}
+                animate={{
+                  scale: isReleasing ? 0.986 : 1,
+                  opacity: 1,
+                }}
+                transition={isReleasing
+                  ? { scale: { duration: 0.09, ease: 'easeIn' } }
+                  : { scale: { duration: 0.36, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.36 } }
+                }
+              >
+                <CompositionCard
+                  content={normalizedContent}
+                  platform={platform}
+                  maxPreviewWidth={Math.min(280, window.innerWidth - 80)}
+                />
+              </motion.div>
+            </div>
           </div>
 
           {/* Regenerate — whisper-level */}
-          <div className="flex justify-center -mt-6 mb-10">
+          <div className="flex justify-center -mt-4 mb-10">
             <button
               onClick={() => {
                 const domain = mapLifeDomain(selectedCard.domain);
@@ -542,24 +517,24 @@ export default function ShareStudio() {
                 setPhrase(getRandomPhrase());
               }}
               className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[9px] font-medium
-                text-white/18 hover:text-white/40 active:scale-[0.97]"
-              style={{ borderRadius: 999 }}
+                text-white/16 hover:text-white/38 active:scale-[0.97]"
+              style={{ borderRadius: 999, textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate
             </button>
           </div>
 
-          {/* ═══ MODE RIBBON — floating glass selector ═══ */}
+          {/* ═══ MODE RIBBON — sculpted floating glass band ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="flex justify-center mb-10">
               <div className="inline-flex gap-0.5 px-2 py-1.5" style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.03)',
-                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(40px) saturate(160%)',
-                WebkitBackdropFilter: 'blur(40px) saturate(160%)',
-                boxShadow: '0 16px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 40px rgba(255,255,255,0.02)',
+                background: 'rgba(255,255,255,0.018)',
+                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(44px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(44px) saturate(160%)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.14), 0 0 30px rgba(255,255,255,0.01)',
               }}>
                 <TabsList className="bg-transparent flex gap-0 p-0">
                   {[
@@ -582,13 +557,14 @@ export default function ShareStudio() {
               </div>
             </div>
 
-            {/* ═══ REFINEMENT ZONES — continuous, no containers ═══ */}
+            {/* ═══ REFINEMENT FIELD — continuous, no containers ═══ */}
 
             <TabsContent value="template" className="studio-content-zone">
               <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
               {!hasPrefill && (
                 <div className="pt-6">
-                  <span className="text-[8px] font-semibold text-white/20 uppercase tracking-[0.2em]">Card Type</span>
+                  <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>Card Type</span>
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     {demoCards.map((card) => (
                       <button key={card.cardType} onClick={() => setSelectedCard(card)}
@@ -598,10 +574,11 @@ export default function ShareStudio() {
                         )}>
                         <span className="text-base opacity-70">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
                         <div className="min-w-0">
-                          <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white/45')}>
+                          <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white/42')}
+                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                             {CARD_TYPE_LABELS[card.cardType as CardType]}
                           </p>
-                          <p className="text-[9px] text-white/18 truncate">{card.title}</p>
+                          <p className="text-[9px] text-white/16 truncate">{card.title}</p>
                         </div>
                       </button>
                     ))}
@@ -613,8 +590,11 @@ export default function ShareStudio() {
                   <div className="studio-option-pill active flex items-center gap-2.5 px-3.5 py-3">
                     <span className="text-base opacity-70">{CARD_TYPE_ICONS[selectedCard.cardType as CardType]}</span>
                     <div className="min-w-0">
-                      <p className="text-[11px] font-medium text-primary/80">{CARD_TYPE_LABELS[selectedCard.cardType as CardType]}</p>
-                      <p className="text-[9px] text-white/18 truncate">{selectedCard.title}</p>
+                      <p className="text-[11px] font-medium text-primary/80"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
+                        {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
+                      </p>
+                      <p className="text-[9px] text-white/16 truncate">{selectedCard.title}</p>
                     </div>
                   </div>
                 </div>
@@ -642,7 +622,8 @@ export default function ShareStudio() {
             {hasPostImage && (
               <TabsContent value="image" className="studio-content-zone space-y-5">
                 <div className="studio-switch-row">
-                  <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                  <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                     <ImageIcon className="w-3.5 h-3.5 text-primary/40" />Include image
                   </Label>
                   <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
@@ -659,8 +640,8 @@ export default function ShareStudio() {
                           'studio-option-pill flex flex-col items-center gap-1 p-3 transition-all',
                           imageLayout === opt.value && 'active'
                         )}>
-                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white/25'}>{opt.icon}</span>
-                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white/25')}>{opt.label}</span>
+                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white/22'}>{opt.icon}</span>
+                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white/22')}>{opt.label}</span>
                       </button>
                     ))}
                   </div>
@@ -678,32 +659,36 @@ export default function ShareStudio() {
 
             <TabsContent value="link" className="studio-content-zone space-y-4">
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Link2 className="w-3.5 h-3.5 text-primary/40" />Smart link
                 </Label>
                 <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
               </div>
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2">
+                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <QrCode className="w-3.5 h-3.5 text-primary/40" />QR code
                 </Label>
                 <Switch checked={includeQrCode} onCheckedChange={setIncludeQrCode} />
               </div>
               {includeSmartLink && (
                 <button onClick={handleCopyLink}
-                  className="w-full text-[10px] text-white/30 hover:text-white/50 py-2.5 transition-colors flex items-center justify-center gap-1.5">
+                  className="w-full text-[10px] text-white/28 hover:text-white/48 py-2.5 transition-colors flex items-center justify-center gap-1.5"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Copy className="w-3 h-3" />
                   {generatedSmartUrl ? 'Copy link' : 'Generate link'}
                 </button>
               )}
               {generatedSmartUrl && (
-                <p className="text-[9px] text-white/15 text-center break-all">{generatedSmartUrl}</p>
+                <p className="text-[9px] text-white/14 text-center break-all">{generatedSmartUrl}</p>
               )}
             </TabsContent>
 
             <TabsContent value="sponsor" className="studio-content-zone space-y-4">
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/50 flex items-center gap-2 min-w-0 flex-1">
+                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2 min-w-0 flex-1"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Handshake className="w-3.5 h-3.5 text-primary/40 shrink-0" />Partner zone
                 </Label>
                 <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
@@ -728,9 +713,9 @@ export default function ShareStudio() {
                       <button key={opt.value} onClick={() => setSponsorType(opt.value)}
                         className={cn(
                           'px-2.5 py-1 text-[9px] font-medium transition-all',
-                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/22 hover:text-white/35'
+                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/20 hover:text-white/32'
                         )}
-                        style={{ borderRadius: 999 }}>
+                        style={{ borderRadius: 999, textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                         {opt.label}
                       </button>
                     ))}
@@ -747,27 +732,27 @@ export default function ShareStudio() {
             </TabsContent>
           </Tabs>
 
-          {/* ═══ ACTION STAGE ═══ */}
+          {/* ═══ RELEASE FIELD — integrated into the chamber ═══ */}
           <div className="pt-12 space-y-5">
-            {/* Primary — Release */}
+            {/* Primary — Ceremonial release bubble */}
             <Button onClick={handleShare} disabled={sharing} variant="gold"
               className="studio-primary-action w-full h-14 text-[13px] font-semibold gap-2.5"
             >
               <Share2 className="w-4 h-4" />{sharing ? 'Composing…' : 'Release'}
             </Button>
 
-            {/* Secondary actions — equal glass pills */}
+            {/* Secondary actions — whisper-level glass pills */}
             <div className="flex items-center justify-center gap-3">
               <button onClick={handleCopy}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
                 <ClipboardCopy className="w-3 h-3" />Copy
               </button>
               <button onClick={handleDownload}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
                 <Download className="w-3 h-3" />Save
               </button>
               <button onClick={handleCopyLink}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/30 hover:text-white/55">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
                 <Link2 className="w-3 h-3" />Link
               </button>
             </div>
@@ -775,7 +760,8 @@ export default function ShareStudio() {
             {/* Tertiary — Save to Vault */}
             <div className="flex justify-center pt-2">
               <button onClick={handleSave}
-                className="text-white/[0.10] hover:text-white/25 transition-all text-[9px] flex items-center gap-1.5 tracking-wider uppercase">
+                className="text-white/[0.09] hover:text-white/22 transition-all text-[9px] flex items-center gap-1.5 tracking-wider uppercase"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                 <Download className="w-2.5 h-2.5" />Save to Vault
               </button>
             </div>
