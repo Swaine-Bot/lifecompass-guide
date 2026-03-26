@@ -27,7 +27,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
   return (
     <div className="space-y-5">
       <div>
-        <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]">Bento</span>
+        <span className="text-[8px] font-semibold text-white uppercase tracking-[0.2em]">Bento</span>
         <div className="flex gap-1.5 mt-2.5 overflow-x-auto pb-1 scrollbar-hide">
           {bentoTemplates.map((tmpl) => (
             <button
@@ -37,7 +37,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
                 'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
                 selected === tmpl.id
                   ? 'text-primary/70'
-                  : 'text-white/20 hover:text-white/40'
+                  : 'text-white hover:text-white'
               )}
               style={{ borderRadius: 999 }}
             >
@@ -49,7 +49,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
       </div>
 
       <div>
-        <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]">Classic</span>
+        <span className="text-[8px] font-semibold text-white uppercase tracking-[0.2em]">Classic</span>
         <div className="flex gap-1.5 mt-2.5 overflow-x-auto pb-1 scrollbar-hide">
           {legacyTemplates.map((tmpl) => (
             <button
@@ -59,7 +59,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
                 'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
                 selected === tmpl.id
                   ? 'text-primary/70'
-                  : 'text-white/20 hover:text-white/40'
+                  : 'text-white hover:text-white'
               )}
               style={{ borderRadius: 999 }}
             >
@@ -70,7 +70,7 @@ export function TemplateSelector({ selected, onChange }: TemplateSelectorProps) 
         </div>
       </div>
       
-      <p className="text-[9px] text-white/15">
+      <p className="text-[9px] text-white">
         {TEMPLATE_REGISTRY.find(t => t.id === selected)?.description}
       </p>
     </div>

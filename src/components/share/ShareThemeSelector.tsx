@@ -35,7 +35,7 @@ export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps)
               />
               <span className={cn(
                 'text-[8px] font-medium transition-all duration-500',
-                isActive ? 'text-white/55' : 'text-white/15'
+                isActive ? 'text-white' : 'text-white'
               )}>
                 {t.label.split(' ')[0]}
               </span>
