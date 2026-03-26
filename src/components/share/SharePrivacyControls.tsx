@@ -22,14 +22,14 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
     <div className="space-y-4">
       <div className="flex items-center gap-2.5">
         <Shield className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium text-foreground">Privacy Controls</span>
+        <span className="text-sm font-medium text-white/80">Privacy Controls</span>
       </div>
 
       {/* Private Aesthetic Mode */}
-      <div className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-card/50 border border-white/[0.08]">
+      <div className="studio-switch-row">
         <div className="flex items-center gap-2.5">
           <EyeOff className="w-3.5 h-3.5 text-primary" />
-          <Label className="text-xs font-medium text-foreground cursor-pointer">Private Aesthetic Mode</Label>
+          <Label className="text-xs font-medium text-white/70 cursor-pointer">Private Aesthetic Mode</Label>
         </div>
         <Switch
           checked={privacy.privateAestheticMode}
@@ -38,17 +38,22 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
         />
       </div>
       {privacy.privateAestheticMode && (
-        <p className="text-[10px] text-foreground/40 px-1">
+        <p className="text-[10px] text-white/30 px-1">
           Hides name, photo, and exact numbers automatically
         </p>
       )}
 
       <div className="space-y-1">
         {controls.map(({ key, label, icon: Icon }) => (
-          <div key={key} className="flex items-center justify-between py-2 px-1">
+          <div key={key} className="flex items-center justify-between py-2.5 px-4"
+            style={{
+              borderRadius: 16,
+              transition: 'background 0.2s',
+            }}
+          >
             <div className="flex items-center gap-2.5">
-              <Icon className="w-3.5 h-3.5 text-foreground/40" />
-              <Label className="text-xs text-foreground/70 cursor-pointer">{label}</Label>
+              <Icon className="w-3.5 h-3.5 text-white/30" />
+              <Label className="text-xs text-white/60 cursor-pointer">{label}</Label>
             </div>
             <Switch
               checked={privacy[key]}

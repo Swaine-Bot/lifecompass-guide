@@ -19,7 +19,7 @@ const formatLabels: Record<ShareFormat, string> = {
 export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorProps) {
   return (
     <div className="space-y-2">
-      <span className="text-[9px] font-semibold text-white/35 uppercase tracking-[0.15em]">Format</span>
+      <span className="text-[9px] font-semibold text-white/30 uppercase tracking-[0.15em]">Format</span>
       <div className="grid grid-cols-5 gap-2">
         {formats.map((f) => {
           const dim = FORMAT_DIMENSIONS[f];
@@ -29,26 +29,22 @@ export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorPro
               key={f}
               onClick={() => onChange(f)}
               className={cn(
-                'flex flex-col items-center gap-1.5 p-2.5 transition-all',
-                format === f ? 'text-primary' : 'text-white/35 hover:text-white/55'
+                'studio-option-pill flex flex-col items-center gap-1.5 p-2.5 transition-all',
+                format === f && 'active'
               )}
-              style={{
-                borderRadius: 16,
-                background: format === f
-                  ? 'rgba(200,160,60,0.06)' : 'rgba(255,255,255,0.015)',
-                border: `1px solid ${format === f
-                  ? 'rgba(200,160,60,0.12)' : 'rgba(255,255,255,0.025)'}`,
-              }}
             >
               <div
                 style={{
                   width: 20, height: 20 / ratio,
-                  borderRadius: 3,
-                  background: format === f ? 'rgba(200,160,60,0.15)' : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${format === f ? 'rgba(200,160,60,0.2)' : 'rgba(255,255,255,0.04)'}`,
+                  borderRadius: 4,
+                  background: format === f ? 'rgba(200,160,60,0.15)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${format === f ? 'rgba(200,160,60,0.2)' : 'rgba(255,255,255,0.03)'}`,
                 }}
               />
-              <span className="text-[8px] font-medium">{formatLabels[f]}</span>
+              <span className={cn(
+                'text-[8px] font-medium',
+                format === f ? 'text-primary' : 'text-white/35'
+              )}>{formatLabels[f]}</span>
             </button>
           );
         })}
