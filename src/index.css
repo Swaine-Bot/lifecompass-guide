@@ -666,7 +666,7 @@
 .studio-mode-dot {
   @apply text-[10px] font-medium flex-shrink-0 px-4 py-2.5 transition-all duration-500;
   border-radius: 999px;
-  color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,1);
   background: transparent;
   border: 1px solid transparent;
   position: relative;
@@ -685,7 +685,7 @@
   transform: scale(1.03);
 }
 .studio-mode-dot:hover:not([data-state="active"]) {
-  color: rgba(255,255,255,0.48);
+  color: rgba(255,255,255,0.8);
   background: rgba(255,255,255,0.025);
 }
 

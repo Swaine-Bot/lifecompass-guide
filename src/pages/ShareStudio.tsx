@@ -285,13 +285,13 @@ export default function ShareStudio() {
               }}>
               <Check className="w-8 h-8" style={{ color: 'hsl(142, 71%, 45%)' }} />
             </div>
-            <h2 className="text-2xl font-serif font-bold text-white/90">Shared Successfully</h2>
-            <p className="text-sm text-white/50">Your card has been shared as a rendered image.</p>
+            <h2 className="text-2xl font-serif font-bold text-white">Shared Successfully</h2>
+            <p className="text-sm text-white">Your card has been shared as a rendered image.</p>
             {generatedSmartUrl && (
               <div className="space-y-2">
-                <p className="text-[9px] text-white/25 uppercase tracking-[0.2em]">Your share link</p>
+                <p className="text-[9px] text-white uppercase tracking-[0.2em]">Your share link</p>
                 <button onClick={() => { copyToClipboard(generatedSmartUrl); toast.success('Link copied'); }}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-xs text-white/60 hover:text-white/80 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs text-white hover:text-white transition-colors"
                   style={GLASS.capsule}>
                   <Link2 className="w-3 h-3 text-primary" />{generatedSmartUrl}
                 </button>
@@ -303,7 +303,7 @@ export default function ShareStudio() {
                 Create Another
               </Button>
               <Button onClick={() => navigate(-1)} variant="ghost"
-                className="w-full text-white/35 hover:text-white/55" style={{ borderRadius: 999 }}>
+                className="w-full text-white hover:text-white" style={{ borderRadius: 999 }}>
                 Done
               </Button>
             </div>
@@ -329,31 +329,31 @@ export default function ShareStudio() {
           }}>
             <div className="max-w-2xl mx-auto px-5 py-3 flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => setShowSaved(false)}
-                className="text-white/35 hover:text-white/55" style={{ borderRadius: 999 }}>
+                className="text-white hover:text-white" style={{ borderRadius: 999 }}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h1 className="text-sm font-serif font-bold text-white/80">My Shared Cards</h1>
+              <h1 className="text-sm font-serif font-bold text-white">My Shared Cards</h1>
             </div>
           </div>
           <div className="max-w-2xl mx-auto px-5 py-6 space-y-3">
             {savedCards.length === 0 ? (
               <div className="text-center py-20">
-                <Image className="w-10 h-10 text-white/15 mx-auto mb-3" />
-                <p className="text-sm text-white/35">No cards generated yet</p>
+                <Image className="w-10 h-10 text-white mx-auto mb-3" />
+                <p className="text-sm text-white">No cards generated yet</p>
               </div>
             ) : (
               savedCards.map((card) => (
                 <div key={card.id} className="studio-glass-panel p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-white/85">{card.title}</p>
-                      <p className="text-[10px] text-white/30">
+                      <p className="text-sm font-medium text-white">{card.title}</p>
+                      <p className="text-[10px] text-white">
                         {card.card_type?.replace(/_/g, ' ')} · {card.theme} · {new Date(card.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <span className={cn(
                       'text-[9px] px-3 py-1 font-medium',
-                      card.is_shared ? 'text-[hsl(142,71%,45%)]' : 'text-white/35'
+                      card.is_shared ? 'text-[hsl(142,71%,45%)]' : 'text-white'
                     )} style={{
                       borderRadius: 999,
                       background: card.is_shared ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)',
@@ -411,17 +411,17 @@ export default function ShareStudio() {
                 WebkitBackdropFilter: 'blur(30px)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
               }}>
-              <ArrowLeft className="h-3.5 w-3.5 text-white/45" />
+              <ArrowLeft className="h-3.5 w-3.5 text-white" />
             </button>
             <div>
-              <h1 className="text-[12px] font-serif font-bold text-white/65 tracking-wide"
+              <h1 className="text-[12px] font-serif font-bold text-white tracking-wide"
                 style={{ textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>Share Studio</h1>
-              <p className="text-[9px] text-white/22 tracking-wider"
+              <p className="text-[9px] text-white tracking-wider"
                 style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>Shape the moment before release</p>
             </div>
           </div>
           <button onClick={loadSavedCards}
-            className="studio-secondary-action flex items-center gap-1.5 px-3.5 py-1.5 text-[9px] font-medium text-white/28 hover:text-white/50">
+            className="studio-secondary-action flex items-center gap-1.5 px-3.5 py-1.5 text-[9px] font-medium text-white hover:text-white">
             <LayoutGrid className="w-3 h-3" />My Cards
           </button>
         </div>
@@ -496,7 +496,7 @@ export default function ShareStudio() {
                 setPhrase(getRandomPhrase());
               }}
               className="inline-flex items-center gap-2 px-5 py-2.5 transition-all text-[9px] font-medium
-                text-white/16 hover:text-white/38 active:scale-[0.97]"
+                text-white hover:text-white active:scale-[0.97]"
               style={{ borderRadius: 999, textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}
             >
               <RefreshCw className="w-3 h-3" />Regenerate
@@ -542,7 +542,7 @@ export default function ShareStudio() {
               <TemplateSelector selected={selectedTemplate} onChange={setSelectedTemplate} />
               {!hasPrefill && (
                 <div className="pt-6">
-                  <span className="text-[8px] font-semibold text-white/18 uppercase tracking-[0.2em]"
+                  <span className="text-[8px] font-semibold text-white uppercase tracking-[0.2em]"
                     style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>Card Type</span>
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     {demoCards.map((card) => (
@@ -553,11 +553,11 @@ export default function ShareStudio() {
                         )}>
                         <span className="text-base opacity-70">{CARD_TYPE_ICONS[card.cardType as CardType]}</span>
                         <div className="min-w-0">
-                          <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white/42')}
+                          <p className={cn('text-[11px] font-medium', selectedCard.cardType === card.cardType ? 'text-primary/80' : 'text-white')}
                             style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                             {CARD_TYPE_LABELS[card.cardType as CardType]}
                           </p>
-                          <p className="text-[9px] text-white/16 truncate">{card.title}</p>
+                          <p className="text-[9px] text-white truncate">{card.title}</p>
                         </div>
                       </button>
                     ))}
@@ -573,7 +573,7 @@ export default function ShareStudio() {
                         style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                         {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
                       </p>
-                      <p className="text-[9px] text-white/16 truncate">{selectedCard.title}</p>
+                      <p className="text-[9px] text-white truncate">{selectedCard.title}</p>
                     </div>
                   </div>
                 </div>
@@ -601,7 +601,7 @@ export default function ShareStudio() {
             {hasPostImage && (
               <TabsContent value="image" className="studio-content-zone space-y-5">
                 <div className="studio-switch-row">
-                  <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                  <Label className="text-[11px] font-medium text-white flex items-center gap-2"
                     style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                     <ImageIcon className="w-3.5 h-3.5 text-primary/40" />Include image
                   </Label>
@@ -619,8 +619,8 @@ export default function ShareStudio() {
                           'studio-option-pill flex flex-col items-center gap-1 p-3 transition-all',
                           imageLayout === opt.value && 'active'
                         )}>
-                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white/22'}>{opt.icon}</span>
-                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white/22')}>{opt.label}</span>
+                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white'}>{opt.icon}</span>
+                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white')}>{opt.label}</span>
                       </button>
                     ))}
                   </div>
@@ -638,14 +638,14 @@ export default function ShareStudio() {
 
             <TabsContent value="link" className="studio-content-zone space-y-4">
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                <Label className="text-[11px] font-medium text-white flex items-center gap-2"
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Link2 className="w-3.5 h-3.5 text-primary/40" />Smart link
                 </Label>
                 <Switch checked={includeSmartLink} onCheckedChange={setIncludeSmartLink} />
               </div>
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2"
+                <Label className="text-[11px] font-medium text-white flex items-center gap-2"
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <QrCode className="w-3.5 h-3.5 text-primary/40" />QR code
                 </Label>
@@ -653,20 +653,20 @@ export default function ShareStudio() {
               </div>
               {includeSmartLink && (
                 <button onClick={handleCopyLink}
-                  className="w-full text-[10px] text-white/28 hover:text-white/48 py-2.5 transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full text-[10px] text-white hover:text-white py-2.5 transition-colors flex items-center justify-center gap-1.5"
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Copy className="w-3 h-3" />
                   {generatedSmartUrl ? 'Copy link' : 'Generate link'}
                 </button>
               )}
               {generatedSmartUrl && (
-                <p className="text-[9px] text-white/14 text-center break-all">{generatedSmartUrl}</p>
+                <p className="text-[9px] text-white text-center break-all">{generatedSmartUrl}</p>
               )}
             </TabsContent>
 
             <TabsContent value="sponsor" className="studio-content-zone space-y-4">
               <div className="studio-switch-row">
-                <Label className="text-[11px] font-medium text-white/48 flex items-center gap-2 min-w-0 flex-1"
+                <Label className="text-[11px] font-medium text-white flex items-center gap-2 min-w-0 flex-1"
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Handshake className="w-3.5 h-3.5 text-primary/40 shrink-0" />Partner zone
                 </Label>
@@ -678,7 +678,7 @@ export default function ShareStudio() {
                     value={sponsorName}
                     onChange={(e) => setSponsorName(e.target.value)}
                     placeholder="Partner name"
-                    className="bg-transparent border-white/[0.04] text-white/70 placeholder:text-white/15 text-[11px] h-9"
+                    className="bg-transparent border-white/[0.04] text-white placeholder:text-white text-[11px] h-9"
                     style={{ borderRadius: 999 }}
                   />
                   <div className="flex gap-1 flex-wrap">
@@ -692,7 +692,7 @@ export default function ShareStudio() {
                       <button key={opt.value} onClick={() => setSponsorType(opt.value)}
                         className={cn(
                           'px-2.5 py-1 text-[9px] font-medium transition-all',
-                          sponsorType === opt.value ? 'text-primary/60' : 'text-white/20 hover:text-white/32'
+                          sponsorType === opt.value ? 'text-primary/60' : 'text-white hover:text-white'
                         )}
                         style={{ borderRadius: 999, textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                         {opt.label}
@@ -703,7 +703,7 @@ export default function ShareStudio() {
                     value={sponsorMessage}
                     onChange={(e) => setSponsorMessage(e.target.value)}
                     placeholder="CTA (optional)"
-                    className="bg-transparent border-white/[0.04] text-white/70 placeholder:text-white/15 text-[11px] h-9"
+                    className="bg-transparent border-white/[0.04] text-white placeholder:text-white text-[11px] h-9"
                     style={{ borderRadius: 999 }}
                   />
                 </div>
@@ -723,15 +723,15 @@ export default function ShareStudio() {
             {/* Secondary actions — whisper-level glass pills */}
             <div className="flex items-center justify-center gap-3">
               <button onClick={handleCopy}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white hover:text-white">
                 <ClipboardCopy className="w-3 h-3" />Copy
               </button>
               <button onClick={handleDownload}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white hover:text-white">
                 <Download className="w-3 h-3" />Save
               </button>
               <button onClick={handleCopyLink}
-                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white/28 hover:text-white/50">
+                className="studio-secondary-action flex items-center gap-1.5 px-4 py-2 text-[10px] font-medium text-white hover:text-white">
                 <Link2 className="w-3 h-3" />Link
               </button>
             </div>
@@ -739,7 +739,7 @@ export default function ShareStudio() {
             {/* Tertiary — Save to Vault */}
             <div className="flex justify-center pt-2">
               <button onClick={handleSave}
-                className="text-white/[0.09] hover:text-white/22 transition-all text-[9px] flex items-center gap-1.5 tracking-wider uppercase"
+                className="text-white hover:text-white transition-all text-[9px] flex items-center gap-1.5 tracking-wider uppercase"
                 style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                 <Download className="w-2.5 h-2.5" />Save to Vault
               </button>
