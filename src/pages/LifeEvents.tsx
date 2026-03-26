@@ -11,12 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Calendar, Plus, Gift, Heart, Flag, Star, Edit, Trash2, Bell
+  Calendar, Plus, Gift, Heart, Flag, Star, Edit, Trash2, Bell, Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface LifeEvent {
   id: string;
