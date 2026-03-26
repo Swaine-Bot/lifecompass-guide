@@ -801,5 +801,15 @@ export async function renderCompositionToCanvas(
     }
   }
 
+  // 4. Card shell — premium rounded clip + subtle outer glow
+  // Re-apply rounded clip to ensure no hard clipping edges leak
+  const shellRadius = Math.max(spec.panelRadius, 34);
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-in';
+  drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+  ctx.restore();
+
   return canvas;
 }
