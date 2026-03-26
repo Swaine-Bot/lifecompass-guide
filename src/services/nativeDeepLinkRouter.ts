@@ -73,10 +73,10 @@ export function registerNavigate(fn: NavigateFn): void {
 export function extractPathFromUrl(rawUrl: string): string | null {
   try {
     // Custom scheme
-    if (rawUrl.startsWith(CUSTOM_SCHEME)) {
-      const afterScheme = rawUrl.slice(CUSTOM_SCHEME.length).replace(/^\/+/, '/');
-      return afterScheme || '/home';
-    }
+   if (rawUrl.startsWith(CUSTOM_SCHEME)) {
+  const afterScheme = rawUrl.slice(CUSTOM_SCHEME.length).replace(/^\/+/, '');
+  return afterScheme ? `/${afterScheme}` : '/home';
+}
 
     const url = new URL(rawUrl);
 
