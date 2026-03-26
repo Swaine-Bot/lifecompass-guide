@@ -34,8 +34,9 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
+      const { getAuthRedirectUrl } = await import('@/lib/authRedirect');
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/update-password`,
+        redirectTo: getAuthRedirectUrl('/update-password'),
       });
 
       if (error) {

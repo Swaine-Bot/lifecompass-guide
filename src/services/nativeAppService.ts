@@ -6,16 +6,11 @@
  */
 
 import { isNative } from '@/lib/platform';
+import { handleDeepLink } from './nativeDeepLinkRouter';
 
-type DeepLinkHandler = (url: string) => void;
 type AppStateHandler = (isActive: boolean) => void;
 
-let deepLinkHandler: DeepLinkHandler | null = null;
 let appStateHandler: AppStateHandler | null = null;
-
-export function setDeepLinkHandler(handler: DeepLinkHandler): void {
-  deepLinkHandler = handler;
-}
 
 export function setAppStateHandler(handler: AppStateHandler): void {
   appStateHandler = handler;
@@ -27,12 +22,9 @@ export async function initializeNativeApp(): Promise<void> {
   try {
     const { App } = await import('@capacitor/app');
 
-    // Deep links / URL opens
+    // Deep links / URL opens → route through deep link router
     App.addListener('appUrlOpen', (event) => {
-      console.log('[NativeApp] URL open:', event.url);
-      if (deepLinkHandler) {
-        deepLinkHandler(event.url);
-      }
+      handleDeepLink(event.url);
     });
 
     // App state (foreground/background)
@@ -43,10 +35,13 @@ export async function initializeNativeApp(): Promise<void> {
       }
     });
 
-    // Back button (Android)
+    // Back button (Android) — respect router history
     App.addListener('backButton', ({ canGoBack }) => {
       if (canGoBack) {
         window.history.back();
+      } else {
+        // At root, minimize app instead of exiting
+        App.minimizeApp();
       }
     });
   } catch (e) {

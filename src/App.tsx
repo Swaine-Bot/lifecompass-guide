@@ -1,12 +1,15 @@
+import { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { registerNavigate } from "@/services/nativeDeepLinkRouter";
+import { isNative } from "@/lib/platform";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -46,6 +49,17 @@ import SharedContent from "./pages/SharedContent";
 
 const queryClient = new QueryClient();
 
+/** Registers React Router navigate for native deep-link routing */
+function DeepLinkBridge() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (isNative()) {
+      registerNavigate((path) => navigate(path));
+    }
+  }, [navigate]);
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -55,6 +69,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <DeepLinkBridge />
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
