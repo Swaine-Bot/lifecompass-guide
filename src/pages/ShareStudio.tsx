@@ -316,11 +316,9 @@ export default function ShareStudio() {
   // ─── Saved Cards ───
   if (showSaved) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        <img src={cinematicBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'saturate(1.2) brightness(0.3)', transform: 'scale(1.08)' }} />
+      <div className="fixed inset-0 z-50 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)',
         }} />
         <div className="relative z-10">
           <div className="sticky top-0 z-40" style={{
