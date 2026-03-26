@@ -685,7 +685,7 @@
   transform: scale(1.03);
 }
 .studio-mode-dot:hover:not([data-state="active"]) {
-  color: rgba(255,255,255,0.48);
+  color: rgba(255,255,255,0.8);
   background: rgba(255,255,255,0.025);
 }
 
