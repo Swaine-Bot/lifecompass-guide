@@ -18,7 +18,7 @@ export function ShareThemeSelector({ theme, onChange }: ShareThemeSelectorProps)
             <button
               key={t.id}
               onClick={() => onChange(t.id)}
-              className="flex flex-col items-center gap-2 transition-all duration-500"
+              className="flex-shrink-0 flex flex-col items-center gap-2 transition-all duration-500"
             >
               <div
                 style={{

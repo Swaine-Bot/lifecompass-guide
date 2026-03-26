@@ -29,7 +29,7 @@ export function ShareFormatSelector({ format, onChange }: ShareFormatSelectorPro
               key={f}
               onClick={() => onChange(f)}
               className={cn(
-                'studio-option-pill flex flex-col items-center gap-1.5 p-2.5 transition-all',
+                'flex-shrink-0 studio-option-pill flex flex-col items-center gap-1.5 p-2.5 transition-all',
                 format === f && 'active'
               )}
             >

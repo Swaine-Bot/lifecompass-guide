@@ -83,7 +83,7 @@ export function AIInsightControls({
             {STYLES.map((s) => (
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
-                  'px-3 py-1.5 text-[9px] font-medium transition-all duration-400',
+                  'flex-shrink-0 px-3 py-1.5 text-[9px] font-medium transition-all duration-400',
                   style === s.id ? 'text-primary/60' : 'text-white hover:text-white'
                 )}
                 style={{ borderRadius: 999 }}>

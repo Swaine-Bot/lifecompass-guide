@@ -26,7 +26,7 @@ export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) 
               key={p}
               onClick={() => onChange(p)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
+                'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
                 isActive ? 'text-white' : 'text-white hover:text-white'
               )}
               style={{ borderRadius: 999 }}
