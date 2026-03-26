@@ -235,9 +235,14 @@ export function usePushNotifications() {
 
   // Check subscription on mount
   useEffect(() => {
+    // On native, skip service worker registration entirely
+    if (shouldSkipWebPush()) {
+      checkSubscription();
+      return;
+    }
+
     const isSupported = checkSupport();
     if (isSupported) {
-      // Register service worker on load
       registerServiceWorker().then(() => {
         checkSubscription();
       });
