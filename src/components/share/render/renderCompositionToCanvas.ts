@@ -566,13 +566,13 @@ function drawBrandPanel(
   const textY = panel.y + panel.height / 2 + brandSize / 3;
 
   ctx.font = `400 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.6, 'meta');
+  ctx.fillStyle = envWhite(envTone, 0.45, 'meta');
   ctx.fillText('Posted from ', textX, textY);
 
   const postedW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
-  ctx.globalAlpha = 0.8;
+  ctx.globalAlpha = 0.6;
   ctx.fillText('LifeStack', textX + postedW, textY);
   ctx.globalAlpha = 1;
 
