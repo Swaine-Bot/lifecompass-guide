@@ -160,6 +160,21 @@ export default function Vault() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => openShareStudio({
+                        type: 'vault_insight',
+                        id: card.id,
+                        title: card.title,
+                        subtitle: card.subtitle || undefined,
+                        statValue: card.stat_value || undefined,
+                        statLabel: card.stat_label || undefined,
+                      })}
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </Button>
                     <span className="text-[10px] text-muted-foreground">
                       {format(new Date(card.created_at), 'MMM d')}
                     </span>

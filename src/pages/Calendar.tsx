@@ -223,6 +223,19 @@ export default function Calendar() {
         icon={CalendarDays}
         title="Calendar"
         subtitle="View and reschedule your tasks, habits, and goals"
+        actions={
+          <ShareButton
+            source={{
+              type: 'progress_snapshot',
+              title: `My Week — ${format(currentDate, 'MMM d')}`,
+              subtitle: `${tasks.filter(t => t.status === 'done').length} tasks completed · ${goals.length} goals active`,
+              statValue: String(tasks.filter(t => t.status === 'done').length),
+              statLabel: 'Tasks Done',
+              domain: 'mind',
+            }}
+            variant="button"
+          />
+        }
       />
 
       <Card variant="glass">

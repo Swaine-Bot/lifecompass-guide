@@ -79,14 +79,29 @@ export default function Cinematics() {
       {/* Reports */}
       <div className="space-y-4">
         {filtered.map((report, idx) => (
-          <CinematicChapterCard
-            key={report.id}
-            report={report}
-            onFavorite={(id, cur) => toggleFavorite('cinematic_reports', id, cur)}
-            onArchive={(id) => archiveItem('cinematic_reports', id)}
-            onRead={(id) => markRead('cinematic_reports', id)}
-            expanded={idx === 0}
-          />
+          <div key={report.id} className="space-y-2">
+            <CinematicChapterCard
+              report={report}
+              onFavorite={(id, cur) => toggleFavorite('cinematic_reports', id, cur)}
+              onArchive={(id) => archiveItem('cinematic_reports', id)}
+              onRead={(id) => markRead('cinematic_reports', id)}
+              expanded={idx === 0}
+            />
+            <div className="flex justify-end px-1">
+              <ShareButton
+                source={{
+                  type: 'cinematic_report',
+                  id: report.id,
+                  title: report.title,
+                  subtitle: report.narrative?.slice(0, 160) || 'A chapter of my life story',
+                  statValue: report.report_type,
+                  statLabel: 'Chapter',
+                  domain: 'mind',
+                }}
+                variant="button"
+              />
+            </div>
+          </div>
         ))}
       </div>
 
