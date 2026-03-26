@@ -11,12 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Calendar, Plus, Gift, Heart, Flag, Star, Edit, Trash2, Bell
+  Calendar, Plus, Gift, Heart, Flag, Star, Edit, Trash2, Bell, Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface LifeEvent {
   id: string;
@@ -309,6 +310,18 @@ export default function LifeEvents() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            <ShareButton
+                              source={{
+                                type: 'achievement',
+                                id: event.id,
+                                title: event.title,
+                                subtitle: `${event.event_type === 'birthday' ? '🎂' : event.event_type === 'anniversary' ? '💕' : '⭐'} ${format(new Date(event.event_date), 'MMMM d, yyyy')}`,
+                                statValue: event.event_type,
+                                statLabel: 'Life Event',
+                                domain: 'social',
+                              }}
+                              variant="icon"
+                            />
                             <Badge variant="outline" className="hidden sm:flex gap-1">
                               <Bell className="w-3 h-3" />
                               {event.reminder_days_before.join(', ')}d

@@ -10,11 +10,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, GripVertical } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, GripVertical, Share2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
+import { ShareButton } from '@/components/share/ShareButton';
 
 interface Task {
   id: string;
@@ -222,6 +223,19 @@ export default function Calendar() {
         icon={CalendarDays}
         title="Calendar"
         subtitle="View and reschedule your tasks, habits, and goals"
+        actions={
+          <ShareButton
+            source={{
+              type: 'progress_snapshot',
+              title: `My Week — ${format(currentDate, 'MMM d')}`,
+              subtitle: `${tasks.filter(t => t.status === 'done').length} tasks completed · ${goals.length} goals active`,
+              statValue: String(tasks.filter(t => t.status === 'done').length),
+              statLabel: 'Tasks Done',
+              domain: 'mind',
+            }}
+            variant="button"
+          />
+        }
       />
 
       <Card variant="glass">

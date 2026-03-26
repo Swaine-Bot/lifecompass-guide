@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
-import { Heart, Sparkles, Film, Image } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Heart, Sparkles, Film, Image, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useViralEngagement } from '@/hooks/useViralEngagement';
 import { MirrorMomentCard } from '@/components/viral/MirrorMomentCard';
@@ -10,10 +11,12 @@ import { CinematicChapterCard } from '@/components/viral/CinematicChapterCard';
 import { PageHeader, EmptyStatePanel } from '@/components/ds';
 import { engagementEventService } from '@/services/engagementEventService';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { useUniversalShare } from '@/hooks/useUniversalShare';
 
 export default function Vault() {
   useEnvironment('vault');
   const navigate = useNavigate();
+  const { openShareStudio } = useUniversalShare();
   const {
     mirrorMoments, cinematicReports, shareCards,
     toggleFavorite, archiveItem,
@@ -157,6 +160,21 @@ export default function Vault() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => openShareStudio({
+                        type: 'vault_insight',
+                        id: card.id,
+                        title: card.title,
+                        subtitle: card.subtitle || undefined,
+                        statValue: card.stat_value || undefined,
+                        statLabel: card.stat_label || undefined,
+                      })}
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </Button>
                     <span className="text-[10px] text-muted-foreground">
                       {format(new Date(card.created_at), 'MMM d')}
                     </span>

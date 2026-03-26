@@ -21,7 +21,7 @@ export type ScreenContext =
   | 'calendar' | 'community' | 'mirror' | 'cinematics'
   | 'vault' | 'settings' | 'micro_moves' | 'daily_signal'
   | 'milestone' | 'share_studio' | 'insights' | 'life_events'
-  | 'default';
+  | 'library' | 'default';
 
 export type AnimationProfile = 'static' | 'slow' | 'dynamic';
 export type EmotionalContext = 'positive' | 'neutral' | 'low' | 'unknown';

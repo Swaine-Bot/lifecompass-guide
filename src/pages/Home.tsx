@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Plus, Target, Flame, PenLine, Sparkles, ChevronRight, 
-  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star, Share2
+  Sun, Moon, Cloud, Zap, Check, Settings, Trophy, Star, Share2,
+  Layers
 } from 'lucide-react';
 import { ShareButton } from '@/components/share/ShareButton';
 import { cn } from '@/lib/utils';
@@ -580,6 +581,21 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Library Launcher — Secondary Ecosystem Gateway */}
+      <Link
+        to="/library"
+        className="flex items-center gap-4 p-4 rounded-[22px] bg-card/60 backdrop-blur-xl border border-white/[0.06] shadow-[0_2px_20px_-4px_hsl(220_20%_0%/0.4)] hover:border-primary/20 hover:bg-card/75 transition-all duration-200 group"
+      >
+        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+          <Layers className="w-5 h-5 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-serif font-semibold text-[15px] leading-tight">Library</h3>
+          <p className="text-xs text-muted-foreground/70 mt-0.5">Your deeper LifeStack world</p>
+        </div>
+        <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary/50 transition-colors shrink-0" />
+      </Link>
 
       {/* Quick Actions — Refined Grid */}
       <div className="grid grid-cols-4 gap-2.5">
