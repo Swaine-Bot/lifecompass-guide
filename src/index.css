@@ -645,16 +645,18 @@
   pointer-events: none;
 }
 
-/* ─── Secondary Glass — refinement zones ─── */
+/* ─── Secondary Glass — crystal clear refinement zones ─── */
 .studio-glass-panel {
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.035);
+  background-image: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 60%, rgba(255,255,255,0.06) 100%);
+  backdrop-filter: blur(40px) saturate(160%);
+  -webkit-backdrop-filter: blur(40px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.18);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    0 16px 48px rgba(0,0,0,0.30);
+    0 30px 80px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 0 60px rgba(255,255,255,0.03);
   position: relative;
   overflow: hidden;
 }
@@ -663,39 +665,41 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.06) 50%, transparent 90%);
+  background: linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.15) 50%, transparent 95%);
   pointer-events: none;
 }
 
 /* ─── Tertiary Glass — whisper-level support ─── */
 .studio-glass-tertiary {
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(20px) saturate(120%);
-  -webkit-backdrop-filter: blur(20px) saturate(120%);
-  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.025);
+  background-image: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
+  backdrop-filter: blur(30px) saturate(130%);
+  -webkit-backdrop-filter: blur(30px) saturate(130%);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 /* ─── Mode ribbon — floating glass selector ─── */
 .studio-mode-dot {
   @apply text-[10px] font-medium flex-shrink-0 px-4 py-2.5 transition-all duration-500;
   border-radius: 999px;
-  color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.25);
   background: transparent;
   border: 1px solid transparent;
   position: relative;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 .studio-mode-dot[data-state="active"] {
-  color: rgba(255,255,255,0.85);
-  background: rgba(200,160,60,0.06);
-  border-color: rgba(200,160,60,0.12);
-  box-shadow: 0 0 20px rgba(200,160,60,0.08), 0 4px 16px rgba(0,0,0,0.2);
-  text-shadow: 0 0 16px rgba(200,160,60,0.2);
-  transform: scale(1.01);
+  color: rgba(255,255,255,0.9);
+  background: rgba(200,160,60,0.08);
+  border-color: rgba(200,160,60,0.15);
+  box-shadow: 0 0 24px rgba(200,160,60,0.1), 0 4px 16px rgba(0,0,0,0.15);
+  text-shadow: 0 0 16px rgba(200,160,60,0.25);
+  transform: scale(1.02);
 }
 .studio-mode-dot:hover:not([data-state="active"]) {
-  color: rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.03);
 }
 
 /* ─── Content zone — dissolved into surface, cinematic transition ─── */
@@ -707,7 +711,7 @@
 /* ─── Card float + stage ─── */
 .studio-card-float {
   animation: card-float 6s ease-in-out infinite;
-  filter: drop-shadow(0 32px 80px rgba(0,0,0,0.65));
+  filter: drop-shadow(0 24px 60px rgba(0,0,0,0.5));
 }
 .studio-card-glow {
   animation: glow-pulse 8s ease-in-out infinite;
@@ -721,20 +725,21 @@
 
 /* ─── Glass option pill ─── */
 .studio-option-pill {
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.025);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.35s ease;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 .studio-option-pill:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 .studio-option-pill[data-active="true"],
 .studio-option-pill.active {
-  background: rgba(200, 160, 60, 0.05);
-  border-color: rgba(200, 160, 60, 0.12);
-  box-shadow: 0 0 20px rgba(200,160,60,0.05);
+  background: rgba(200, 160, 60, 0.06);
+  border-color: rgba(200, 160, 60, 0.15);
+  box-shadow: 0 0 24px rgba(200,160,60,0.06);
 }
 
 /* ─── Switch row ─── */
@@ -742,43 +747,49 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.3s;
 }
 .studio-switch-row:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* ─── Primary action — share button glow ─── */
 .studio-primary-action {
   border-radius: 999px;
   box-shadow:
-    0 24px 64px rgba(200,160,60,0.18),
-    0 0 0 1px rgba(200,160,60,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.12);
+    0 24px 64px rgba(200,160,60,0.2),
+    0 0 0 1px rgba(200,160,60,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    0 0 40px rgba(200,160,60,0.06);
   transition: all 0.4s ease;
 }
 .studio-primary-action:hover {
   box-shadow:
-    0 28px 72px rgba(200,160,60,0.25),
-    0 0 0 1px rgba(200,160,60,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+    0 28px 72px rgba(200,160,60,0.28),
+    0 0 0 1px rgba(200,160,60,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 0 60px rgba(200,160,60,0.08);
   transform: translateY(-1px);
 }
 
 /* ─── Secondary action pills ─── */
 .studio-secondary-action {
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.035);
+  background-image: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 .studio-secondary-action:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15);
 }

@@ -57,37 +57,42 @@ function mapImageLayoutForNormalize(layout: ImageLayout): 'hero' | 'split' | 'ba
   }
 }
 
-/* ─── Shared glass inline styles ─── */
+/* ─── Shared crystal glass inline styles ─── */
 const GLASS = {
   header: {
-    background: 'rgba(10, 16, 22, 0.10)',
-    backdropFilter: 'blur(80px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(160%)',
-    borderBottom: '1px solid rgba(255,255,255,0.015)',
+    background: 'rgba(255, 255, 255, 0.025)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
+    backdropFilter: 'blur(40px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12)',
   } as React.CSSProperties,
   capsule: {
     borderRadius: 999,
-    background: 'rgba(14, 22, 28, 0.15)',
-    backdropFilter: 'blur(60px) saturate(145%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(145%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+    background: 'rgba(255, 255, 255, 0.035)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+    backdropFilter: 'blur(40px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    boxShadow: '0 12px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
   } as React.CSSProperties,
   tabBar: {
     borderRadius: 999,
-    background: 'rgba(14, 22, 28, 0.15)',
-    backdropFilter: 'blur(80px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(80px) saturate(160%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
+    background: 'rgba(255, 255, 255, 0.03)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
+    backdropFilter: 'blur(40px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 40px rgba(255,255,255,0.02)',
   } as React.CSSProperties,
   actionBar: {
-    borderRadius: 28,
-    background: 'rgba(14, 22, 28, 0.18)',
-    backdropFilter: 'blur(60px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(140%)',
-    border: '1px solid rgba(255,255,255,0.02)',
-    boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
+    borderRadius: 34,
+    background: 'rgba(255, 255, 255, 0.03)',
+    backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.015) 100%)',
+    backdropFilter: 'blur(40px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
   } as React.CSSProperties,
 };
 
