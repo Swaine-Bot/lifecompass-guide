@@ -416,7 +416,7 @@ export default function ShareStudio() {
         animate={{ opacity: isReleasing ? 1.15 : 1 }}
         transition={{ duration: 0.12 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 100%)',
         }}
       />
       {/* Vignette */}
