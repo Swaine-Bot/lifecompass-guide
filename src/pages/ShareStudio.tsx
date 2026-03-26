@@ -549,11 +549,12 @@ export default function ShareStudio() {
             <div className="flex justify-center mb-10">
               <div className="inline-flex gap-0.5 px-2 py-1.5" style={{
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(28px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(140%)',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+                background: 'rgba(255,255,255,0.03)',
+                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(40px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(160%)',
+                boxShadow: '0 16px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 40px rgba(255,255,255,0.02)',
               }}>
                 <TabsList className="bg-transparent flex gap-0 p-0">
                   {[
