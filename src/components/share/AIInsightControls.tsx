@@ -72,7 +72,7 @@ export function AIInsightControls({
       <div className="studio-switch-row">
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-primary/40" />
-          <Label className="text-[11px] font-medium text-white/55 cursor-pointer">AI Insight</Label>
+          <Label className="text-[11px] font-medium text-white cursor-pointer">AI Insight</Label>
         </div>
         <Switch checked={enabled} onCheckedChange={handleToggle} />
       </div>
@@ -84,7 +84,7 @@ export function AIInsightControls({
               <button key={s.id} onClick={() => handleStyleChange(s.id)}
                 className={cn(
                   'px-3 py-1.5 text-[9px] font-medium transition-all duration-400',
-                  style === s.id ? 'text-primary/60' : 'text-white/18 hover:text-white/30'
+                  style === s.id ? 'text-primary/60' : 'text-white hover:text-white'
                 )}
                 style={{ borderRadius: 999 }}>
                 {s.label}
@@ -94,9 +94,9 @@ export function AIInsightControls({
 
           {insight ? (
             <div className="py-3">
-              <p className="text-[11px] text-white/55 leading-relaxed italic">"{insight}"</p>
+              <p className="text-[11px] text-white leading-relaxed italic">"{insight}"</p>
               <button onClick={() => generateInsight()} disabled={loading}
-                className="mt-2 text-[9px] text-white/20 hover:text-white/40 flex items-center gap-1 transition-colors">
+                className="mt-2 text-[9px] text-white hover:text-white flex items-center gap-1 transition-colors">
                 <RefreshCw className={cn('w-2.5 h-2.5', loading && 'animate-spin')} />
                 {loading ? 'Generating…' : 'Regenerate'}
               </button>
@@ -104,7 +104,7 @@ export function AIInsightControls({
           ) : loading ? (
             <div className="py-3 flex items-center gap-2">
               <RefreshCw className="w-2.5 h-2.5 animate-spin text-primary/30" />
-              <span className="text-[9px] text-white/25">Generating…</span>
+              <span className="text-[9px] text-white">Generating…</span>
             </div>
           ) : null}
         </div>

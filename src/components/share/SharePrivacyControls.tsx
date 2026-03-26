@@ -24,7 +24,7 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
       <div className="studio-switch-row">
         <div className="flex items-center gap-2">
           <EyeOff className="w-3.5 h-3.5 text-primary/40" />
-          <Label className="text-[11px] font-medium text-white/55 cursor-pointer">Private mode</Label>
+          <Label className="text-[11px] font-medium text-white cursor-pointer">Private mode</Label>
         </div>
         <Switch
           checked={privacy.privateAestheticMode}
@@ -37,8 +37,8 @@ export function SharePrivacyControls({ privacy, onChange }: SharePrivacyControls
         {controls.map(({ key, label, icon: Icon }) => (
           <div key={key} className="flex items-center justify-between py-2 px-3">
             <div className="flex items-center gap-2">
-              <Icon className="w-3 h-3 text-white/15" />
-              <Label className="text-[10px] text-white/40 cursor-pointer">{label}</Label>
+              <Icon className="w-3 h-3 text-white" />
+              <Label className="text-[10px] text-white cursor-pointer">{label}</Label>
             </div>
             <Switch
               checked={privacy[key]}

@@ -27,7 +27,7 @@ export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) 
               onClick={() => onChange(p)}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-2 transition-all duration-400',
-                isActive ? 'text-white/70' : 'text-white/18 hover:text-white/35'
+                isActive ? 'text-white' : 'text-white hover:text-white'
               )}
               style={{ borderRadius: 999 }}
             >
@@ -37,7 +37,7 @@ export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) 
           );
         })}
       </div>
-      <p className="text-[9px] text-white/15">
+      <p className="text-[9px] text-white">
         {PLATFORM_PROFILES[platform].width}×{PLATFORM_PROFILES[platform].height} · {PLATFORM_PROFILES[platform].textDensity.replace('_', ' ')}
       </p>
     </div>
