@@ -17,7 +17,7 @@ const PLATFORM_ICONS: Record<SharePlatform, string> = {
 export function PlatformSelector({ platform, onChange }: PlatformSelectorProps) {
   return (
     <div className="space-y-3">
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
         {PLATFORM_LIST.map((p) => {
           const profile = PLATFORM_PROFILES[p];
           const isActive = platform === p;
