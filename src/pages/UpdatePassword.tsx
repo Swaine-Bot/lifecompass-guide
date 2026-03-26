@@ -26,14 +26,28 @@ export default function UpdatePassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have an access token in the URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    
-    if (!accessToken) {
-      toast.error('Invalid or expired reset link');
-      navigate('/auth');
-    }
+    // On native, the deep-link router sets window.location.hash before navigating here.
+    // On web, Supabase redirects with hash fragments.
+    // In both cases, the Supabase client's onAuthStateChange picks up the tokens
+    // automatically. We just verify a session exists or is being established.
+    const checkSession = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      
+      if (accessToken) {
+        // Hash present — Supabase client will process it via onAuthStateChange
+        return;
+      }
+
+      // No hash — check if we already have a valid session (e.g. native deep link
+      // already processed by Supabase client before this component mounted)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Invalid or expired reset link');
+        navigate('/auth');
+      }
+    };
+    checkSession();
   }, [navigate]);
 
   const validateForm = () => {

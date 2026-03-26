@@ -61,6 +61,7 @@ async function nativeShareImage(blob: Blob, filename: string): Promise<ShareResu
       if (tempFilePath) cleanupTempFiles([tempFilePath]);
     }, 5000);
 
+    console.log('[NativeShare] completed');
     return { shared: true, method: 'native_share' };
   } catch (e: any) {
     // Clean up on error too

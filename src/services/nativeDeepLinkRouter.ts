@@ -152,7 +152,7 @@ export function isKnownRoute(path: string): boolean {
  * Called from nativeAppService's appUrlOpen handler.
  */
 export function handleDeepLink(rawUrl: string): void {
-  console.log('[DeepLink] Handling:', rawUrl);
+  console.log('[DeepLink] raw_url:', rawUrl);
   
   const path = extractPathFromUrl(rawUrl);
   if (!path) {
