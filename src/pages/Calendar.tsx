@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, GripVertical } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Target, Repeat, CheckSquare, GripVertical, Share2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
 import { useEnvironment } from '@/contexts/SensoryContext';
