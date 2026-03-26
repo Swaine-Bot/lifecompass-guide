@@ -33,6 +33,7 @@ import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine
 import { createShareLink } from '@/services/smartLinkService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { triggerHaptic } from '@/engines/hapticEngine';
 import cinematicBg from '@/assets/cinematic-hero-mountains.jpg';
 
 type FlowStep = 'studio' | 'success';
