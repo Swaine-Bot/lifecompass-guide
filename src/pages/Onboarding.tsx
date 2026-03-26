@@ -297,7 +297,7 @@ export default function Onboarding() {
 
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 safe-area-top safe-area-bottom">
         <IntroVideo onComplete={() => setShowIntro(false)} />
       </div>
     );
