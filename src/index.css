@@ -88,6 +88,12 @@
     --shadow-gold: 0 4px 20px hsl(43 74% 52% / 0.15);
     --shadow-soft: 0 4px 24px hsl(220 20% 0% / 0.4);
     --shadow-elevated: 0 8px 32px hsl(220 20% 0% / 0.5);
+    /* Native safe area tokens */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    --keyboard-height: 0px;
   }
 
   .dark {
