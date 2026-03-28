@@ -12,11 +12,14 @@ import { SensoryProvider } from '@/contexts/SensoryContext';
 import { EnvironmentLayer } from '@/components/sensory/EnvironmentLayer';
 import { ContextOverlay } from '@/components/sensory/ContextOverlay';
 import { FeedbackPulse } from '@/components/sensory/FeedbackPulse';
+import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
 
 export const AppLayout = () => {
   const { user, loading, profile, refreshProfile } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const { isKeyboardOpen } = useNativeKeyboard();
+  const isMentorKeyboardMode = location.pathname.startsWith('/mentor') && isKeyboardOpen;
   
   // Track user session for screen time analytics
   useSessionTracking();
@@ -59,7 +62,7 @@ export const AppLayout = () => {
         <ContextOverlay />
         <FeedbackPulse />
         <Sidebar />
-        <main className="flex-1 flex flex-col min-h-screen pb-[5.5rem] lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}>
+        <main className="flex-1 flex flex-col min-h-screen lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: isMentorKeyboardMode ? 'env(safe-area-inset-bottom, 0px)' : 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}>
           <PullToRefresh 
             onRefresh={handleRefresh}
             className="flex-1 h-full"
@@ -69,7 +72,7 @@ export const AppLayout = () => {
             </div>
           </PullToRefresh>
         </main>
-        <BottomNav />
+        {!isMentorKeyboardMode && <BottomNav />}
       </div>
     </SensoryProvider>
   );

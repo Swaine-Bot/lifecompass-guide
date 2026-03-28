@@ -16,9 +16,12 @@ import { useEnvironment } from '@/contexts/SensoryContext';
 import { toast } from 'sonner';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
 import mentorNightSky from '@/assets/environments/mentor-nightsky-bg.jpg';
+import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
+import { setKeyboardAccessoryBarVisible } from '@/services/nativeKeyboardService';
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MENTOR_NAV_OFFSET = '5.5rem';
 
 export default function Mentor() {
   useEnvironment('mentor');
@@ -26,11 +29,14 @@ export default function Mentor() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [composerHeight, setComposerHeight] = useState(120);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
   const { profile } = useAuth();
   const { getMapsSearchUrl, latitude, longitude, permission, requestLocation } = useLocation();
+  const { keyboardHeight, isKeyboardOpen } = useNativeKeyboard();
 
   const {
     conversations,
@@ -60,11 +66,43 @@ export default function Mentor() {
   }, [messages]);
 
   useEffect(() => {
+    void setKeyboardAccessoryBarVisible(false);
+
+    return () => {
+      void setKeyboardAccessoryBarVisible(true);
+      document.documentElement.style.setProperty('--keyboard-height', '0px');
+    };
+  }, []);
+
+  useEffect(() => {
+    const composer = composerRef.current;
+    if (!composer || typeof ResizeObserver === 'undefined') return;
+
+    const updateComposerHeight = () => setComposerHeight(composer.offsetHeight);
+    updateComposerHeight();
+
+    const observer = new ResizeObserver(updateComposerHeight);
+    observer.observe(composer);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + 'px';
     }
   }, [input]);
+
+  useEffect(() => {
+    if (!isKeyboardOpen) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      scrollRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isKeyboardOpen, keyboardHeight, input, pendingImage, messages.length]);
 
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -179,9 +217,12 @@ export default function Mentor() {
 
   const charCount = input.length;
   const charWarning = charCount > MAX_MESSAGE_LENGTH * 0.9;
+  const composerBottomInset = isKeyboardOpen
+    ? `${Math.max(0, keyboardHeight)}px`
+    : `calc(env(safe-area-inset-bottom, 0px) + ${MENTOR_NAV_OFFSET})`;
 
   return (
-    <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10">
       {/* ── Premium top bar ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-card/70 backdrop-blur-2xl shrink-0">
         <div className="flex items-center gap-3">
@@ -285,7 +326,7 @@ export default function Mentor() {
             {/* Soft vignette */}
             <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.3) 100%)' }} />
           </div>
-          <div className="flex-1 overflow-y-auto overscroll-contain relative z-10" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex-1 overflow-y-auto overscroll-contain relative z-10" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingBottom: `${composerHeight + 24}px` }}>
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
               {/* ── Empty state ── */}
               {messages.length === 0 && (
@@ -342,7 +383,7 @@ export default function Mentor() {
           </div>
 
           {/* ── Input dock — premium composition ── */}
-          <div className="border-t border-white/[0.06] bg-black/30 backdrop-blur-2xl shrink-0 relative z-10" style={{ paddingBottom: 'max(var(--keyboard-height, 0px), env(safe-area-inset-bottom, 0px))' }}>
+          <div ref={composerRef} className="border-t border-white/[0.06] bg-black/30 backdrop-blur-2xl shrink-0 relative z-10" style={{ paddingBottom: composerBottomInset }}>
             <div className="max-w-2xl mx-auto px-4 py-3">
               {pendingImage && (
                 <div className="mb-3 flex items-center gap-3">
@@ -377,6 +418,7 @@ export default function Mentor() {
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
+                    onFocus={() => window.requestAnimationFrame(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }))}
                     placeholder={pendingImage ? "Add a caption (optional)..." : "Message your mentor..."}
                     disabled={loading}
                     maxLength={MAX_MESSAGE_LENGTH}
