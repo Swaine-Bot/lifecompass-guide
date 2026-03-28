@@ -46,6 +46,7 @@ import Vault from "./pages/Vault";
 import ShareStudio from "./pages/ShareStudio";
 import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
+import PlaybookDetail from "./pages/PlaybookDetail";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => (
                   <Route path="/vault" element={<Vault />} />
                   <Route path="/share-studio" element={<ShareStudio />} />
                   <Route path="/insights" element={<InsightLibrary />} />
+                  <Route path="/playbook/:id" element={<PlaybookDetail />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 

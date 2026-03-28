@@ -35,6 +35,7 @@ export default function Vault() {
       <PageHeader
         icon={Heart}
         title="Vault"
+        back="/library"
         subtitle="Your saved moments, chapters, and share cards"
       />
 
