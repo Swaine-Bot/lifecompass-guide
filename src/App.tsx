@@ -108,6 +108,7 @@ const App = () => (
                   <Route path="/vault" element={<Vault />} />
                   <Route path="/share-studio" element={<ShareStudio />} />
                   <Route path="/insights" element={<InsightLibrary />} />
+                  <Route path="/playbook/:id" element={<PlaybookDetail />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>
                 
