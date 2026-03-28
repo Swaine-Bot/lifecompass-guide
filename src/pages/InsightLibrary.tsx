@@ -81,7 +81,6 @@ export default function InsightLibrary() {
         title="Insight Library"
         back="/library"
         subtitle={`${insights.length} saved insight${insights.length !== 1 ? 's' : ''}`}
-        back
         compact
       />
 
