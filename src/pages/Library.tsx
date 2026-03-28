@@ -94,9 +94,7 @@ export default function Library() {
 // ─── Playbooks Section (inline) ────────────────────────────────────
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Download, Check, ChevronRight as ChevRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { Check, ChevronRight as ChevRight } from 'lucide-react';
 
 interface PlaybookContent {
   purpose?: string;
