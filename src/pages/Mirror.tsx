@@ -33,6 +33,7 @@ export default function Mirror() {
       <PageHeader
         icon={Sparkles}
         title="Mirror"
+        back="/home"
         subtitle="AI-powered reflections drawn from your journey"
       />
 

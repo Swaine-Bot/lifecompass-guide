@@ -173,6 +173,7 @@ export default function LifeEvents() {
       <PageHeader
         icon={Gift}
         title="Life Events"
+        back="/library"
         subtitle="Track important dates and get mentor reminders"
         actions={
           <Button variant="gold" onClick={() => setShowAddDialog(true)}>

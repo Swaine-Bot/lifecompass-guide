@@ -55,6 +55,7 @@ export default function Library() {
         icon={Layers}
         title="Library"
         subtitle="Your deeper LifeStack world"
+        back="/home"
       />
 
       <div className="grid gap-3">

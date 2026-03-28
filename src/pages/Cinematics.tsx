@@ -35,6 +35,7 @@ export default function Cinematics() {
       <PageHeader
         icon={Film}
         title="Life Cinematics"
+        back="/library"
         subtitle="Your life story, told in chapters"
       />
 

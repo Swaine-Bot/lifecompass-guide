@@ -223,6 +223,7 @@ export default function Calendar() {
         icon={CalendarDays}
         title="Calendar"
         subtitle="View and reschedule your tasks, habits, and goals"
+        back="/library"
         actions={
           <ShareButton
             source={{

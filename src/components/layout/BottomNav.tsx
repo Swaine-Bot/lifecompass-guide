@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePendingFriendRequests } from '@/hooks/usePendingFriendRequests';
+import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
 
 const navItems = [
   { path: '/home', label: 'Home', icon: Home },
@@ -16,9 +17,13 @@ export const BottomNav = () => {
   const { isAdmin } = useAuth();
   const location = useLocation();
   const pendingCount = usePendingFriendRequests();
+  const { isKeyboardOpen } = useNativeKeyboard();
+
+  // Hide BottomNav when keyboard is open (especially on Mentor)
+  if (isKeyboardOpen) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04]" style={{ paddingBottom: 'var(--safe-area-bottom, env(safe-area-inset-bottom, 0px))' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04] transition-opacity duration-200" style={{ paddingBottom: 'var(--safe-area-bottom, env(safe-area-inset-bottom, 0px))' }}>
       <div className="flex items-center justify-around px-1 py-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
