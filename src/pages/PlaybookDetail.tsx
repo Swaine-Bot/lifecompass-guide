@@ -141,14 +141,12 @@ export default function PlaybookDetail() {
     const tasks = playbook.content_json?.tasks || [];
     const taskSummary = tasks.slice(0, 3).map(t => t.title).join(' · ');
     openShareStudio({
-      cardType: 'goal_progress',
+      type: 'goal_progress',
       title: playbook.title,
       subtitle: playbook.content_json?.purpose || playbook.description || '',
       statValue: String(tasks.length),
       statLabel: 'Action Items',
-      signaturePhrase: taskSummary,
-      sourceType: 'playbook',
-      sourceId: playbook.id,
+      id: playbook.id,
     });
   };
 
