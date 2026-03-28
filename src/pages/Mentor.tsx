@@ -224,7 +224,7 @@ export default function Mentor() {
   return (
     <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10">
       {/* ── Premium top bar ── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-card/70 backdrop-blur-2xl shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-card/70 backdrop-blur-2xl shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)' }}>
         <div className="flex items-center gap-3">
           <div className="icon-orb">
             <Sparkles />
