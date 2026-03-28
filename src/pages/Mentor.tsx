@@ -181,7 +181,7 @@ export default function Mentor() {
   const charWarning = charCount > MAX_MESSAGE_LENGTH * 0.9;
 
   return (
-    <div className="fixed inset-0 bottom-[4.5rem] lg:bottom-0 lg:left-64 flex flex-col bg-background z-10">
+    <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* ── Premium top bar ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-card/70 backdrop-blur-2xl shrink-0">
         <div className="flex items-center gap-3">
