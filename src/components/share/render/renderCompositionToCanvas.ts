@@ -320,57 +320,67 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary');
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
 
-  const pad = 26;
+  const pad = 32;
   const theme = content.theme;
 
   ctx.save();
 
-  // Premium accent bar — gradient with subtle glow
-  const barH = 30;
-  const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + barH);
-  barGrad.addColorStop(0, theme.accentHex);
-  barGrad.addColorStop(1, 'rgba(200,170,80,0.15)');
-  ctx.fillStyle = barGrad;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 4, barH, 2);
+  // ── Vertical accent rule — luminous doctrine marker ──
+  const ruleH = panel.height - pad * 2;
+  const ruleX = panel.x + pad;
+  const ruleY = panel.y + pad;
+  const ruleGrad = ctx.createLinearGradient(ruleX, ruleY, ruleX, ruleY + ruleH);
+  ruleGrad.addColorStop(0, 'rgba(255,255,255,0.03)');
+  ruleGrad.addColorStop(0.2, theme.accentHex);
+  ruleGrad.addColorStop(0.8, theme.accentHex);
+  ruleGrad.addColorStop(1, 'rgba(255,255,255,0.03)');
+  ctx.fillStyle = ruleGrad;
+  drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
 
-  // Subtle glow behind bar
+  // Accent glow behind rule
   ctx.shadowColor = theme.accentHex;
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 4, barH, 2);
+  ctx.shadowBlur = 18;
+  drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // "AI INSIGHT" label — refined tracking
-  ctx.font = `700 ${13}px ${FONT_FAMILY}`;
+  // ── "REFLECTION" label — ceremonial, widely tracked ──
+  const labelY = ruleY + 16;
+  ctx.font = `600 ${11}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.85;
-  (ctx as any).letterSpacing = '3px';
-  ctx.fillText('AI INSIGHT', panel.x + pad + 18, panel.y + pad + 18);
+  ctx.globalAlpha = 0.7;
+  (ctx as any).letterSpacing = '4px';
+  ctx.fillText('REFLECTION', ruleX + 18, labelY);
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
-  const insightHeadingGap = 22;
-  const headerH = pad + barH + insightHeadingGap;
+  // ── Thin separator line below label ──
+  const sepY = labelY + 12;
+  const sepGrad = ctx.createLinearGradient(ruleX + 18, sepY, ruleX + 18 + 100, sepY);
+  sepGrad.addColorStop(0, `rgba(255,255,255,0.08)`);
+  sepGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = sepGrad;
+  ctx.fillRect(ruleX + 18, sepY, 100, 1);
 
-  let fontSize = spec.typography.insightFontSize;
-  const textX = panel.x + pad;
-  const textMaxW = panel.width - pad * 2;
-  const availableTextH = panel.height - headerH - pad;
+  const headerH = sepY - panel.y + 24;
+
+  let fontSize = spec.typography.insightFontSize + 2;
+  const textX = panel.x + pad + 18;
+  const textMaxW = panel.width - pad - (pad + 18);
+  const availableTextH = panel.height - headerH - pad - 8;
 
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  let lineH = fontSize * spec.typography.insightLineHeight;
+  let lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
   let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
   let totalH = lines.length * lineH;
 
   while (totalH > availableTextH && fontSize > 18) {
     fontSize -= 2;
-    lineH = fontSize * spec.typography.insightLineHeight;
+    lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
     ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
     lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
     totalH = lines.length * lineH;
@@ -379,14 +389,21 @@ function drawInsightPanel(
   const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
+  // ── Insight text — high-contrast, commanding ──
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.92, 'secondary');
+  ctx.fillStyle = envWhite(envTone, 0.96, 'primary');
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
 
   let textY = panel.y + headerH + fontSize;
   for (const line of finalLines) {
     ctx.fillText(line, textX, textY);
     textY += lineH;
   }
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
 
   ctx.restore();
 }
