@@ -503,36 +503,52 @@ export default function ShareStudio() {
             </button>
           </div>
 
-          {/* ═══ MODE RIBBON — sculpted floating glass band ═══ */}
+          {/* ═══ MODE RIBBON — horizontally scrollable glass band ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-center mb-10">
-              <div className="inline-flex gap-0.5 px-2 py-1.5" style={{
-                borderRadius: 999,
-                background: 'rgba(255,255,255,0.018)',
-                backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(44px) saturate(160%)',
-                WebkitBackdropFilter: 'blur(44px) saturate(160%)',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.14), 0 0 30px rgba(255,255,255,0.01)',
-              }}>
-                <TabsList className="bg-transparent flex gap-0 p-0">
-                  {[
-                    { value: 'template', label: 'Template' },
-                    { value: 'ai', label: 'AI' },
-                    { value: 'style', label: 'Style' },
-                    ...(hasPostImage ? [{ value: 'image', label: 'Image' }] : []),
-                    { value: 'sponsor', label: 'Partner' },
-                    { value: 'privacy', label: 'Privacy' },
-                    { value: 'platform', label: 'Platform' },
-                    { value: 'link', label: 'Link' },
-                  ].map((tab) => (
-                    <TabsTrigger key={tab.value} value={tab.value}
-                      className="studio-mode-dot"
-                    >
-                      {tab.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+            <div className="relative mb-10 -mx-5">
+              {/* Left fade edge */}
+              <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
+                style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 100%)' }} />
+              {/* Right fade edge */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
+                style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.45) 0%, transparent 100%)' }} />
+
+              <div
+                className="overflow-x-auto overflow-y-hidden scrollbar-hide"
+                style={{
+                  WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+              >
+                <div className="inline-flex gap-0.5 px-7 py-1.5 min-w-max" style={{
+                  borderRadius: 999,
+                  background: 'rgba(255,255,255,0.018)',
+                  backgroundImage: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(44px) saturate(160%)',
+                  WebkitBackdropFilter: 'blur(44px) saturate(160%)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.14), 0 0 30px rgba(255,255,255,0.01)',
+                }}>
+                  <TabsList className="bg-transparent flex gap-0 p-0 w-auto">
+                    {[
+                      { value: 'template', label: 'Template' },
+                      { value: 'ai', label: 'AI' },
+                      { value: 'style', label: 'Style' },
+                      ...(hasPostImage ? [{ value: 'image', label: 'Image' }] : []),
+                      { value: 'sponsor', label: 'Partner' },
+                      { value: 'privacy', label: 'Privacy' },
+                      { value: 'platform', label: 'Platform' },
+                      { value: 'link', label: 'Link' },
+                    ].map((tab) => (
+                      <TabsTrigger key={tab.value} value={tab.value}
+                        className="studio-mode-dot flex-shrink-0 whitespace-nowrap"
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
               </div>
             </div>
 
