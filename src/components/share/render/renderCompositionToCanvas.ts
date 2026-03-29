@@ -501,13 +501,13 @@ function drawMomentumPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary');
 
-  const pad = 22;
+  const pad = 26;
   const theme = content.theme;
 
   ctx.save();
 
   const phraseSize = spec.typography.phraseFontSize;
-  const phraseReserved = phraseSize + pad + 8;
+  const phraseReserved = phraseSize + pad + 12;
   const availableForStat = panel.height - pad - phraseReserved;
 
   let cursorY = panel.y + pad;
@@ -518,18 +518,18 @@ function drawMomentumPanel(
     if (displayStat.length > 6) statSize = Math.round(statSize * 0.65);
     else if (displayStat.length > 4) statSize = Math.round(statSize * 0.8);
 
-    const labelSize = 14;
-    const labelGap = 10;
+    const labelSize = 13;
+    const labelGap = 12;
     const neededH = statSize * 0.85 + labelGap + labelSize;
     if (neededH > availableForStat && statSize > 24) {
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // Stat value with subtle glow
+    // Stat value with warm glow — the signal
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     ctx.shadowColor = theme.accentHex;
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 22;
     ctx.shadowOffsetY = 0;
     cursorY += statSize * 0.8;
     ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
@@ -538,21 +538,31 @@ function drawMomentumPanel(
 
     if (content.statLabel) {
       cursorY += labelGap + labelSize;
-      ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
-      ctx.fillStyle = envWhite(envTone, 0.65, 'meta');
-      (ctx as any).letterSpacing = '1.5px';
+      ctx.font = `500 ${labelSize}px ${FONT_FAMILY}`;
+      ctx.fillStyle = envWhite(envTone, 0.55, 'meta');
+      (ctx as any).letterSpacing = '2.5px';
       ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
       (ctx as any).letterSpacing = '0px';
     }
   }
 
-  // Phrase — anchored at bottom, italic serif
+  // Phrase — philosophical anchor at bottom
   const phraseY = panel.y + panel.height - pad;
-  if (phraseY - cursorY > 12) {
-    ctx.font = `italic 500 ${phraseSize}px ${SERIF_FAMILY}`;
+  if (phraseY - cursorY > 16) {
+    // Thin separator above phrase
+    const sepW = Math.min(40, panel.width * 0.1);
+    const sepGrad = ctx.createLinearGradient(panel.x + pad, phraseY - phraseSize - 14, panel.x + pad + sepW, phraseY - phraseSize - 14);
+    sepGrad.addColorStop(0, theme.accentHex);
+    sepGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = sepGrad;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(panel.x + pad, phraseY - phraseSize - 14, sepW, 1);
+    ctx.globalAlpha = 1;
+
+    ctx.font = `italic 400 ${phraseSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-    ctx.globalAlpha = 0.55;
-    (ctx as any).letterSpacing = '1.2px';
+    ctx.globalAlpha = 0.5;
+    (ctx as any).letterSpacing = '1.5px';
     ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
     (ctx as any).letterSpacing = '0px';
     ctx.globalAlpha = 1;
