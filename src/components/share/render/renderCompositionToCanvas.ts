@@ -419,57 +419,72 @@ function drawTextPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
 
-  const pad = 30;
+  const pad = 34;
 
   ctx.save();
 
-  // Title — editorial serif, high-contrast near-white with letter-spacing
+  // ── Decorative top accent — faint directional line ──
+  const accentLineW = Math.min(60, panel.width * 0.15);
+  const accentGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad + accentLineW, panel.y + pad);
+  accentGrad.addColorStop(0, content.theme.accentHex);
+  accentGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = accentGrad;
+  ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
+
+  // Title — editorial serif, high-contrast, strong text shadow
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
-  (ctx as any).letterSpacing = '0.8px';
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 2;
+  (ctx as any).letterSpacing = '1px';
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.24;
+  const titleLineH = titleSize * 1.28;
 
-  let cursorY = panel.y + pad + titleSize;
+  let cursorY = panel.y + pad + 18 + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
   }
   (ctx as any).letterSpacing = '0px';
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
 
-  // Subtitle — generous line-height, warm grey
+  // Subtitle — generous line-height, warm grey, more breathing room
   if (content.subtitle) {
-    cursorY += 16;
+    cursorY += 22;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
-    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
     let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.08);
+    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
     let totalTextH = subLines.length * subLineH;
 
     const minSubSize = 16;
     while (totalTextH > availableH && subSize > minSubSize) {
       subSize -= 2;
       subLineH = subSize * spec.typography.subtitleLineHeight;
-      ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
       subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
       totalTextH = subLines.length * subLineH;
     }
 
     const maxVisibleLines = Math.floor(availableH / subLineH);
     const finalMaxLines = Math.max(maxVisibleLines, 3);
-    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = envWhite(envTone, 0.78, 'secondary');
+    ctx.fillStyle = envWhite(envTone, 0.72, 'secondary');
+    (ctx as any).letterSpacing = '0.3px';
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
+    (ctx as any).letterSpacing = '0px';
   }
 
   ctx.restore();
