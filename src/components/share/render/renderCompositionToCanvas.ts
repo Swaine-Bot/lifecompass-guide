@@ -975,7 +975,7 @@ export async function renderCompositionToCanvas(
     }
   }
 
-  // 4. Card shell — architectural frame with edge glow
+  // 4. Card shell — architectural frame with directional light
   const shellRadius = Math.max(spec.panelRadius, 34);
   
   // Apply rounded clip
@@ -986,16 +986,28 @@ export async function renderCompositionToCanvas(
   ctx.fill();
   ctx.restore();
 
-  // Premium edge contour — subtle luminous border on the card itself
+  // Premium edge contour — directional luminous border (top-left lit)
   ctx.save();
   drawRoundedRect(ctx, 1, 1, spec.width - 2, spec.height - 2, shellRadius - 1);
-  const shellBorderGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  shellBorderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.10)');
-  shellBorderGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.04)');
-  shellBorderGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.02)');
-  shellBorderGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+  const shellBorderGrad = ctx.createLinearGradient(0, 0, spec.width * 0.5, spec.height);
+  shellBorderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
+  shellBorderGrad.addColorStop(0.15, 'rgba(255, 255, 255, 0.07)');
+  shellBorderGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.025)');
+  shellBorderGrad.addColorStop(0.85, 'rgba(255, 255, 255, 0.015)');
+  shellBorderGrad.addColorStop(1, 'rgba(255, 255, 255, 0.04)');
   ctx.strokeStyle = shellBorderGrad;
   ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Inner glow line at top — sculpted edge highlight
+  ctx.save();
+  drawRoundedRect(ctx, 3, 3, spec.width - 6, spec.height - 6, shellRadius - 3);
+  const innerGlowGrad = ctx.createLinearGradient(0, 0, 0, spec.height * 0.15);
+  innerGlowGrad.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+  innerGlowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.strokeStyle = innerGlowGrad;
+  ctx.lineWidth = 0.5;
   ctx.stroke();
   ctx.restore();
 
