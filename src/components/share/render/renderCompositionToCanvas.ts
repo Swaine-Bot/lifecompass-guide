@@ -1,15 +1,16 @@
 /**
- * Deterministic Canvas Renderer — LifeStack Cinematic Artifact Edition.
+ * Deterministic Canvas Renderer — LifeStack Glass Material System.
  *
- * The card is a premium LifeStack artifact: cinematic, aspirational,
- * psychologically charged, elegant, high-trust, luxurious.
+ * 6-LAYER GLASS ARCHITECTURE:
+ *   L1  Outer Frame    — structural glass shell, warm gold tint, restrained glow
+ *   L2  Card Base      — primary obsidian glass plane, internal gradient, inner shadow
+ *   L3  Content Panels — secondary glass surfaces elevated above base
+ *   L4  Image Panel    — glass-housed media with edge highlights
+ *   L5  Typography     — floating signal layer with subtle glow
+ *   L6  Brand Seal     — micro glass badge, etched signature
  *
- * Visual doctrine:
- * - Deep midnight navy / obsidian base with charcoal-to-blue-black gradients
- * - Restrained luxury gold accents with atmospheric glow
- * - Sculpted glass panels with internal light behavior
- * - Editorial serif + clean sans typography hierarchy
- * - Architectural frame with premium shadow separation
+ * Every layer has distinct opacity. No two share the same depth.
+ * Light direction: top-left → bottom-right (consistent across all layers).
  */
 
 import type { CompositionSpec, PanelSpec } from '../composition/computeCompositionSpec';
@@ -19,6 +20,9 @@ import { getEnvironmentTone, type EnvironmentTone } from '../environmentTone';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
+
+// ─── Light direction constants ────────────────────────────────────────
+const LIGHT_ANGLE = { x: 0.15, y: 0.08 }; // top-left origin
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -55,7 +59,17 @@ function drawRoundedRect(
   ctx.closePath();
 }
 
-type PanelTier = 'hero' | 'secondary' | 'tertiary';
+type GlassLayer = 'frame' | 'base' | 'panel-hero' | 'panel-secondary' | 'panel-tertiary' | 'seal';
+
+// ─── LAYER OPACITIES — no two layers share the same value ─────────────
+const GLASS_OPACITY: Record<GlassLayer, number> = {
+  'frame':           0.08,  // L1 — barely there, structural
+  'base':            0.62,  // L2 — primary surface, grounded
+  'panel-hero':      0.48,  // L3 — hero content panels
+  'panel-secondary': 0.38,  // L3 — secondary content panels
+  'panel-tertiary':  0.28,  // L3 — tertiary panels
+  'seal':            0.18,  // L6 — brand badge
+};
 
 /**
  * Environment-reactive text color.
@@ -84,72 +98,115 @@ function envWhite(envTone: EnvironmentTone, alpha: number = 1, tier: 'primary' |
   return `rgba(${Math.min(rr, 255)}, ${Math.min(gg, 255)}, ${bb}, ${alpha})`;
 }
 
+// ─── L3: Glass Panel Surface ──────────────────────────────────────────
 /**
- * Premium sculpted panel surface — layered glass with internal light.
- * Each panel feels like a translucent obsidian slab with depth.
+ * Draws a glass panel with:
+ *  - Distinct fill opacity per tier
+ *  - Top-left directional inner light
+ *  - Bottom inner shadow for depth
+ *  - Luminous border with directional gradient
+ *  - Soft drop shadow beneath (panel floats above base)
  */
-function drawPanelBackground(
+function drawGlassPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
   radius: number,
   envTone: EnvironmentTone,
-  tier: PanelTier = 'secondary',
+  layer: GlassLayer = 'panel-secondary',
 ) {
   ctx.save();
 
   const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
+  const opacity = GLASS_OPACITY[layer];
+  const depthShift = layer === 'panel-hero' ? 6 : layer === 'panel-secondary' ? 4 : 2;
+  const bR = Math.round(8 + tr * ta * depthShift);
+  const bG = Math.round(12 + tg * ta * depthShift);
+  const bB = Math.round(22 + tb * ta * depthShift);
 
-  // ── SCULPTED GLASS — deep midnight with environment bleed ──
+  // ── Drop shadow beneath panel (creates floating separation from base) ──
+  if (layer === 'panel-hero' || layer === 'panel-secondary') {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = layer === 'panel-hero' ? 24 : 16;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 6;
+    drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
+    ctx.fillStyle = 'rgba(0,0,0,0.01)'; // invisible fill to trigger shadow
+    ctx.fill();
+    ctx.restore();
+  }
 
-  // Base fill — deep obsidian with blue-black undertone
-  const fillAlpha = tier === 'hero' ? 0.52 : tier === 'secondary' ? 0.44 : 0.36;
-  const depthShift = tier === 'hero' ? 6 : tier === 'secondary' ? 4 : 2;
-  const bR = Math.round(10 + tr * ta * depthShift);
-  const bG = Math.round(14 + tg * ta * depthShift);
-  const bB = Math.round(24 + tb * ta * depthShift);
-
+  // ── Glass fill — deep obsidian with directional internal gradient ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const baseGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width * 0.3, panel.y + panel.height);
-  baseGrad.addColorStop(0, `rgba(${bR + 14}, ${bG + 16}, ${bB + 20}, ${fillAlpha * 0.9})`);
-  baseGrad.addColorStop(0.5, `rgba(${bR + 6}, ${bG + 8}, ${bB + 14}, ${fillAlpha})`);
-  baseGrad.addColorStop(1, `rgba(${bR}, ${bG + 2}, ${bB + 8}, ${fillAlpha * 1.05})`);
+  const baseGrad = ctx.createLinearGradient(
+    panel.x + panel.width * LIGHT_ANGLE.x,
+    panel.y,
+    panel.x + panel.width * (1 - LIGHT_ANGLE.x),
+    panel.y + panel.height,
+  );
+  baseGrad.addColorStop(0, `rgba(${bR + 18}, ${bG + 20}, ${bB + 26}, ${opacity * 0.85})`);
+  baseGrad.addColorStop(0.4, `rgba(${bR + 8}, ${bG + 10}, ${bB + 16}, ${opacity})`);
+  baseGrad.addColorStop(1, `rgba(${bR}, ${bG + 2}, ${bB + 6}, ${opacity * 1.08})`);
   ctx.fillStyle = baseGrad;
   ctx.fill();
 
-  // Internal light — soft highlight at top-left creating sculpted depth
-  const lumAlpha = tier === 'hero' ? 0.09 : tier === 'secondary' ? 0.06 : 0.035;
+  // ── Directional inner light — top-left highlight (consistent light source) ──
+  const lumIntensity = layer === 'panel-hero' ? 0.11 : layer === 'panel-secondary' ? 0.07 : 0.04;
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const innerLum = ctx.createLinearGradient(
+  const innerLight = ctx.createLinearGradient(
     panel.x, panel.y,
-    panel.x + panel.width * 0.6, panel.y + panel.height * 0.4,
+    panel.x + panel.width * 0.55, panel.y + panel.height * 0.35,
   );
-  innerLum.addColorStop(0, `rgba(255, 255, 255, ${lumAlpha})`);
-  innerLum.addColorStop(0.3, `rgba(255, 255, 255, ${lumAlpha * 0.3})`);
-  innerLum.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = innerLum;
+  innerLight.addColorStop(0, `rgba(255, 255, 255, ${lumIntensity})`);
+  innerLight.addColorStop(0.25, `rgba(255, 255, 255, ${lumIntensity * 0.35})`);
+  innerLight.addColorStop(0.6, `rgba(255, 255, 255, ${lumIntensity * 0.08})`);
+  innerLight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = innerLight;
   ctx.fill();
 
-  // Bottom edge shadow — creates panel separation/floating effect
+  // ── Bottom inner shadow — creates concavity, glass depth ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const bottomShadow = ctx.createLinearGradient(
-    panel.x, panel.y + panel.height * 0.75,
+    panel.x, panel.y + panel.height * 0.7,
     panel.x, panel.y + panel.height,
   );
+  const shadowDepth = layer === 'panel-hero' ? 0.16 : layer === 'panel-secondary' ? 0.12 : 0.08;
   bottomShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  bottomShadow.addColorStop(1, `rgba(0, 0, 0, ${tier === 'hero' ? 0.12 : 0.08})`);
+  bottomShadow.addColorStop(0.6, `rgba(0, 0, 0, ${shadowDepth * 0.3})`);
+  bottomShadow.addColorStop(1, `rgba(0, 0, 0, ${shadowDepth})`);
   ctx.fillStyle = bottomShadow;
   ctx.fill();
 
-  // Architectural border — fine luminous contour line
+  // ── Directional border — lit on top-left, dark on bottom-right ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
-  const borderGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  const borderIntensity = tier === 'hero' ? 0.14 : tier === 'secondary' ? 0.10 : 0.06;
-  borderGrad.addColorStop(0, `rgba(255, 255, 255, ${borderIntensity})`);
-  borderGrad.addColorStop(0.5, `rgba(255, 255, 255, ${borderIntensity * 0.4})`);
-  borderGrad.addColorStop(1, `rgba(255, 255, 255, ${borderIntensity * 0.15})`);
+  const borderGrad = ctx.createLinearGradient(
+    panel.x, panel.y,
+    panel.x + panel.width, panel.y + panel.height,
+  );
+  const borderPeak = layer === 'panel-hero' ? 0.18 : layer === 'panel-secondary' ? 0.13 : 0.08;
+  borderGrad.addColorStop(0, `rgba(255, 255, 255, ${borderPeak})`);          // top-left: bright
+  borderGrad.addColorStop(0.3, `rgba(255, 255, 255, ${borderPeak * 0.45})`); // fade
+  borderGrad.addColorStop(0.7, `rgba(255, 255, 255, ${borderPeak * 0.12})`); // dim
+  borderGrad.addColorStop(1, `rgba(255, 255, 255, ${borderPeak * 0.06})`);   // bottom-right: near invisible
   ctx.strokeStyle = borderGrad;
   ctx.lineWidth = 1;
   ctx.stroke();
+
+  // ── Top edge highlight — sharp catch light along top rim ──
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(panel.x + radius, panel.y + 0.5);
+  ctx.lineTo(panel.x + panel.width - radius, panel.y + 0.5);
+  const topHighlight = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y);
+  const highlightPeak = layer === 'panel-hero' ? 0.22 : layer === 'panel-secondary' ? 0.15 : 0.09;
+  topHighlight.addColorStop(0, `rgba(255, 255, 255, ${highlightPeak * 0.3})`);
+  topHighlight.addColorStop(0.3, `rgba(255, 255, 255, ${highlightPeak})`);
+  topHighlight.addColorStop(0.7, `rgba(255, 255, 255, ${highlightPeak * 0.5})`);
+  topHighlight.addColorStop(1, `rgba(255, 255, 255, ${highlightPeak * 0.1})`);
+  ctx.strokeStyle = topHighlight;
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+  ctx.restore();
 
   ctx.restore();
 }
@@ -192,7 +249,7 @@ function wrapText(
   return lines;
 }
 
-// ─── Panel Renderers ──────────────────────────────────────────────────
+// ─── L4: Image Panel (Glass-Housed Media) ─────────────────────────────
 
 function drawMediaPanel(
   ctx: CanvasRenderingContext2D,
@@ -200,10 +257,24 @@ function drawMediaPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   img: HTMLImageElement | null,
+  envTone: EnvironmentTone,
 ) {
   if (!panel.visible || !img) return;
 
   ctx.save();
+
+  // ── Drop shadow for the image housing ──
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 5;
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
+  ctx.fillStyle = 'rgba(0,0,0,0.01)';
+  ctx.fill();
+  ctx.restore();
+
+  // ── Draw image within rounded glass housing ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
   ctx.clip();
 
@@ -221,7 +292,7 @@ function drawMediaPanel(
 
   ctx.drawImage(img, sx, sy, sw, sh, panel.x, panel.y, panel.width, panel.height);
 
-  // Cinematic vignette on media — darker, more dramatic
+  // Cinematic vignette
   const vignette = ctx.createRadialGradient(
     panel.x + panel.width / 2, panel.y + panel.height / 2,
     Math.min(panel.width, panel.height) * 0.25,
@@ -234,7 +305,7 @@ function drawMediaPanel(
   ctx.fillStyle = vignette;
   ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
-  // Bottom gradient for cinematic feel
+  // Bottom gradient for cinematic depth
   const bottomFade = ctx.createLinearGradient(
     panel.x, panel.y + panel.height * 0.6,
     panel.x, panel.y + panel.height,
@@ -244,7 +315,35 @@ function drawMediaPanel(
   ctx.fillStyle = bottomFade;
   ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
-  // Image count badge — premium capsule
+  ctx.restore();
+
+  // ── Glass housing border — edge highlight + inner shadow (drawn outside clip) ──
+  ctx.save();
+  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
+  const mediaBorder = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
+  mediaBorder.addColorStop(0, 'rgba(255, 255, 255, 0.20)');
+  mediaBorder.addColorStop(0.3, 'rgba(255, 255, 255, 0.08)');
+  mediaBorder.addColorStop(0.7, 'rgba(255, 255, 255, 0.03)');
+  mediaBorder.addColorStop(1, 'rgba(255, 255, 255, 0.06)');
+  ctx.strokeStyle = mediaBorder;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // ── Inner shadow at top edge of image (glass depth) ──
+  ctx.beginPath();
+  ctx.moveTo(panel.x + spec.panelRadius, panel.y + 1);
+  ctx.lineTo(panel.x + panel.width - spec.panelRadius, panel.y + 1);
+  const innerShadow = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y);
+  innerShadow.addColorStop(0, 'rgba(255,255,255,0.04)');
+  innerShadow.addColorStop(0.4, 'rgba(255,255,255,0.12)');
+  innerShadow.addColorStop(0.7, 'rgba(255,255,255,0.06)');
+  innerShadow.addColorStop(1, 'rgba(255,255,255,0.02)');
+  ctx.strokeStyle = innerShadow;
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+  ctx.restore();
+
+  // Image count badge
   if (content.showImageCountBadge && content.mediaCount > 1) {
     const badgeText = `+${content.mediaCount - 1}`;
     ctx.font = `600 ${18}px ${FONT_FAMILY}`;
@@ -263,8 +362,6 @@ function drawMediaPanel(
     ctx.font = `600 ${18}px ${FONT_FAMILY}`;
     ctx.fillText(badgeText, bx + 13, by + 22);
   }
-
-  ctx.restore();
 }
 
 function drawBackgroundImage(
@@ -299,7 +396,7 @@ function drawBackgroundImage(
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
-  // Cinematic atmospheric overlay — deep navy-black
+  // Cinematic atmospheric overlay
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
   overlayGrad.addColorStop(0, `rgba(4, 6, 14, 0.50)`);
   overlayGrad.addColorStop(0.35, `rgba(4, 6, 14, ${spec.backgroundOverlayOpacity * 1.1})`);
@@ -311,6 +408,8 @@ function drawBackgroundImage(
   ctx.restore();
 }
 
+// ─── L5: Typography Overlay — Insight Panel ───────────────────────────
+
 function drawInsightPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
@@ -320,7 +419,7 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero');
 
   const pad = 32;
   const theme = content.theme;
@@ -348,7 +447,7 @@ function drawInsightPanel(
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // ── "REFLECTION" label — ceremonial, widely tracked ──
+  // ── "REFLECTION" label ──
   const labelY = ruleY + 16;
   ctx.font = `600 ${11}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
@@ -358,7 +457,7 @@ function drawInsightPanel(
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
-  // ── Thin separator line below label ──
+  // ── Thin separator below label ──
   const sepY = labelY + 12;
   const sepGrad = ctx.createLinearGradient(ruleX + 18, sepY, ruleX + 18 + 100, sepY);
   sepGrad.addColorStop(0, `rgba(255,255,255,0.08)`);
@@ -389,11 +488,11 @@ function drawInsightPanel(
   const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
-  // ── Insight text — high-contrast, commanding ──
+  // ── L5: Insight text — floating ON the glass with subtle glow ──
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.96, 'primary');
-  ctx.shadowColor = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur = 6;
+  ctx.fillStyle = envWhite(envTone, 0.97, 'primary');
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 8;
   ctx.shadowOffsetY = 2;
 
   let textY = panel.y + headerH + fontSize;
@@ -408,6 +507,8 @@ function drawInsightPanel(
   ctx.restore();
 }
 
+// ─── L5: Typography Overlay — Text Panel ──────────────────────────────
+
 function drawTextPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
@@ -417,13 +518,13 @@ function drawTextPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero');
 
   const pad = 34;
 
   ctx.save();
 
-  // ── Decorative top accent — faint directional line ──
+  // ── Decorative accent line ──
   const accentLineW = Math.min(60, panel.width * 0.15);
   const accentGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad + accentLineW, panel.y + pad);
   accentGrad.addColorStop(0, content.theme.accentHex);
@@ -431,12 +532,12 @@ function drawTextPanel(
   ctx.fillStyle = accentGrad;
   ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
 
-  // Title — editorial serif, high-contrast, strong text shadow
+  // ── L5: Title — floating above glass, high-contrast ──
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
-  ctx.shadowColor = 'rgba(0,0,0,0.35)';
-  ctx.shadowBlur = 8;
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 10;
   ctx.shadowOffsetY = 2;
   (ctx as any).letterSpacing = '1px';
 
@@ -453,7 +554,7 @@ function drawTextPanel(
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Subtitle — generous line-height, warm grey, more breathing room
+  // Subtitle
   if (content.subtitle) {
     cursorY += 22;
     let subSize = spec.typography.subtitleFontSize;
@@ -490,6 +591,8 @@ function drawTextPanel(
   ctx.restore();
 }
 
+// ─── L3: Momentum Panel ──────────────────────────────────────────────
+
 function drawMomentumPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
@@ -499,7 +602,7 @@ function drawMomentumPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-secondary');
 
   const pad = 26;
   const theme = content.theme;
@@ -525,7 +628,7 @@ function drawMomentumPanel(
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // Stat value with warm glow — the signal
+    // ── L5: Stat value — floating above glass with warm glow ──
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     ctx.shadowColor = theme.accentHex;
@@ -546,10 +649,9 @@ function drawMomentumPanel(
     }
   }
 
-  // Phrase — philosophical anchor at bottom
+  // Phrase — philosophical anchor
   const phraseY = panel.y + panel.height - pad;
   if (phraseY - cursorY > 16) {
-    // Thin separator above phrase
     const sepW = Math.min(40, panel.width * 0.1);
     const sepGrad = ctx.createLinearGradient(panel.x + pad, phraseY - phraseSize - 14, panel.x + pad + sepW, phraseY - phraseSize - 14);
     sepGrad.addColorStop(0, theme.accentHex);
@@ -571,6 +673,8 @@ function drawMomentumPanel(
   ctx.restore();
 }
 
+// ─── L3: Meta Panel ──────────────────────────────────────────────────
+
 function drawMetaPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
@@ -580,7 +684,7 @@ function drawMetaPanel(
 ) {
   if (!panel.visible) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'tertiary');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary');
 
   const pad = 26;
   const theme = content.theme;
@@ -590,7 +694,7 @@ function drawMetaPanel(
   const metaSize = spec.typography.metaFontSize;
   const lineGap = 14;
 
-  // ── Small accent diamond — symbolic growth marker ──
+  // ── Small accent diamond ──
   const diamondSize = 6;
   const diamondX = panel.x + pad;
   const diamondCY = panel.y + pad + metaSize * 0.4;
@@ -604,7 +708,6 @@ function drawMetaPanel(
 
   let cursorY = panel.y + pad + metaSize;
 
-  // Card type — uppercase, widely tracked, symbolic
   ctx.font = `600 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
   ctx.globalAlpha = 0.8;
@@ -634,6 +737,8 @@ function drawMetaPanel(
   ctx.restore();
 }
 
+// ─── L6: Brand Seal Panel ─────────────────────────────────────────────
+
 function drawBrandPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
@@ -650,21 +755,32 @@ function drawBrandPanel(
   const bG = Math.round(12 + tg * ta * 3);
   const bB = Math.round(22 + tb * ta * 3);
 
-  // ── Ceremonial brand strip — elegant, prestigious presence ──
+  // ── L6: Micro glass badge — distinct from all other layers ──
+  const sealOpacity = GLASS_OPACITY['seal'];
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
-  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 10}, ${bG + 10}, ${bB + 12}, 0.06)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.14)`);
+  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width * 0.4, panel.y + panel.height);
+  grad.addColorStop(0, `rgba(${bR + 14}, ${bG + 12}, ${bB + 8}, ${sealOpacity * 1.1})`);
+  grad.addColorStop(0.5, `rgba(${bR + 6}, ${bG + 6}, ${bB + 6}, ${sealOpacity})`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, ${sealOpacity * 0.9})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Top border — whisper separation
+  // ── Directional border — consistent with global light ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
-  const borderGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y);
-  borderGrad.addColorStop(0, 'rgba(255,255,255,0.015)');
-  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.055)');
+  const borderGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
+  borderGrad.addColorStop(0, 'rgba(255,255,255,0.10)');
+  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.04)');
   borderGrad.addColorStop(1, 'rgba(255,255,255,0.015)');
   ctx.strokeStyle = borderGrad;
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+
+  // ── Top edge highlight ──
+  ctx.beginPath();
+  const halfR = Math.min(spec.panelRadius, panel.height / 2);
+  ctx.moveTo(panel.x + halfR, panel.y + 0.5);
+  ctx.lineTo(panel.x + panel.width - halfR, panel.y + 0.5);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 0.5;
   ctx.stroke();
 
@@ -672,7 +788,6 @@ function drawBrandPanel(
   const iconSize = 28;
   const brandSize = spec.typography.brandFontSize;
 
-  // Measure full text to center everything
   ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
   const prefixW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
@@ -683,12 +798,12 @@ function drawBrandPanel(
   const iconX = startX;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
-  // Icon glow — warm, ceremonial
+  // Icon glow
   ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
   ctx.shadowBlur = 20;
   ctx.shadowOffsetY = 0;
 
-  // Circular seal instead of square
+  // Circular seal
   ctx.beginPath();
   ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2, 0, Math.PI * 2);
   ctx.closePath();
@@ -705,7 +820,7 @@ function drawBrandPanel(
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Inner ring on seal
+  // Inner ring
   ctx.beginPath();
   ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 3, 0, Math.PI * 2);
   ctx.closePath();
@@ -720,7 +835,7 @@ function drawBrandPanel(
   ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 3.5);
   ctx.textAlign = 'left';
 
-  // ── Brand text — ceremonial, split hierarchy ──
+  // ── Brand text ──
   const textX = iconX + iconSize + gap;
   const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
@@ -751,26 +866,10 @@ function drawSponsorPanel(
 
   const sponsor = content.sponsor;
   const pad = 22;
-  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
 
   ctx.save();
-  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
 
-  const sR = Math.round(12 + tr * ta * 3);
-  const sG = Math.round(14 + tg * ta * 3);
-  const sB = Math.round(26 + tb * ta * 3);
-
-  const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${sR + 6}, ${sG + 6}, ${sB + 6}, 0.08)`);
-  grad.addColorStop(1, `rgba(${sR}, ${sG}, ${sB}, 0.15)`);
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Subtle top border
-  drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary');
 
   const prefixMap: Record<string, string> = {
     sponsored: 'Sponsored by',
@@ -807,7 +906,52 @@ function drawSponsorPanel(
   ctx.restore();
 }
 
-// ─── Main Background — Cinematic LifeStack Environment ─────────────────
+// ─── L2: Card Base — Primary Glass Plane ──────────────────────────────
+
+function drawCardBase(
+  ctx: CanvasRenderingContext2D,
+  spec: CompositionSpec,
+  envTone: EnvironmentTone,
+) {
+  const shellRadius = Math.max(spec.panelRadius, 34);
+  const inset = 0; // base fills the entire card
+
+  ctx.save();
+
+  // ── L2: Primary glass plane — deep obsidian with internal gradient ──
+  const baseOpacity = GLASS_OPACITY['base'];
+  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
+  const bR = Math.round(6 + tr * ta * 4);
+  const bG = Math.round(8 + tg * ta * 4);
+  const bB = Math.round(18 + tb * ta * 4);
+
+  drawRoundedRect(ctx, inset, inset, spec.width - inset * 2, spec.height - inset * 2, shellRadius);
+  const baseGrad = ctx.createLinearGradient(
+    spec.width * LIGHT_ANGLE.x, 0,
+    spec.width * (1 - LIGHT_ANGLE.x), spec.height,
+  );
+  // Top slightly lighter than bottom (internal gradient)
+  baseGrad.addColorStop(0, `rgba(${bR + 12}, ${bG + 14}, ${bB + 20}, ${baseOpacity * 0.7})`);
+  baseGrad.addColorStop(0.3, `rgba(${bR + 6}, ${bG + 8}, ${bB + 14}, ${baseOpacity * 0.85})`);
+  baseGrad.addColorStop(0.7, `rgba(${bR + 2}, ${bG + 4}, ${bB + 8}, ${baseOpacity})`);
+  baseGrad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB + 4}, ${baseOpacity * 1.05})`);
+  ctx.fillStyle = baseGrad;
+  ctx.fill();
+
+  // ── Inner shadow — creates depth, grounded pane feel ──
+  drawRoundedRect(ctx, inset, inset, spec.width - inset * 2, spec.height - inset * 2, shellRadius);
+  const innerShadow = ctx.createLinearGradient(0, 0, 0, spec.height);
+  innerShadow.addColorStop(0, 'rgba(255,255,255,0.04)');
+  innerShadow.addColorStop(0.05, 'rgba(255,255,255,0.01)');
+  innerShadow.addColorStop(0.95, 'rgba(0,0,0,0.06)');
+  innerShadow.addColorStop(1, 'rgba(0,0,0,0.12)');
+  ctx.fillStyle = innerShadow;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── Background — Cinematic LifeStack Environment ─────────────────────
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
@@ -817,7 +961,7 @@ function drawBackground(
 ) {
   const colors = parseGradient(theme.bgGradient);
 
-  // ── Base environment — deep midnight navy / obsidian ──
+  // ── Base environment ──
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
       spec.width * 0.05, 0,
@@ -832,7 +976,7 @@ function drawBackground(
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Key light — expansive warm bloom with cinematic spread
+  // Key light
   const kl = envTone.keyLight;
   const keyGrad = ctx.createRadialGradient(
     spec.width * kl.x, spec.height * kl.y, 0,
@@ -846,7 +990,7 @@ function drawBackground(
   ctx.fillStyle = keyGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fill light — cool complementary wash, deeper
+  // Fill light
   const fl = envTone.fillLight;
   const fillGrad = ctx.createRadialGradient(
     spec.width * fl.x, spec.height * fl.y, 0,
@@ -858,7 +1002,7 @@ function drawBackground(
   ctx.fillStyle = fillGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Ambient warmth — diffused center gravity
+  // Ambient warmth
   const aw = envTone.ambientWarmth;
   const centerGrad = ctx.createRadialGradient(
     spec.width * 0.45, spec.height * 0.30, 0,
@@ -870,7 +1014,7 @@ function drawBackground(
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Secondary warm bloom — creates depth layering
+  // Secondary warm bloom
   const bloom2 = ctx.createRadialGradient(
     spec.width * 0.72, spec.height * 0.18, 0,
     spec.width * 0.72, spec.height * 0.18, spec.width * 0.65,
@@ -881,7 +1025,7 @@ function drawBackground(
   ctx.fillStyle = bloom2;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Lower-right cool accent — cinematic color separation
+  // Cool accent
   const coolAccent = ctx.createRadialGradient(
     spec.width * 0.85, spec.height * 0.75, 0,
     spec.width * 0.85, spec.height * 0.75, spec.width * 0.5,
@@ -892,7 +1036,7 @@ function drawBackground(
   ctx.fillStyle = coolAccent;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine grain — physical materiality (more subtle)
+  // Fine grain texture
   ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
   for (let i = 0; i < 180; i++) {
     const nx = Math.random() * spec.width;
@@ -900,7 +1044,7 @@ function drawBackground(
     ctx.fillRect(nx, ny, 1, 1);
   }
 
-  // Soft vignette — cinematic edge darkening
+  // Vignette
   const vs = envTone.vignetteStrength;
   const vignetteGrad = ctx.createRadialGradient(
     spec.width / 2, spec.height * 0.38, Math.min(spec.width, spec.height) * 0.4,
@@ -912,6 +1056,58 @@ function drawBackground(
   vignetteGrad.addColorStop(1, `rgba(0,0,0,${vs * 0.30})`);
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
+}
+
+// ─── L1: Outer Frame — Structural Glass Shell ─────────────────────────
+
+function drawOuterFrame(
+  ctx: CanvasRenderingContext2D,
+  spec: CompositionSpec,
+  envTone: EnvironmentTone,
+  accentHex: string,
+) {
+  const shellRadius = Math.max(spec.panelRadius, 34);
+
+  ctx.save();
+
+  // ── Warm gold-tinted structural frame border ──
+  drawRoundedRect(ctx, 1, 1, spec.width - 2, spec.height - 2, shellRadius - 1);
+  const frameBorder = ctx.createLinearGradient(0, 0, spec.width * 0.5, spec.height);
+  // Directional: bright top-left → dim bottom-right (consistent light)
+  frameBorder.addColorStop(0, 'rgba(255, 245, 225, 0.18)');   // warm gold tint
+  frameBorder.addColorStop(0.12, 'rgba(255, 248, 230, 0.10)');
+  frameBorder.addColorStop(0.4, 'rgba(255, 255, 255, 0.05)');
+  frameBorder.addColorStop(0.7, 'rgba(255, 255, 255, 0.02)');
+  frameBorder.addColorStop(1, 'rgba(255, 250, 235, 0.04)');    // subtle warmth returns
+  ctx.strokeStyle = frameBorder;
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // ── Inner contour line — secondary edge definition ──
+  drawRoundedRect(ctx, 3.5, 3.5, spec.width - 7, spec.height - 7, shellRadius - 3);
+  const innerContour = ctx.createLinearGradient(0, 0, 0, spec.height * 0.2);
+  innerContour.addColorStop(0, 'rgba(255, 250, 235, 0.06)');
+  innerContour.addColorStop(0.5, 'rgba(255, 255, 255, 0.02)');
+  innerContour.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.strokeStyle = innerContour;
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // ── Soft outer glow — extremely restrained, warm gold ──
+  // (This is drawn as a subtle fill around the edge zone)
+  drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
+  const edgeGlow = ctx.createLinearGradient(0, 0, spec.width, spec.height);
+  edgeGlow.addColorStop(0, `rgba(200, 170, 110, ${GLASS_OPACITY['frame']})`);
+  edgeGlow.addColorStop(0.3, 'rgba(200, 170, 110, 0.02)');
+  edgeGlow.addColorStop(0.7, 'rgba(200, 170, 110, 0.01)');
+  edgeGlow.addColorStop(1, `rgba(200, 170, 110, ${GLASS_OPACITY['frame'] * 0.5})`);
+  ctx.fillStyle = edgeGlow;
+  // Only fill the edge band (not the interior)
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = edgeGlow;
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 // ─── Main Render Function ─────────────────────────────────────────────
@@ -926,7 +1122,6 @@ export async function renderCompositionToCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2d context');
 
-  // Resolve environment tone from theme
   const envTone = getEnvironmentTone(content.theme.id);
 
   // Wait for fonts
@@ -947,17 +1142,24 @@ export async function renderCompositionToCanvas(
     }
   }
 
-  // 1. Background — cinematic environment
+  // ═══════════════════════════════════════════════════════════════
+  // LAYER STACK — rendered bottom-to-top
+  // ═══════════════════════════════════════════════════════════════
+
+  // ENVIRONMENT — cinematic background
   drawBackground(ctx, spec, content.theme, envTone);
 
-  // 2. Background image (if background treatment)
+  // Background image (if background treatment)
   if (content.imageTreatment === 'background') {
     drawBackgroundImage(ctx, spec, content, mediaImg);
   }
 
-  // 3. Panels (in z-order) — all inherit environment
+  // L2 — CARD BASE — primary glass plane (sits above environment)
+  drawCardBase(ctx, spec, envTone);
+
+  // L3/L4/L5 — CONTENT PANELS (in z-order)
   const panelDrawOrder: [PanelSpec, (ctx: CanvasRenderingContext2D, panel: PanelSpec) => void][] = [
-    [spec.panels.media, (c, p) => drawMediaPanel(c, p, content, spec, content.imageTreatment !== 'background' ? mediaImg : null)],
+    [spec.panels.media, (c, p) => drawMediaPanel(c, p, content, spec, content.imageTreatment !== 'background' ? mediaImg : null, envTone)],
     [spec.panels.insight, (c, p) => drawInsightPanel(c, p, content, spec, envTone)],
     [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec, envTone)],
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone)],
@@ -966,7 +1168,6 @@ export async function renderCompositionToCanvas(
     [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone)],
   ];
 
-  // Sort by z-index
   panelDrawOrder.sort((a, b) => a[0].zIndex - b[0].zIndex);
 
   for (const [panel, draw] of panelDrawOrder) {
@@ -975,9 +1176,12 @@ export async function renderCompositionToCanvas(
     }
   }
 
-  // 4. Card shell — architectural frame with directional light
+  // ═══════════════════════════════════════════════════════════════
+  // FINAL SHELL — rounded clip + outer frame
+  // ═══════════════════════════════════════════════════════════════
+
   const shellRadius = Math.max(spec.panelRadius, 34);
-  
+
   // Apply rounded clip
   ctx.save();
   ctx.globalCompositeOperation = 'destination-in';
@@ -986,30 +1190,8 @@ export async function renderCompositionToCanvas(
   ctx.fill();
   ctx.restore();
 
-  // Premium edge contour — directional luminous border (top-left lit)
-  ctx.save();
-  drawRoundedRect(ctx, 1, 1, spec.width - 2, spec.height - 2, shellRadius - 1);
-  const shellBorderGrad = ctx.createLinearGradient(0, 0, spec.width * 0.5, spec.height);
-  shellBorderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
-  shellBorderGrad.addColorStop(0.15, 'rgba(255, 255, 255, 0.07)');
-  shellBorderGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.025)');
-  shellBorderGrad.addColorStop(0.85, 'rgba(255, 255, 255, 0.015)');
-  shellBorderGrad.addColorStop(1, 'rgba(255, 255, 255, 0.04)');
-  ctx.strokeStyle = shellBorderGrad;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.restore();
-
-  // Inner glow line at top — sculpted edge highlight
-  ctx.save();
-  drawRoundedRect(ctx, 3, 3, spec.width - 6, spec.height - 6, shellRadius - 3);
-  const innerGlowGrad = ctx.createLinearGradient(0, 0, 0, spec.height * 0.15);
-  innerGlowGrad.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
-  innerGlowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.strokeStyle = innerGlowGrad;
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
-  ctx.restore();
+  // L1 — OUTER FRAME — structural glass shell with warm gold tint
+  drawOuterFrame(ctx, spec, envTone, content.theme.accentHex);
 
   return canvas;
 }
