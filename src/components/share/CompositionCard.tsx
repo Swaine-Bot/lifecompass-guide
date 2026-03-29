@@ -3,7 +3,7 @@
  *
  * Renders the card at EXACT export dimensions on an internal artboard,
  * then scales it down via CSS transform for on-screen preview.
- * This guarantees preview/export parity.
+ * Premium outer shell with architectural shadow and edge glow.
  */
 
 import { useRef, useEffect, useState, useMemo } from 'react';
@@ -68,6 +68,8 @@ export function CompositionCard({
     return () => { cancelled = true; };
   }, [spec, content]);
 
+  const accentHex = content.theme?.accentHex || 'rgba(200,164,106,0.15)';
+
   return (
     <div
       className={`relative overflow-hidden ${className}`}
@@ -75,7 +77,14 @@ export function CompositionCard({
         width: maxPreviewWidth,
         height: previewHeight,
         borderRadius: 34,
-        boxShadow: '0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.03)',
+        // Premium shadow system — depth + accent glow
+        boxShadow: [
+          `0 32px 80px -12px rgba(0,0,0,0.55)`,
+          `0 16px 40px -8px rgba(0,0,0,0.35)`,
+          `0 0 60px -20px ${accentHex}`,
+          `0 0 0 1px rgba(255,255,255,0.06)`,
+          `inset 0 1px 0 rgba(255,255,255,0.04)`,
+        ].join(', '),
       }}
     >
       <canvas
@@ -88,21 +97,27 @@ export function CompositionCard({
         }}
       />
       {!rendered && (
-      <div
+        <div
           className="absolute inset-0 flex items-center justify-center"
           style={{
-            background: 'rgba(14, 22, 28, 0.5)',
-            borderRadius: 28,
+            background: 'rgba(6, 8, 16, 0.7)',
+            borderRadius: 34,
             backdropFilter: 'blur(80px) saturate(145%)',
             WebkitBackdropFilter: 'blur(80px) saturate(145%)',
           }}
         >
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-3">
             <div
-              className="w-6 h-6 mx-auto border-2 border-t-transparent rounded-full animate-spin"
-              style={{ borderColor: 'hsla(43, 74%, 52%, 0.3)', borderTopColor: 'transparent' }}
+              className="w-7 h-7 mx-auto border-2 border-t-transparent rounded-full animate-spin"
+              style={{ borderColor: 'hsla(43, 74%, 52%, 0.25)', borderTopColor: 'transparent' }}
             />
-            <p style={{ fontSize: 10, color: 'hsl(40,10%,45%)', fontFamily: '"Playfair Display", serif', letterSpacing: '0.08em' }}>
+            <p style={{
+              fontSize: 10,
+              color: 'hsl(40,10%,42%)',
+              fontFamily: '"Playfair Display", serif',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}>
               Composing…
             </p>
           </div>
