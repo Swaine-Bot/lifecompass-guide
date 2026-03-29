@@ -1,17 +1,19 @@
 /**
  * Deterministic Canvas Renderer — LifeStack Optical Glass System.
  *
- * TRUE TRANSLUCENT GLASS ARCHITECTURE:
- *   L1  Outer Frame    — near-invisible structural edge, specular highlights
- *   L2  Card Base      — translucent glass plane, environment shows through
- *   L3  Content Panels — layered glass surfaces at varying opacity/depth
- *   L4  Image Panel    — glass-housed media with refraction edge
- *   L5  Typography     — floating signal with clarity lift
- *   L6  Brand Seal     — etched glass signature
+ * COLOR DOCTRINE: The card has NO independent color identity.
+ * Color is EXTRACTED from the embedded media and PROPAGATED through
+ * every glass layer using a "fibre optic" distribution model.
  *
- * Material doctrine: every surface is GLASS. No opaque fills.
+ * LAYER ARCHITECTURE:
+ *   L1  Outer Frame    — faintest media tint, specular highlights
+ *   L2  Card Base      — deep desaturated version of primary media color
+ *   L3  Content Panels — increasing media color intensity per depth tier
+ *   L4  Image Panel    — glass-housed media (color source)
+ *   L5  Typography     — floating signal with adaptive contrast
+ *   L6  Brand Seal     — etched glass with accent from media
+ *
  * Light direction: top-left → bottom-right (unified specular system).
- * Environment bleeds through all layers via controlled translucency.
  */
 
 import type { CompositionSpec, PanelSpec } from '../composition/computeCompositionSpec';
@@ -23,20 +25,147 @@ const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
 
 // ─── Light direction constants ────────────────────────────────────────
-const LIGHT_ANGLE = { x: 0.12, y: 0.06 }; // top-left origin
+const LIGHT_ANGLE = { x: 0.12, y: 0.06 };
 
 // ─── TRUE GLASS OPACITY HIERARCHY ────────────────────────────────────
-// Every layer is translucent. No two share opacity. Background bleeds through all.
 type GlassLayer = 'frame' | 'base' | 'panel-hero' | 'panel-secondary' | 'panel-tertiary' | 'seal';
 
 const GLASS_OPACITY: Record<GlassLayer, number> = {
-  'frame':           0.04,   // L1 — nearly invisible, structural edge only
-  'base':            0.32,   // L2 — translucent, environment visible through it
-  'panel-hero':      0.26,   // L3 — hero panels, slightly more presence
-  'panel-secondary': 0.20,   // L3 — secondary, lighter glass
-  'panel-tertiary':  0.14,   // L3 — tertiary, whisper-thin
-  'seal':            0.10,   // L6 — etched badge
+  'frame':           0.04,
+  'base':            0.32,
+  'panel-hero':      0.26,
+  'panel-secondary': 0.20,
+  'panel-tertiary':  0.14,
+  'seal':            0.10,
 };
+
+// ─── Media Color Palette ──────────────────────────────────────────────
+/** Colors extracted from embedded media, normalized for premium glass use */
+interface MediaPalette {
+  /** Most dominant color — used for card base, deep desaturated */
+  primary: { r: number; g: number; b: number };
+  /** Supporting tone — blended into panels */
+  secondary: { r: number; g: number; b: number };
+  /** Highlight tone — used for edge glow, accent lines */
+  accent: { r: number; g: number; b: number };
+  /** Whether we successfully extracted from a real image */
+  extracted: boolean;
+}
+
+const FALLBACK_PALETTE: MediaPalette = {
+  primary:   { r: 14, g: 18, b: 32 },
+  secondary: { r: 20, g: 26, b: 42 },
+  accent:    { r: 200, g: 164, b: 106 },
+  extracted: false,
+};
+
+// ─── Color Extraction Engine ──────────────────────────────────────────
+
+function extractMediaPalette(img: HTMLImageElement): MediaPalette {
+  const sampleSize = 64;
+  const sCanvas = document.createElement('canvas');
+  sCanvas.width = sampleSize;
+  sCanvas.height = sampleSize;
+  const sCtx = sCanvas.getContext('2d');
+  if (!sCtx) return FALLBACK_PALETTE;
+
+  sCtx.drawImage(img, 0, 0, sampleSize, sampleSize);
+  let data: Uint8ClampedArray;
+  try {
+    data = sCtx.getImageData(0, 0, sampleSize, sampleSize).data;
+  } catch {
+    return FALLBACK_PALETTE;
+  }
+
+  // Bucket colors into clusters using simplified k-means-ish approach
+  // Sample every 4th pixel for speed
+  const pixels: { r: number; g: number; b: number; weight: number }[] = [];
+  for (let i = 0; i < data.length; i += 16) {
+    const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+    if (a < 128) continue;
+    // Skip near-black and near-white (not useful for tinting)
+    const lum = r * 0.299 + g * 0.587 + b * 0.114;
+    if (lum < 12 || lum > 245) continue;
+    // Saturation weight — more saturated pixels are more "interesting"
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const sat = max === 0 ? 0 : (max - min) / max;
+    pixels.push({ r, g, b, weight: 0.3 + sat * 0.7 });
+  }
+
+  if (pixels.length < 3) return FALLBACK_PALETTE;
+
+  // Sort by weight and cluster into 3 groups
+  pixels.sort((a, b) => b.weight - a.weight);
+
+  const clusters = [
+    { rSum: 0, gSum: 0, bSum: 0, count: 0 },
+    { rSum: 0, gSum: 0, bSum: 0, count: 0 },
+    { rSum: 0, gSum: 0, bSum: 0, count: 0 },
+  ];
+
+  // Simple distance-based assignment
+  const seeds = [pixels[0], pixels[Math.floor(pixels.length * 0.33)], pixels[Math.floor(pixels.length * 0.66)]];
+  for (const p of pixels) {
+    let bestDist = Infinity, bestIdx = 0;
+    for (let c = 0; c < 3; c++) {
+      const dr = p.r - seeds[c].r, dg = p.g - seeds[c].g, db = p.b - seeds[c].b;
+      const dist = dr * dr + dg * dg + db * db;
+      if (dist < bestDist) { bestDist = dist; bestIdx = c; }
+    }
+    const cl = clusters[bestIdx];
+    cl.rSum += p.r * p.weight;
+    cl.gSum += p.g * p.weight;
+    cl.bSum += p.b * p.weight;
+    cl.count += p.weight;
+  }
+
+  const resolved = clusters.map(c => {
+    if (c.count === 0) return { r: 14, g: 18, b: 32 };
+    return {
+      r: Math.round(c.rSum / c.count),
+      g: Math.round(c.gSum / c.count),
+      b: Math.round(c.bSum / c.count),
+    };
+  });
+
+  // Sort clusters by luminance — darkest = primary, brightest = accent
+  resolved.sort((a, b) => (a.r * 0.299 + a.g * 0.587 + a.b * 0.114) - (b.r * 0.299 + b.g * 0.587 + b.b * 0.114));
+
+  // Normalize for premium feel — desaturate and darken for glass use
+  const normalize = (c: { r: number; g: number; b: number }, desat: number, darken: number) => {
+    const avg = (c.r + c.g + c.b) / 3;
+    return {
+      r: Math.round((c.r + (avg - c.r) * desat) * darken),
+      g: Math.round((c.g + (avg - c.g) * desat) * darken),
+      b: Math.round((c.b + (avg - c.b) * desat) * darken),
+    };
+  };
+
+  return {
+    primary:   normalize(resolved[0], 0.35, 0.28),   // deep, heavily desaturated
+    secondary: normalize(resolved[1], 0.30, 0.35),   // mid, moderate desat
+    accent:    normalize(resolved[2], 0.15, 0.85),    // retain more color for highlights
+    extracted: true,
+  };
+}
+
+/** Blend a media palette color with an environment tint */
+function blendPaletteWithEnv(
+  palette: MediaPalette,
+  tier: 'primary' | 'secondary' | 'accent',
+  envTint: { r: number; g: number; b: number; alpha: number },
+  paletteStrength: number = 0.6,
+): { r: number; g: number; b: number } {
+  const c = palette[tier];
+  const e = envTint;
+  const ps = palette.extracted ? paletteStrength : 0;
+  const es = 1 - ps;
+  return {
+    r: Math.round(c.r * ps + (12 + e.r * e.alpha * 5) * es),
+    g: Math.round(c.g * ps + (16 + e.g * e.alpha * 5) * es),
+    b: Math.round(c.b * ps + (24 + e.b * e.alpha * 4) * es),
+  };
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -73,7 +202,6 @@ function drawRoundedRect(
   ctx.closePath();
 }
 
-/** Wrap text into lines that fit within maxWidth */
 function wrapText(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -111,9 +239,6 @@ function wrapText(
   return lines;
 }
 
-/**
- * Environment-reactive text color.
- */
 function envWhite(envTone: EnvironmentTone, alpha: number = 1, tier: 'primary' | 'secondary' | 'meta' = 'primary'): string {
   const { r, g, b, alpha: ta } = envTone.panelTint;
   const warmShift = ta * 1.8;
@@ -121,23 +246,29 @@ function envWhite(envTone: EnvironmentTone, alpha: number = 1, tier: 'primary' |
   if (tier === 'primary') {
     const rr = Math.round(250 + r * warmShift * 0.03);
     const gg = Math.round(248 + g * warmShift * 0.02);
-    const bb = Math.round(244);
+    const bb = 244;
     return `rgba(${Math.min(rr, 255)}, ${Math.min(gg, 255)}, ${bb}, ${alpha})`;
   }
   if (tier === 'secondary') {
     const rr = Math.round(215 + r * warmShift * 0.04);
     const gg = Math.round(218 + g * warmShift * 0.03);
-    const bb = Math.round(224);
+    const bb = 224;
     return `rgba(${Math.min(rr, 255)}, ${Math.min(gg, 255)}, ${bb}, ${alpha})`;
   }
-  // meta
   const rr = Math.round(140 + r * warmShift * 0.05);
   const gg = Math.round(148 + g * warmShift * 0.04);
-  const bb = Math.round(164);
+  const bb = 164;
   return `rgba(${Math.min(rr, 255)}, ${Math.min(gg, 255)}, ${bb}, ${alpha})`;
 }
 
-// ─── SPECULAR HIGHLIGHT — diagonal light streak across glass ──────────
+/** Produce an accent color string — prefer media-derived accent if available */
+function paletteAccent(palette: MediaPalette, themeAccent: string, alpha: number = 1): string {
+  if (!palette.extracted) return themeAccent;
+  const a = palette.accent;
+  return `rgba(${a.r}, ${a.g}, ${a.b}, ${alpha})`;
+}
+
+// ─── SPECULAR HIGHLIGHT ──────────────────────────────────────────────
 
 function drawSpecularStreak(
   ctx: CanvasRenderingContext2D,
@@ -148,7 +279,6 @@ function drawSpecularStreak(
   drawRoundedRect(ctx, x, y, w, h, radius);
   ctx.clip();
 
-  // Diagonal specular — top-left to ~40% across, very thin
   const streakGrad = ctx.createLinearGradient(
     x + w * 0.05, y + h * 0.02,
     x + w * 0.55, y + h * 0.15,
@@ -165,34 +295,43 @@ function drawSpecularStreak(
   ctx.restore();
 }
 
-// ─── EDGE HIGHLIGHT SYSTEM — sharp bright edges on glass boundaries ───
+// ─── EDGE HIGHLIGHT SYSTEM ───────────────────────────────────────────
 
 function drawGlassEdges(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, w: number, h: number, radius: number,
   intensity: number = 0.16,
+  palette?: MediaPalette,
 ) {
   ctx.save();
 
-  // Directional border — lit on top-left, fades to bottom-right
+  // Use media accent for edge tint if available
+  const edgeR = palette?.extracted ? palette.accent.r : 255;
+  const edgeG = palette?.extracted ? palette.accent.g : 255;
+  const edgeB = palette?.extracted ? palette.accent.b : 255;
+  // Blend media accent with white for subtle color-aware edges
+  const eR = palette?.extracted ? Math.round(edgeR * 0.3 + 255 * 0.7) : 255;
+  const eG = palette?.extracted ? Math.round(edgeG * 0.3 + 255 * 0.7) : 255;
+  const eB = palette?.extracted ? Math.round(edgeB * 0.3 + 255 * 0.7) : 255;
+
   drawRoundedRect(ctx, x, y, w, h, radius);
   const borderGrad = ctx.createLinearGradient(x, y, x + w, y + h);
-  borderGrad.addColorStop(0, `rgba(255, 255, 255, ${intensity})`);
-  borderGrad.addColorStop(0.15, `rgba(255, 255, 255, ${intensity * 0.7})`);
-  borderGrad.addColorStop(0.4, `rgba(255, 255, 255, ${intensity * 0.2})`);
+  borderGrad.addColorStop(0, `rgba(${eR}, ${eG}, ${eB}, ${intensity})`);
+  borderGrad.addColorStop(0.15, `rgba(${eR}, ${eG}, ${eB}, ${intensity * 0.7})`);
+  borderGrad.addColorStop(0.4, `rgba(${eR}, ${eG}, ${eB}, ${intensity * 0.2})`);
   borderGrad.addColorStop(0.7, `rgba(255, 255, 255, ${intensity * 0.06})`);
   borderGrad.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0.03})`);
   ctx.strokeStyle = borderGrad;
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Sharp top-edge catch light
+  // Top-edge catch light
   ctx.beginPath();
   ctx.moveTo(x + radius, y + 0.5);
   ctx.lineTo(x + w - radius, y + 0.5);
   const topHL = ctx.createLinearGradient(x, y, x + w, y);
-  topHL.addColorStop(0, `rgba(255, 255, 255, ${intensity * 0.2})`);
-  topHL.addColorStop(0.2, `rgba(255, 255, 255, ${intensity * 0.9})`);
+  topHL.addColorStop(0, `rgba(${eR}, ${eG}, ${eB}, ${intensity * 0.2})`);
+  topHL.addColorStop(0.2, `rgba(${eR}, ${eG}, ${eB}, ${intensity * 0.9})`);
   topHL.addColorStop(0.5, `rgba(255, 255, 255, ${intensity * 0.5})`);
   topHL.addColorStop(0.8, `rgba(255, 255, 255, ${intensity * 0.15})`);
   topHL.addColorStop(1, `rgba(255, 255, 255, ${intensity * 0.05})`);
@@ -200,12 +339,12 @@ function drawGlassEdges(
   ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // Left-edge catch light (subtle)
+  // Left-edge catch light
   ctx.beginPath();
   ctx.moveTo(x + 0.5, y + radius);
   ctx.lineTo(x + 0.5, y + h * 0.4);
   const leftHL = ctx.createLinearGradient(x, y + radius, x, y + h * 0.4);
-  leftHL.addColorStop(0, `rgba(255, 255, 255, ${intensity * 0.5})`);
+  leftHL.addColorStop(0, `rgba(${eR}, ${eG}, ${eB}, ${intensity * 0.5})`);
   leftHL.addColorStop(0.5, `rgba(255, 255, 255, ${intensity * 0.15})`);
   leftHL.addColorStop(1, `rgba(255, 255, 255, 0)`);
   ctx.strokeStyle = leftHL;
@@ -215,33 +354,29 @@ function drawGlassEdges(
   ctx.restore();
 }
 
-// ─── L3: Glass Panel Surface ──────────────────────────────────────────
-/**
- * TRUE TRANSLUCENT glass panel:
- *  - Low opacity fill — environment bleeds through
- *  - Internal light gradient simulating light passing through glass
- *  - Edge highlights for physical presence
- *  - Specular streak for optical realism
- *  - Soft diffused shadow (no harsh drops)
- */
+// ─── L3: Glass Panel Surface — Media-Color-Tinted ─────────────────────
+
 function drawGlassPanel(
   ctx: CanvasRenderingContext2D,
   panel: PanelSpec,
   radius: number,
   envTone: EnvironmentTone,
   layer: GlassLayer = 'panel-secondary',
+  palette: MediaPalette = FALLBACK_PALETTE,
 ) {
   ctx.save();
 
-  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
   const opacity = GLASS_OPACITY[layer];
 
-  // Environment-tinted base colors (absorbed from surroundings)
-  const bR = Math.round(12 + tr * ta * 6);
-  const bG = Math.round(16 + tg * ta * 5);
-  const bB = Math.round(28 + tb * ta * 4);
+  // COLOR PROPAGATION: blend media palette with environment
+  // Stronger media influence on inner panels, fainter on outer
+  const paletteStrength = layer === 'panel-hero' ? 0.65 :
+                          layer === 'panel-secondary' ? 0.55 :
+                          layer === 'panel-tertiary' ? 0.40 : 0.30;
+  const blended = blendPaletteWithEnv(palette, 'primary', envTone.panelTint, paletteStrength);
+  const blendedSec = blendPaletteWithEnv(palette, 'secondary', envTone.panelTint, paletteStrength * 0.7);
 
-  // ── Soft diffused shadow — creates floating separation ──
+  // Soft diffused shadow
   if (layer === 'panel-hero' || layer === 'panel-secondary') {
     ctx.save();
     ctx.shadowColor = `rgba(0, 0, 0, ${layer === 'panel-hero' ? 0.22 : 0.14})`;
@@ -254,25 +389,23 @@ function drawGlassPanel(
     ctx.restore();
   }
 
-  // ── Translucent glass fill — environment shows through ──
+  // Translucent glass fill — media-derived colors
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const baseGrad = ctx.createLinearGradient(
     panel.x + panel.width * LIGHT_ANGLE.x, panel.y,
     panel.x + panel.width * (1 - LIGHT_ANGLE.x), panel.y + panel.height,
   );
-  // Light passing through: brighter near light source, darker at base
-  baseGrad.addColorStop(0, `rgba(${bR + 24}, ${bG + 26}, ${bB + 32}, ${opacity * 0.65})`);
-  baseGrad.addColorStop(0.3, `rgba(${bR + 10}, ${bG + 14}, ${bB + 20}, ${opacity * 0.85})`);
-  baseGrad.addColorStop(0.7, `rgba(${bR + 4}, ${bG + 6}, ${bB + 12}, ${opacity})`);
-  baseGrad.addColorStop(1, `rgba(${bR}, ${bG + 2}, ${bB + 6}, ${opacity * 1.05})`);
+  baseGrad.addColorStop(0, `rgba(${blendedSec.r + 20}, ${blendedSec.g + 22}, ${blendedSec.b + 24}, ${opacity * 0.65})`);
+  baseGrad.addColorStop(0.3, `rgba(${blended.r + 10}, ${blended.g + 12}, ${blended.b + 14}, ${opacity * 0.85})`);
+  baseGrad.addColorStop(0.7, `rgba(${blended.r + 4}, ${blended.g + 5}, ${blended.b + 8}, ${opacity})`);
+  baseGrad.addColorStop(1, `rgba(${blended.r}, ${blended.g + 2}, ${blended.b + 4}, ${opacity * 1.05})`);
   ctx.fillStyle = baseGrad;
   ctx.fill();
 
-  // ── Refraction illusion — slight brightness differential ──
+  // Refraction illusion
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const refractionGrad = ctx.createRadialGradient(
-    panel.x + panel.width * 0.35, panel.y + panel.height * 0.25,
-    0,
+    panel.x + panel.width * 0.35, panel.y + panel.height * 0.25, 0,
     panel.x + panel.width * 0.5, panel.y + panel.height * 0.5,
     Math.max(panel.width, panel.height) * 0.7,
   );
@@ -284,7 +417,7 @@ function drawGlassPanel(
   ctx.fillStyle = refractionGrad;
   ctx.fill();
 
-  // ── Bottom depth fade — glass thickness illusion ──
+  // Bottom depth fade
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, radius);
   const bottomFade = ctx.createLinearGradient(
     panel.x, panel.y + panel.height * 0.75,
@@ -297,11 +430,11 @@ function drawGlassPanel(
   ctx.fillStyle = bottomFade;
   ctx.fill();
 
-  // ── Edge highlights — sharp glass boundaries ──
+  // Edge highlights — media-tinted
   const edgeIntensity = layer === 'panel-hero' ? 0.20 : layer === 'panel-secondary' ? 0.14 : 0.09;
-  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, radius, edgeIntensity);
+  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, radius, edgeIntensity, palette);
 
-  // ── Specular streak — diagonal light glint ──
+  // Specular streak
   const specIntensity = layer === 'panel-hero' ? 0.07 : layer === 'panel-secondary' ? 0.05 : 0.03;
   drawSpecularStreak(ctx, panel.x, panel.y, panel.width, panel.height, radius, specIntensity);
 
@@ -317,14 +450,18 @@ function drawMediaPanel(
   spec: CompositionSpec,
   img: HTMLImageElement | null,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible || !img) return;
 
   ctx.save();
 
-  // ── Diffused shadow for glass housing ──
+  // Diffused shadow with media color bleed
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+  const shadowColor = palette.extracted
+    ? `rgba(${palette.primary.r}, ${palette.primary.g}, ${palette.primary.b}, 0.35)`
+    : 'rgba(0, 0, 0, 0.25)';
+  ctx.shadowColor = shadowColor;
   ctx.shadowBlur = 22;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 4;
@@ -333,7 +470,7 @@ function drawMediaPanel(
   ctx.fill();
   ctx.restore();
 
-  // ── Draw image within rounded glass housing ──
+  // Draw image within rounded glass housing
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius);
   ctx.clip();
 
@@ -364,7 +501,7 @@ function drawMediaPanel(
   ctx.fillStyle = vignette;
   ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
-  // Bottom gradient for depth
+  // Bottom gradient
   const bottomFade = ctx.createLinearGradient(
     panel.x, panel.y + panel.height * 0.65,
     panel.x, panel.y + panel.height,
@@ -374,12 +511,23 @@ function drawMediaPanel(
   ctx.fillStyle = bottomFade;
   ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
+  // Color bleed near image edges — fibre optic emission
+  if (palette.extracted) {
+    const a = palette.accent;
+    const s = palette.secondary;
+    // Bottom edge color emission
+    const emitGrad = ctx.createLinearGradient(panel.x, panel.y + panel.height * 0.85, panel.x, panel.y + panel.height);
+    emitGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    emitGrad.addColorStop(0.5, `rgba(${s.r}, ${s.g}, ${s.b}, 0.06)`);
+    emitGrad.addColorStop(1, `rgba(${a.r}, ${a.g}, ${a.b}, 0.12)`);
+    ctx.fillStyle = emitGrad;
+    ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
+  }
+
   ctx.restore();
 
-  // ── Glass housing edges — drawn outside clip ──
-  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius, 0.22);
-
-  // ── Specular glint on image housing ──
+  // Glass housing edges — media-tinted
+  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius, 0.22, palette);
   drawSpecularStreak(ctx, panel.x, panel.y, panel.width, panel.height, spec.panelRadius, 0.06);
 
   // Image count badge
@@ -408,6 +556,7 @@ function drawBackgroundImage(
   spec: CompositionSpec,
   content: NormalizedShareContent,
   img: HTMLImageElement | null,
+  palette: MediaPalette,
 ) {
   if (!img || content.imageTreatment !== 'background') return;
 
@@ -435,19 +584,20 @@ function drawBackgroundImage(
   ctx.drawImage(img, sdx, sdy, sdw, sdh);
   ctx.filter = 'none';
 
-  // Atmospheric overlay — lighter than before to allow translucency
+  // Overlay uses media palette for continuity
+  const p = palette.primary;
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  overlayGrad.addColorStop(0, `rgba(4, 6, 14, 0.40)`);
-  overlayGrad.addColorStop(0.35, `rgba(4, 6, 14, ${spec.backgroundOverlayOpacity * 0.9})`);
-  overlayGrad.addColorStop(0.65, `rgba(4, 6, 14, ${Math.min(spec.backgroundOverlayOpacity * 1.0, 0.80)})`);
-  overlayGrad.addColorStop(1, `rgba(4, 6, 14, 0.82)`);
+  overlayGrad.addColorStop(0, `rgba(${p.r}, ${p.g}, ${p.b}, 0.40)`);
+  overlayGrad.addColorStop(0.35, `rgba(${p.r}, ${p.g}, ${p.b}, ${spec.backgroundOverlayOpacity * 0.9})`);
+  overlayGrad.addColorStop(0.65, `rgba(${p.r}, ${p.g}, ${p.b}, ${Math.min(spec.backgroundOverlayOpacity * 1.0, 0.80)})`);
+  overlayGrad.addColorStop(1, `rgba(${p.r}, ${p.g}, ${p.b}, 0.82)`);
   ctx.fillStyle = overlayGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
   ctx.restore();
 }
 
-// ─── L5: Typography Overlay — Insight Panel ───────────────────────────
+// ─── L5: Insight Panel ────────────────────────────────────────────────
 
 function drawInsightPanel(
   ctx: CanvasRenderingContext2D,
@@ -455,48 +605,48 @@ function drawInsightPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero', palette);
 
   const pad = 32;
-  const theme = content.theme;
+  const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.save();
 
-  // ── Vertical accent rule — luminous doctrine marker ──
+  // Vertical accent rule — uses media accent
   const ruleH = panel.height - pad * 2;
   const ruleX = panel.x + pad;
   const ruleY = panel.y + pad;
   const ruleGrad = ctx.createLinearGradient(ruleX, ruleY, ruleX, ruleY + ruleH);
   ruleGrad.addColorStop(0, 'rgba(255,255,255,0.03)');
-  ruleGrad.addColorStop(0.2, theme.accentHex);
-  ruleGrad.addColorStop(0.8, theme.accentHex);
+  ruleGrad.addColorStop(0.2, accentColor);
+  ruleGrad.addColorStop(0.8, accentColor);
   ruleGrad.addColorStop(1, 'rgba(255,255,255,0.03)');
   ctx.fillStyle = ruleGrad;
   drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
 
-  // Accent glow behind rule
-  ctx.shadowColor = theme.accentHex;
+  ctx.shadowColor = accentColor;
   ctx.shadowBlur = 18;
   drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // ── "REFLECTION" label ──
+  // "REFLECTION" label
   const labelY = ruleY + 16;
   ctx.font = `600 ${11}px ${FONT_FAMILY}`;
-  ctx.fillStyle = theme.accentHex;
+  ctx.fillStyle = accentColor;
   ctx.globalAlpha = 0.7;
   (ctx as any).letterSpacing = '4px';
   ctx.fillText('REFLECTION', ruleX + 18, labelY);
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
-  // ── Thin separator below label ──
+  // Separator
   const sepY = labelY + 12;
   const sepGrad = ctx.createLinearGradient(ruleX + 18, sepY, ruleX + 18 + 100, sepY);
   sepGrad.addColorStop(0, `rgba(255,255,255,0.08)`);
@@ -527,7 +677,6 @@ function drawInsightPanel(
   const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
-  // ── L5: Insight text — floating ON glass with clarity lift ──
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 0.97, 'primary');
   ctx.shadowColor = 'rgba(0,0,0,0.6)';
@@ -542,11 +691,10 @@ function drawInsightPanel(
 
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
-
   ctx.restore();
 }
 
-// ─── L5: Typography Overlay — Text Panel ──────────────────────────────
+// ─── L5: Text Panel ───────────────────────────────────────────────────
 
 function drawTextPanel(
   ctx: CanvasRenderingContext2D,
@@ -554,24 +702,26 @@ function drawTextPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible) return;
 
-  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-hero', palette);
 
   const pad = 34;
+  const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.save();
 
-  // ── Decorative accent line ──
+  // Decorative accent line — media-derived
   const accentLineW = Math.min(60, panel.width * 0.15);
   const accentGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad + accentLineW, panel.y + pad);
-  accentGrad.addColorStop(0, content.theme.accentHex);
+  accentGrad.addColorStop(0, accentColor);
   accentGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = accentGrad;
   ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
 
-  // ── L5: Title — floating above glass, high-contrast with glow ──
+  // Title
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
@@ -638,13 +788,14 @@ function drawMomentumPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible) return;
 
-  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-secondary');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-secondary', palette);
 
   const pad = 26;
-  const theme = content.theme;
+  const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.save();
 
@@ -667,10 +818,9 @@ function drawMomentumPanel(
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // ── L5: Stat value — floating above glass with warm glow ──
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
-    ctx.fillStyle = theme.accentHex;
-    ctx.shadowColor = theme.accentHex;
+    ctx.fillStyle = accentColor;
+    ctx.shadowColor = accentColor;
     ctx.shadowBlur = 22;
     ctx.shadowOffsetY = 0;
     cursorY += statSize * 0.8;
@@ -688,12 +838,12 @@ function drawMomentumPanel(
     }
   }
 
-  // Phrase — philosophical anchor
+  // Phrase
   const phraseY = panel.y + panel.height - pad;
   if (phraseY - cursorY > 16) {
     const sepW = Math.min(40, panel.width * 0.1);
     const sepGrad = ctx.createLinearGradient(panel.x + pad, phraseY - phraseSize - 14, panel.x + pad + sepW, phraseY - phraseSize - 14);
-    sepGrad.addColorStop(0, theme.accentHex);
+    sepGrad.addColorStop(0, accentColor);
     sepGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = sepGrad;
     ctx.globalAlpha = 0.3;
@@ -701,7 +851,7 @@ function drawMomentumPanel(
     ctx.globalAlpha = 1;
 
     ctx.font = `italic 400 ${phraseSize}px ${SERIF_FAMILY}`;
-    ctx.fillStyle = theme.accentHex;
+    ctx.fillStyle = accentColor;
     ctx.globalAlpha = 0.5;
     (ctx as any).letterSpacing = '1.5px';
     ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
@@ -720,27 +870,28 @@ function drawMetaPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible) return;
 
-  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary', palette);
 
   const pad = 26;
-  const theme = content.theme;
+  const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.save();
 
   const metaSize = spec.typography.metaFontSize;
   const lineGap = 14;
 
-  // ── Small accent diamond ──
+  // Accent diamond — media-derived
   const diamondSize = 6;
   const diamondX = panel.x + pad;
   const diamondCY = panel.y + pad + metaSize * 0.4;
   ctx.save();
   ctx.translate(diamondX + diamondSize / 2, diamondCY);
   ctx.rotate(Math.PI / 4);
-  ctx.fillStyle = theme.accentHex;
+  ctx.fillStyle = accentColor;
   ctx.globalAlpha = 0.6;
   ctx.fillRect(-diamondSize / 2, -diamondSize / 2, diamondSize, diamondSize);
   ctx.restore();
@@ -748,7 +899,7 @@ function drawMetaPanel(
   let cursorY = panel.y + pad + metaSize;
 
   ctx.font = `600 ${metaSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = theme.accentHex;
+  ctx.fillStyle = accentColor;
   ctx.globalAlpha = 0.8;
   (ctx as any).letterSpacing = '3px';
   ctx.fillText(content.cardTypeLabel.toUpperCase(), diamondX + diamondSize + 12, cursorY, panel.width - pad * 2 - diamondSize - 12);
@@ -776,7 +927,7 @@ function drawMetaPanel(
   ctx.restore();
 }
 
-// ─── L6: Brand Seal Panel — Etched Glass Signature ────────────────────
+// ─── L6: Brand Seal Panel ─────────────────────────────────────────────
 
 function drawBrandPanel(
   ctx: CanvasRenderingContext2D,
@@ -784,33 +935,30 @@ function drawBrandPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible) return;
 
   ctx.save();
 
-  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
-  const bR = Math.round(10 + tr * ta * 3);
-  const bG = Math.round(12 + tg * ta * 3);
-  const bB = Math.round(22 + tb * ta * 3);
-
-  // ── L6: Etched glass badge — most translucent panel ──
+  const blended = blendPaletteWithEnv(palette, 'primary', envTone.panelTint, 0.5);
   const sealOpacity = GLASS_OPACITY['seal'];
   const sealRadius = Math.min(spec.panelRadius, panel.height / 2);
+
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, sealRadius);
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width * 0.4, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 14}, ${bG + 12}, ${bB + 8}, ${sealOpacity * 1.1})`);
-  grad.addColorStop(0.5, `rgba(${bR + 6}, ${bG + 6}, ${bB + 6}, ${sealOpacity})`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, ${sealOpacity * 0.9})`);
+  grad.addColorStop(0, `rgba(${blended.r + 14}, ${blended.g + 12}, ${blended.b + 8}, ${sealOpacity * 1.1})`);
+  grad.addColorStop(0.5, `rgba(${blended.r + 6}, ${blended.g + 6}, ${blended.b + 6}, ${sealOpacity})`);
+  grad.addColorStop(1, `rgba(${blended.r}, ${blended.g}, ${blended.b}, ${sealOpacity * 0.9})`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // ── Glass edges ──
-  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, sealRadius, 0.08);
+  drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, sealRadius, 0.08, palette);
 
-  // ── Seal icon — golden emblem with glow ──
+  // Seal icon — uses media accent for warmth
   const iconSize = 28;
   const brandSize = spec.typography.brandFontSize;
+  const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
   const prefixW = ctx.measureText('Posted from ').width;
@@ -822,12 +970,13 @@ function drawBrandPanel(
   const iconX = startX;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
-  // Icon glow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.20)';
+  // Seal glow — media-aware
+  const a = palette.extracted ? palette.accent : { r: 200, g: 164, b: 106 };
+  ctx.shadowColor = `rgba(${a.r}, ${a.g}, ${a.b}, 0.20)`;
   ctx.shadowBlur = 18;
   ctx.shadowOffsetY = 0;
 
-  // Circular seal
+  // Circular seal — gradient from media accent
   ctx.beginPath();
   ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2, 0, Math.PI * 2);
   ctx.closePath();
@@ -835,9 +984,15 @@ function drawBrandPanel(
     iconX + iconSize * 0.4, iconY + iconSize * 0.35, 0,
     iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2,
   );
-  iconGrad.addColorStop(0, 'hsl(43, 74%, 62%)');
-  iconGrad.addColorStop(0.6, 'hsl(43, 70%, 50%)');
-  iconGrad.addColorStop(1, 'hsl(40, 55%, 34%)');
+  if (palette.extracted) {
+    iconGrad.addColorStop(0, `rgba(${Math.min(a.r + 40, 255)}, ${Math.min(a.g + 30, 255)}, ${Math.min(a.b + 20, 255)}, 1)`);
+    iconGrad.addColorStop(0.6, `rgba(${a.r}, ${a.g}, ${a.b}, 1)`);
+    iconGrad.addColorStop(1, `rgba(${Math.max(a.r - 40, 0)}, ${Math.max(a.g - 35, 0)}, ${Math.max(a.b - 30, 0)}, 1)`);
+  } else {
+    iconGrad.addColorStop(0, 'hsl(43, 74%, 62%)');
+    iconGrad.addColorStop(0.6, 'hsl(43, 70%, 50%)');
+    iconGrad.addColorStop(1, 'hsl(40, 55%, 34%)');
+  }
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
@@ -859,7 +1014,7 @@ function drawBrandPanel(
   ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 3.5);
   ctx.textAlign = 'left';
 
-  // ── Brand text — etched feel ──
+  // Brand text
   const textX = iconX + iconSize + gap;
   const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
@@ -869,7 +1024,7 @@ function drawBrandPanel(
   ctx.fillText('Posted from ', textX, textY);
 
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = content.theme.accentHex;
+  ctx.fillStyle = accentColor;
   ctx.globalAlpha = 0.65;
   (ctx as any).letterSpacing = '1.2px';
   ctx.fillText('LifeStack', textX + prefixW, textY);
@@ -885,6 +1040,7 @@ function drawSponsorPanel(
   content: NormalizedShareContent,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   if (!panel.visible || !content.sponsor) return;
 
@@ -893,7 +1049,7 @@ function drawSponsorPanel(
 
   ctx.save();
 
-  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary');
+  drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary', palette);
 
   const prefixMap: Record<string, string> = {
     sponsored: 'Sponsored by',
@@ -930,38 +1086,36 @@ function drawSponsorPanel(
   ctx.restore();
 }
 
-// ─── L2: Card Base — Translucent Primary Glass Plane ──────────────────
+// ─── L2: Card Base — Media-Derived Translucent Glass Plane ────────────
 
 function drawCardBase(
   ctx: CanvasRenderingContext2D,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
   const shellRadius = Math.max(spec.panelRadius, 34);
 
   ctx.save();
 
-  // ── L2: Translucent glass base — environment visible through it ──
   const baseOpacity = GLASS_OPACITY['base'];
-  const { r: tr, g: tg, b: tb, alpha: ta } = envTone.panelTint;
-  const bR = Math.round(8 + tr * ta * 5);
-  const bG = Math.round(10 + tg * ta * 5);
-  const bB = Math.round(20 + tb * ta * 4);
+  // Card base uses deep desaturated primary from media
+  const blended = blendPaletteWithEnv(palette, 'primary', envTone.panelTint, 0.7);
+  const blendedSec = blendPaletteWithEnv(palette, 'secondary', envTone.panelTint, 0.5);
 
   drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
   const baseGrad = ctx.createLinearGradient(
     spec.width * LIGHT_ANGLE.x, 0,
     spec.width * (1 - LIGHT_ANGLE.x), spec.height,
   );
-  // Light through glass: top brighter, bottom deeper
-  baseGrad.addColorStop(0, `rgba(${bR + 18}, ${bG + 20}, ${bB + 26}, ${baseOpacity * 0.6})`);
-  baseGrad.addColorStop(0.25, `rgba(${bR + 8}, ${bG + 12}, ${bB + 18}, ${baseOpacity * 0.8})`);
-  baseGrad.addColorStop(0.6, `rgba(${bR + 3}, ${bG + 5}, ${bB + 10}, ${baseOpacity})`);
-  baseGrad.addColorStop(1, `rgba(${bR}, ${bG + 2}, ${bB + 6}, ${baseOpacity * 1.08})`);
+  baseGrad.addColorStop(0, `rgba(${blendedSec.r + 18}, ${blendedSec.g + 20}, ${blendedSec.b + 22}, ${baseOpacity * 0.6})`);
+  baseGrad.addColorStop(0.25, `rgba(${blended.r + 8}, ${blended.g + 10}, ${blended.b + 14}, ${baseOpacity * 0.8})`);
+  baseGrad.addColorStop(0.6, `rgba(${blended.r + 3}, ${blended.g + 4}, ${blended.b + 8}, ${baseOpacity})`);
+  baseGrad.addColorStop(1, `rgba(${blended.r}, ${blended.g + 2}, ${blended.b + 4}, ${baseOpacity * 1.08})`);
   ctx.fillStyle = baseGrad;
   ctx.fill();
 
-  // ── Refraction glow — center brightness for glass thickness ──
+  // Refraction glow
   drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
   const refrGlow = ctx.createRadialGradient(
     spec.width * 0.38, spec.height * 0.22, 0,
@@ -974,7 +1128,22 @@ function drawCardBase(
   ctx.fillStyle = refrGlow;
   ctx.fill();
 
-  // ── Bottom depth — glass settling shadow ──
+  // Media color diffusion — radial bleed from center simulating fibre optic spread
+  if (palette.extracted) {
+    const s = palette.secondary;
+    drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
+    const colorBleed = ctx.createRadialGradient(
+      spec.width * 0.5, spec.height * 0.35, 0,
+      spec.width * 0.5, spec.height * 0.5, spec.width * 0.9,
+    );
+    colorBleed.addColorStop(0, `rgba(${s.r}, ${s.g}, ${s.b}, 0.06)`);
+    colorBleed.addColorStop(0.4, `rgba(${s.r}, ${s.g}, ${s.b}, 0.025)`);
+    colorBleed.addColorStop(1, `rgba(${s.r}, ${s.g}, ${s.b}, 0)`);
+    ctx.fillStyle = colorBleed;
+    ctx.fill();
+  }
+
+  // Bottom depth
   drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
   const bottomDepth = ctx.createLinearGradient(0, spec.height * 0.8, 0, spec.height);
   bottomDepth.addColorStop(0, 'rgba(0, 0, 0, 0)');
@@ -986,17 +1155,18 @@ function drawCardBase(
   ctx.restore();
 }
 
-// ─── Background — Cinematic LifeStack Environment ─────────────────────
+// ─── Background — Media-Aware Environment ─────────────────────────────
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
   spec: CompositionSpec,
   theme: ThemeDefinition,
   envTone: EnvironmentTone,
+  palette: MediaPalette,
 ) {
+  // Start with theme gradient but allow media palette to influence
   const colors = parseGradient(theme.bgGradient);
 
-  // ── Base environment ──
   if (colors.length >= 2) {
     const grad = ctx.createLinearGradient(
       spec.width * 0.05, 0,
@@ -1010,6 +1180,23 @@ function drawBackground(
     ctx.fillStyle = '#060810';
   }
   ctx.fillRect(0, 0, spec.width, spec.height);
+
+  // Media-derived atmosphere overlay — color bleed into environment
+  if (palette.extracted) {
+    const p = palette.primary;
+    const s = palette.secondary;
+    // Subtle warm wash from media primary
+    const mediaWash = ctx.createRadialGradient(
+      spec.width * 0.5, spec.height * 0.4, 0,
+      spec.width * 0.5, spec.height * 0.4, spec.width * 1.2,
+    );
+    mediaWash.addColorStop(0, `rgba(${p.r + 20}, ${p.g + 15}, ${p.b + 10}, 0.12)`);
+    mediaWash.addColorStop(0.3, `rgba(${s.r + 10}, ${s.g + 8}, ${s.b + 5}, 0.06)`);
+    mediaWash.addColorStop(0.7, `rgba(${p.r}, ${p.g}, ${p.b}, 0.02)`);
+    mediaWash.addColorStop(1, 'transparent');
+    ctx.fillStyle = mediaWash;
+    ctx.fillRect(0, 0, spec.width, spec.height);
+  }
 
   // Key light
   const kl = envTone.keyLight;
@@ -1049,7 +1236,7 @@ function drawBackground(
   ctx.fillStyle = centerGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Secondary warm bloom
+  // Secondary bloom
   const bloom2 = ctx.createRadialGradient(
     spec.width * 0.72, spec.height * 0.18, 0,
     spec.width * 0.72, spec.height * 0.18, spec.width * 0.65,
@@ -1093,50 +1280,55 @@ function drawBackground(
   ctx.fillRect(0, 0, spec.width, spec.height);
 }
 
-// ─── L1: Outer Frame — Structural Glass Shell with Specular ───────────
+// ─── L1: Outer Frame — Media-Tinted Structural Shell ──────────────────
 
 function drawOuterFrame(
   ctx: CanvasRenderingContext2D,
   spec: CompositionSpec,
   envTone: EnvironmentTone,
-  accentHex: string,
+  palette: MediaPalette,
 ) {
   const shellRadius = Math.max(spec.panelRadius, 34);
 
   ctx.save();
 
-  // ── Specular highlight streak across top of card ──
+  // Specular streak
   drawSpecularStreak(ctx, 0, 0, spec.width, spec.height, shellRadius, 0.10);
 
-  // ── Primary glass edge — warm gold tint, directional ──
+  // Primary glass edge — tinted by media accent
+  const a = palette.extracted ? palette.accent : { r: 255, g: 248, b: 230 };
+  const edgeR = Math.round(a.r * 0.4 + 255 * 0.6);
+  const edgeG = Math.round(a.g * 0.4 + 250 * 0.6);
+  const edgeB = Math.round(a.b * 0.4 + 240 * 0.6);
+
   drawRoundedRect(ctx, 1, 1, spec.width - 2, spec.height - 2, shellRadius - 1);
   const frameBorder = ctx.createLinearGradient(0, 0, spec.width * 0.5, spec.height);
-  frameBorder.addColorStop(0, 'rgba(255, 248, 230, 0.22)');   // warm gold, bright corner
-  frameBorder.addColorStop(0.10, 'rgba(255, 250, 235, 0.14)');
-  frameBorder.addColorStop(0.3, 'rgba(255, 255, 255, 0.06)');
-  frameBorder.addColorStop(0.6, 'rgba(255, 255, 255, 0.025)');
-  frameBorder.addColorStop(1, 'rgba(255, 250, 240, 0.04)');
+  frameBorder.addColorStop(0, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.22)`);
+  frameBorder.addColorStop(0.10, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.14)`);
+  frameBorder.addColorStop(0.3, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.06)`);
+  frameBorder.addColorStop(0.6, `rgba(255, 255, 255, 0.025)`);
+  frameBorder.addColorStop(1, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.04)`);
   ctx.strokeStyle = frameBorder;
   ctx.lineWidth = 1.4;
   ctx.stroke();
 
-  // ── Inner contour — secondary edge definition ──
+  // Inner contour
   drawRoundedRect(ctx, 3, 3, spec.width - 6, spec.height - 6, shellRadius - 2.5);
   const innerContour = ctx.createLinearGradient(0, 0, 0, spec.height * 0.15);
-  innerContour.addColorStop(0, 'rgba(255, 250, 240, 0.05)');
-  innerContour.addColorStop(0.5, 'rgba(255, 255, 255, 0.015)');
+  innerContour.addColorStop(0, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.05)`);
+  innerContour.addColorStop(0.5, `rgba(255, 255, 255, 0.015)`);
   innerContour.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.strokeStyle = innerContour;
   ctx.lineWidth = 0.4;
   ctx.stroke();
 
-  // ── Corner glint — bright point at top-left corner ──
+  // Corner glint — media-tinted
   const glintGrad = ctx.createRadialGradient(
     shellRadius * 1.2, shellRadius * 0.8, 0,
     shellRadius * 1.2, shellRadius * 0.8, shellRadius * 2.5,
   );
-  glintGrad.addColorStop(0, 'rgba(255, 252, 240, 0.12)');
-  glintGrad.addColorStop(0.15, 'rgba(255, 250, 235, 0.04)');
+  glintGrad.addColorStop(0, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.12)`);
+  glintGrad.addColorStop(0.15, `rgba(${edgeR}, ${edgeG}, ${edgeB}, 0.04)`);
   glintGrad.addColorStop(0.4, 'rgba(255, 255, 255, 0.008)');
   glintGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
   drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
@@ -1168,7 +1360,7 @@ export async function renderCompositionToCanvas(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  // Load media image if needed
+  // Load media image
   let mediaImg: HTMLImageElement | null = null;
   if (content.hasMedia && content.mediaUrl) {
     try {
@@ -1179,29 +1371,36 @@ export async function renderCompositionToCanvas(
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // COLOR EXTRACTION — Media is the source of truth
+  // ═══════════════════════════════════════════════════════════════
+  const palette: MediaPalette = mediaImg
+    ? extractMediaPalette(mediaImg)
+    : FALLBACK_PALETTE;
+
+  // ═══════════════════════════════════════════════════════════════
   // LAYER STACK — rendered bottom-to-top
   // ═══════════════════════════════════════════════════════════════
 
-  // ENVIRONMENT — cinematic background (visible through all glass layers)
-  drawBackground(ctx, spec, content.theme, envTone);
+  // ENVIRONMENT — media-aware cinematic background
+  drawBackground(ctx, spec, content.theme, envTone, palette);
 
   // Background image (if background treatment)
   if (content.imageTreatment === 'background') {
-    drawBackgroundImage(ctx, spec, content, mediaImg);
+    drawBackgroundImage(ctx, spec, content, mediaImg, palette);
   }
 
-  // L2 — CARD BASE — translucent glass plane (environment bleeds through)
-  drawCardBase(ctx, spec, envTone);
+  // L2 — CARD BASE — media-derived translucent glass plane
+  drawCardBase(ctx, spec, envTone, palette);
 
-  // L3/L4/L5 — CONTENT PANELS (in z-order)
+  // L3/L4/L5 — CONTENT PANELS
   const panelDrawOrder: [PanelSpec, (ctx: CanvasRenderingContext2D, panel: PanelSpec) => void][] = [
-    [spec.panels.media, (c, p) => drawMediaPanel(c, p, content, spec, content.imageTreatment !== 'background' ? mediaImg : null, envTone)],
-    [spec.panels.insight, (c, p) => drawInsightPanel(c, p, content, spec, envTone)],
-    [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec, envTone)],
-    [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone)],
-    [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone)],
-    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone)],
-    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone)],
+    [spec.panels.media, (c, p) => drawMediaPanel(c, p, content, spec, content.imageTreatment !== 'background' ? mediaImg : null, envTone, palette)],
+    [spec.panels.insight, (c, p) => drawInsightPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette)],
   ];
 
   panelDrawOrder.sort((a, b) => a[0].zIndex - b[0].zIndex);
@@ -1213,12 +1412,11 @@ export async function renderCompositionToCanvas(
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // FINAL SHELL — rounded clip + outer frame with specular
+  // FINAL SHELL — rounded clip + outer frame
   // ═══════════════════════════════════════════════════════════════
 
   const shellRadius = Math.max(spec.panelRadius, 34);
 
-  // Apply rounded clip
   ctx.save();
   ctx.globalCompositeOperation = 'destination-in';
   drawRoundedRect(ctx, 0, 0, spec.width, spec.height, shellRadius);
@@ -1226,8 +1424,8 @@ export async function renderCompositionToCanvas(
   ctx.fill();
   ctx.restore();
 
-  // L1 — OUTER FRAME — structural glass edge with specular highlights
-  drawOuterFrame(ctx, spec, envTone, content.theme.accentHex);
+  // L1 — OUTER FRAME — media-tinted structural glass edge
+  drawOuterFrame(ctx, spec, envTone, palette);
 
   return canvas;
 }
