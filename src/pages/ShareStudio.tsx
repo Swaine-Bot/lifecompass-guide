@@ -322,6 +322,7 @@ export default function ShareStudio() {
         }} />
         <div className="relative z-10">
           <div className="sticky top-0 z-40" style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
             background: 'rgba(255,255,255,0.02)',
             backdropFilter: 'blur(40px) saturate(160%)',
             WebkitBackdropFilter: 'blur(40px) saturate(160%)',

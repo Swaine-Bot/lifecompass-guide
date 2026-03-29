@@ -640,74 +640,90 @@ function drawBrandPanel(
   const bG = Math.round(12 + tg * ta * 3);
   const bB = Math.round(22 + tb * ta * 3);
 
-  // Elegant minimal brand strip — nearly invisible, prestigious
+  // ── Ceremonial brand strip — elegant, prestigious presence ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 8}, ${bG + 8}, ${bB + 10}, 0.08)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.16)`);
+  grad.addColorStop(0, `rgba(${bR + 10}, ${bG + 10}, ${bB + 12}, 0.06)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.14)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Thin top border — whisper-level separation
+  // Top border — whisper separation
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
   const borderGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y);
-  borderGrad.addColorStop(0, 'rgba(255,255,255,0.02)');
-  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.06)');
-  borderGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+  borderGrad.addColorStop(0, 'rgba(255,255,255,0.015)');
+  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.055)');
+  borderGrad.addColorStop(1, 'rgba(255,255,255,0.015)');
   ctx.strokeStyle = borderGrad;
   ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // LS icon — refined golden square with subtle shadow
-  const iconSize = 32;
-  const totalContentW = iconSize + 14 + 180; // icon + gap + approx text
+  // ── Seal icon — refined golden emblem with glow ──
+  const iconSize = 28;
+  const brandSize = spec.typography.brandFontSize;
+
+  // Measure full text to center everything
+  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
+  const prefixW = ctx.measureText('Posted from ').width;
+  ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
+  const nameW = ctx.measureText('LifeStack').width;
+  const gap = 12;
+  const totalContentW = iconSize + gap + prefixW + nameW;
   const startX = panel.x + (panel.width - totalContentW) / 2;
   const iconX = startX;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
-  // Icon shadow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.2)';
-  ctx.shadowBlur = 14;
-  ctx.shadowOffsetY = 2;
+  // Icon glow — warm, ceremonial
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 0;
 
-  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 8);
-  const iconGrad = ctx.createLinearGradient(iconX, iconY, iconX + iconSize, iconY + iconSize);
-  iconGrad.addColorStop(0, 'hsl(43, 74%, 58%)');
-  iconGrad.addColorStop(0.5, 'hsl(43, 70%, 50%)');
-  iconGrad.addColorStop(1, 'hsl(40, 60%, 36%)');
+  // Circular seal instead of square
+  ctx.beginPath();
+  ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2, 0, Math.PI * 2);
+  ctx.closePath();
+  const iconGrad = ctx.createRadialGradient(
+    iconX + iconSize * 0.4, iconY + iconSize * 0.35, 0,
+    iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2,
+  );
+  iconGrad.addColorStop(0, 'hsl(43, 74%, 62%)');
+  iconGrad.addColorStop(0.6, 'hsl(43, 70%, 50%)');
+  iconGrad.addColorStop(1, 'hsl(40, 55%, 34%)');
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Inner shine on icon
-  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize * 0.5, 8);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.fill();
+  // Inner ring on seal
+  ctx.beginPath();
+  ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 3, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
 
-  ctx.font = `800 ${11}px ${FONT_FAMILY}`;
+  // LS mark
+  ctx.font = `800 ${10}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(14, 12, 20)';
   ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 3.5);
   ctx.textAlign = 'left';
 
-  // Brand text — elegant, prestigious
-  const brandSize = spec.typography.brandFontSize;
-  const textX = iconX + iconSize + 14;
-  const textY = panel.y + panel.height / 2 + brandSize / 3;
+  // ── Brand text — ceremonial, split hierarchy ──
+  const textX = iconX + iconSize + gap;
+  const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
-  ctx.font = `300 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.38, 'meta');
-  (ctx as any).letterSpacing = '0.5px';
+  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
+  ctx.fillStyle = envWhite(envTone, 0.35, 'meta');
+  (ctx as any).letterSpacing = '0.8px';
   ctx.fillText('Posted from ', textX, textY);
 
-  const postedW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
-  ctx.globalAlpha = 0.55;
-  (ctx as any).letterSpacing = '1px';
-  ctx.fillText('LifeStack', textX + postedW, textY);
+  ctx.globalAlpha = 0.65;
+  (ctx as any).letterSpacing = '1.2px';
+  ctx.fillText('LifeStack', textX + prefixW, textY);
   ctx.globalAlpha = 1;
   (ctx as any).letterSpacing = '0px';
 
