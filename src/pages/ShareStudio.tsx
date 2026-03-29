@@ -322,6 +322,7 @@ export default function ShareStudio() {
         }} />
         <div className="relative z-10">
           <div className="sticky top-0 z-40" style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
             background: 'rgba(255,255,255,0.02)',
             backdropFilter: 'blur(40px) saturate(160%)',
             WebkitBackdropFilter: 'blur(40px) saturate(160%)',
@@ -394,7 +395,9 @@ export default function ShareStudio() {
       <div className="relative z-10 min-h-full flex flex-col">
 
         {/* ─── Ghost Header — nearly invisible, no panel feel ─── */}
-        <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3" style={{
+        <div className="sticky top-0 z-40 flex items-center justify-between px-5" style={{
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          paddingBottom: '12px',
           background: 'rgba(255, 255, 255, 0.012)',
           backdropFilter: 'blur(48px) saturate(160%)',
           WebkitBackdropFilter: 'blur(48px) saturate(160%)',

@@ -320,57 +320,67 @@ function drawInsightPanel(
 ) {
   if (!panel.visible || !content.aiInsight) return;
 
-  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary');
+  drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
 
-  const pad = 26;
+  const pad = 32;
   const theme = content.theme;
 
   ctx.save();
 
-  // Premium accent bar — gradient with subtle glow
-  const barH = 30;
-  const barGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad, panel.y + pad + barH);
-  barGrad.addColorStop(0, theme.accentHex);
-  barGrad.addColorStop(1, 'rgba(200,170,80,0.15)');
-  ctx.fillStyle = barGrad;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 4, barH, 2);
+  // ── Vertical accent rule — luminous doctrine marker ──
+  const ruleH = panel.height - pad * 2;
+  const ruleX = panel.x + pad;
+  const ruleY = panel.y + pad;
+  const ruleGrad = ctx.createLinearGradient(ruleX, ruleY, ruleX, ruleY + ruleH);
+  ruleGrad.addColorStop(0, 'rgba(255,255,255,0.03)');
+  ruleGrad.addColorStop(0.2, theme.accentHex);
+  ruleGrad.addColorStop(0.8, theme.accentHex);
+  ruleGrad.addColorStop(1, 'rgba(255,255,255,0.03)');
+  ctx.fillStyle = ruleGrad;
+  drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
 
-  // Subtle glow behind bar
+  // Accent glow behind rule
   ctx.shadowColor = theme.accentHex;
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-  drawRoundedRect(ctx, panel.x + pad, panel.y + pad, 4, barH, 2);
+  ctx.shadowBlur = 18;
+  drawRoundedRect(ctx, ruleX, ruleY, 3, ruleH, 1.5);
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // "AI INSIGHT" label — refined tracking
-  ctx.font = `700 ${13}px ${FONT_FAMILY}`;
+  // ── "REFLECTION" label — ceremonial, widely tracked ──
+  const labelY = ruleY + 16;
+  ctx.font = `600 ${11}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.85;
-  (ctx as any).letterSpacing = '3px';
-  ctx.fillText('AI INSIGHT', panel.x + pad + 18, panel.y + pad + 18);
+  ctx.globalAlpha = 0.7;
+  (ctx as any).letterSpacing = '4px';
+  ctx.fillText('REFLECTION', ruleX + 18, labelY);
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
-  const insightHeadingGap = 22;
-  const headerH = pad + barH + insightHeadingGap;
+  // ── Thin separator line below label ──
+  const sepY = labelY + 12;
+  const sepGrad = ctx.createLinearGradient(ruleX + 18, sepY, ruleX + 18 + 100, sepY);
+  sepGrad.addColorStop(0, `rgba(255,255,255,0.08)`);
+  sepGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = sepGrad;
+  ctx.fillRect(ruleX + 18, sepY, 100, 1);
 
-  let fontSize = spec.typography.insightFontSize;
-  const textX = panel.x + pad;
-  const textMaxW = panel.width - pad * 2;
-  const availableTextH = panel.height - headerH - pad;
+  const headerH = sepY - panel.y + 24;
+
+  let fontSize = spec.typography.insightFontSize + 2;
+  const textX = panel.x + pad + 18;
+  const textMaxW = panel.width - pad - (pad + 18);
+  const availableTextH = panel.height - headerH - pad - 8;
 
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  let lineH = fontSize * spec.typography.insightLineHeight;
+  let lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
   let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
   let totalH = lines.length * lineH;
 
   while (totalH > availableTextH && fontSize > 18) {
     fontSize -= 2;
-    lineH = fontSize * spec.typography.insightLineHeight;
+    lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
     ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
     lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
     totalH = lines.length * lineH;
@@ -379,14 +389,21 @@ function drawInsightPanel(
   const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
   const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
 
+  // ── Insight text — high-contrast, commanding ──
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.92, 'secondary');
+  ctx.fillStyle = envWhite(envTone, 0.96, 'primary');
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
 
   let textY = panel.y + headerH + fontSize;
   for (const line of finalLines) {
     ctx.fillText(line, textX, textY);
     textY += lineH;
   }
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
 
   ctx.restore();
 }
@@ -402,57 +419,72 @@ function drawTextPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'hero');
 
-  const pad = 30;
+  const pad = 34;
 
   ctx.save();
 
-  // Title — editorial serif, high-contrast near-white with letter-spacing
+  // ── Decorative top accent — faint directional line ──
+  const accentLineW = Math.min(60, panel.width * 0.15);
+  const accentGrad = ctx.createLinearGradient(panel.x + pad, panel.y + pad, panel.x + pad + accentLineW, panel.y + pad);
+  accentGrad.addColorStop(0, content.theme.accentHex);
+  accentGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = accentGrad;
+  ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
+
+  // Title — editorial serif, high-contrast, strong text shadow
   const titleSize = spec.typography.titleFontSize;
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
-  (ctx as any).letterSpacing = '0.8px';
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 2;
+  (ctx as any).letterSpacing = '1px';
 
   const textMaxW = panel.width - pad * 2;
   const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.24;
+  const titleLineH = titleSize * 1.28;
 
-  let cursorY = panel.y + pad + titleSize;
+  let cursorY = panel.y + pad + 18 + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
   }
   (ctx as any).letterSpacing = '0px';
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
 
-  // Subtitle — generous line-height, warm grey
+  // Subtitle — generous line-height, warm grey, more breathing room
   if (content.subtitle) {
-    cursorY += 16;
+    cursorY += 22;
     let subSize = spec.typography.subtitleFontSize;
     const availableH = panel.y + panel.height - pad - cursorY;
 
-    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
     let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.08);
+    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
     let totalTextH = subLines.length * subLineH;
 
     const minSubSize = 16;
     while (totalTextH > availableH && subSize > minSubSize) {
       subSize -= 2;
       subLineH = subSize * spec.typography.subtitleLineHeight;
-      ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
       subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
       totalTextH = subLines.length * subLineH;
     }
 
     const maxVisibleLines = Math.floor(availableH / subLineH);
     const finalMaxLines = Math.max(maxVisibleLines, 3);
-    ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
+    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
     const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
-    ctx.fillStyle = envWhite(envTone, 0.78, 'secondary');
+    ctx.fillStyle = envWhite(envTone, 0.72, 'secondary');
+    (ctx as any).letterSpacing = '0.3px';
 
     for (const line of finalLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
+    (ctx as any).letterSpacing = '0px';
   }
 
   ctx.restore();
@@ -469,13 +501,13 @@ function drawMomentumPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'secondary');
 
-  const pad = 22;
+  const pad = 26;
   const theme = content.theme;
 
   ctx.save();
 
   const phraseSize = spec.typography.phraseFontSize;
-  const phraseReserved = phraseSize + pad + 8;
+  const phraseReserved = phraseSize + pad + 12;
   const availableForStat = panel.height - pad - phraseReserved;
 
   let cursorY = panel.y + pad;
@@ -486,18 +518,18 @@ function drawMomentumPanel(
     if (displayStat.length > 6) statSize = Math.round(statSize * 0.65);
     else if (displayStat.length > 4) statSize = Math.round(statSize * 0.8);
 
-    const labelSize = 14;
-    const labelGap = 10;
+    const labelSize = 13;
+    const labelGap = 12;
     const neededH = statSize * 0.85 + labelGap + labelSize;
     if (neededH > availableForStat && statSize > 24) {
       statSize = Math.max(24, Math.round(statSize * (availableForStat / neededH)));
     }
 
-    // Stat value with subtle glow
+    // Stat value with warm glow — the signal
     ctx.font = `700 ${statSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
     ctx.shadowColor = theme.accentHex;
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 22;
     ctx.shadowOffsetY = 0;
     cursorY += statSize * 0.8;
     ctx.fillText(displayStat, panel.x + pad, cursorY, panel.width - pad * 2);
@@ -506,21 +538,31 @@ function drawMomentumPanel(
 
     if (content.statLabel) {
       cursorY += labelGap + labelSize;
-      ctx.font = `600 ${labelSize}px ${FONT_FAMILY}`;
-      ctx.fillStyle = envWhite(envTone, 0.65, 'meta');
-      (ctx as any).letterSpacing = '1.5px';
+      ctx.font = `500 ${labelSize}px ${FONT_FAMILY}`;
+      ctx.fillStyle = envWhite(envTone, 0.55, 'meta');
+      (ctx as any).letterSpacing = '2.5px';
       ctx.fillText(content.statLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
       (ctx as any).letterSpacing = '0px';
     }
   }
 
-  // Phrase — anchored at bottom, italic serif
+  // Phrase — philosophical anchor at bottom
   const phraseY = panel.y + panel.height - pad;
-  if (phraseY - cursorY > 12) {
-    ctx.font = `italic 500 ${phraseSize}px ${SERIF_FAMILY}`;
+  if (phraseY - cursorY > 16) {
+    // Thin separator above phrase
+    const sepW = Math.min(40, panel.width * 0.1);
+    const sepGrad = ctx.createLinearGradient(panel.x + pad, phraseY - phraseSize - 14, panel.x + pad + sepW, phraseY - phraseSize - 14);
+    sepGrad.addColorStop(0, theme.accentHex);
+    sepGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = sepGrad;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(panel.x + pad, phraseY - phraseSize - 14, sepW, 1);
+    ctx.globalAlpha = 1;
+
+    ctx.font = `italic 400 ${phraseSize}px ${SERIF_FAMILY}`;
     ctx.fillStyle = theme.accentHex;
-    ctx.globalAlpha = 0.55;
-    (ctx as any).letterSpacing = '1.2px';
+    ctx.globalAlpha = 0.5;
+    (ctx as any).letterSpacing = '1.5px';
     ctx.fillText(content.phrase.toUpperCase(), panel.x + pad, phraseY, panel.width - pad * 2);
     (ctx as any).letterSpacing = '0px';
     ctx.globalAlpha = 1;
@@ -540,36 +582,51 @@ function drawMetaPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'tertiary');
 
-  const pad = 22;
+  const pad = 26;
   const theme = content.theme;
 
   ctx.save();
 
   const metaSize = spec.typography.metaFontSize;
-  const lineGap = 12;
+  const lineGap = 14;
+
+  // ── Small accent diamond — symbolic growth marker ──
+  const diamondSize = 6;
+  const diamondX = panel.x + pad;
+  const diamondCY = panel.y + pad + metaSize * 0.4;
+  ctx.save();
+  ctx.translate(diamondX + diamondSize / 2, diamondCY);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = theme.accentHex;
+  ctx.globalAlpha = 0.6;
+  ctx.fillRect(-diamondSize / 2, -diamondSize / 2, diamondSize, diamondSize);
+  ctx.restore();
+
   let cursorY = panel.y + pad + metaSize;
 
-  // Card type — uppercase tracked label
-  ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
+  // Card type — uppercase, widely tracked, symbolic
+  ctx.font = `600 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.75;
-  (ctx as any).letterSpacing = '2px';
-  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
+  ctx.globalAlpha = 0.8;
+  (ctx as any).letterSpacing = '3px';
+  ctx.fillText(content.cardTypeLabel.toUpperCase(), diamondX + diamondSize + 12, cursorY, panel.width - pad * 2 - diamondSize - 12);
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
   if (content.timeAnchor) {
     cursorY += metaSize + lineGap;
-    ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
-    ctx.fillStyle = envWhite(envTone, 0.65, 'meta');
+    ctx.font = `300 ${metaSize - 1}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.55, 'meta');
+    (ctx as any).letterSpacing = '0.5px';
     ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
+    (ctx as any).letterSpacing = '0px';
   }
 
   if (content.domain) {
-    cursorY += (metaSize - 2) + lineGap;
-    ctx.font = `500 ${14}px ${FONT_FAMILY}`;
-    ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
-    (ctx as any).letterSpacing = '1.5px';
+    cursorY += (metaSize - 1) + lineGap;
+    ctx.font = `500 ${13}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.45, 'meta');
+    (ctx as any).letterSpacing = '2px';
     ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     (ctx as any).letterSpacing = '0px';
   }
@@ -593,74 +650,90 @@ function drawBrandPanel(
   const bG = Math.round(12 + tg * ta * 3);
   const bB = Math.round(22 + tb * ta * 3);
 
-  // Elegant minimal brand strip — nearly invisible, prestigious
+  // ── Ceremonial brand strip — elegant, prestigious presence ──
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
   const grad = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  grad.addColorStop(0, `rgba(${bR + 8}, ${bG + 8}, ${bB + 10}, 0.08)`);
-  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.16)`);
+  grad.addColorStop(0, `rgba(${bR + 10}, ${bG + 10}, ${bB + 12}, 0.06)`);
+  grad.addColorStop(1, `rgba(${bR}, ${bG}, ${bB}, 0.14)`);
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Thin top border — whisper-level separation
+  // Top border — whisper separation
   drawRoundedRect(ctx, panel.x, panel.y, panel.width, panel.height, Math.min(spec.panelRadius, panel.height / 2));
   const borderGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y);
-  borderGrad.addColorStop(0, 'rgba(255,255,255,0.02)');
-  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.06)');
-  borderGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+  borderGrad.addColorStop(0, 'rgba(255,255,255,0.015)');
+  borderGrad.addColorStop(0.5, 'rgba(255,255,255,0.055)');
+  borderGrad.addColorStop(1, 'rgba(255,255,255,0.015)');
   ctx.strokeStyle = borderGrad;
   ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // LS icon — refined golden square with subtle shadow
-  const iconSize = 32;
-  const totalContentW = iconSize + 14 + 180; // icon + gap + approx text
+  // ── Seal icon — refined golden emblem with glow ──
+  const iconSize = 28;
+  const brandSize = spec.typography.brandFontSize;
+
+  // Measure full text to center everything
+  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
+  const prefixW = ctx.measureText('Posted from ').width;
+  ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
+  const nameW = ctx.measureText('LifeStack').width;
+  const gap = 12;
+  const totalContentW = iconSize + gap + prefixW + nameW;
   const startX = panel.x + (panel.width - totalContentW) / 2;
   const iconX = startX;
   const iconY = panel.y + (panel.height - iconSize) / 2;
 
-  // Icon shadow
-  ctx.shadowColor = 'rgba(200, 164, 106, 0.2)';
-  ctx.shadowBlur = 14;
-  ctx.shadowOffsetY = 2;
+  // Icon glow — warm, ceremonial
+  ctx.shadowColor = 'rgba(200, 164, 106, 0.25)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 0;
 
-  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 8);
-  const iconGrad = ctx.createLinearGradient(iconX, iconY, iconX + iconSize, iconY + iconSize);
-  iconGrad.addColorStop(0, 'hsl(43, 74%, 58%)');
-  iconGrad.addColorStop(0.5, 'hsl(43, 70%, 50%)');
-  iconGrad.addColorStop(1, 'hsl(40, 60%, 36%)');
+  // Circular seal instead of square
+  ctx.beginPath();
+  ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2, 0, Math.PI * 2);
+  ctx.closePath();
+  const iconGrad = ctx.createRadialGradient(
+    iconX + iconSize * 0.4, iconY + iconSize * 0.35, 0,
+    iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2,
+  );
+  iconGrad.addColorStop(0, 'hsl(43, 74%, 62%)');
+  iconGrad.addColorStop(0.6, 'hsl(43, 70%, 50%)');
+  iconGrad.addColorStop(1, 'hsl(40, 55%, 34%)');
   ctx.fillStyle = iconGrad;
   ctx.fill();
 
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Inner shine on icon
-  drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize * 0.5, 8);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.fill();
+  // Inner ring on seal
+  ctx.beginPath();
+  ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 3, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
 
-  ctx.font = `800 ${11}px ${FONT_FAMILY}`;
+  // LS mark
+  ctx.font = `800 ${10}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(14, 12, 20)';
   ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 3.5);
   ctx.textAlign = 'left';
 
-  // Brand text — elegant, prestigious
-  const brandSize = spec.typography.brandFontSize;
-  const textX = iconX + iconSize + 14;
-  const textY = panel.y + panel.height / 2 + brandSize / 3;
+  // ── Brand text — ceremonial, split hierarchy ──
+  const textX = iconX + iconSize + gap;
+  const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
-  ctx.font = `300 ${brandSize}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.38, 'meta');
-  (ctx as any).letterSpacing = '0.5px';
+  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
+  ctx.fillStyle = envWhite(envTone, 0.35, 'meta');
+  (ctx as any).letterSpacing = '0.8px';
   ctx.fillText('Posted from ', textX, textY);
 
-  const postedW = ctx.measureText('Posted from ').width;
   ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = content.theme.accentHex;
-  ctx.globalAlpha = 0.55;
-  (ctx as any).letterSpacing = '1px';
-  ctx.fillText('LifeStack', textX + postedW, textY);
+  ctx.globalAlpha = 0.65;
+  (ctx as any).letterSpacing = '1.2px';
+  ctx.fillText('LifeStack', textX + prefixW, textY);
   ctx.globalAlpha = 1;
   (ctx as any).letterSpacing = '0px';
 
@@ -902,7 +975,7 @@ export async function renderCompositionToCanvas(
     }
   }
 
-  // 4. Card shell — architectural frame with edge glow
+  // 4. Card shell — architectural frame with directional light
   const shellRadius = Math.max(spec.panelRadius, 34);
   
   // Apply rounded clip
@@ -913,16 +986,28 @@ export async function renderCompositionToCanvas(
   ctx.fill();
   ctx.restore();
 
-  // Premium edge contour — subtle luminous border on the card itself
+  // Premium edge contour — directional luminous border (top-left lit)
   ctx.save();
   drawRoundedRect(ctx, 1, 1, spec.width - 2, spec.height - 2, shellRadius - 1);
-  const shellBorderGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  shellBorderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.10)');
-  shellBorderGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.04)');
-  shellBorderGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.02)');
-  shellBorderGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+  const shellBorderGrad = ctx.createLinearGradient(0, 0, spec.width * 0.5, spec.height);
+  shellBorderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
+  shellBorderGrad.addColorStop(0.15, 'rgba(255, 255, 255, 0.07)');
+  shellBorderGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.025)');
+  shellBorderGrad.addColorStop(0.85, 'rgba(255, 255, 255, 0.015)');
+  shellBorderGrad.addColorStop(1, 'rgba(255, 255, 255, 0.04)');
   ctx.strokeStyle = shellBorderGrad;
   ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Inner glow line at top — sculpted edge highlight
+  ctx.save();
+  drawRoundedRect(ctx, 3, 3, spec.width - 6, spec.height - 6, shellRadius - 3);
+  const innerGlowGrad = ctx.createLinearGradient(0, 0, 0, spec.height * 0.15);
+  innerGlowGrad.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+  innerGlowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.strokeStyle = innerGlowGrad;
+  ctx.lineWidth = 0.5;
   ctx.stroke();
   ctx.restore();
 
