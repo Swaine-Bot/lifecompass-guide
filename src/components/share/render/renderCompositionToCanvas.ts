@@ -572,36 +572,51 @@ function drawMetaPanel(
 
   drawPanelBackground(ctx, panel, spec.panelRadius, envTone, 'tertiary');
 
-  const pad = 22;
+  const pad = 26;
   const theme = content.theme;
 
   ctx.save();
 
   const metaSize = spec.typography.metaFontSize;
-  const lineGap = 12;
+  const lineGap = 14;
+
+  // ── Small accent diamond — symbolic growth marker ──
+  const diamondSize = 6;
+  const diamondX = panel.x + pad;
+  const diamondCY = panel.y + pad + metaSize * 0.4;
+  ctx.save();
+  ctx.translate(diamondX + diamondSize / 2, diamondCY);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = theme.accentHex;
+  ctx.globalAlpha = 0.6;
+  ctx.fillRect(-diamondSize / 2, -diamondSize / 2, diamondSize, diamondSize);
+  ctx.restore();
+
   let cursorY = panel.y + pad + metaSize;
 
-  // Card type — uppercase tracked label
-  ctx.font = `700 ${metaSize}px ${FONT_FAMILY}`;
+  // Card type — uppercase, widely tracked, symbolic
+  ctx.font = `600 ${metaSize}px ${FONT_FAMILY}`;
   ctx.fillStyle = theme.accentHex;
-  ctx.globalAlpha = 0.75;
-  (ctx as any).letterSpacing = '2px';
-  ctx.fillText(content.cardTypeLabel.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
+  ctx.globalAlpha = 0.8;
+  (ctx as any).letterSpacing = '3px';
+  ctx.fillText(content.cardTypeLabel.toUpperCase(), diamondX + diamondSize + 12, cursorY, panel.width - pad * 2 - diamondSize - 12);
   (ctx as any).letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
   if (content.timeAnchor) {
     cursorY += metaSize + lineGap;
-    ctx.font = `400 ${metaSize - 2}px ${FONT_FAMILY}`;
-    ctx.fillStyle = envWhite(envTone, 0.65, 'meta');
+    ctx.font = `300 ${metaSize - 1}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.55, 'meta');
+    (ctx as any).letterSpacing = '0.5px';
     ctx.fillText(content.timeAnchor, panel.x + pad, cursorY, panel.width - pad * 2);
+    (ctx as any).letterSpacing = '0px';
   }
 
   if (content.domain) {
-    cursorY += (metaSize - 2) + lineGap;
-    ctx.font = `500 ${14}px ${FONT_FAMILY}`;
-    ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
-    (ctx as any).letterSpacing = '1.5px';
+    cursorY += (metaSize - 1) + lineGap;
+    ctx.font = `500 ${13}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.45, 'meta');
+    (ctx as any).letterSpacing = '2px';
     ctx.fillText(content.domain.toUpperCase(), panel.x + pad, cursorY, panel.width - pad * 2);
     (ctx as any).letterSpacing = '0px';
   }
