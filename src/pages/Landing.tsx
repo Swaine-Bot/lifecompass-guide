@@ -162,7 +162,7 @@ export default function Landing() {
             A complete system for goals, habits, reflection, and growth—all in one elegant experience.
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((feature, index) => (
               <div key={index} className="rounded-2xl p-6 transition-all hover:-translate-y-1"
                 style={{
