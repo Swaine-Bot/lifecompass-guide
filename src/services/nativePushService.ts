@@ -106,17 +106,17 @@ export async function removeNativeToken(): Promise<void> {
  * On Android, push bootstrap is intentionally skipped until Firebase is configured.
  */
 export async function initializeNativePush(): Promise<void> {
-  if (!supportsNativePush()) return;
-  nativeState.isNativeRuntime = true;
-
   const platform = getPlatform();
 
-  // Hard safety guard: never run Android push plugin calls during bootstrap
-  // until Firebase messaging is intentionally configured.
+  // Hard safety guard: never run Android push plugin calls during bootstrap.
+  // Android push is temporarily hard-disabled until Firebase is configured.
   if (platform === 'android') {
-    console.log('[NativePush] Android push skipped: Firebase not configured');
+    console.log('[NativePush] Android push hard-disabled during bootstrap');
     return;
   }
+
+  if (!supportsNativePush()) return;
+  nativeState.isNativeRuntime = true;
 
   try {
     const { PushNotifications } = await import('@capacitor/push-notifications');
