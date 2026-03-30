@@ -111,7 +111,7 @@ export async function initializeNativePush(): Promise<void> {
   // Hard safety guard: never run Android push plugin calls during bootstrap.
   // Android push is temporarily hard-disabled until Firebase is configured.
   if (platform === 'android') {
-    console.log('[NativePush] Android push hard-disabled during bootstrap');
+    console.log('[NativePush] Android push disabled — Firebase not configured');
     return;
   }
 
