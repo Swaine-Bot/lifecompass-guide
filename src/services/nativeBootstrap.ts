@@ -45,7 +45,7 @@ export async function bootstrapNative(): Promise<void> {
   ];
 
   if (platform === 'android') {
-    console.log('[NativeBootstrap] Push init skipped on Android (Firebase not configured)');
+    console.log('[NativeBootstrap] Android push hard-disabled during bootstrap');
   } else {
     initializers.push(safeInit('Push', initializeNativePush));
   }
