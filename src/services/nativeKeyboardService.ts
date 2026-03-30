@@ -94,6 +94,6 @@ export async function setKeyboardAccessoryBarVisible(isVisible: boolean): Promis
 
     await Keyboard.setAccessoryBarVisible({ isVisible });
   } catch (e) {
-    console.warn('[NativeKeyboard] Accessory bar update failed:', e);
+    console.warn('[NativeKeyboard] Accessory bar update failed:', (e as Error)?.message ?? e);
   }
 }
