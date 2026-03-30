@@ -83,7 +83,7 @@ export default function Landing() {
             <span className="text-white/90">to your last breath</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed px-2">
             LifeStack is your personal life operating system—an AI mentor that helps you plan,
             track, and reflect across every phase of your journey.
           </p>
