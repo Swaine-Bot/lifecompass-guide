@@ -172,6 +172,57 @@ export default function Onboarding() {
       toast.error('Could not save terms acceptance. Please try again.');
     }
   };
+   const handleTermsAccept = async (termsVersion?: string, privacyVersion?: string) => {
+     const resolvedTermsVersion = termsVersion || '1.0';
+     const resolvedPrivacyVersion = privacyVersion || '1.0';
+     console.log(`[Onboarding] terms_continue_tapped userId=${user?.id ?? 'none'} authLoading=${authLoading}`);
+ 
+     // If auth is still loading, wait briefly then proceed anyway
+     if (authLoading) {
+       console.log('[Onboarding] auth_still_loading showing_toast');
+       toast.info('Initializing your session…');
+     }
+ 
+     if (!user) {
+       console.log('[Onboarding] missing_user redirecting_to_auth');
+       toast.error('Your session expired. Please sign in again.');
+       navigate('/auth', { replace: true });
+       return;
+     }
+ 
+     // ── Optimistic UI progression ──
+     console.log('[Onboarding] terms_progressing_optimistically');
+     setShowTerms(false);
+     setShowAccountType(true);
+ 
+     // ── Background persistence (non-blocking) ──
+     try {
+       const { error } = await supabase.from('privacy_settings').upsert({
+         user_id: user.id,
+         terms_accepted: true,
+         terms_accepted_at: new Date().toISOString(),
+         privacy_policy_accepted: true,
+         privacy_policy_accepted_at: new Date().toISOString(),
+         terms_version: resolvedTermsVersion,
+         privacy_policy_version: resolvedPrivacyVersion,
+       } as any);
+ 
+       if (error) throw error;
+       console.log('[Onboarding] terms_persist_success');
+     } catch (error) {
+       const message = error instanceof Error ? error.message : String(error);
+       console.error(`[Onboarding] terms_persist_failed error=${message}`);
+       toast.error('Terms saved locally — we\'ll sync when connection improves.', { duration: 4000 });
+       // Store acceptance locally as fallback
+       try {
+         localStorage.setItem('lifestack_terms_pending', JSON.stringify({
+           termsVersion: resolvedTermsVersion,
+           privacyVersion: resolvedPrivacyVersion,
+           acceptedAt: new Date().toISOString(),
+         }));
+       } catch { /* localStorage unavailable */ }
+     }
+   };
 
   const handleAccountTypeComplete = async (data: { accountType: 'individual' | 'page'; pageCategory?: string }) => {
     setFormData(prev => ({ ...prev, account_type: data.accountType, page_category: data.pageCategory || '' }));
