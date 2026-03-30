@@ -46,6 +46,6 @@ export async function initializeNativeApp(): Promise<void> {
       }
     });
   } catch (e) {
-    console.warn('[NativeApp] Init failed:', e);
+    console.warn('[NativeApp] Init failed:', (e as Error)?.message ?? e);
   }
 }
