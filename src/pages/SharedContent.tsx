@@ -101,7 +101,7 @@ export default function SharedContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(220,20%,5%)] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[hsl(220,20%,5%)] flex items-center justify-center p-6 safe-area-top safe-area-bottom">
       <div className="w-full max-w-md space-y-8">
         {/* Hero card area */}
         <div className="rounded-2xl border border-[hsl(220,15%,15%)] bg-gradient-to-br from-[hsl(220,18%,8%)] to-[hsl(225,20%,11%)] p-8 text-center space-y-4">
