@@ -45,7 +45,7 @@ export async function bootstrapNative(): Promise<void> {
   ];
 
   if (platform === 'android') {
-    console.log('[NativeBootstrap] Android push hard-disabled during bootstrap');
+    console.log('[NativePush] Android push disabled — Firebase not configured');
   } else {
     initializers.push(safeInit('Push', initializeNativePush));
   }
