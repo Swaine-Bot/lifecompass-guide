@@ -29,6 +29,11 @@ export function getNativePushState(): NativePushState {
   return { ...nativeState };
 }
 
+function formatError(e: unknown): string {
+  if (e instanceof Error) return `${e.message}\n${e.stack ?? ''}`;
+  try { return JSON.stringify(e, null, 2); } catch { return String(e); }
+}
+
 /**
  * Sync native push token to backend.
  * Uses the existing push_subscriptions table, storing platform info
@@ -56,12 +61,12 @@ async function syncTokenToBackend(token: string): Promise<void> {
     });
 
     if (error) {
-      console.error('[NativePush] Token sync failed:', error);
+      console.error(`[NativePush] Token sync failed:\n${formatError(error)}`);
     } else {
       console.log('[NativePush] Token synced to backend');
     }
   } catch (e) {
-    console.error('[NativePush] Token sync error:', e);
+    console.error(`[NativePush] Token sync error:\n${formatError(e)}`);
   }
 }
 
@@ -76,40 +81,29 @@ export async function removeNativeToken(): Promise<void> {
     const platform = getPlatform();
     const endpoint = `native://${platform}/${user.id}`;
 
-    await supabase
+    const { error } = await supabase
       .from('push_subscriptions')
       .delete()
       .eq('user_id', user.id)
       .eq('endpoint', endpoint);
 
+    if (error) {
+      console.error(`[NativePush] Token removal failed:\n${formatError(error)}`);
+      return;
+    }
+
     nativeState.registered = false;
     nativeState.token = null;
     console.log('[NativePush] Token removed from backend');
   } catch (e) {
-    console.error('[NativePush] Token removal error:', e);
+    console.error(`[NativePush] Token removal error:\n${formatError(e)}`);
   }
 }
 
 /**
  * Initialize native push notifications.
  * Call once at app startup. No-ops on web.
- */
-/**
- * Check whether Android push registration should proceed.
- * Returns false when Firebase is not configured (no google-services.json wired)
- * so that PushNotifications.register() is never called prematurely.
- */
-function isAndroidPushEnabled(): boolean {
-  // Explicit build-time opt-in flag. Default: disabled on Android to prevent
-  // "Default FirebaseApp is not initialized" fatal crash.
-  const flag = (import.meta as any).env?.VITE_ENABLE_NATIVE_PUSH_ANDROID;
-  return flag === 'true' || flag === true;
-}
-
-/**
- * Initialize native push notifications.
- * Call once at app startup. No-ops on web.
- * On Android, skips registration entirely unless Firebase is confirmed configured.
+ * On Android, push bootstrap is intentionally skipped until Firebase is configured.
  */
 export async function initializeNativePush(): Promise<void> {
   if (!supportsNativePush()) return;
@@ -117,9 +111,10 @@ export async function initializeNativePush(): Promise<void> {
 
   const platform = getPlatform();
 
-  // Guard: on Android, skip push entirely unless Firebase is wired
-  if (platform === 'android' && !isAndroidPushEnabled()) {
-    console.log('[NativePush] Skipping Android registration: Firebase not configured (set VITE_ENABLE_NATIVE_PUSH_ANDROID=true to enable)');
+  // Hard safety guard: never run Android push plugin calls during bootstrap
+  // until Firebase messaging is intentionally configured.
+  if (platform === 'android') {
+    console.log('[NativePush] Android push skipped: Firebase not configured');
     return;
   }
 
@@ -131,7 +126,7 @@ export async function initializeNativePush(): Promise<void> {
     try {
       permResult = await PushNotifications.requestPermissions();
     } catch (permErr) {
-      console.warn(`[NativePush] requestPermissions failed (non-fatal): ${permErr instanceof Error ? permErr.message : JSON.stringify(permErr)}`);
+      console.warn(`[NativePush] requestPermissions failed (non-fatal):\n${formatError(permErr)}`);
       return;
     }
 
@@ -144,7 +139,7 @@ export async function initializeNativePush(): Promise<void> {
     try {
       await PushNotifications.register();
     } catch (regErr) {
-      console.warn(`[NativePush] register() failed (non-fatal): ${regErr instanceof Error ? regErr.message : JSON.stringify(regErr)}`);
+      console.warn(`[NativePush] register() failed (non-fatal):\n${formatError(regErr)}`);
       return;
     }
 
@@ -156,8 +151,8 @@ export async function initializeNativePush(): Promise<void> {
       await syncTokenToBackend(token.value);
     });
 
-    PushNotifications.addListener('registrationError', (err) => {
-      console.error('[NativePush] Registration error:', err);
+    PushNotifications.addListener('registrationError', (err: unknown) => {
+      console.error(`[NativePush] Registration error:\n${formatError(err)}`);
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
@@ -172,8 +167,7 @@ export async function initializeNativePush(): Promise<void> {
       }
     });
   } catch (e) {
-    const msg = e instanceof Error ? `${e.message}\n${e.stack ?? ''}` : JSON.stringify(e, null, 2);
-    console.warn(`[NativePush] Init failed (non-fatal):\n${msg}`);
+    console.warn(`[NativePush] Init failed (non-fatal):\n${formatError(e)}`);
   }
 }
 

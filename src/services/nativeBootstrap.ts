@@ -8,7 +8,7 @@
  * Every initializer is independently guarded.
  */
 
-import { isNative } from '@/lib/platform';
+import { getPlatform, isNative } from '@/lib/platform';
 import { initializeNativeChrome } from './nativeChromeService';
 import { initializeNativeKeyboard } from './nativeKeyboardService';
 import { initializeNativeApp } from './nativeAppService';
@@ -34,14 +34,23 @@ export async function bootstrapNative(): Promise<void> {
   if (!isNative() || bootstrapped) return;
   bootstrapped = true;
 
+  const platform = getPlatform();
+
   console.log('[NativeBootstrap] Initializing native services...');
 
-  const results = await Promise.allSettled([
+  const initializers: Promise<void>[] = [
     safeInit('Chrome', initializeNativeChrome),
     safeInit('Keyboard', initializeNativeKeyboard),
     safeInit('App', initializeNativeApp),
-    safeInit('Push', initializeNativePush),
-  ]);
+  ];
+
+  if (platform === 'android') {
+    console.log('[NativeBootstrap] Push init skipped on Android (Firebase not configured)');
+  } else {
+    initializers.push(safeInit('Push', initializeNativePush));
+  }
+
+  const results = await Promise.allSettled(initializers);
 
   const failed = results.filter(r => r.status === 'rejected').length;
   console.log(`[NativeBootstrap] Complete — ${results.length - failed}/${results.length} services ready`);
