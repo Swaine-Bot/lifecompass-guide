@@ -131,48 +131,6 @@ export default function Onboarding() {
   // ── Pre-onboarding handlers ──
 
   const handleTermsAccept = async (termsVersion?: string, privacyVersion?: string) => {
-    const resolvedTermsVersion = termsVersion || '1.0';
-    const resolvedPrivacyVersion = privacyVersion || '1.0';
-    console.log(`[Onboarding] terms accept requested userId=${user?.id ?? 'none'} authLoading=${authLoading} termsVersion=${resolvedTermsVersion} privacyVersion=${resolvedPrivacyVersion}`);
-
-    if (authLoading) {
-      console.log('[Onboarding] terms accept blocked auth_still_loading');
-      toast.error('Please wait a moment while we initialize your session.');
-      return;
-    }
-
-    if (!user) {
-      console.log('[Onboarding] terms accept blocked missing_user redirecting_to_auth');
-      toast.error('Your session expired. Please sign in again.');
-      navigate('/auth', { replace: true });
-      return;
-    }
-
-    try {
-      const { error } = await supabase.from('privacy_settings').upsert({
-        user_id: user.id,
-        terms_accepted: true,
-        terms_accepted_at: new Date().toISOString(),
-        privacy_policy_accepted: true,
-        privacy_policy_accepted_at: new Date().toISOString(),
-        terms_version: resolvedTermsVersion,
-        privacy_policy_version: resolvedPrivacyVersion,
-      } as any);
-
-      if (error) {
-        throw error;
-      }
-
-      console.log('[Onboarding] terms accept persisted successfully nextStep=account_type');
-      setShowTerms(false);
-      setShowAccountType(true);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(`[Onboarding] terms accept persistence failed error=${message}`);
-      toast.error('Could not save terms acceptance. Please try again.');
-    }
-  };
-   const handleTermsAccept = async (termsVersion?: string, privacyVersion?: string) => {
      const resolvedTermsVersion = termsVersion || '1.0';
      const resolvedPrivacyVersion = privacyVersion || '1.0';
      console.log(`[Onboarding] terms_continue_tapped userId=${user?.id ?? 'none'} authLoading=${authLoading}`);
