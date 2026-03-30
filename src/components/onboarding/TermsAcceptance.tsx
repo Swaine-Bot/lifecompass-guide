@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Crown, Shield, FileText, ChevronRight } from 'lucide-react';
+import { Crown, Shield, FileText, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const CURRENT_TERMS_VERSION = '1.0';
@@ -17,6 +17,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
 
   const canContinue = termsAccepted && privacyAccepted;
 
@@ -25,23 +26,41 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
   }, []);
 
   const handleContinue = async () => {
-    console.log(`[TermsAcceptance] continue tapped termsAccepted=${termsAccepted} privacyAccepted=${privacyAccepted} canContinue=${canContinue} isSubmitting=${isSubmitting}`);
+    console.log(`[TermsAcceptance] continue_tapped termsAccepted=${termsAccepted} privacyAccepted=${privacyAccepted} canContinue=${canContinue} isSubmitting=${isSubmitting}`);
     if (!canContinue || isSubmitting) {
-      console.log('[TermsAcceptance] continue blocked validation_failed_or_submitting');
+      console.log('[TermsAcceptance] continue_blocked validation_failed_or_submitting');
       return;
     }
 
     setIsSubmitting(true);
+    setAuthMessage('Continuing…');
     try {
-      console.log(`[TermsAcceptance] calling onAccept termsVersion=${CURRENT_TERMS_VERSION} privacyVersion=${CURRENT_PRIVACY_VERSION}`);
+      console.log(`[TermsAcceptance] calling_onAccept termsVersion=${CURRENT_TERMS_VERSION} privacyVersion=${CURRENT_PRIVACY_VERSION}`);
       await Promise.resolve(onAccept(CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION));
-      console.log('[TermsAcceptance] onAccept resolved nextStep=account_type');
+      console.log('[TermsAcceptance] onAccept_resolved nextStep=account_type');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`[TermsAcceptance] onAccept failed error=${message}`);
+      console.error(`[TermsAcceptance] onAccept_failed error=${message}`);
+      setAuthMessage('We could not continue. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleToggleTerms = () => {
+    setTermsAccepted((prev) => {
+      const next = !prev;
+      console.log(`[TermsAcceptance] terms_toggled next=${next}`);
+      return next;
+    });
+  };
+
+  const handleTogglePrivacy = () => {
+    setPrivacyAccepted((prev) => {
+      const next = !prev;
+      console.log(`[TermsAcceptance] privacy_toggled next=${next}`);
+      return next;
+    });
   };
 
   return (
@@ -50,7 +69,10 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Scrollable content area */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-6 pb-28">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto px-4 pt-6 pb-32"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
           <motion.div
@@ -90,13 +112,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   ? "border-primary bg-primary/10"
                   : "border-border/50 bg-card/50 hover:border-primary/30"
               )}
-              onClick={() => {
-                setTermsAccepted((prev) => {
-                  const next = !prev;
-                  console.log(`[TermsAcceptance] terms toggled next=${next}`);
-                  return next;
-                });
-              }}
+              onClick={handleToggleTerms}
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
@@ -104,11 +120,10 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   checked={termsAccepted}
                   onCheckedChange={(checked) => {
                     const next = checked === true;
-                    console.log(`[TermsAcceptance] terms checkbox changed next=${next}`);
+                     console.log(`[TermsAcceptance] terms_checkbox_changed next=${next}`);
                     setTermsAccepted(next);
                   }}
                   className="mt-1"
-                  onClick={(e) => e.stopPropagation()}
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -138,13 +153,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   ? "border-primary bg-primary/10"
                   : "border-border/50 bg-card/50 hover:border-primary/30"
               )}
-              onClick={() => {
-                setPrivacyAccepted((prev) => {
-                  const next = !prev;
-                  console.log(`[TermsAcceptance] privacy toggled next=${next}`);
-                  return next;
-                });
-              }}
+              onClick={handleTogglePrivacy}
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
@@ -152,11 +161,10 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   checked={privacyAccepted}
                   onCheckedChange={(checked) => {
                     const next = checked === true;
-                    console.log(`[TermsAcceptance] privacy checkbox changed next=${next}`);
+                     console.log(`[TermsAcceptance] privacy_checkbox_changed next=${next}`);
                     setPrivacyAccepted(next);
                   }}
                   className="mt-1"
-                  onClick={(e) => e.stopPropagation()}
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -214,9 +222,22 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
             disabled={!canContinue || isSubmitting}
             onClick={handleContinue}
           >
-            {isSubmitting ? 'Saving...' : 'Continue'}
-            <ChevronRight className="w-5 h-5 ml-1" />
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Continuing...
+              </>
+            ) : (
+              <>
+                Continue
+                <ChevronRight className="w-5 h-5 ml-1" />
+              </>
+            )}
           </Button>
+
+          {authMessage && (
+            <p className="text-xs text-center text-muted-foreground mt-3">{authMessage}</p>
+          )}
 
           {!canContinue && (
             <p className="text-xs text-center text-muted-foreground mt-3">
