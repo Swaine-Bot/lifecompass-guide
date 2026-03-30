@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { shouldSkipWebPush, getNativePushState } from '@/services/nativePushService';
+import { getPlatform } from '@/lib/platform';
 
 export interface PushNotificationState {
   isSupported: boolean;
@@ -13,6 +14,7 @@ export interface PushNotificationState {
 
 export function usePushNotifications() {
   const { user } = useAuth();
+  const isAndroidNative = shouldSkipWebPush() && getPlatform() === 'android';
   const [state, setState] = useState<PushNotificationState>({
     isSupported: false,
     isSubscribed: false,
@@ -71,6 +73,18 @@ export function usePushNotifications() {
       return;
     }
 
+    // Hard-disable Android push until Firebase is configured
+    if (isAndroidNative) {
+      setState(prev => ({
+        ...prev,
+        isSupported: false,
+        isSubscribed: false,
+        permission: 'default',
+        loading: false,
+      }));
+      return;
+    }
+
     // On native, report native push state instead
     if (shouldSkipWebPush()) {
       const nState = getNativePushState();
@@ -104,12 +118,17 @@ export function usePushNotifications() {
       console.error('Error checking subscription:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [user, checkSupport]);
+  }, [user, checkSupport, isAndroidNative]);
 
   // Subscribe to push notifications
   const subscribe = async (): Promise<boolean> => {
     if (!user) {
       toast.error('Please log in to enable notifications');
+      return false;
+    }
+
+    if (isAndroidNative) {
+      toast.info('Push notifications on Android are temporarily unavailable.');
       return false;
     }
 
@@ -235,6 +254,17 @@ export function usePushNotifications() {
 
   // Check subscription on mount
   useEffect(() => {
+    if (isAndroidNative) {
+      setState(prev => ({
+        ...prev,
+        isSupported: false,
+        isSubscribed: false,
+        permission: 'default',
+        loading: false,
+      }));
+      return;
+    }
+
     // On native, skip service worker registration entirely
     if (shouldSkipWebPush()) {
       checkSubscription();
@@ -249,7 +279,7 @@ export function usePushNotifications() {
     } else {
       setState(prev => ({ ...prev, isSupported: false, loading: false }));
     }
-  }, [user, checkSupport, checkSubscription]);
+  }, [user, checkSupport, checkSubscription, isAndroidNative]);
 
   return {
     ...state,
