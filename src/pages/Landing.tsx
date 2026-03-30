@@ -75,7 +75,7 @@ export default function Landing() {
             Your life companion, powered by AI
           </div>
 
-          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-balance">
             <span className="text-primary">Guide your life</span>
             <br />
             <span className="text-white/95">from your first job</span>
