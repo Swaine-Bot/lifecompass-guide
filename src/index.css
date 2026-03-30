@@ -523,6 +523,15 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* ═══ Mobile Polish Utilities ═══ */
+
+  /* Prevent text overflow on mobile cards */
+  .mobile-text-safe {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
 }
 
 /* ═══ Share Card Design System Animations ═══ */

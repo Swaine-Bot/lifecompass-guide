@@ -20,7 +20,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.06]" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
+      <header className="fixed left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.06]" style={{ top: 0, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8" />
@@ -64,7 +64,7 @@ export default function Landing() {
         }} />
 
         {/* Hero content */}
-        <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center pt-20">
+        <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium mb-8"
             style={{
               background: 'hsl(43 74% 52% / 0.08)',
@@ -75,7 +75,7 @@ export default function Landing() {
             Your life companion, powered by AI
           </div>
 
-          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-balance">
             <span className="text-primary">Guide your life</span>
             <br />
             <span className="text-white/95">from your first job</span>
@@ -83,7 +83,7 @@ export default function Landing() {
             <span className="text-white/90">to your last breath</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed px-2">
             LifeStack is your personal life operating system—an AI mentor that helps you plan,
             track, and reflect across every phase of your journey.
           </p>
@@ -162,9 +162,9 @@ export default function Landing() {
             A complete system for goals, habits, reflection, and growth—all in one elegant experience.
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((feature, index) => (
-              <div key={index} className="rounded-2xl p-6 transition-all hover:-translate-y-1"
+              <div key={index} className="rounded-2xl p-5 sm:p-6 transition-all hover:-translate-y-1"
                 style={{
                   background: 'hsl(220 18% 9% / 0.8)',
                   border: '1px solid hsl(220 15% 20% / 0.2)',
@@ -229,7 +229,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-white/[0.06]">
+      <footer className="py-8 px-4 border-t border-white/[0.06]" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' }}>
         <div className="container max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
