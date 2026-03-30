@@ -95,7 +95,7 @@ export default function UpdatePassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col safe-area-top">
         <div className="flex-1 flex items-center justify-center px-4 py-12">
           <div className="w-full max-w-md text-center">
             <div className="flex justify-center mb-8">

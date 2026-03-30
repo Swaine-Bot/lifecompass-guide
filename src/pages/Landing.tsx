@@ -64,7 +64,7 @@ export default function Landing() {
         }} />
 
         {/* Hero content */}
-        <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center pt-20">
+        <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium mb-8"
             style={{
               background: 'hsl(43 74% 52% / 0.08)',
