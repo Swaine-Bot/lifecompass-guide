@@ -94,30 +94,65 @@ export async function removeNativeToken(): Promise<void> {
  * Initialize native push notifications.
  * Call once at app startup. No-ops on web.
  */
+/**
+ * Check whether Android push registration should proceed.
+ * Returns false when Firebase is not configured (no google-services.json wired)
+ * so that PushNotifications.register() is never called prematurely.
+ */
+function isAndroidPushEnabled(): boolean {
+  // Explicit build-time opt-in flag. Default: disabled on Android to prevent
+  // "Default FirebaseApp is not initialized" fatal crash.
+  const flag = (import.meta as any).env?.VITE_ENABLE_NATIVE_PUSH_ANDROID;
+  return flag === 'true' || flag === true;
+}
+
+/**
+ * Initialize native push notifications.
+ * Call once at app startup. No-ops on web.
+ * On Android, skips registration entirely unless Firebase is confirmed configured.
+ */
 export async function initializeNativePush(): Promise<void> {
   if (!supportsNativePush()) return;
   nativeState.isNativeRuntime = true;
+
+  const platform = getPlatform();
+
+  // Guard: on Android, skip push entirely unless Firebase is wired
+  if (platform === 'android' && !isAndroidPushEnabled()) {
+    console.log('[NativePush] Skipping Android registration: Firebase not configured (set VITE_ENABLE_NATIVE_PUSH_ANDROID=true to enable)');
+    return;
+  }
 
   try {
     const { PushNotifications } = await import('@capacitor/push-notifications');
 
     // Request permission
-    const permResult = await PushNotifications.requestPermissions();
+    let permResult: { receive: string };
+    try {
+      permResult = await PushNotifications.requestPermissions();
+    } catch (permErr) {
+      console.warn(`[NativePush] requestPermissions failed (non-fatal): ${permErr instanceof Error ? permErr.message : JSON.stringify(permErr)}`);
+      return;
+    }
+
     if (permResult.receive !== 'granted') {
       console.log('[NativePush] Permission not granted');
       return;
     }
 
-    // Register for push
-    await PushNotifications.register();
+    // Register for push — the step that requires Firebase on Android
+    try {
+      await PushNotifications.register();
+    } catch (regErr) {
+      console.warn(`[NativePush] register() failed (non-fatal): ${regErr instanceof Error ? regErr.message : JSON.stringify(regErr)}`);
+      return;
+    }
 
     // Listen for registration
     PushNotifications.addListener('registration', async (token) => {
       console.log('[NativePush] Token received');
       nativeState.token = token.value;
       nativeState.registered = true;
-      
-      // Sync to backend
       await syncTokenToBackend(token.value);
     });
 
@@ -131,14 +166,14 @@ export async function initializeNativePush(): Promise<void> {
 
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('[NativePush] Action performed:', action.actionId);
-      // Route to screen if notification data contains a URL
       const url = action.notification?.data?.url;
       if (url && typeof url === 'string') {
         handleDeepLink(url);
       }
     });
   } catch (e) {
-    console.warn('[NativePush] Init failed:', e);
+    const msg = e instanceof Error ? `${e.message}\n${e.stack ?? ''}` : JSON.stringify(e, null, 2);
+    console.warn(`[NativePush] Init failed (non-fatal):\n${msg}`);
   }
 }
 
