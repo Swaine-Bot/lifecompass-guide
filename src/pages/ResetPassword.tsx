@@ -55,7 +55,7 @@ export default function ResetPassword() {
   if (sent) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <header className="p-4">
+        <header className="p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
           <Link to="/auth" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back to sign in</span>
