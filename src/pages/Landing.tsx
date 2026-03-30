@@ -18,10 +18,10 @@ const phases = ['Student / Early Career', 'Builder', 'Family & Home', 'Explorer'
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
       {/* Header */}
-      <header className="fixed left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.06]" style={{ top: 0, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="fixed left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.06]" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
+        <div className="container max-w-6xl mx-auto px-4 sm:px-5 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={lifestackLogo} alt="LifeStack" className="w-8 h-8" />
             <span className="font-serif text-xl font-semibold text-foreground">LifeStack</span>
@@ -64,8 +64,8 @@ export default function Landing() {
         }} />
 
         {/* Hero content */}
-        <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium mb-8"
+        <div className="relative z-10 container max-w-4xl mx-auto px-4 sm:px-5 text-center flex flex-col items-center" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 6.25rem)' }}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium mb-7"
             style={{
               background: 'hsl(43 74% 52% / 0.08)',
               borderColor: 'hsl(43 74% 52% / 0.2)',
@@ -75,7 +75,7 @@ export default function Landing() {
             Your life companion, powered by AI
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-balance">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-5 text-balance">
             <span className="text-primary">Guide your life</span>
             <br />
             <span className="text-white/95">from your first job</span>
@@ -83,20 +83,20 @@ export default function Landing() {
             <span className="text-white/90">to your last breath</span>
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-10 leading-relaxed px-2">
+          <p className="text-base sm:text-lg md:text-xl text-white/65 max-w-2xl mx-auto mb-9 leading-relaxed px-2">
             LifeStack is your personal life operating system—an AI mentor that helps you plan,
             track, and reflect across every phase of your journey.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="xl" variant="gold" asChild className="shadow-[0_0_40px_-10px_hsl(43_74%_52%/0.3)]">
-              <Link to="/auth?mode=signup">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center w-full max-w-sm sm:max-w-none mx-auto">
+            <Button size="xl" variant="gold" asChild className="w-full sm:w-auto shadow-[0_0_40px_-10px_hsl(43_74%_52%/0.3)]">
+              <Link to="/auth?mode=signup" className="flex w-full items-center justify-center gap-2">
                 Start Your Journey
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <Button size="xl" variant="outline" asChild className="border-white/20 text-white/80 hover:text-white hover:bg-white/[0.06]">
-              <Link to="/auth">Sign In</Link>
+            <Button size="xl" variant="outline" asChild className="w-full sm:w-auto border-white/20 text-white/80 hover:text-white hover:bg-white/[0.06]">
+              <Link to="/auth" className="flex w-full items-center justify-center">Sign In</Link>
             </Button>
           </div>
         </div>
