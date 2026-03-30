@@ -64,21 +64,26 @@ export async function initializeNativeKeyboard(): Promise<void> {
 
   if (!supportsNativeKeyboard()) return;
 
+  const keyboardModule = await getKeyboardModule();
+  const Keyboard = keyboardModule?.Keyboard;
+  if (!Keyboard) {
+    console.warn('[NativeKeyboard] Plugin not available — using viewport fallback only');
+    return;
+  }
+
+  // Each API call is independently guarded — partial support (Android) must not fail init
+  try { await Keyboard.setAccessoryBarVisible({ isVisible: true }); }
+  catch (e) { console.warn('[NativeKeyboard] setAccessoryBarVisible not supported:', (e as Error)?.message ?? e); }
+
+  try { await Keyboard.setScroll({ isDisabled: false }); }
+  catch (e) { console.warn('[NativeKeyboard] setScroll not supported:', (e as Error)?.message ?? e); }
+
   try {
-    const keyboardModule = await getKeyboardModule();
-    const Keyboard = keyboardModule?.Keyboard;
-    if (!Keyboard) return;
-
-    await Keyboard.setAccessoryBarVisible({ isVisible: true });
-    await Keyboard.setScroll({ isDisabled: false });
-
     Keyboard.addListener('keyboardWillShow', (info) => emitKeyboardHeight(info.keyboardHeight));
     Keyboard.addListener('keyboardDidShow', (info) => emitKeyboardHeight(info.keyboardHeight));
     Keyboard.addListener('keyboardWillHide', () => emitKeyboardHeight(0));
     Keyboard.addListener('keyboardDidHide', () => emitKeyboardHeight(0));
-  } catch (e) {
-    console.warn('[NativeKeyboard] Init failed:', e);
-  }
+  } catch (e) { console.warn('[NativeKeyboard] Listener attach failed:', (e as Error)?.message ?? e); }
 }
 
 export async function setKeyboardAccessoryBarVisible(isVisible: boolean): Promise<void> {
