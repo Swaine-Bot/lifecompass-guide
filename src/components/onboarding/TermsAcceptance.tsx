@@ -10,12 +10,13 @@ const CURRENT_TERMS_VERSION = '1.0';
 const CURRENT_PRIVACY_VERSION = '1.0';
 
 interface TermsAcceptanceProps {
-  onAccept: (termsVersion: string, privacyVersion: string) => void;
+  onAccept: (termsVersion: string, privacyVersion: string) => Promise<void> | void;
 }
 
 export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canContinue = termsAccepted && privacyAccepted;
 
@@ -23,23 +24,33 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
     console.log('[TermsAcceptance] mounted');
   }, []);
 
-  const handleContinue = () => {
-    console.log('[TermsAcceptance] continue tapped', { termsAccepted, privacyAccepted, canContinue });
-    if (canContinue) {
-      console.log('[TermsAcceptance] calling onAccept with versions', CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION);
-      onAccept(CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION);
+  const handleContinue = async () => {
+    console.log(`[TermsAcceptance] continue tapped termsAccepted=${termsAccepted} privacyAccepted=${privacyAccepted} canContinue=${canContinue} isSubmitting=${isSubmitting}`);
+    if (!canContinue || isSubmitting) {
+      console.log('[TermsAcceptance] continue blocked validation_failed_or_submitting');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      console.log(`[TermsAcceptance] calling onAccept termsVersion=${CURRENT_TERMS_VERSION} privacyVersion=${CURRENT_PRIVACY_VERSION}`);
+      await Promise.resolve(onAccept(CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION));
+      console.log('[TermsAcceptance] onAccept resolved nextStep=account_type');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[TermsAcceptance] onAccept failed error=${message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  console.log('[TermsAcceptance] render', { termsAccepted, privacyAccepted, canContinue });
-
   return (
     <div
-      className="min-h-screen bg-background flex flex-col"
+      className="min-h-[100dvh] bg-background flex flex-col"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Scrollable content area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-6 pb-28">
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
           <motion.div
@@ -80,15 +91,22 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   : "border-border/50 bg-card/50 hover:border-primary/30"
               )}
               onClick={() => {
-                console.log('[TermsAcceptance] terms toggled', !termsAccepted);
-                setTermsAccepted(!termsAccepted);
+                setTermsAccepted((prev) => {
+                  const next = !prev;
+                  console.log(`[TermsAcceptance] terms toggled next=${next}`);
+                  return next;
+                });
               }}
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
                 <Checkbox
                   checked={termsAccepted}
-                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                  onCheckedChange={(checked) => {
+                    const next = checked === true;
+                    console.log(`[TermsAcceptance] terms checkbox changed next=${next}`);
+                    setTermsAccepted(next);
+                  }}
                   className="mt-1"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -121,15 +139,22 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
                   : "border-border/50 bg-card/50 hover:border-primary/30"
               )}
               onClick={() => {
-                console.log('[TermsAcceptance] privacy toggled', !privacyAccepted);
-                setPrivacyAccepted(!privacyAccepted);
+                setPrivacyAccepted((prev) => {
+                  const next = !prev;
+                  console.log(`[TermsAcceptance] privacy toggled next=${next}`);
+                  return next;
+                });
               }}
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
                 <Checkbox
                   checked={privacyAccepted}
-                  onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
+                  onCheckedChange={(checked) => {
+                    const next = checked === true;
+                    console.log(`[TermsAcceptance] privacy checkbox changed next=${next}`);
+                    setPrivacyAccepted(next);
+                  }}
                   className="mt-1"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -178,7 +203,7 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
 
       {/* Sticky bottom CTA — always visible and reachable */}
       <div
-        className="shrink-0 px-4 pb-4 pt-3 border-t border-border/30 bg-background"
+        className="shrink-0 px-4 pb-4 pt-3 border-t border-border/30 bg-background/95 backdrop-blur-sm"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
         <div className="w-full max-w-md mx-auto">
@@ -186,10 +211,10 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
             variant="gold"
             size="lg"
             className="w-full"
-            disabled={!canContinue}
+            disabled={!canContinue || isSubmitting}
             onClick={handleContinue}
           >
-            Continue
+            {isSubmitting ? 'Saving...' : 'Continue'}
             <ChevronRight className="w-5 h-5 ml-1" />
           </Button>
 
