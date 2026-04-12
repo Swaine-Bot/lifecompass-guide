@@ -1377,16 +1377,16 @@ export default function Journal() {
           
           <div className="space-y-4">
             {/* Mood & Energy */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Mood</label>
-                <div className="flex justify-between">
+                <div className="flex gap-2 justify-between">
                   {moodOptions.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => setEditMood(option.value)}
                       className={cn(
-                        "mood-option text-xl",
+                        "mood-option text-xl shrink-0",
                         editMood === option.value && "selected"
                       )}
                       title={option.label}
@@ -1398,13 +1398,13 @@ export default function Journal() {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Energy</label>
-                <div className="flex justify-between">
+                <div className="flex gap-2 justify-between">
                   {energyOptions.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => setEditEnergy(option.value)}
                       className={cn(
-                        "mood-option",
+                        "mood-option shrink-0",
                         editEnergy === option.value && "selected"
                       )}
                       title={option.label}
