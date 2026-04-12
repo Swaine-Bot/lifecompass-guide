@@ -17,6 +17,7 @@ import {
   type Partner, type PartnerAsset, type PartnerCreateInput,
 } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
+import { PartnerAnalyst } from './PartnerAnalyst';
 
 // ─── Create Partner Dialog ────────────────────────────────────────────
 
