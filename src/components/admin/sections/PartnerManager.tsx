@@ -451,6 +451,10 @@ function PartnerProfile({ partner, onBack, onUpdate }: { partner: Partner; onBac
           })()}
         </TabsContent>
 
+        <TabsContent value="analyst" className="pt-4">
+          <PartnerAnalyst partnerId={partner.id} partnerName={partner.name} assets={assets} />
+        </TabsContent>
+
         <TabsContent value="archive" className="space-y-3 pt-4">
           {archivedAssets.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
