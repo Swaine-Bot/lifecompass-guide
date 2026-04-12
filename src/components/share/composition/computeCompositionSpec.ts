@@ -185,13 +185,13 @@ export function computeCompositionSpec(
 
   if (hasMedia) {
     if (content.strategy === 'hero' || content.strategy === 'minimal') {
-      // Reduce media ratio when user text is long
+      // Hero: media should dominate the card (55-65%)
       if (hasVeryLongUserText) {
-        mediaRatio = contentPanels >= 3 ? 0.20 : contentPanels >= 2 ? 0.25 : 0.30;
+        mediaRatio = contentPanels >= 3 ? 0.35 : contentPanels >= 2 ? 0.40 : 0.50;
       } else if (hasLongUserText) {
-        mediaRatio = contentPanels >= 3 ? 0.25 : contentPanels >= 2 ? 0.32 : 0.40;
+        mediaRatio = contentPanels >= 3 ? 0.40 : contentPanels >= 2 ? 0.50 : 0.55;
       } else {
-        mediaRatio = contentPanels >= 3 ? 0.30 : contentPanels >= 2 ? 0.38 : 0.50;
+        mediaRatio = contentPanels >= 3 ? 0.45 : contentPanels >= 2 ? 0.55 : 0.65;
       }
     } else if (content.strategy === 'split') {
       mediaRatio = 0; // split uses side-by-side, handled differently
@@ -232,7 +232,7 @@ export function computeCompositionSpec(
 
   // ── Split layout: side-by-side ──
   const isSplit = content.strategy === 'split' && content.hasMedia && content.imageTreatment !== 'background';
-  const splitMediaW = isSplit ? Math.round(cw * 0.42) : 0;
+  const splitMediaW = isSplit ? Math.round(cw * 0.50) : 0;
   const splitContentW = isSplit ? cw - splitMediaW - gap : cw;
 
   // ── Position panels (top-down flow) ──
@@ -362,7 +362,7 @@ export function computeCompositionSpec(
     typography,
     imageTreatment: content.imageTreatment,
     strategy: content.strategy,
-    backgroundOverlayOpacity: hasInsight ? 0.65 : 0.55,
+    backgroundOverlayOpacity: hasInsight ? 0.35 : 0.25,
     panelGap: gap,
     panelRadius,
     contentPadding: { top: sz.top, right: sz.right, bottom: sz.bottom, left: sz.left },
