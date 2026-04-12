@@ -40,6 +40,20 @@ export default function NewHabit() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Prefill from URL params (e.g. from Mentor contextual actions)
+  useEffect(() => {
+    const title = searchParams.get('title');
+    const domain = searchParams.get('domain');
+    if (title || domain) {
+      setFormData(prev => ({
+        ...prev,
+        ...(title && { title }),
+        ...(domain && { domain }),
+      }));
+    }
+  }, [searchParams]);
 
   // Derive color from domain selection
   const selectedDomain = formData.domain as LifeDomain;
