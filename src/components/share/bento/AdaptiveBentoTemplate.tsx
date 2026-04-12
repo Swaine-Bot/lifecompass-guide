@@ -58,8 +58,10 @@ export function AdaptiveBentoTemplate({
   const subMaxSize = contentPieces >= 3 ? 10 : 12;
   const insightMaxSize = contentPieces >= 3 ? 12 : 15;
 
-  // Media flex ratio — more content = less media space
-  const mediaRatio = contentPieces >= 3 ? 0.25 : contentPieces >= 2 ? 0.32 : 0.42;
+  // Media flex ratio — hero should dominate, split handled separately
+  const mediaRatio = baseVariant === 'hero'
+    ? (contentPieces >= 3 ? 0.40 : contentPieces >= 2 ? 0.50 : 0.60)
+    : (contentPieces >= 3 ? 0.25 : contentPieces >= 2 ? 0.32 : 0.42);
 
   // ── Build panel blocks ──
 
@@ -122,9 +124,9 @@ export function AdaptiveBentoTemplate({
 
   const renderHeroLayout = () => (
     <>
-      {/* Media at top with proportional space */}
+      {/* Media at top — hero dominates the card */}
       {mediaBlock && imgLayout === 'hero_image' && (
-        <div style={{ flex: `0 0 ${Math.round(mediaRatio * 100)}%`, minHeight: 0 }}>
+        <div style={{ flex: `0 0 ${Math.round(mediaRatio * 100)}%`, minHeight: 120 }}>
           {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
@@ -153,16 +155,16 @@ export function AdaptiveBentoTemplate({
   );
 
   const renderSplitLayout = () => {
-    const isRow = !isStory; // horizontal split on non-story formats
+    // Split: true 50/50 vertical split — media takes left half
     return (
-      <div style={{ display: 'flex', flexDirection: isRow ? 'row' : 'column', gap, flex: '1 1 0', minHeight: 0 }}>
-        {/* Media side */}
+      <div style={{ display: 'flex', flexDirection: 'row', gap, flex: '1 1 0', minHeight: 0 }}>
+        {/* Media side — 50% width */}
         {mediaBlock && (
-          <div style={{ flex: `0 0 ${isRow ? '40%' : `${Math.round(mediaRatio * 100)}%`}`, minHeight: 0, minWidth: 0 }}>
+          <div style={{ flex: '0 0 50%', minHeight: 0, minWidth: 0 }}>
             {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
           </div>
         )}
-        {/* Content side */}
+        {/* Content side — 50% width */}
         <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minHeight: 0, minWidth: 0 }}>
           {insightBlock && (
             <div style={{ flex: '1.2 1 0', minHeight: 0 }}>
