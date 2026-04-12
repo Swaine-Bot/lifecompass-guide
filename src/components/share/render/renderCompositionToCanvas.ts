@@ -20,6 +20,7 @@ import type { CompositionSpec, PanelSpec } from '../composition/computeCompositi
 import type { NormalizedShareContent } from '../composition/normalizeShareContent';
 import type { ThemeDefinition, SponsorData } from '@/services/shareService';
 import { getEnvironmentTone, type EnvironmentTone } from '../environmentTone';
+import lifestackLogoSrc from '@/assets/lifestack-logo-mark.png';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
@@ -1421,7 +1422,7 @@ export async function renderCompositionToCanvas(
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone, palette)],
-    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette, logoImg)],
   ];
 
   panelDrawOrder.sort((a, b) => a[0].zIndex - b[0].zIndex);
