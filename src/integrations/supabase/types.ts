@@ -2401,6 +2401,37 @@ export type Database = {
           new_total_xp: number
         }[]
       }
+      get_active_partner_asset: {
+        Args: { _partner_id: string; _placement?: string }
+        Returns: {
+          cta_label_override: string
+          cta_url_override: string
+          disclosure_override: string
+          file_type: string
+          file_url: string
+          id: string
+          partner_id: string
+          placement_type: string
+          target_surfaces: Json
+          title: string
+        }[]
+      }
+      get_active_partners: {
+        Args: never
+        Returns: {
+          brand_color: string
+          brand_description: string
+          default_cta_label: string
+          default_cta_url: string
+          disclosure_label: string
+          id: string
+          logo_url: string
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["partner_status"]
+          website_url: string
+        }[]
+      }
       get_profile_for_viewer: {
         Args: { target_user_id: string }
         Returns: {
