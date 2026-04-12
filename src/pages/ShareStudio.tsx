@@ -487,46 +487,57 @@ export default function ShareStudio() {
                   platform={platform}
                   maxPreviewWidth={Math.min(280, window.innerWidth - 80)}
                 />
-                {/* Drag-to-reposition overlay on card preview */}
-                {hasPostImage && includePostImage && (
-                  <div
-                    className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing select-none"
-                    style={{ borderRadius: 34 }}
-                    onPointerDown={(e) => {
-                      const el = e.currentTarget;
-                      el.setPointerCapture(e.pointerId);
-                      const startX = e.clientX;
-                      const startY = e.clientY;
-                      const startPos = { ...imagePosition };
-
-                      const onMove = (ev: PointerEvent) => {
-                        const dx = ev.clientX - startX;
-                        const dy = ev.clientY - startY;
-                        const sensitivity = 0.3;
-                        const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
-                        const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
-                        setImagePosition({ x: Math.round(x), y: Math.round(y) });
-                      };
-                      const onUp = () => {
-                        el.removeEventListener('pointermove', onMove);
-                        el.removeEventListener('pointerup', onUp);
-                      };
-                      el.addEventListener('pointermove', onMove);
-                      el.addEventListener('pointerup', onUp);
-                    }}
-                  >
-                    {/* Subtle reposition hint */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full opacity-60 hover:opacity-100 transition-opacity"
-                      style={{
-                        background: 'rgba(0,0,0,0.6)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                      }}>
-                      <Move className="w-2.5 h-2.5 text-white/70" />
-                      <span className="text-[8px] text-white/70 font-medium tracking-wide">Drag to reposition</span>
+                {/* Drag-to-reposition overlay — positioned only over the media region */}
+                {hasPostImage && includePostImage && (() => {
+                  const regionStyle: React.CSSProperties = (() => {
+                    switch (imageLayout) {
+                      case 'hero_image':
+                        return { top: 0, left: 0, right: 0, height: '55%', borderRadius: '34px 34px 0 0' };
+                      case 'split_image':
+                        return { top: 0, left: 0, width: '50%', bottom: 0, borderRadius: '34px 0 0 34px' };
+                      case 'background_image':
+                      default:
+                        return { inset: 0, borderRadius: 34 };
+                    }
+                  })();
+                  return (
+                    <div
+                      className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+                      style={regionStyle}
+                      onPointerDown={(e) => {
+                        const el = e.currentTarget;
+                        el.setPointerCapture(e.pointerId);
+                        const startX = e.clientX;
+                        const startY = e.clientY;
+                        const startPos = { ...imagePosition };
+                        const onMove = (ev: PointerEvent) => {
+                          const dx = ev.clientX - startX;
+                          const dy = ev.clientY - startY;
+                          const sensitivity = 0.3;
+                          const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
+                          const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
+                          setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                        };
+                        const onUp = () => {
+                          el.removeEventListener('pointermove', onMove);
+                          el.removeEventListener('pointerup', onUp);
+                        };
+                        el.addEventListener('pointermove', onMove);
+                        el.addEventListener('pointerup', onUp);
+                      }}
+                    >
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 rounded-full opacity-50 hover:opacity-90 transition-opacity"
+                        style={{
+                          background: 'rgba(0,0,0,0.55)',
+                          backdropFilter: 'blur(8px)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                        }}>
+                        <Move className="w-2 h-2 text-white/70" />
+                        <span className="text-[7px] text-white/70 font-medium">Drag to reposition</span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </motion.div>
             </div>
           </div>
