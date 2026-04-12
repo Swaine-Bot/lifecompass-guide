@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Check, Clock, Loader2, Download, Share2 } from 'lucide-react';
+import { BookOpen, Plus, Check, Clock, Loader2, Download, Share2, Target, Flame, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/ds';
 import { useEnvironment } from '@/contexts/SensoryContext';
@@ -20,7 +20,20 @@ interface PlaybookTask {
 interface PlaybookContent {
   purpose?: string;
   why?: string;
+  action_types?: string[];
+  goal_template?: {
+    title: string;
+    category?: string;
+    success_metric?: string;
+  };
+  habit_template?: {
+    title: string;
+    description?: string;
+    domain?: string;
+    frequency?: string;
+  };
   tasks?: PlaybookTask[];
+  moves?: PlaybookTask[];
 }
 
 interface Playbook {
@@ -33,11 +46,11 @@ interface Playbook {
 }
 
 const phaseLabels: Record<string, string> = {
-  student_early_career: 'Early Career',
+  student_early_career: 'Student / Early Career',
   builder: 'Builder',
   family_home: 'Family & Home',
   explorer: 'Explorer',
-  legacy_impact: 'Legacy',
+  legacy_impact: 'Legacy & Impact',
 };
 
 export default function PlaybookDetail() {
@@ -51,6 +64,10 @@ export default function PlaybookDetail() {
   const [installed, setInstalled] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [addedTasks, setAddedTasks] = useState<Set<number>>(new Set());
+  const [creatingGoal, setCreatingGoal] = useState(false);
+  const [creatingHabit, setCreatingHabit] = useState(false);
+  const [goalCreated, setGoalCreated] = useState(false);
+  const [habitCreated, setHabitCreated] = useState(false);
 
   useEffect(() => {
     if (id) fetchPlaybook();
@@ -67,7 +84,6 @@ export default function PlaybookDetail() {
       setPlaybook(data as Playbook);
     }
 
-    // Check if installed
     const { data: installData } = await supabase
       .from('playbook_installs')
       .select('id')
@@ -76,6 +92,11 @@ export default function PlaybookDetail() {
 
     setInstalled(!!installData);
     setLoading(false);
+  };
+
+  const getMoves = (): PlaybookTask[] => {
+    const content = playbook?.content_json;
+    return content?.moves || content?.tasks || [];
   };
 
   const addSingleTask = async (task: PlaybookTask, index: number) => {
@@ -100,18 +121,18 @@ export default function PlaybookDetail() {
   };
 
   const installFullPlaybook = async () => {
-    if (!user || !playbook?.content_json?.tasks) return;
+    if (!user || !playbook) return;
+    const moves = getMoves();
+    if (moves.length === 0) return;
     setInstalling(true);
 
     try {
-      // Install the playbook record
       await supabase.from('playbook_installs').insert({
         playbook_id: playbook.id,
         user_id: user.id,
       } as any);
 
-      // Create all tasks
-      const tasks = playbook.content_json.tasks.map((t, i) => ({
+      const tasks = moves.map((t, i) => ({
         user_id: user.id,
         title: t.title,
         description: t.description,
@@ -127,7 +148,7 @@ export default function PlaybookDetail() {
       if (error) throw error;
 
       setInstalled(true);
-      setAddedTasks(new Set(playbook.content_json.tasks.map((_, i) => i)));
+      setAddedTasks(new Set(moves.map((_, i) => i)));
       toast.success(`Playbook "${playbook.title}" installed with ${tasks.length} moves!`);
     } catch {
       toast.error('Failed to install playbook');
@@ -136,15 +157,64 @@ export default function PlaybookDetail() {
     }
   };
 
+  const addAsGoal = async () => {
+    if (!user || !playbook?.content_json?.goal_template) return;
+    setCreatingGoal(true);
+    try {
+      const tmpl = playbook.content_json.goal_template;
+      const { error } = await supabase.from('goals').insert({
+        user_id: user.id,
+        title: tmpl.title,
+        category: tmpl.category || playbook.category || null,
+        success_metric: tmpl.success_metric || null,
+        why: playbook.content_json.why || null,
+        status: 'active',
+      });
+      if (error) throw error;
+      setGoalCreated(true);
+      toast.success(`Goal "${tmpl.title}" created!`);
+    } catch {
+      toast.error('Failed to create goal');
+    } finally {
+      setCreatingGoal(false);
+    }
+  };
+
+  const addAsHabit = async () => {
+    if (!user || !playbook?.content_json?.habit_template) return;
+    setCreatingHabit(true);
+    try {
+      const tmpl = playbook.content_json.habit_template;
+      const domainMap: Record<string, string> = {
+        physical: 'physical', mind: 'mind', wealth: 'wealth',
+        relationships: 'relationships', legacy: 'legacy',
+      };
+      const domain = domainMap[tmpl.domain || ''] || 'mind';
+      const { error } = await supabase.from('habits').insert({
+        user_id: user.id,
+        title: tmpl.title,
+        description: tmpl.description || null,
+        domain: domain as any,
+        frequency: (tmpl.frequency === 'weekly' ? 'weekly' : 'daily') as any,
+      });
+      if (error) throw error;
+      setHabitCreated(true);
+      toast.success(`Habit "${tmpl.title}" created!`);
+    } catch {
+      toast.error('Failed to create habit');
+    } finally {
+      setCreatingHabit(false);
+    }
+  };
+
   const handleShare = () => {
     if (!playbook) return;
-    const tasks = playbook.content_json?.tasks || [];
-    const taskSummary = tasks.slice(0, 3).map(t => t.title).join(' · ');
+    const moves = getMoves();
     openShareStudio({
       type: 'goal_progress',
       title: playbook.title,
       subtitle: playbook.content_json?.purpose || playbook.description || '',
-      statValue: String(tasks.length),
+      statValue: String(moves.length),
       statLabel: 'Action Items',
       id: playbook.id,
     });
@@ -168,7 +238,11 @@ export default function PlaybookDetail() {
   }
 
   const content = playbook.content_json;
-  const tasks = content?.tasks || [];
+  const moves = getMoves();
+  const actionTypes = content?.action_types || [];
+  const hasGoal = actionTypes.includes('goal') && content?.goal_template;
+  const hasHabit = actionTypes.includes('habit') && content?.habit_template;
+  const hasMoves = actionTypes.includes('moves') && moves.length > 0;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-20">
@@ -198,9 +272,11 @@ export default function PlaybookDetail() {
             {playbook.category}
           </span>
         )}
-        <span className="text-[10px] text-muted-foreground/50">
-          {tasks.length} action items
-        </span>
+        {moves.length > 0 && (
+          <span className="text-[10px] text-muted-foreground/50">
+            {moves.length} action items
+          </span>
+        )}
       </div>
 
       {/* Purpose */}
@@ -220,8 +296,74 @@ export default function PlaybookDetail() {
         </div>
       )}
 
-      {/* Install Full Playbook */}
-      {tasks.length > 0 && (
+      {/* Action Pathways */}
+      {(hasGoal || hasHabit || hasMoves) && (
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium px-1">
+            Add to Your System
+          </p>
+          <div className="grid gap-2">
+            {hasGoal && (
+              <button
+                onClick={addAsGoal}
+                disabled={goalCreated || creatingGoal}
+                className={cn(
+                  "flex items-center gap-3 p-4 rounded-[18px] border transition-all text-left",
+                  goalCreated
+                    ? "bg-primary/5 border-primary/20"
+                    : "bg-card/60 border-white/[0.06] hover:border-primary/20 hover:bg-card/75"
+                )}
+              >
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                  goalCreated ? "bg-primary/15" : "bg-primary/10"
+                )}>
+                  {goalCreated ? <Check className="w-4 h-4 text-primary" /> : <Target className="w-4 h-4 text-primary" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{goalCreated ? 'Goal Created' : 'Add as Goal'}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-0.5">
+                    {content?.goal_template?.title}
+                    {content?.goal_template?.success_metric && ` · ${content.goal_template.success_metric}`}
+                  </p>
+                </div>
+                {creatingGoal && <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />}
+              </button>
+            )}
+
+            {hasHabit && (
+              <button
+                onClick={addAsHabit}
+                disabled={habitCreated || creatingHabit}
+                className={cn(
+                  "flex items-center gap-3 p-4 rounded-[18px] border transition-all text-left",
+                  habitCreated
+                    ? "bg-primary/5 border-primary/20"
+                    : "bg-card/60 border-white/[0.06] hover:border-primary/20 hover:bg-card/75"
+                )}
+              >
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                  habitCreated ? "bg-primary/15" : "bg-primary/10"
+                )}>
+                  {habitCreated ? <Check className="w-4 h-4 text-primary" /> : <Flame className="w-4 h-4 text-primary" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{habitCreated ? 'Habit Created' : 'Add as Habit'}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-0.5">
+                    {content?.habit_template?.title}
+                    {content?.habit_template?.frequency && ` · ${content.habit_template.frequency}`}
+                  </p>
+                </div>
+                {creatingHabit && <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Install All Moves */}
+      {moves.length > 0 && (
         <Button
           variant={installed ? "outline" : "gold"}
           className="w-full h-12 rounded-2xl"
@@ -231,20 +373,20 @@ export default function PlaybookDetail() {
           {installing ? (
             <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Installing...</>
           ) : installed ? (
-            <><Check className="w-4 h-4 mr-2" /> Playbook Installed</>
+            <><Check className="w-4 h-4 mr-2" /> All Moves Installed</>
           ) : (
-            <><Download className="w-4 h-4 mr-2" /> Install All {tasks.length} Moves</>
+            <><Download className="w-4 h-4 mr-2" /> Install All {moves.length} Micro Moves</>
           )}
         </Button>
       )}
 
       {/* Action Items */}
-      {tasks.length > 0 && (
+      {moves.length > 0 && (
         <div className="space-y-2">
           <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium px-1">
-            Action Items
+            Micro Moves
           </p>
-          {tasks.map((task, i) => {
+          {moves.map((task, i) => {
             const isAdded = addedTasks.has(i);
             return (
               <Card key={i} variant="glass" className="overflow-hidden">
