@@ -100,6 +100,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [direction, setDirection] = useState(1); // 1 forward, -1 back
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -125,8 +126,49 @@ export default function Onboarding() {
     first_action: '' as '' | 'goal' | 'journal' | 'mentor',
   });
 
-  const { user, refreshProfile, loading: authLoading } = useAuth();
+  const { user, refreshProfile, loading: authLoading, profile } = useAuth();
   const navigate = useNavigate();
+
+  // ── On mount: check if user already completed onboarding or accepted terms ──
+  useEffect(() => {
+    if (authLoading || !user) {
+      // Wait for auth to resolve
+      if (!authLoading && !user) {
+        navigate('/auth', { replace: true });
+      }
+      return;
+    }
+
+    // If profile shows onboarding already completed, go to /home
+    if (profile?.onboarding_completed) {
+      console.log('[Onboarding] already_completed redirecting_to_home');
+      navigate('/home', { replace: true });
+      return;
+    }
+
+    // Check if terms were already accepted in privacy_settings
+    const checkExistingState = async () => {
+      try {
+        const { data } = await supabase
+          .from('privacy_settings')
+          .select('terms_accepted, privacy_policy_accepted')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data?.terms_accepted && data?.privacy_policy_accepted) {
+          console.log('[Onboarding] terms_already_accepted skipping_terms');
+          setShowTerms(false);
+          setShowAccountType(true);
+        }
+      } catch (e) {
+        console.warn('[Onboarding] state_check_failed', e);
+      } finally {
+        setInitialCheckDone(true);
+      }
+    };
+
+    checkExistingState();
+  }, [authLoading, user, profile, navigate]);
 
   // ── Pre-onboarding handlers ──
 
