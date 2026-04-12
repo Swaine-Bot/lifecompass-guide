@@ -180,21 +180,21 @@ function PlaybooksSection() {
         <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
           <BookOpen className="w-4 h-4 text-primary" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-serif font-semibold text-[15px]">Playbooks</h3>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-serif font-semibold text-[15px] text-foreground">Playbooks</h3>
           <p className="text-xs text-muted-foreground/70">Phase-aware action systems for your goals</p>
         </div>
       </div>
 
       {/* Phase Filter Chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1 px-1 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto pb-2 px-1 -mx-1 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
         <button
           onClick={() => setSelectedPhase(null)}
           className={cn(
-            "text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-all border",
+            "text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-all border shrink-0",
             !selectedPhase
               ? "bg-primary text-primary-foreground border-primary"
-              : "bg-card/60 text-muted-foreground/70 border-white/[0.06] hover:border-primary/20"
+              : "bg-card/60 text-foreground/70 border-white/[0.06] hover:border-primary/20"
           )}
         >
           All Phases
@@ -204,12 +204,12 @@ function PlaybooksSection() {
             key={phase}
             onClick={() => setSelectedPhase(selectedPhase === phase ? null : phase)}
             className={cn(
-              "text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-all border",
+              "text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-all border shrink-0",
               selectedPhase === phase
                 ? "bg-primary text-primary-foreground border-primary"
                 : phase === userPhase && !selectedPhase
                   ? "bg-primary/10 text-primary border-primary/20"
-                  : "bg-card/60 text-muted-foreground/70 border-white/[0.06] hover:border-primary/20"
+                  : "bg-card/60 text-foreground/70 border-white/[0.06] hover:border-primary/20"
             )}
           >
             {phaseLabels[phase]}
@@ -234,7 +234,7 @@ function PlaybooksSection() {
                   Your Phase
                 </span>
               )}
-              <span className="text-[10px] text-muted-foreground/40">{phasePlaybooks.length} playbooks</span>
+              <span className="text-[10px] text-foreground/50">{phasePlaybooks.length} playbooks</span>
             </div>
 
             {phasePlaybooks.map((playbook) => {
@@ -247,7 +247,7 @@ function PlaybooksSection() {
                 <Link
                   key={playbook.id}
                   to={`/playbook/${playbook.id}`}
-                  className="group flex items-center gap-4 p-4 rounded-[22px] bg-card/60 backdrop-blur-xl border border-white/[0.06] shadow-[0_2px_20px_-4px_hsl(220_20%_0%/0.4)] hover:border-primary/20 hover:bg-card/75 transition-all duration-200"
+                  className="group flex items-center gap-4 p-4 rounded-[22px] bg-card/60 backdrop-blur-xl border border-white/[0.06] shadow-[0_2px_20px_-4px_hsl(220_20%_0%/0.4)] hover:border-primary/20 hover:bg-card/75 transition-all duration-200 overflow-hidden"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
