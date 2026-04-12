@@ -81,6 +81,20 @@ export default function GoalDetail() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Cross-feature suggestions based on goal context
+  const goalSuggestions = useMemo(() => {
+    if (!goal) return [];
+    const text = [goal.title, goal.why, goal.success_metric, goal.constraints]
+      .filter(Boolean)
+      .join('. ');
+    return analyzeForActions({
+      text,
+      lifePhase: profile?.life_phase,
+      source: 'goal',
+      category: goal.category,
+    });
+  }, [goal, profile?.life_phase]);
+
   useEffect(() => {
     if (id && user) {
       fetchGoalDetails();
