@@ -252,7 +252,7 @@ function PlaybooksSection() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       {playbook.category && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground/70 uppercase tracking-wider">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-foreground/70 uppercase tracking-wider">
                           {playbook.category}
                         </span>
                       )}
@@ -262,22 +262,22 @@ function PlaybooksSection() {
                         </span>
                       )}
                     </div>
-                    <h4 className="font-medium text-sm">{playbook.title}</h4>
-                    <p className="text-xs text-muted-foreground/60 line-clamp-1 mt-0.5">
+                    <h4 className="font-medium text-sm text-foreground truncate">{playbook.title}</h4>
+                    <p className="text-xs text-foreground/60 line-clamp-1 mt-0.5">
                       {content?.purpose || playbook.description}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       {actionTypes.map(at => (
-                        <span key={at} className="text-[9px] px-1.5 py-0.5 rounded bg-accent/50 text-muted-foreground/60 capitalize">
+                        <span key={at} className="text-[9px] px-1.5 py-0.5 rounded bg-accent/50 text-foreground/60 capitalize">
                           {at === 'moves' ? 'Micro Moves' : at === 'goal' ? 'Goal' : 'Habit'}
                         </span>
                       ))}
                       {moveCount > 0 && (
-                        <span className="text-[10px] text-muted-foreground/40">{moveCount} actions</span>
+                        <span className="text-[10px] text-foreground/50">{moveCount} actions</span>
                       )}
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary/50 transition-colors shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-foreground/30 group-hover:text-primary/50 transition-colors shrink-0" />
                 </Link>
               );
             })}
