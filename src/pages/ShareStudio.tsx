@@ -119,6 +119,60 @@ export default function ShareStudio() {
     prefill?.sponsor?.attributionType || 'sponsored'
   );
 
+  // ─── Partner Pipeline State ───
+  const [availablePartners, setAvailablePartners] = useState<Partner[]>([]);
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
+  const [activePartnerAsset, setActivePartnerAsset] = useState<PartnerAsset | null>(null);
+  const [loadingPartnerAsset, setLoadingPartnerAsset] = useState(false);
+
+  // Load available partners on mount
+  useEffect(() => {
+    fetchActivePartners().then(setAvailablePartners).catch(() => {});
+  }, []);
+
+  // When partner is selected, fetch their active share_card asset
+  useEffect(() => {
+    if (!selectedPartnerId) {
+      setActivePartnerAsset(null);
+      return;
+    }
+    setLoadingPartnerAsset(true);
+    const partner = availablePartners.find(p => p.id === selectedPartnerId);
+    if (partner) {
+      // Auto-fill sponsor fields from partner
+      setSponsorEnabled(true);
+      setSponsorName(partner.name);
+
+      // Determine disclosure type
+      const disclosureMap: Record<string, typeof sponsorType> = {
+        'Sponsored': 'sponsored', 'Powered': 'powered', 'Partnership': 'partnership',
+        'In Partnership With': 'partnership', 'Rewards': 'rewards', 'Productivity': 'productivity',
+      };
+      setSponsorType(disclosureMap[partner.disclosure_label] || 'sponsored');
+
+      // Set default CTA from partner
+      if (partner.default_cta_label) setSponsorMessage(partner.default_cta_label);
+    }
+
+    fetchActiveAssetForPartner(selectedPartnerId, 'share_card')
+      .then(asset => {
+        setActivePartnerAsset(asset);
+        if (asset) {
+          // Apply asset-level overrides
+          if (asset.disclosure_override) {
+            const disclosureMap: Record<string, typeof sponsorType> = {
+              'Sponsored': 'sponsored', 'Powered': 'powered', 'Partnership': 'partnership',
+              'Rewards': 'rewards', 'Productivity': 'productivity',
+            };
+            setSponsorType(disclosureMap[asset.disclosure_override] || 'sponsored');
+          }
+          if (asset.cta_label_override) setSponsorMessage(asset.cta_label_override);
+        }
+      })
+      .catch(() => setActivePartnerAsset(null))
+      .finally(() => setLoadingPartnerAsset(false));
+  }, [selectedPartnerId, availablePartners]);
+
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
 
