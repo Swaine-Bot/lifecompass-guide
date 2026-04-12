@@ -183,8 +183,18 @@ export default function ShareStudio() {
 
   const sponsorData = useMemo(() => {
     if (!sponsorEnabled || !sponsorName.trim()) return undefined;
-    return { name: sponsorName.trim(), message: sponsorMessage.trim() || undefined, attributionType: sponsorType };
-  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType]);
+    return {
+      name: sponsorName.trim(),
+      message: sponsorMessage.trim() || undefined,
+      attributionType: sponsorType,
+      logoUrl: activePartnerAsset?.file_url || undefined,
+      cta: (() => {
+        if (activePartnerAsset?.cta_label_override) return activePartnerAsset.cta_label_override;
+        const partner = availablePartners.find(p => p.id === selectedPartnerId);
+        return partner?.default_cta_label || undefined;
+      })(),
+    };
+  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType, activePartnerAsset, availablePartners, selectedPartnerId]);
 
   const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData, imagePosition }), [selectedCard, sponsorData, imagePosition]);
 
