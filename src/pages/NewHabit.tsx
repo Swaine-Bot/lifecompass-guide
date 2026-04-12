@@ -151,7 +151,7 @@ export default function NewHabit() {
                     return (
                       <SelectItem key={domain} value={domain}>
                         <span className="flex items-center gap-2">
-                          <Icon className="w-4 h-4 shrink-0" />
+                          <Icon className="w-4 h-4 shrink-0" style={{ color: DOMAIN_COLORS[domain] }} />
                           {DOMAIN_LABELS[domain]}
                         </span>
                       </SelectItem>
