@@ -108,6 +108,7 @@ export default function ShareStudio() {
   const [includePostImage, setIncludePostImage] = useState(true);
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
   const [showImageCount, setShowImageCount] = useState(true);
+  const [imagePosition, setImagePosition] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
 
   const [sponsorEnabled, setSponsorEnabled] = useState(!!prefill?.sponsor);
   const [sponsorName, setSponsorName] = useState(prefill?.sponsor?.name || '');
@@ -129,7 +130,7 @@ export default function ShareStudio() {
     return { name: sponsorName.trim(), message: sponsorMessage.trim() || undefined, attributionType: sponsorType };
   }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType]);
 
-  const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData }), [selectedCard, sponsorData]);
+  const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData, imagePosition }), [selectedCard, sponsorData, imagePosition]);
 
   const normalizedContent = useMemo(() => {
     return normalizeShareContent({
@@ -144,8 +145,9 @@ export default function ShareStudio() {
       imageLayout: mapImageLayoutForNormalize(imageLayout),
       showImageCount,
       strategy,
+      imagePosition,
     });
-  }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy]);
+  }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy, imagePosition]);
 
   const generateSmartLink = useCallback(async (): Promise<string | null> => {
     if (!user || !includeSmartLink) return null;
