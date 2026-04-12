@@ -385,7 +385,7 @@ export default function Settings() {
           <img src={lifestackLogo} alt="LifeStack" className="w-7 h-7 shrink-0" />
           <div className="min-w-0">
             <h1 className="text-lg font-serif font-bold tracking-tight">Settings</h1>
-            <p className="text-muted-foreground/60 text-[10px] uppercase tracking-wider truncate">Manage your account and preferences</p>
+            <p className="text-foreground/70 text-[10px] uppercase tracking-wider truncate">Manage your account and preferences</p>
           </div>
         </div>
         <Button

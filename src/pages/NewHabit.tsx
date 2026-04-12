@@ -199,7 +199,7 @@ export default function NewHabit() {
         {/* Secondary — Tracking */}
         <Card variant="surface">
           <CardContent className="p-5 space-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Tracking</p>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/85 font-medium">Tracking</p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">

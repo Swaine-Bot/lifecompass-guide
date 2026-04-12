@@ -238,7 +238,7 @@ export default function Goals() {
       {/* Completed & Paused */}
       {otherGoals.length > 0 && (
         <div className="space-y-3">
-          <h2 className="font-serif text-sm font-semibold text-muted-foreground/60 uppercase tracking-wider">
+          <h2 className="font-serif text-sm font-semibold text-foreground/90 uppercase tracking-wider">
             Completed & Paused
           </h2>
           <div className="grid gap-2">
