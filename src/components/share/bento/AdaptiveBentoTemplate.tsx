@@ -70,6 +70,7 @@ export function AdaptiveBentoTemplate({
       url={data.imageUrl}
       urls={data.imageUrls}
       showCount={showImageCount}
+      imagePosition={data.imagePosition}
     />
   ) : null;
 
