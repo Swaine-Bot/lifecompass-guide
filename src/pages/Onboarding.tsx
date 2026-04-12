@@ -354,21 +354,22 @@ export default function Onboarding() {
 
   // ── Pre-onboarding screens ──
 
-  if (showTerms) {
-    if (authLoading) {
-      return (
-        <div
-          className="min-h-[100dvh] bg-background flex items-center justify-center px-4"
-          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
-        >
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <span className="text-sm">Preparing onboarding…</span>
-          </div>
+  // Show loading until auth resolves AND initial state check completes
+  if (authLoading || !initialCheckDone) {
+    return (
+      <div
+        className="min-h-[100dvh] bg-background flex items-center justify-center px-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
+      >
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <span className="text-sm">Preparing onboarding…</span>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
+  if (showTerms) {
     return <TermsAcceptance onAccept={handleTermsAccept} />;
   }
 
