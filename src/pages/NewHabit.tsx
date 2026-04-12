@@ -8,9 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Flame, Loader2 } from 'lucide-react';
+import { ArrowLeft, Flame, Loader2, Brain, Dumbbell, Wallet, Users, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, LIFE_DOMAINS, DOMAIN_LABELS, DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
+
+const DOMAIN_ICONS: Record<LifeDomain, React.ComponentType<{ className?: string }>> = {
+  mind: Brain,
+  physical: Dumbbell,
+  wealth: Wallet,
+  relationships: Users,
+  legacy: Crown,
+};
 
 const frequencies = [
   { value: 'daily', label: 'Daily' },
@@ -138,11 +146,17 @@ export default function NewHabit() {
                   <SelectValue placeholder="Select a life domain" />
                 </SelectTrigger>
                 <SelectContent>
-                  {LIFE_DOMAINS.map((domain) => (
-                    <SelectItem key={domain} value={domain}>
-                      {DOMAIN_LABELS[domain]}
-                    </SelectItem>
-                  ))}
+                  {LIFE_DOMAINS.map((domain) => {
+                    const Icon = DOMAIN_ICONS[domain];
+                    return (
+                      <SelectItem key={domain} value={domain}>
+                        <span className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 shrink-0" />
+                          {DOMAIN_LABELS[domain]}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
