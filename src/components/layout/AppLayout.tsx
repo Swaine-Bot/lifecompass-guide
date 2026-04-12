@@ -15,7 +15,7 @@ import { FeedbackPulse } from '@/components/sensory/FeedbackPulse';
 import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
 
 export const AppLayout = () => {
-  const { user, loading, profile, refreshProfile } = useAuth();
+  const { user, loading, profileLoading, profile, refreshProfile } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
   const { isKeyboardOpen } = useNativeKeyboard();
@@ -26,16 +26,15 @@ export const AppLayout = () => {
   useProgressiveProfiling();
 
   const handleRefresh = useCallback(async () => {
-    // Refresh all queries and profile data
     await Promise.all([
       queryClient.invalidateQueries(),
       refreshProfile(),
     ]);
-    // Dispatch custom event for pages using local state
     window.dispatchEvent(new CustomEvent('app-refresh'));
   }, [queryClient, refreshProfile]);
 
-  if (loading) {
+  // Wait for auth AND profile to be fully resolved before making routing decisions
+  if (loading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -50,8 +49,13 @@ export const AppLayout = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to onboarding if not completed
+  // Redirect to onboarding if not completed — only when profile is definitely loaded
   if (profile && !profile.onboarding_completed) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // If profile is null (not yet created), also redirect to onboarding
+  if (!profile) {
     return <Navigate to="/onboarding" replace />;
   }
 
