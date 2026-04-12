@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain, Handshake } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,26 +139,24 @@ export default function Admin() {
         </div>
 
         {/* Section Navigation */}
-        <div className="max-w-7xl mx-auto px-4">
-          <ScrollArea className="w-full">
-            <div className="flex gap-1 pb-2">
-              {NAV_ITEMS.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap',
-                    activeSection === item.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                  )}
-                >
-                  <item.icon className="h-3.5 w-3.5" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
+        <div className="max-w-7xl mx-auto px-4 overflow-x-auto overflow-y-hidden scrollbar-hide">
+          <div className="flex gap-1 pb-2 w-max min-w-full">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0',
+                  activeSection === item.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                )}
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
