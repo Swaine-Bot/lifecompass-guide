@@ -1027,6 +1027,171 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_assets: {
+        Row: {
+          approval_status: string
+          archived_at: string | null
+          asset_status: Database["public"]["Enums"]["partner_asset_status"]
+          campaign_name: string | null
+          created_at: string
+          cta_label_override: string | null
+          cta_url_override: string | null
+          disclosure_override: string | null
+          file_type: string | null
+          file_url: string
+          id: string
+          is_latest_active: boolean
+          notes: string | null
+          partner_id: string
+          placement_type: string
+          replaced_by_asset_id: string | null
+          replaced_campaign_name: string | null
+          target_surfaces: Json | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+          version_number: number
+        }
+        Insert: {
+          approval_status?: string
+          archived_at?: string | null
+          asset_status?: Database["public"]["Enums"]["partner_asset_status"]
+          campaign_name?: string | null
+          created_at?: string
+          cta_label_override?: string | null
+          cta_url_override?: string | null
+          disclosure_override?: string | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          is_latest_active?: boolean
+          notes?: string | null
+          partner_id: string
+          placement_type?: string
+          replaced_by_asset_id?: string | null
+          replaced_campaign_name?: string | null
+          target_surfaces?: Json | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+          version_number?: number
+        }
+        Update: {
+          approval_status?: string
+          archived_at?: string | null
+          asset_status?: Database["public"]["Enums"]["partner_asset_status"]
+          campaign_name?: string | null
+          created_at?: string
+          cta_label_override?: string | null
+          cta_url_override?: string | null
+          disclosure_override?: string | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          is_latest_active?: boolean
+          notes?: string | null
+          partner_id?: string
+          placement_type?: string
+          replaced_by_asset_id?: string | null
+          replaced_campaign_name?: string | null
+          target_surfaces?: Json | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_assets_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_assets_replaced_by_asset_id_fkey"
+            columns: ["replaced_by_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          billing_entity: string | null
+          brand_color: string | null
+          brand_description: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          country: string | null
+          created_at: string
+          default_cta_label: string | null
+          default_cta_url: string | null
+          disclosure_label: string
+          id: string
+          industry: string | null
+          internal_notes: string | null
+          logo_url: string | null
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["partner_status"]
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          billing_entity?: string | null
+          brand_color?: string | null
+          brand_description?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          country?: string | null
+          created_at?: string
+          default_cta_label?: string | null
+          default_cta_url?: string | null
+          disclosure_label?: string
+          id?: string
+          industry?: string | null
+          internal_notes?: string | null
+          logo_url?: string | null
+          name: string
+          slug: string
+          status?: Database["public"]["Enums"]["partner_status"]
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          billing_entity?: string | null
+          brand_color?: string | null
+          brand_description?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          country?: string | null
+          created_at?: string
+          default_cta_label?: string | null
+          default_cta_url?: string | null
+          disclosure_label?: string
+          id?: string
+          industry?: string | null
+          internal_notes?: string | null
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["partner_status"]
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       playbook_installs: {
         Row: {
           id: string
@@ -2104,6 +2269,10 @@ export type Database = {
       }
     }
     Functions: {
+      activate_partner_asset: {
+        Args: { _asset_id: string }
+        Returns: undefined
+      }
       are_friends: {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
@@ -2176,6 +2345,8 @@ export type Database = {
         | "family_home"
         | "explorer"
         | "legacy_impact"
+      partner_asset_status: "draft" | "approved" | "active" | "archived"
+      partner_status: "active" | "inactive"
       post_type: "regular" | "goal" | "micro_move"
       post_visibility: "public" | "friends" | "private"
       reaction_type: "like" | "love" | "celebrate" | "support" | "insightful"
@@ -2328,6 +2499,8 @@ export const Constants = {
         "explorer",
         "legacy_impact",
       ],
+      partner_asset_status: ["draft", "approved", "active", "archived"],
+      partner_status: ["active", "inactive"],
       post_type: ["regular", "goal", "micro_move"],
       post_visibility: ["public", "friends", "private"],
       reaction_type: ["like", "love", "celebrate", "support", "insightful"],
