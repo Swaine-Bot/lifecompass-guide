@@ -131,11 +131,12 @@ interface MediaPanelProps {
   isVideo?: boolean;
   isAudio?: boolean;
   showCount?: boolean;
+  imagePosition?: { x: number; y: number };
   className?: string;
   style?: React.CSSProperties;
 }
 
-export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, className = '', style }: MediaPanelProps) {
+export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, imagePosition, className = '', style }: MediaPanelProps) {
   const [failed, setFailed] = useState(false);
   const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
   const imageCount = urls?.length || (url ? 1 : 0);
@@ -253,6 +254,7 @@ export function MediaPanel({ url, urls, isVideo, isAudio, showCount = true, clas
             height: hasExplicitHeight ? '100%' : undefined,
             aspectRatio: !hasExplicitHeight && naturalAspect ? `${naturalAspect}` : undefined,
             objectFit: 'cover',
+            objectPosition: imagePosition ? `${imagePosition.x}% ${imagePosition.y}%` : 'center',
           }}
         />
       )}
