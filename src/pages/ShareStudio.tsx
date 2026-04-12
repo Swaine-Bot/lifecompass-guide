@@ -32,6 +32,7 @@ import {
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
+import { recordPartnerShareEvent } from '@/services/partnerAnalyticsService';
 import { fetchActivePartners, fetchActiveAssetForPartner, type Partner, type PartnerAsset } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
