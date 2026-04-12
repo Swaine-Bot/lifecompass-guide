@@ -318,11 +318,9 @@ export default function Home() {
               <Plus className="w-4 h-4" />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon-sm" asChild className="text-muted-foreground/60 hover:text-foreground">
-            <Link to="/settings">
-              <Settings className="w-4 h-4" />
-            </Link>
-          </Button>
+          <Link to="/settings" className="settings-icon">
+            <Settings className="w-4 h-4 text-foreground" />
+          </Link>
         </div>
       </div>
 

@@ -58,14 +58,12 @@ export function PageHeader({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2.5 mb-1">
           {back && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
+            <button
               onClick={handleBack}
-              className="text-muted-foreground/60 hover:text-foreground shrink-0"
+              className="settings-icon shrink-0"
             >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+            </button>
           )}
           {leading}
           {Icon && !leading && (
