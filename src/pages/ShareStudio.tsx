@@ -18,6 +18,7 @@ import { AIInsightControls, type InsightStyle } from '@/components/share/AIInsig
 import { suggestTemplate, type ShareTemplateName } from '@/components/share/templates';
 import { CompositionCard, exportCompositionToBlob } from '@/components/share/CompositionCard';
 import { normalizeShareContent, type NormalizeInput } from '@/components/share/composition/normalizeShareContent';
+import { computeCompositionSpec } from '@/components/share/composition/computeCompositionSpec';
 import type { SharePlatform } from '@/components/share/platformProfiles';
 import { PLATFORM_PROFILES } from '@/components/share/platformProfiles';
 import type { BentoBaseVariant } from '@/components/share/bento/layoutEngine';
@@ -148,6 +149,26 @@ export default function ShareStudio() {
       imagePosition,
     });
   }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy, imagePosition]);
+
+  const previewWidth = Math.min(280, window.innerWidth - 80);
+  const previewSpec = useMemo(() => computeCompositionSpec(normalizedContent, platform), [normalizedContent, platform]);
+  const previewScale = previewWidth / previewSpec.width;
+  const mediaOverlayStyle = useMemo<React.CSSProperties | null>(() => {
+    if (!hasPostImage || !includePostImage || !previewSpec.panels.media.visible) return null;
+
+    const media = previewSpec.panels.media;
+    return {
+      left: media.x * previewScale,
+      top: media.y * previewScale,
+      width: media.width * previewScale,
+      height: media.height * previewScale,
+      borderRadius: imageLayout === 'hero_image'
+        ? '34px 34px 0 0'
+        : imageLayout === 'split_image'
+          ? '34px 0 0 34px'
+          : 34,
+    };
+  }, [hasPostImage, includePostImage, previewSpec, previewScale, imageLayout]);
 
   const generateSmartLink = useCallback(async (): Promise<string | null> => {
     if (!user || !includeSmartLink) return null;
@@ -485,59 +506,47 @@ export default function ShareStudio() {
                 <CompositionCard
                   content={normalizedContent}
                   platform={platform}
-                  maxPreviewWidth={Math.min(280, window.innerWidth - 80)}
+                  maxPreviewWidth={previewWidth}
                 />
-                {/* Drag-to-reposition overlay — positioned only over the media region */}
-                {hasPostImage && includePostImage && (() => {
-                  const regionStyle: React.CSSProperties = (() => {
-                    switch (imageLayout) {
-                      case 'hero_image':
-                        return { top: 0, left: 0, right: 0, height: '55%', borderRadius: '34px 34px 0 0' };
-                      case 'split_image':
-                        return { top: 0, left: 0, width: '50%', bottom: 0, borderRadius: '34px 0 0 34px' };
-                      case 'background_image':
-                      default:
-                        return { inset: 0, borderRadius: 34 };
-                    }
-                  })();
-                  return (
+                {mediaOverlayStyle && (
+                  <div
+                    className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+                    style={mediaOverlayStyle}
+                    onPointerDown={(e) => {
+                      const el = e.currentTarget;
+                      el.setPointerCapture(e.pointerId);
+                      const startX = e.clientX;
+                      const startY = e.clientY;
+                      const startPos = { ...imagePosition };
+                      const onMove = (ev: PointerEvent) => {
+                        const dx = ev.clientX - startX;
+                        const dy = ev.clientY - startY;
+                        const sensitivity = 0.3;
+                        const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
+                        const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
+                        setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                      };
+                      const onUp = () => {
+                        el.removeEventListener('pointermove', onMove);
+                        el.removeEventListener('pointerup', onUp);
+                      };
+                      el.addEventListener('pointermove', onMove);
+                      el.addEventListener('pointerup', onUp);
+                    }}
+                  >
                     <div
-                      className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
-                      style={regionStyle}
-                      onPointerDown={(e) => {
-                        const el = e.currentTarget;
-                        el.setPointerCapture(e.pointerId);
-                        const startX = e.clientX;
-                        const startY = e.clientY;
-                        const startPos = { ...imagePosition };
-                        const onMove = (ev: PointerEvent) => {
-                          const dx = ev.clientX - startX;
-                          const dy = ev.clientY - startY;
-                          const sensitivity = 0.3;
-                          const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
-                          const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
-                          setImagePosition({ x: Math.round(x), y: Math.round(y) });
-                        };
-                        const onUp = () => {
-                          el.removeEventListener('pointermove', onMove);
-                          el.removeEventListener('pointerup', onUp);
-                        };
-                        el.addEventListener('pointermove', onMove);
-                        el.addEventListener('pointerup', onUp);
+                      className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 rounded-full opacity-50 hover:opacity-90 transition-opacity pointer-events-none"
+                      style={{
+                        background: 'rgba(0,0,0,0.55)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
                       }}
                     >
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 rounded-full opacity-50 hover:opacity-90 transition-opacity"
-                        style={{
-                          background: 'rgba(0,0,0,0.55)',
-                          backdropFilter: 'blur(8px)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                        }}>
-                        <Move className="w-2 h-2 text-white/70" />
-                        <span className="text-[7px] text-white/70 font-medium">Drag to reposition</span>
-                      </div>
+                      <Move className="w-2 h-2 text-white/70" />
+                      <span className="text-[7px] text-white/70 font-medium">Drag to reposition</span>
                     </div>
-                  );
-                })()}
+                  </div>
+                )}
               </motion.div>
             </div>
           </div>
