@@ -946,6 +946,7 @@ function drawBrandPanel(
   spec: CompositionSpec,
   envTone: EnvironmentTone,
   palette: MediaPalette,
+  logoImg: HTMLImageElement | null = null,
 ) {
   if (!panel.visible) return;
 
