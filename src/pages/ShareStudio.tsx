@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake } from 'lucide-react';
+import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake, Move } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -629,22 +629,111 @@ export default function ShareStudio() {
                   <Switch checked={includePostImage} onCheckedChange={setIncludePostImage} />
                 </div>
                 {includePostImage && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { value: 'hero_image' as ImageLayout, label: 'Hero', icon: <ImageIcon className="w-3.5 h-3.5" /> },
-                      { value: 'split_image' as ImageLayout, label: 'Split', icon: <Columns className="w-3.5 h-3.5" /> },
-                      { value: 'background_image' as ImageLayout, label: 'Atmos', icon: <Layers className="w-3.5 h-3.5" /> },
-                    ]).map((opt) => (
-                      <button key={opt.value} onClick={() => setImageLayout(opt.value)}
-                        className={cn(
-                          'studio-option-pill flex flex-col items-center gap-1 p-3 transition-all',
-                          imageLayout === opt.value && 'active'
-                        )}>
-                        <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white'}>{opt.icon}</span>
-                        <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white')}>{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { value: 'hero_image' as ImageLayout, label: 'Hero', desc: 'Media dominant', icon: <ImageIcon className="w-3.5 h-3.5" /> },
+                        { value: 'split_image' as ImageLayout, label: 'Split', desc: '50/50 vertical', icon: <Columns className="w-3.5 h-3.5" /> },
+                        { value: 'background_image' as ImageLayout, label: 'Atmos', desc: 'Immersive BG', icon: <Layers className="w-3.5 h-3.5" /> },
+                      ]).map((opt) => (
+                        <button key={opt.value} onClick={() => setImageLayout(opt.value)}
+                          className={cn(
+                            'studio-option-pill flex flex-col items-center gap-1 p-3 transition-all',
+                            imageLayout === opt.value && 'active'
+                          )}>
+                          <span className={imageLayout === opt.value ? 'text-primary/70' : 'text-white'}>{opt.icon}</span>
+                          <span className={cn('text-[9px] font-medium', imageLayout === opt.value ? 'text-primary/60' : 'text-white')}>{opt.label}</span>
+                          <span className="text-[7px] text-white/40">{opt.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Image Reposition Control */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Move className="w-3 h-3 text-primary/40" />
+                        <span className="text-[10px] font-medium text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
+                          Reposition image
+                        </span>
+                        <button
+                          onClick={() => setImagePosition({ x: 50, y: 50 })}
+                          className="ml-auto text-[8px] text-white/40 hover:text-white/70 transition-colors"
+                        >
+                          Reset
+                        </button>
+                      </div>
+                      <div
+                        className="relative rounded-xl overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                        style={{
+                          height: 140,
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'rgba(0,0,0,0.3)',
+                        }}
+                        onPointerDown={(e) => {
+                          const el = e.currentTarget;
+                          const rect = el.getBoundingClientRect();
+                          el.setPointerCapture(e.pointerId);
+
+                          const handleMove = (ev: PointerEvent) => {
+                            const x = Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100));
+                            const y = Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100));
+                            setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                          };
+
+                          handleMove(e.nativeEvent);
+                          const onMove = (ev: PointerEvent) => handleMove(ev);
+                          const onUp = () => {
+                            el.removeEventListener('pointermove', onMove);
+                            el.removeEventListener('pointerup', onUp);
+                          };
+                          el.addEventListener('pointermove', onMove);
+                          el.addEventListener('pointerup', onUp);
+                        }}
+                      >
+                        <img
+                          src={selectedCard.imageUrl || selectedCard.imageUrls?.[0]}
+                          alt=""
+                          className="w-full h-full pointer-events-none"
+                          style={{
+                            objectFit: 'cover',
+                            objectPosition: `${imagePosition.x}% ${imagePosition.y}%`,
+                          }}
+                        />
+                        {/* Subtle grid overlay */}
+                        <div className="absolute inset-0 pointer-events-none" style={{
+                          background: `
+                            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+                          `,
+                          backgroundSize: '33.33% 33.33%',
+                        }} />
+                        {/* Focal point indicator */}
+                        <div
+                          className="absolute pointer-events-none"
+                          style={{
+                            left: `${imagePosition.x}%`,
+                            top: `${imagePosition.y}%`,
+                            transform: 'translate(-50%, -50%)',
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            border: '2px solid rgba(255,255,255,0.7)',
+                            boxShadow: '0 0 12px rgba(0,0,0,0.5), 0 0 4px rgba(255,255,255,0.2)',
+                          }}
+                        />
+                        {/* Reposition hint overlay */}
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                          style={{
+                            background: 'rgba(0,0,0,0.55)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                          }}>
+                          <Move className="w-2.5 h-2.5 text-white/60" />
+                          <span className="text-[8px] text-white/60 font-medium">Drag to reposition</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
               </TabsContent>
             )}
