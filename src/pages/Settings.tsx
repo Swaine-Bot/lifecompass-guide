@@ -425,8 +425,8 @@ export default function Settings() {
         <TabsContent value="profile" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><User /></span>
                 Profile Information
               </CardTitle>
             </CardHeader>
@@ -549,8 +549,8 @@ export default function Settings() {
         <TabsContent value="subscription" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="w-5 h-5 text-primary" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Crown /></span>
                 Your Account
               </CardTitle>
             </CardHeader>
@@ -595,8 +595,8 @@ export default function Settings() {
         <TabsContent value="privacy" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Shield /></span>
                 Privacy Settings
               </CardTitle>
             </CardHeader>
@@ -710,8 +710,8 @@ export default function Settings() {
           {/* Push Notifications Settings */}
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Bell /></span>
                 Push Notifications
               </CardTitle>
             </CardHeader>
@@ -790,8 +790,8 @@ export default function Settings() {
           {/* Data Rights - GDPR/POPIA */}
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileDown className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><FileDown /></span>
                 Your Data Rights (GDPR / POPIA)
               </CardTitle>
             </CardHeader>
@@ -842,8 +842,8 @@ export default function Settings() {
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Lock /></span>
                 Legal Agreements
               </CardTitle>
             </CardHeader>
@@ -898,8 +898,8 @@ export default function Settings() {
         <TabsContent value="account" className="space-y-4">
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Lock /></span>
                 Security
               </CardTitle>
             </CardHeader>
@@ -915,8 +915,8 @@ export default function Settings() {
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LogOut className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><LogOut /></span>
                 Session
               </CardTitle>
             </CardHeader>
@@ -930,8 +930,8 @@ export default function Settings() {
 
           <Card variant="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Info className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3">
+                <span className="settings-icon"><Info /></span>
                 About LifeStack
               </CardTitle>
             </CardHeader>
@@ -955,8 +955,8 @@ export default function Settings() {
 
           <Card variant="glass" className="border-destructive/30">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <Trash2 className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-3 text-destructive">
+                <span className="settings-icon"><Trash2 /></span>
                 Danger Zone
               </CardTitle>
             </CardHeader>
