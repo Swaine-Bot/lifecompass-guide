@@ -1040,16 +1040,22 @@ function drawBrandPanel(
   const textX = iconX + iconSize + gap;
   const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
+  // Draw "Posted from " with proper word spacing
   ctx.font = `400 ${brandSize - 1}px ${FONT_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 0.50, 'meta');
-  (ctx as any).letterSpacing = '0.8px';
-  ctx.fillText('Posted from ', textX, textY);
+  (ctx as any).letterSpacing = '0.5px';
+  (ctx as any).wordSpacing = '3px';
+  const prefixText = 'Posted from  ';
+  ctx.fillText(prefixText, textX, textY);
+  const actualPrefixW = ctx.measureText(prefixText).width;
 
+  // Draw "LifeStack" in accent serif
   ctx.font = `700 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = accentColor;
   ctx.globalAlpha = 0.80;
-  (ctx as any).letterSpacing = '1.2px';
-  ctx.fillText('LifeStack', textX + prefixW, textY);
+  (ctx as any).letterSpacing = '1px';
+  (ctx as any).wordSpacing = '0px';
+  ctx.fillText('LifeStack', textX + actualPrefixW, textY);
   ctx.globalAlpha = 1;
   (ctx as any).letterSpacing = '0px';
 
