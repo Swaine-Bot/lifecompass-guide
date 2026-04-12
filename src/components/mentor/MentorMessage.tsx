@@ -37,8 +37,19 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(!!imageUrl);
   const [savingPlaybook, setSavingPlaybook] = useState(false);
+  const { profile } = useAuth();
 
   const { generating, preview, generateFromMentor, savePlaybook, dismiss } = usePlaybookGenerator();
+
+  // Contextual cross-feature actions for assistant messages
+  const suggestedActions = useMemo(() => {
+    if (role !== 'assistant' || content.length < 60) return [];
+    return analyzeForActions({
+      text: content,
+      lifePhase: profile?.life_phase,
+      source: 'mentor',
+    });
+  }, [role, content, profile?.life_phase]);
 
   useEffect(() => {
     if (!imageUrl) return;
