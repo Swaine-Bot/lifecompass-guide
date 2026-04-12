@@ -20,6 +20,7 @@ import type { CompositionSpec, PanelSpec } from '../composition/computeCompositi
 import type { NormalizedShareContent } from '../composition/normalizeShareContent';
 import type { ThemeDefinition, SponsorData } from '@/services/shareService';
 import { getEnvironmentTone, type EnvironmentTone } from '../environmentTone';
+import lifestackLogoSrc from '@/assets/lifestack-logo-mark.png';
 
 const FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const SERIF_FAMILY = '"Playfair Display", Georgia, serif';
@@ -946,6 +947,7 @@ function drawBrandPanel(
   spec: CompositionSpec,
   envTone: EnvironmentTone,
   palette: MediaPalette,
+  logoImg: HTMLImageElement | null = null,
 ) {
   if (!panel.visible) return;
 
@@ -1017,12 +1019,22 @@ function drawBrandPanel(
   ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // LS mark
-  ctx.font = `800 ${12}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(14, 12, 20)';
-  ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
-  ctx.textAlign = 'left';
+  // Logo image or LS fallback
+  if (logoImg) {
+    const pad = 5;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 1, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(logoImg, iconX + pad, iconY + pad, iconSize - pad * 2, iconSize - pad * 2);
+    ctx.restore();
+  } else {
+    ctx.font = `800 ${12}px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgb(14, 12, 20)';
+    ctx.textAlign = 'center';
+    ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+    ctx.textAlign = 'left';
+  }
 
   // Brand text — more prominent
   const textX = iconX + iconSize + gap;
@@ -1380,6 +1392,14 @@ export async function renderCompositionToCanvas(
     }
   }
 
+  // Load brand logo
+  let logoImg: HTMLImageElement | null = null;
+  try {
+    logoImg = await loadImage(lifestackLogoSrc);
+  } catch {
+    // Continue with LS fallback
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // COLOR EXTRACTION — Media is the source of truth
   // ═══════════════════════════════════════════════════════════════
@@ -1410,7 +1430,7 @@ export async function renderCompositionToCanvas(
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone, palette)],
-    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette, logoImg)],
   ];
 
   panelDrawOrder.sort((a, b) => a[0].zIndex - b[0].zIndex);
