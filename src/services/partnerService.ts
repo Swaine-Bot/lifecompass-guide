@@ -86,11 +86,7 @@ export async function fetchPartners(): Promise<Partner[]> {
 }
 
 export async function fetchActivePartners(): Promise<Partner[]> {
-  const { data, error } = await supabase
-    .from('partners')
-    .select('*')
-    .eq('status', 'active')
-    .order('name');
+  const { data, error } = await supabase.rpc('get_active_partners');
   if (error) throw error;
   return (data || []) as unknown as Partner[];
 }
@@ -142,16 +138,13 @@ export async function fetchActiveAssetForPartner(
   partnerId: string,
   placement: string = 'share_card'
 ): Promise<PartnerAsset | null> {
-  const { data, error } = await supabase
-    .from('partner_assets')
-    .select('*')
-    .eq('partner_id', partnerId)
-    .eq('placement_type', placement)
-    .eq('is_latest_active', true)
-    .eq('asset_status', 'active')
-    .maybeSingle();
+  const { data, error } = await supabase.rpc('get_active_partner_asset', {
+    _partner_id: partnerId,
+    _placement: placement,
+  });
   if (error) throw error;
-  return data as unknown as PartnerAsset | null;
+  const rows = data as unknown as PartnerAsset[];
+  return rows && rows.length > 0 ? rows[0] : null;
 }
 
 export async function uploadPartnerAsset(
