@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake, Move } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,6 +32,7 @@ import {
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
+import { fetchActivePartners, fetchActiveAssetForPartner, type Partner, type PartnerAsset } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { triggerHaptic } from '@/engines/hapticEngine';
@@ -118,6 +119,60 @@ export default function ShareStudio() {
     prefill?.sponsor?.attributionType || 'sponsored'
   );
 
+  // ─── Partner Pipeline State ───
+  const [availablePartners, setAvailablePartners] = useState<Partner[]>([]);
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>('');
+  const [activePartnerAsset, setActivePartnerAsset] = useState<PartnerAsset | null>(null);
+  const [loadingPartnerAsset, setLoadingPartnerAsset] = useState(false);
+
+  // Load available partners on mount
+  useEffect(() => {
+    fetchActivePartners().then(setAvailablePartners).catch(() => {});
+  }, []);
+
+  // When partner is selected, fetch their active share_card asset
+  useEffect(() => {
+    if (!selectedPartnerId) {
+      setActivePartnerAsset(null);
+      return;
+    }
+    setLoadingPartnerAsset(true);
+    const partner = availablePartners.find(p => p.id === selectedPartnerId);
+    if (partner) {
+      // Auto-fill sponsor fields from partner
+      setSponsorEnabled(true);
+      setSponsorName(partner.name);
+
+      // Determine disclosure type
+      const disclosureMap: Record<string, typeof sponsorType> = {
+        'Sponsored': 'sponsored', 'Powered': 'powered', 'Partnership': 'partnership',
+        'In Partnership With': 'partnership', 'Rewards': 'rewards', 'Productivity': 'productivity',
+      };
+      setSponsorType(disclosureMap[partner.disclosure_label] || 'sponsored');
+
+      // Set default CTA from partner
+      if (partner.default_cta_label) setSponsorMessage(partner.default_cta_label);
+    }
+
+    fetchActiveAssetForPartner(selectedPartnerId, 'share_card')
+      .then(asset => {
+        setActivePartnerAsset(asset);
+        if (asset) {
+          // Apply asset-level overrides
+          if (asset.disclosure_override) {
+            const disclosureMap: Record<string, typeof sponsorType> = {
+              'Sponsored': 'sponsored', 'Powered': 'powered', 'Partnership': 'partnership',
+              'Rewards': 'rewards', 'Productivity': 'productivity',
+            };
+            setSponsorType(disclosureMap[asset.disclosure_override] || 'sponsored');
+          }
+          if (asset.cta_label_override) setSponsorMessage(asset.cta_label_override);
+        }
+      })
+      .catch(() => setActivePartnerAsset(null))
+      .finally(() => setLoadingPartnerAsset(false));
+  }, [selectedPartnerId, availablePartners]);
+
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [showSaved, setShowSaved] = useState(false);
 
@@ -128,8 +183,18 @@ export default function ShareStudio() {
 
   const sponsorData = useMemo(() => {
     if (!sponsorEnabled || !sponsorName.trim()) return undefined;
-    return { name: sponsorName.trim(), message: sponsorMessage.trim() || undefined, attributionType: sponsorType };
-  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType]);
+    return {
+      name: sponsorName.trim(),
+      message: sponsorMessage.trim() || undefined,
+      attributionType: sponsorType,
+      logoUrl: activePartnerAsset?.file_url || undefined,
+      cta: (() => {
+        if (activePartnerAsset?.cta_label_override) return activePartnerAsset.cta_label_override;
+        const partner = availablePartners.find(p => p.id === selectedPartnerId);
+        return partner?.default_cta_label || undefined;
+      })(),
+    };
+  }, [sponsorEnabled, sponsorName, sponsorMessage, sponsorType, activePartnerAsset, availablePartners, selectedPartnerId]);
 
   const cardWithSponsor = useMemo(() => ({ ...selectedCard, sponsor: sponsorData, imagePosition }), [selectedCard, sponsorData, imagePosition]);
 
@@ -840,17 +905,69 @@ export default function ShareStudio() {
                   style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                   <Handshake className="w-3.5 h-3.5 text-primary/40 shrink-0" />Partner zone
                 </Label>
-                <Switch checked={sponsorEnabled} onCheckedChange={setSponsorEnabled} className="shrink-0" />
+                <Switch checked={sponsorEnabled} onCheckedChange={(v) => {
+                  setSponsorEnabled(v);
+                  if (!v) { setSelectedPartnerId(''); setActivePartnerAsset(null); }
+                }} className="shrink-0" />
               </div>
               {sponsorEnabled && (
                 <div className="space-y-3">
-                  <Input
-                    value={sponsorName}
-                    onChange={(e) => setSponsorName(e.target.value)}
-                    placeholder="Partner name"
-                    className="bg-transparent border-white/[0.04] text-white placeholder:text-white text-[11px] h-9"
-                    style={{ borderRadius: 999 }}
-                  />
+                  {/* Partner Dropdown — populated from real onboarded partners */}
+                  {availablePartners.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[8px] font-semibold text-white uppercase tracking-[0.2em]"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>Select Partner</p>
+                      <select
+                        value={selectedPartnerId}
+                        onChange={e => setSelectedPartnerId(e.target.value)}
+                        className="w-full h-9 rounded-full bg-transparent text-white text-[11px] px-3 border border-white/[0.08] focus:outline-none focus:border-white/[0.15]"
+                        style={{ backdropFilter: 'blur(20px)' }}
+                      >
+                        <option value="" className="bg-black text-white">Custom / Manual</option>
+                        {availablePartners.map(p => (
+                          <option key={p.id} value={p.id} className="bg-black text-white">{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Active asset indicator */}
+                  {selectedPartnerId && (
+                    <div className="px-3 py-2 rounded-xl" style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}>
+                      {loadingPartnerAsset ? (
+                        <p className="text-[9px] text-white/50">Loading active asset…</p>
+                      ) : activePartnerAsset ? (
+                        <div className="flex items-center gap-2">
+                          {activePartnerAsset.file_type?.startsWith('image') && (
+                            <img src={activePartnerAsset.file_url} alt="" className="w-8 h-8 rounded object-cover" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] text-white/80 truncate">{activePartnerAsset.title}</p>
+                            <p className="text-[8px] text-white/40">
+                              {activePartnerAsset.campaign_name || 'No campaign'} · Active
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-[9px] text-white/40">No active share card asset for this partner</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Manual name override (or custom entry) */}
+                  {!selectedPartnerId && (
+                    <Input
+                      value={sponsorName}
+                      onChange={(e) => setSponsorName(e.target.value)}
+                      placeholder="Partner name"
+                      className="bg-transparent border-white/[0.04] text-white placeholder:text-white text-[11px] h-9"
+                      style={{ borderRadius: 999 }}
+                    />
+                  )}
+
                   <div className="flex gap-1 flex-wrap">
                     {([
                       { value: 'sponsored' as const, label: 'Sponsored' },
