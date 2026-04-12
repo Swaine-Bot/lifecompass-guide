@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain, Handshake } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
