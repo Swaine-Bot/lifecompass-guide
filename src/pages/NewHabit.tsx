@@ -10,19 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Flame, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH } from '@/lib/validation';
-
-const colors = [
-  '#D4AF37', // Gold
-  '#22C55E', // Green
-  '#3B82F6', // Blue
-  '#EC4899', // Pink
-  '#F97316', // Orange
-  '#8B5CF6', // Purple
-  '#14B8A6', // Teal
-  '#EF4444', // Red
-];
+import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, LIFE_DOMAINS, DOMAIN_LABELS, DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
 const frequencies = [
   { value: 'daily', label: 'Daily' },
@@ -36,19 +24,25 @@ export default function NewHabit() {
     title: '',
     description: '',
     frequency: 'daily',
+    domain: '' as string,
     target_value: '',
     metric_unit: '',
-    color: colors[0],
+    color: '#D4AF37',
   });
 
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Derive color from domain selection
+  const selectedDomain = formData.domain as LifeDomain;
+  const effectiveColor = selectedDomain && DOMAIN_COLORS[selectedDomain] ? DOMAIN_COLORS[selectedDomain] : formData.color;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    const validation = validateWithSchema(habitSchema, formData);
+    const dataToValidate = { ...formData, color: effectiveColor };
+    const validation = validateWithSchema(habitSchema, dataToValidate);
     if (!validation.success) {
       toast.error('error' in validation ? validation.error : 'Validation failed');
       return;
@@ -63,9 +57,10 @@ export default function NewHabit() {
           title: formData.title,
           description: formData.description || null,
           frequency: formData.frequency as 'daily' | 'weekly' | 'custom',
+          domain: formData.domain as LifeDomain,
           target_value: formData.target_value ? parseFloat(formData.target_value) : null,
           metric_unit: formData.metric_unit || null,
-          color: formData.color,
+          color: effectiveColor,
         });
 
       if (error) throw error;
@@ -98,7 +93,7 @@ export default function NewHabit() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Primary — Name & Schedule */}
+        {/* Primary — Name, Domain & Schedule */}
         <Card variant="glass">
           <CardContent className="p-5 space-y-5">
             <div className="space-y-2">
@@ -132,6 +127,33 @@ export default function NewHabit() {
             </div>
 
             <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">
+                Domain <span className="text-primary">*</span>
+              </Label>
+              <Select
+                value={formData.domain}
+                onValueChange={(value) => setFormData({ ...formData, domain: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a life domain" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LIFE_DOMAINS.map((domain) => (
+                    <SelectItem key={domain} value={domain}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: DOMAIN_COLORS[domain] }}
+                        />
+                        {DOMAIN_LABELS[domain]}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Frequency</Label>
               <Select
                 value={formData.frequency}
@@ -152,10 +174,10 @@ export default function NewHabit() {
           </CardContent>
         </Card>
 
-        {/* Secondary — Tracking & Personalization */}
+        {/* Secondary — Tracking */}
         <Card variant="surface">
           <CardContent className="p-5 space-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Tracking & Style</p>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Tracking</p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -178,26 +200,6 @@ export default function NewHabit() {
                 />
               </div>
             </div>
-
-            <div className="space-y-2.5">
-              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Color</Label>
-              <div className="flex gap-2.5 flex-wrap">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, color })}
-                    className={cn(
-                      "w-9 h-9 rounded-full transition-all duration-200 border-2",
-                      formData.color === color
-                        ? "border-foreground scale-110 shadow-lg"
-                        : "border-transparent hover:scale-105"
-                    )}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -215,7 +217,7 @@ export default function NewHabit() {
             type="submit"
             variant="gold"
             className="flex-1"
-            disabled={loading || !formData.title.trim()}
+            disabled={loading || !formData.title.trim() || !formData.domain}
           >
             {loading ? (
               <>

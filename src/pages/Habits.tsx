@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
 import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
+import { DOMAIN_LABELS, DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
 interface Habit {
   id: string;
@@ -18,6 +19,7 @@ interface Habit {
   target_value: number | null;
   metric_unit: string | null;
   color: string;
+  domain: LifeDomain | null;
 }
 
 interface HabitLog {
@@ -118,6 +120,11 @@ export default function Habits() {
     logs.find(l => l.habit_id === h.id && l.date === today)?.completed
   ).length;
 
+  const getDomainColor = (habit: Habit) => {
+    if (habit.domain && DOMAIN_COLORS[habit.domain]) return DOMAIN_COLORS[habit.domain];
+    return habit.color || '#D4AF37';
+  };
+
   return (
     <div className="space-y-5 animate-fade-in">
       <PageHeader
@@ -181,6 +188,7 @@ export default function Habits() {
             const isTodayComplete = logs.find(
               l => l.habit_id === habit.id && l.date === today
             )?.completed;
+            const domainColor = getDomainColor(habit);
 
             return (
               <Card key={habit.id} variant="glass" className="overflow-hidden">
@@ -193,7 +201,7 @@ export default function Habits() {
                         "habit-check shrink-0 mt-0.5",
                         isTodayComplete && "completed"
                       )}
-                      style={{ borderColor: isTodayComplete ? undefined : habit.color }}
+                      style={{ borderColor: isTodayComplete ? undefined : domainColor }}
                     >
                       {isTodayComplete && <Check className="w-4 h-4" />}
                     </button>
@@ -208,6 +216,16 @@ export default function Habits() {
                             {streak}d
                           </span>
                         )}
+                      </div>
+                      {/* Domain badge */}
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span
+                          className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-medium px-1.5 py-0.5 rounded-full"
+                          style={{ backgroundColor: `${domainColor}20`, color: domainColor }}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: domainColor }} />
+                          {habit.domain ? DOMAIN_LABELS[habit.domain] : 'Physical'}
+                        </span>
                       </div>
                       {habit.description && (
                         <p className="text-xs text-muted-foreground/70 mb-2.5 line-clamp-1">{habit.description}</p>

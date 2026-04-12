@@ -251,9 +251,11 @@ export default function Home() {
     if (newCompleted) {
       choreographedDispatch('micro_move_complete');
       toast.success('✨ Habit completed!');
-      const result = await awardXP('physical', 20, 'habit_completed', habitId);
+      const habit = habits.find(h => h.id === habitId);
+      const domain = (habit as any)?.domain || 'physical';
+      const result = await awardXP(domain, 20, 'habit_completed', habitId);
       if (result?.leveled_up && user) {
-        milestonePrompt.checkLevelUp('physical', result.new_level, true, user.id);
+        milestonePrompt.checkLevelUp(domain, result.new_level, true, user.id);
       }
     }
   };
