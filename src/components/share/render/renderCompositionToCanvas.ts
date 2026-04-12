@@ -1096,41 +1096,36 @@ function drawSponsorPanel(
     const imgAreaH = panel.height - imgPad * 2 - textZoneH;
 
     if (imgAreaH > 0 && imgAreaW > 0) {
-      // Draw asset image with rounded corners inside the panel
-      const imgRadius = Math.max(spec.panelRadius - 8, 16);
-      ctx.save();
-      drawRoundedRect(ctx, imgAreaX, imgAreaY, imgAreaW, imgAreaH, imgRadius);
-      ctx.clip();
-
-      // Cover-fit the image
+      // Contain-fit: scale to fit inside area without distortion
       const imgAspect = sponsorImg!.naturalWidth / sponsorImg!.naturalHeight;
       const areaAspect = imgAreaW / imgAreaH;
-      let sx = 0, sy = 0, sw = sponsorImg!.naturalWidth, sh = sponsorImg!.naturalHeight;
+      let drawW: number, drawH: number;
       if (imgAspect > areaAspect) {
-        sw = sponsorImg!.naturalHeight * areaAspect;
-        sx = (sponsorImg!.naturalWidth - sw) / 2;
+        // Asset is wider than area — fit to width
+        drawW = imgAreaW;
+        drawH = imgAreaW / imgAspect;
       } else {
-        sh = sponsorImg!.naturalWidth / areaAspect;
-        sy = (sponsorImg!.naturalHeight - sh) / 2;
+        // Asset is taller than area — fit to height
+        drawH = imgAreaH;
+        drawW = imgAreaH * imgAspect;
       }
-      ctx.drawImage(sponsorImg!, sx, sy, sw, sh, imgAreaX, imgAreaY, imgAreaW, imgAreaH);
+      // Center within the area
+      const drawX = imgAreaX + (imgAreaW - drawW) / 2;
+      const drawY = imgAreaY + (imgAreaH - drawH) / 2;
 
-      // Subtle vignette over partner asset
-      const vig = ctx.createRadialGradient(
-        imgAreaX + imgAreaW / 2, imgAreaY + imgAreaH / 2,
-        Math.min(imgAreaW, imgAreaH) * 0.3,
-        imgAreaX + imgAreaW / 2, imgAreaY + imgAreaH / 2,
-        Math.max(imgAreaW, imgAreaH) * 0.7,
-      );
-      vig.addColorStop(0, 'rgba(0,0,0,0)');
-      vig.addColorStop(1, 'rgba(0,0,0,0.12)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(imgAreaX, imgAreaY, imgAreaW, imgAreaH);
+      // Draw asset image with rounded corners
+      const imgRadius = Math.max(spec.panelRadius - 8, 16);
+      ctx.save();
+      drawRoundedRect(ctx, drawX, drawY, drawW, drawH, imgRadius);
+      ctx.clip();
+
+      // Draw full source image into the computed rect — no cropping
+      ctx.drawImage(sponsorImg!, 0, 0, sponsorImg!.naturalWidth, sponsorImg!.naturalHeight, drawX, drawY, drawW, drawH);
 
       ctx.restore();
 
-      // Glass edges on the image area
-      drawGlassEdges(ctx, imgAreaX, imgAreaY, imgAreaW, imgAreaH, imgRadius, 0.12, palette);
+      // Glass edges on the drawn image rect
+      drawGlassEdges(ctx, drawX, drawY, drawW, drawH, imgRadius, 0.12, palette);
     }
 
     // Attribution text below image
