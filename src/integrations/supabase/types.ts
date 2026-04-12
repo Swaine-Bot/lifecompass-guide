@@ -590,6 +590,7 @@ export type Database = {
           color: string | null
           created_at: string | null
           description: string | null
+          domain: Database["public"]["Enums"]["life_domain"]
           frequency: Database["public"]["Enums"]["habit_frequency"] | null
           id: string
           metric_unit: string | null
@@ -603,6 +604,7 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           description?: string | null
+          domain?: Database["public"]["Enums"]["life_domain"]
           frequency?: Database["public"]["Enums"]["habit_frequency"] | null
           id?: string
           metric_unit?: string | null
@@ -616,6 +618,7 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           description?: string | null
+          domain?: Database["public"]["Enums"]["life_domain"]
           frequency?: Database["public"]["Enums"]["habit_frequency"] | null
           id?: string
           metric_unit?: string | null

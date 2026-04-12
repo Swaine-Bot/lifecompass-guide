@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +28,7 @@ import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 import { InvitePrompt } from '@/components/viral/InvitePrompt';
 import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
 interface Task {
   id: string;
@@ -251,9 +252,11 @@ export default function Home() {
     if (newCompleted) {
       choreographedDispatch('micro_move_complete');
       toast.success('✨ Habit completed!');
-      const result = await awardXP('physical', 20, 'habit_completed', habitId);
+      const habit = habits.find(h => h.id === habitId);
+      const domain = (habit as any)?.domain || 'physical';
+      const result = await awardXP(domain, 20, 'habit_completed', habitId);
       if (result?.leveled_up && user) {
-        milestonePrompt.checkLevelUp('physical', result.new_level, true, user.id);
+        milestonePrompt.checkLevelUp(domain, result.new_level, true, user.id);
       }
     }
   };
@@ -512,7 +515,7 @@ export default function Home() {
                     <div className={cn(
                       "habit-check transition-transform group-hover:scale-105",
                       isCompleted && "completed"
-                    )} style={{ borderColor: isCompleted ? undefined : habit.color }}>
+                    )} style={{ borderColor: isCompleted ? undefined : (DOMAIN_COLORS[(habit as any)?.domain as LifeDomain] || habit.color) }}>
                       {isCompleted && <Check className="w-4 h-4" />}
                     </div>
                     <span className="text-[11px] text-foreground/60 text-center line-clamp-2 leading-tight">

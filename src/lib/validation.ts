@@ -30,6 +30,25 @@ export const goalSchema = z.object({
 });
 
 // Habit validation schema
+export const LIFE_DOMAINS = ['mind', 'physical', 'wealth', 'relationships', 'legacy'] as const;
+export type LifeDomain = typeof LIFE_DOMAINS[number];
+
+export const DOMAIN_LABELS: Record<LifeDomain, string> = {
+  mind: 'Mind',
+  physical: 'Physical',
+  wealth: 'Wealth',
+  relationships: 'Relationships',
+  legacy: 'Legacy',
+};
+
+export const DOMAIN_COLORS: Record<LifeDomain, string> = {
+  mind: '#8B5CF6',
+  physical: '#22C55E',
+  wealth: '#D4AF37',
+  relationships: '#EC4899',
+  legacy: '#3B82F6',
+};
+
 export const habitSchema = z.object({
   title: z.string()
     .trim()
@@ -40,6 +59,7 @@ export const habitSchema = z.object({
     .optional()
     .nullable(),
   frequency: z.enum(['daily', 'weekly', 'custom']),
+  domain: z.enum(LIFE_DOMAINS, { required_error: 'Domain is required' }),
   target_value: z.string().optional(),
   metric_unit: z.string()
     .max(50, 'Unit must be less than 50 characters')
