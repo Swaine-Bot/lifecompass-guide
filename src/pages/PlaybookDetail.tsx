@@ -299,7 +299,7 @@ export default function PlaybookDetail() {
       {/* Action Pathways */}
       {(hasGoal || hasHabit || hasMoves) && (
         <div className="space-y-2">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium px-1">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/85 font-medium px-1">
             Add to Your System
           </p>
           <div className="grid gap-2">
@@ -383,7 +383,7 @@ export default function PlaybookDetail() {
       {/* Action Items */}
       {moves.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium px-1">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/85 font-medium px-1">
             Micro Moves
           </p>
           {moves.map((task, i) => {

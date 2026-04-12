@@ -226,7 +226,7 @@ function PlaybooksSection() {
         return (
           <div key={phase} className="space-y-2">
             <div className="flex items-center gap-2 px-1">
-              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
+              <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/85 font-medium">
                 {phaseLabels[phase] || phase}
               </p>
               {phase === userPhase && (
