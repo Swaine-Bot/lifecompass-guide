@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,7 +52,21 @@ export default function NewGoal() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { generating, preview, generateFromGoal, savePlaybook, dismiss } = usePlaybookGenerator();
+
+  // Prefill from URL params (e.g. from Mentor contextual actions)
+  useEffect(() => {
+    const title = searchParams.get('title');
+    const category = searchParams.get('category');
+    if (title || category) {
+      setFormData(prev => ({
+        ...prev,
+        ...(title && { title }),
+        ...(category && { category }),
+      }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

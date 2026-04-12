@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,8 @@ import { useEnvironment } from '@/contexts/SensoryContext';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { analyzeForActions, type SuggestedAction } from '@/services/contextualActionEngine';
+import { ContextualActions } from '@/components/ds/ContextualActions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,13 +73,27 @@ export default function GoalDetail() {
   useEnvironment('goals');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [goal, setGoal] = useState<Goal | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Cross-feature suggestions based on goal context
+  const goalSuggestions = useMemo(() => {
+    if (!goal) return [];
+    const text = [goal.title, goal.why, goal.success_metric, goal.constraints]
+      .filter(Boolean)
+      .join('. ');
+    return analyzeForActions({
+      text,
+      lifePhase: profile?.life_phase,
+      source: 'goal',
+      category: goal.category,
+    });
+  }, [goal, profile?.life_phase]);
 
   useEffect(() => {
     if (id && user) {
@@ -183,6 +199,7 @@ export default function GoalDetail() {
   const doneProgress = milestoneDone + tasksDone;
   const progressPercent = totalProgress > 0 ? Math.round((doneProgress / totalProgress) * 100) : 0;
 
+
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Header — Mission Control */}
@@ -280,6 +297,14 @@ export default function GoalDetail() {
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Cross-feature suggestions */}
+      {goalSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="section-label px-1">Related Actions</p>
+          <ContextualActions actions={goalSuggestions} />
+        </div>
+      )}
 
       {/* Goal Context */}
       {(goal.why || goal.success_metric || goal.constraints) && (

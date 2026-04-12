@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Bot, User, ChevronDown, ChevronUp, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,9 @@ import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
 import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
+import { analyzeForActions } from '@/services/contextualActionEngine';
+import { ContextualActions } from '@/components/ds/ContextualActions';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
@@ -34,8 +37,19 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(!!imageUrl);
   const [savingPlaybook, setSavingPlaybook] = useState(false);
+  const { profile } = useAuth();
 
   const { generating, preview, generateFromMentor, savePlaybook, dismiss } = usePlaybookGenerator();
+
+  // Contextual cross-feature actions for assistant messages
+  const suggestedActions = useMemo(() => {
+    if (role !== 'assistant' || content.length < 60) return [];
+    return analyzeForActions({
+      text: content,
+      lifePhase: profile?.life_phase,
+      source: 'mentor',
+    });
+  }, [role, content, profile?.life_phase]);
 
   useEffect(() => {
     if (!imageUrl) return;
@@ -161,6 +175,9 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                   )}
                   Turn into Moves
                 </Button>
+              )}
+              {suggestedActions.length > 0 && (
+                <ContextualActions actions={suggestedActions} compact />
               )}
             </>
           )}
