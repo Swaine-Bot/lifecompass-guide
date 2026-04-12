@@ -51,8 +51,8 @@ function SensorySettingsPanel() {
   return (
     <Card variant="glass">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Palette className="w-5 h-5 text-primary" />
+        <CardTitle className="flex items-center gap-3">
+          <span className="settings-icon"><Palette /></span>
           Sensory Experience
         </CardTitle>
       </CardHeader>
