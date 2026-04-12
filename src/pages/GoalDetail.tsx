@@ -298,6 +298,14 @@ export default function GoalDetail() {
         </Button>
       </div>
 
+      {/* Cross-feature suggestions */}
+      {goalSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="section-label px-1">Related Actions</p>
+          <ContextualActions actions={goalSuggestions} />
+        </div>
+      )}
+
       {/* Goal Context */}
       {(goal.why || goal.success_metric || goal.constraints) && (
         <Card variant="glass">
