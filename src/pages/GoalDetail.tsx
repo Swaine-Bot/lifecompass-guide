@@ -185,6 +185,20 @@ export default function GoalDetail() {
   const doneProgress = milestoneDone + tasksDone;
   const progressPercent = totalProgress > 0 ? Math.round((doneProgress / totalProgress) * 100) : 0;
 
+  // Cross-feature suggestions based on goal context
+  const goalSuggestions = useMemo(() => {
+    if (!goal) return [];
+    const text = [goal.title, goal.why, goal.success_metric, goal.constraints]
+      .filter(Boolean)
+      .join('. ');
+    return analyzeForActions({
+      text,
+      lifePhase: profile?.life_phase,
+      source: 'goal',
+      category: goal.category,
+    });
+  }, [goal, profile?.life_phase]);
+
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Header — Mission Control */}
