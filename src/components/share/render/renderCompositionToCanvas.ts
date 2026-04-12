@@ -1089,47 +1089,12 @@ function drawSponsorPanel(
   // If we have a partner asset image, render it prominently
   if (hasAssetImage) {
     const imgPad = 12;
-    const textZoneH = 52; // space for attribution text at bottom
-    const imgAreaX = panel.x + imgPad;
-    const imgAreaY = panel.y + imgPad;
-    const imgAreaW = panel.width - imgPad * 2;
-    const imgAreaH = panel.height - imgPad * 2 - textZoneH;
+    const textZoneH = 44; // heading text zone at top
+    const tagline = sponsor.message || sponsor.cta;
+    const taglineH = tagline ? 16 : 0;
+    const totalTextH = textZoneH + taglineH;
 
-    if (imgAreaH > 0 && imgAreaW > 0) {
-      // Contain-fit: scale to fit inside area without distortion
-      const imgAspect = sponsorImg!.naturalWidth / sponsorImg!.naturalHeight;
-      const areaAspect = imgAreaW / imgAreaH;
-      let drawW: number, drawH: number;
-      if (imgAspect > areaAspect) {
-        // Asset is wider than area — fit to width
-        drawW = imgAreaW;
-        drawH = imgAreaW / imgAspect;
-      } else {
-        // Asset is taller than area — fit to height
-        drawH = imgAreaH;
-        drawW = imgAreaH * imgAspect;
-      }
-      // Center within the area
-      const drawX = imgAreaX + (imgAreaW - drawW) / 2;
-      const drawY = imgAreaY + (imgAreaH - drawH) / 2;
-
-      // Draw asset image with rounded corners
-      const imgRadius = Math.max(spec.panelRadius - 8, 16);
-      ctx.save();
-      drawRoundedRect(ctx, drawX, drawY, drawW, drawH, imgRadius);
-      ctx.clip();
-
-      // Draw full source image into the computed rect — no cropping
-      ctx.drawImage(sponsorImg!, 0, 0, sponsorImg!.naturalWidth, sponsorImg!.naturalHeight, drawX, drawY, drawW, drawH);
-
-      ctx.restore();
-
-      // Glass edges on the drawn image rect
-      drawGlassEdges(ctx, drawX, drawY, drawW, drawH, imgRadius, 0.12, palette);
-    }
-
-    // Attribution text below image
-    const textY = panel.y + panel.height - textZoneH / 2 + 4;
+    // ── Attribution heading at top ──
     const prefixMap: Record<string, string> = {
       sponsored: 'Sponsored by',
       powered: 'Powered by',
@@ -1139,24 +1104,56 @@ function drawSponsorPanel(
     };
     const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
 
+    const textX = panel.x + pad;
+    const headingY = panel.y + imgPad + 16;
+
     ctx.font = `400 ${14}px ${FONT_FAMILY}`;
     ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
     (ctx as any).letterSpacing = '0.5px';
-    const textX = panel.x + pad;
-    ctx.fillText(prefix, textX, textY);
+    ctx.fillText(prefix, textX, headingY);
 
     const prefixW = ctx.measureText(prefix).width;
     ctx.font = `600 ${15}px ${FONT_FAMILY}`;
     ctx.fillStyle = envWhite(envTone, 0.85, 'secondary');
-    ctx.fillText(` ${sponsor.name}`, textX + prefixW, textY);
+    ctx.fillText(` ${sponsor.name}`, textX + prefixW, headingY);
 
-    const tagline = sponsor.message || sponsor.cta;
     if (tagline) {
       ctx.font = `400 ${12}px ${FONT_FAMILY}`;
       ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
       const maxW = panel.width - pad * 2;
       const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
-      ctx.fillText(clipped, textX, textY + 18, maxW);
+      ctx.fillText(clipped, textX, headingY + 18, maxW);
+    }
+
+    // ── Asset image below heading ──
+    const imgAreaX = panel.x + imgPad;
+    const imgAreaY = panel.y + imgPad + totalTextH + 4;
+    const imgAreaW = panel.width - imgPad * 2;
+    const imgAreaH = panel.height - imgPad * 2 - totalTextH - 4;
+
+    if (imgAreaH > 0 && imgAreaW > 0) {
+      // Contain-fit: scale to fit without distortion
+      const imgAspect = sponsorImg!.naturalWidth / sponsorImg!.naturalHeight;
+      const areaAspect = imgAreaW / imgAreaH;
+      let drawW: number, drawH: number;
+      if (imgAspect > areaAspect) {
+        drawW = imgAreaW;
+        drawH = imgAreaW / imgAspect;
+      } else {
+        drawH = imgAreaH;
+        drawW = imgAreaH * imgAspect;
+      }
+      const drawX = imgAreaX + (imgAreaW - drawW) / 2;
+      const drawY = imgAreaY + (imgAreaH - drawH) / 2;
+
+      const imgRadius = Math.max(spec.panelRadius - 8, 16);
+      ctx.save();
+      drawRoundedRect(ctx, drawX, drawY, drawW, drawH, imgRadius);
+      ctx.clip();
+      ctx.drawImage(sponsorImg!, 0, 0, sponsorImg!.naturalWidth, sponsorImg!.naturalHeight, drawX, drawY, drawW, drawH);
+      ctx.restore();
+
+      drawGlassEdges(ctx, drawX, drawY, drawW, drawH, imgRadius, 0.12, palette);
     }
   } else {
     // No asset image — text-only sponsor attribution (original behavior)
