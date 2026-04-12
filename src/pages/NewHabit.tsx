@@ -12,7 +12,7 @@ import { ArrowLeft, Flame, Loader2, Brain, Dumbbell, Wallet, Users, Crown } from
 import { toast } from 'sonner';
 import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, LIFE_DOMAINS, DOMAIN_LABELS, DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
-const DOMAIN_ICONS: Record<LifeDomain, React.ComponentType<{ className?: string }>> = {
+const DOMAIN_ICONS: Record<LifeDomain, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   mind: Brain,
   physical: Dumbbell,
   wealth: Wallet,
