@@ -1392,6 +1392,14 @@ export async function renderCompositionToCanvas(
     }
   }
 
+  // Load brand logo
+  let logoImg: HTMLImageElement | null = null;
+  try {
+    logoImg = await loadImage(lifestackLogoSrc);
+  } catch {
+    // Continue with LS fallback
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // COLOR EXTRACTION — Media is the source of truth
   // ═══════════════════════════════════════════════════════════════
