@@ -973,9 +973,14 @@ function drawBrandPanel(
   const accentColor = paletteAccent(palette, content.theme.accentHex);
 
   ctx.font = `400 ${brandSize - 1}px ${FONT_FAMILY}`;
-  const prefixW = ctx.measureText('Posted from ').width;
+  (ctx as any).letterSpacing = '0.5px';
+  (ctx as any).wordSpacing = '3px';
+  const prefixW = ctx.measureText('Posted from  ').width;
   ctx.font = `700 ${brandSize}px ${SERIF_FAMILY}`;
+  (ctx as any).letterSpacing = '1px';
+  (ctx as any).wordSpacing = '0px';
   const nameW = ctx.measureText('LifeStack').width;
+  (ctx as any).letterSpacing = '0px';
   const gap = 14;
   const totalContentW = iconSize + gap + prefixW + nameW;
   const startX = panel.x + (panel.width - totalContentW) / 2;
