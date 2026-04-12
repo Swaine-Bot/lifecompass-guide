@@ -104,10 +104,38 @@
     @apply border-border;
   }
 
+  html {
+    /* Use dvh where supported for stable mobile viewport */
+    height: 100%;
+    height: 100dvh;
+    /* Prevent overscroll bounce on the body (Android Chrome, iOS Safari) */
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-background font-sans antialiased;
     font-family: 'Poppins', system-ui, sans-serif;
     color: hsl(0 0% 100%);
+    /* Prevent pull-to-refresh on body level — we manage it ourselves */
+    overscroll-behavior-y: contain;
+    /* Prevent text size adjustment on orientation change (iOS Safari, Samsung Internet) */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Smooth scrolling for anchor-based navigation */
+    scroll-behavior: smooth;
+    /* Prevent elastic bounce interfering with layout */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -126,6 +154,24 @@
 
   ::placeholder {
     color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* Ensure all interactive elements have minimum touch targets */
+  button, [role="button"], a, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exceptions: inline text links, icon-only items that explicitly size themselves */
+  a:not([role="button"]),
+  .inline-link {
+    min-height: unset;
+    min-width: unset;
+  }
+
+  /* Prevent long-press context menu on mobile (optional — keeps native feel) */
+  img, a {
+    -webkit-touch-callout: none;
   }
 
   /* Safe-area global enforcement */
@@ -531,6 +577,28 @@
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
+  }
+
+  /* Dynamic viewport height utility */
+  .h-screen-safe {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Overscroll containment for nested scroll areas */
+  .overscroll-safe {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent tap highlight on Android */
+  .tap-transparent {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
