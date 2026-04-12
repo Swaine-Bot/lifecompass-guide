@@ -309,7 +309,7 @@ export default function NewGoal() {
         {/* Deeper context — quieter section */}
         <Card variant="surface">
           <CardContent className="p-5 space-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">Deeper Context</p>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/85 font-medium">Deeper Context</p>
 
             <div className="space-y-2">
               <Label htmlFor="success_metric" className="text-xs uppercase tracking-widest text-muted-foreground">
