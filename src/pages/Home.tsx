@@ -28,6 +28,7 @@ import { MilestonePromptModal } from '@/components/viral/MilestonePromptModal';
 import { InvitePrompt } from '@/components/viral/InvitePrompt';
 import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 import { useEnvironment } from '@/contexts/SensoryContext';
+import { DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
 interface Task {
   id: string;
@@ -514,7 +515,7 @@ export default function Home() {
                     <div className={cn(
                       "habit-check transition-transform group-hover:scale-105",
                       isCompleted && "completed"
-                    )} style={{ borderColor: isCompleted ? undefined : ((habit as any)?.domain ? (await import('@/lib/validation')).DOMAIN_COLORS[(habit as any).domain] : habit.color) }}>
+                    )} style={{ borderColor: isCompleted ? undefined : (DOMAIN_COLORS[(habit as any)?.domain as LifeDomain] || habit.color) }}>
                       {isCompleted && <Check className="w-4 h-4" />}
                     </div>
                     <span className="text-[11px] text-foreground/60 text-center line-clamp-2 leading-tight">
