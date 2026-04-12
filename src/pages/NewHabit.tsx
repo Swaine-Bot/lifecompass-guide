@@ -140,13 +140,7 @@ export default function NewHabit() {
                 <SelectContent>
                   {LIFE_DOMAINS.map((domain) => (
                     <SelectItem key={domain} value={domain}>
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: DOMAIN_COLORS[domain] }}
-                        />
-                        {DOMAIN_LABELS[domain]}
-                      </span>
+                      {DOMAIN_LABELS[domain]}
                     </SelectItem>
                   ))}
                 </SelectContent>
