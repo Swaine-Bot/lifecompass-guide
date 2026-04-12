@@ -1109,10 +1109,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "partner_assets_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "partner_assets_replaced_by_asset_id_fkey"
             columns: ["replaced_by_asset_id"]
             isOneToOne: false
             referencedRelation: "partner_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_assets_replaced_by_asset_id_fkey"
+            columns: ["replaced_by_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2156,6 +2170,102 @@ export type Database = {
       }
     }
     Views: {
+      partner_assets_public: {
+        Row: {
+          cta_label_override: string | null
+          cta_url_override: string | null
+          disclosure_override: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string | null
+          partner_id: string | null
+          placement_type: string | null
+          target_surfaces: Json | null
+          title: string | null
+        }
+        Insert: {
+          cta_label_override?: string | null
+          cta_url_override?: string | null
+          disclosure_override?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string | null
+          partner_id?: string | null
+          placement_type?: string | null
+          target_surfaces?: Json | null
+          title?: string | null
+        }
+        Update: {
+          cta_label_override?: string | null
+          cta_url_override?: string | null
+          disclosure_override?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string | null
+          partner_id?: string | null
+          placement_type?: string | null
+          target_surfaces?: Json | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_assets_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_assets_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners_public: {
+        Row: {
+          brand_color: string | null
+          brand_description: string | null
+          default_cta_label: string | null
+          default_cta_url: string | null
+          disclosure_label: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["partner_status"] | null
+          website_url: string | null
+        }
+        Insert: {
+          brand_color?: string | null
+          brand_description?: string | null
+          default_cta_label?: string | null
+          default_cta_url?: string | null
+          disclosure_label?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["partner_status"] | null
+          website_url?: string | null
+        }
+        Update: {
+          brand_color?: string | null
+          brand_description?: string | null
+          default_cta_label?: string | null
+          default_cta_url?: string | null
+          disclosure_label?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["partner_status"] | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       profiles_public: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"] | null
