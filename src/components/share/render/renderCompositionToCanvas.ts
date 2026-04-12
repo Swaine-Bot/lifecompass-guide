@@ -480,10 +480,13 @@ function drawMediaPanel(
 
   if (imgAspect > panelAspect) {
     sw = img.naturalHeight * panelAspect;
-    sx = (img.naturalWidth - sw) / 2;
+    // Apply image position offset (0-100 mapped to available crop range)
+    const maxOffset = img.naturalWidth - sw;
+    sx = maxOffset * ((content.imagePosition?.x ?? 50) / 100);
   } else {
     sh = img.naturalWidth / panelAspect;
-    sy = (img.naturalHeight - sh) / 2;
+    const maxOffset = img.naturalHeight - sh;
+    sy = maxOffset * ((content.imagePosition?.y ?? 50) / 100);
   }
 
   ctx.drawImage(img, sx, sy, sw, sh, panel.x, panel.y, panel.width, panel.height);
@@ -574,23 +577,30 @@ function drawBackgroundImage(
     dy = (spec.height - dh) / 2;
   }
 
-  const scale = 1.15;
+  const scale = 1.08;
   const sdw = dw * scale;
   const sdh = dh * scale;
   const sdx = dx - (sdw - dw) / 2;
   const sdy = dy - (sdh - dh) / 2;
 
-  ctx.filter = 'blur(18px) brightness(0.25) saturate(1.5)';
-  ctx.drawImage(img, sdx, sdy, sdw, sdh);
+  // Apply image position offset for background
+  const posX = (content.imagePosition?.x ?? 50) / 100;
+  const posY = (content.imagePosition?.y ?? 50) / 100;
+  const offsetX = (sdw - spec.width) * (posX - 0.5) * -1;
+  const offsetY = (sdh - spec.height) * (posY - 0.5) * -1;
+
+  // Lighter blur + brighter for atmos — image is the main event
+  ctx.filter = 'blur(6px) brightness(0.55) saturate(1.3)';
+  ctx.drawImage(img, sdx + offsetX, sdy + offsetY, sdw, sdh);
   ctx.filter = 'none';
 
-  // Overlay uses media palette for continuity
+  // Much lighter overlay — let the image shine through
   const p = palette.primary;
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, spec.height);
-  overlayGrad.addColorStop(0, `rgba(${p.r}, ${p.g}, ${p.b}, 0.40)`);
-  overlayGrad.addColorStop(0.35, `rgba(${p.r}, ${p.g}, ${p.b}, ${spec.backgroundOverlayOpacity * 0.9})`);
-  overlayGrad.addColorStop(0.65, `rgba(${p.r}, ${p.g}, ${p.b}, ${Math.min(spec.backgroundOverlayOpacity * 1.0, 0.80)})`);
-  overlayGrad.addColorStop(1, `rgba(${p.r}, ${p.g}, ${p.b}, 0.82)`);
+  overlayGrad.addColorStop(0, `rgba(${p.r}, ${p.g}, ${p.b}, 0.15)`);
+  overlayGrad.addColorStop(0.35, `rgba(${p.r}, ${p.g}, ${p.b}, ${spec.backgroundOverlayOpacity * 0.6})`);
+  overlayGrad.addColorStop(0.65, `rgba(${p.r}, ${p.g}, ${p.b}, ${spec.backgroundOverlayOpacity * 0.7})`);
+  overlayGrad.addColorStop(1, `rgba(${p.r}, ${p.g}, ${p.b}, 0.45)`);
   ctx.fillStyle = overlayGrad;
   ctx.fillRect(0, 0, spec.width, spec.height);
 

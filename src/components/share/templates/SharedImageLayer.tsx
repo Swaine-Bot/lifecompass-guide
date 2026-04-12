@@ -112,8 +112,9 @@ export function MediaTypeBadge({ mediaType }: { mediaType: 'video' | 'audio' }) 
  * HERO IMAGE — media dominates the card (65-70% of card height).
  * Uses object-fit: contain to preserve aspect ratio.
  */
-export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.48 }: {
+export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.48, imagePosition }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void; heroRatio?: number;
+  imagePosition?: { x: number; y: number };
 }) {
   const mediaType = detectMediaType(url);
   return (
@@ -128,7 +129,10 @@ export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.4
       <img
         src={url} alt="" onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'contain', display: 'block', maxHeight: '100%' }}
+        style={{
+          objectFit: 'cover', display: 'block', maxHeight: '100%',
+          objectPosition: imagePosition ? `${imagePosition.x}% ${imagePosition.y}%` : 'center',
+        }}
         crossOrigin="anonymous"
       />
       {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="lg" />}
@@ -141,8 +145,9 @@ export function HeroImage({ url, imageCount, showCount, onError, heroRatio = 0.4
 /**
  * SPLIT IMAGE — true 50/50 side-by-side layout.
  */
-export function SplitImage({ url, imageCount, showCount, onError }: {
+export function SplitImage({ url, imageCount, showCount, onError, imagePosition }: {
   url: string; imageCount: number; showCount: boolean; onError: () => void;
+  imagePosition?: { x: number; y: number };
 }) {
   const mediaType = detectMediaType(url);
   return (
@@ -153,7 +158,10 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
       <img
         src={url} alt="" onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'contain', display: 'block' }}
+        style={{
+          objectFit: 'cover', display: 'block',
+          objectPosition: imagePosition ? `${imagePosition.x}% ${imagePosition.y}%` : 'center',
+        }}
         crossOrigin="anonymous"
       />
       {mediaType !== 'image' && <PlayOverlay mediaType={mediaType} size="sm" />}
@@ -166,17 +174,25 @@ export function SplitImage({ url, imageCount, showCount, onError }: {
 /**
  * BACKGROUND IMAGE — atmospheric, blurred, full bleed.
  */
-export function BackgroundImage({ url, onError }: { url: string; onError: () => void }) {
+export function BackgroundImage({ url, onError, imagePosition }: {
+  url: string; onError: () => void; imagePosition?: { x: number; y: number };
+}) {
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 'inherit' }}>
       <img
         src={url} alt="" onError={onError}
         className="w-full h-full"
-        style={{ objectFit: 'cover', objectPosition: 'center', display: 'block', filter: 'blur(14px) brightness(0.28) saturate(1.3)', transform: 'scale(1.15)' }}
+        style={{
+          objectFit: 'cover',
+          objectPosition: imagePosition ? `${imagePosition.x}% ${imagePosition.y}%` : 'center',
+          display: 'block',
+          filter: 'blur(6px) brightness(0.55) saturate(1.3)',
+          transform: 'scale(1.06)',
+        }}
         crossOrigin="anonymous"
       />
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'linear-gradient(180deg, hsla(0,0%,0%,0.5) 0%, hsla(0,0%,0%,0.35) 50%, hsla(0,0%,0%,0.6) 100%)',
+        background: 'linear-gradient(180deg, hsla(0,0%,0%,0.2) 0%, hsla(0,0%,0%,0.25) 50%, hsla(0,0%,0%,0.4) 100%)',
       }} />
     </div>
   );

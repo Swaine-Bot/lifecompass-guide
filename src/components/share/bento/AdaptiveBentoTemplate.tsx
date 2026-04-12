@@ -58,8 +58,10 @@ export function AdaptiveBentoTemplate({
   const subMaxSize = contentPieces >= 3 ? 10 : 12;
   const insightMaxSize = contentPieces >= 3 ? 12 : 15;
 
-  // Media flex ratio — more content = less media space
-  const mediaRatio = contentPieces >= 3 ? 0.25 : contentPieces >= 2 ? 0.32 : 0.42;
+  // Media flex ratio — hero should dominate, split handled separately
+  const mediaRatio = baseVariant === 'hero'
+    ? (contentPieces >= 3 ? 0.40 : contentPieces >= 2 ? 0.50 : 0.60)
+    : (contentPieces >= 3 ? 0.25 : contentPieces >= 2 ? 0.32 : 0.42);
 
   // ── Build panel blocks ──
 
@@ -68,6 +70,7 @@ export function AdaptiveBentoTemplate({
       url={data.imageUrl}
       urls={data.imageUrls}
       showCount={showImageCount}
+      imagePosition={data.imagePosition}
     />
   ) : null;
 
@@ -122,9 +125,9 @@ export function AdaptiveBentoTemplate({
 
   const renderHeroLayout = () => (
     <>
-      {/* Media at top with proportional space */}
+      {/* Media at top — hero dominates the card */}
       {mediaBlock && imgLayout === 'hero_image' && (
-        <div style={{ flex: `0 0 ${Math.round(mediaRatio * 100)}%`, minHeight: 0 }}>
+        <div style={{ flex: `0 0 ${Math.round(mediaRatio * 100)}%`, minHeight: 120 }}>
           {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
         </div>
       )}
@@ -153,16 +156,16 @@ export function AdaptiveBentoTemplate({
   );
 
   const renderSplitLayout = () => {
-    const isRow = !isStory; // horizontal split on non-story formats
+    // Split: true 50/50 vertical split — media takes left half
     return (
-      <div style={{ display: 'flex', flexDirection: isRow ? 'row' : 'column', gap, flex: '1 1 0', minHeight: 0 }}>
-        {/* Media side */}
+      <div style={{ display: 'flex', flexDirection: 'row', gap, flex: '1 1 0', minHeight: 0 }}>
+        {/* Media side — 50% width */}
         {mediaBlock && (
-          <div style={{ flex: `0 0 ${isRow ? '40%' : `${Math.round(mediaRatio * 100)}%`}`, minHeight: 0, minWidth: 0 }}>
+          <div style={{ flex: '0 0 50%', minHeight: 0, minWidth: 0 }}>
             {React.cloneElement(mediaBlock, { style: { width: '100%', height: '100%' } })}
           </div>
         )}
-        {/* Content side */}
+        {/* Content side — 50% width */}
         <div style={{ display: 'flex', flexDirection: 'column', gap, flex: '1 1 0', minHeight: 0, minWidth: 0 }}>
           {insightBlock && (
             <div style={{ flex: '1.2 1 0', minHeight: 0 }}>
@@ -268,7 +271,7 @@ export function AdaptiveBentoTemplate({
         }} />
       </div>
 
-      {/* Atmospheric background image */}
+      {/* Atmospheric background image — image is the main event */}
       {isBackgroundMode && (
         <div className="absolute inset-0 overflow-hidden" aria-hidden>
           <img
@@ -277,12 +280,14 @@ export function AdaptiveBentoTemplate({
             crossOrigin="anonymous"
             className="w-full h-full"
             style={{
-              objectFit: 'cover', filter: 'blur(20px) brightness(0.4) saturate(1.2)',
-              transform: 'scale(1.15)',
+              objectFit: 'cover',
+              objectPosition: `${data.imagePosition?.x ?? 50}% ${data.imagePosition?.y ?? 50}%`,
+              filter: 'blur(4px) brightness(0.6) saturate(1.3)',
+              transform: 'scale(1.06)',
             }}
           />
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(180deg, hsla(220,30%,3%,0.4) 0%, hsla(220,30%,3%,0.65) 50%, hsla(220,30%,3%,0.8) 100%)',
+            background: 'linear-gradient(180deg, hsla(220,30%,3%,0.2) 0%, hsla(220,30%,3%,0.3) 50%, hsla(220,30%,3%,0.45) 100%)',
           }} />
         </div>
       )}

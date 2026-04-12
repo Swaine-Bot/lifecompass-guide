@@ -36,6 +36,8 @@ export interface ShareCardData {
   imageLayout?: ImageLayout;
   aiInsightLinks?: { label: string; url: string }[];
   sponsor?: SponsorData;
+  /** Image focal point for crop/reposition (0-100 for x and y) */
+  imagePosition?: { x: number; y: number };
 }
 
 export interface PrivacySettings {
