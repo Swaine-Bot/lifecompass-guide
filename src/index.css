@@ -396,7 +396,8 @@
 
   /* Section label — uppercase tracked meta label */
   .section-label {
-    @apply text-[10px] uppercase tracking-[0.12em] text-muted-foreground/70 font-medium;
+    @apply text-[10px] uppercase tracking-[0.12em] font-medium;
+    color: hsl(0 0% 100% / 0.85);
   }
 
   /* Page subtitle — below header */
