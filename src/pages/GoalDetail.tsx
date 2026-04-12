@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,8 @@ import { useEnvironment } from '@/contexts/SensoryContext';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { analyzeForActions, type SuggestedAction } from '@/services/contextualActionEngine';
+import { ContextualActions } from '@/components/ds/ContextualActions';
 import {
   AlertDialog,
   AlertDialogAction,
