@@ -201,7 +201,7 @@ export async function uploadPartnerAsset(
 
   const { data, error } = await supabase
     .from('partner_assets')
-    .insert(insertPayload)
+    .insert(insertPayload as any)
     .select()
     .single();
   if (error) throw error;
