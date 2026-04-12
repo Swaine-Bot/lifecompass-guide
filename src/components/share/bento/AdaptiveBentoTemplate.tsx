@@ -270,7 +270,7 @@ export function AdaptiveBentoTemplate({
         }} />
       </div>
 
-      {/* Atmospheric background image */}
+      {/* Atmospheric background image — image is the main event */}
       {isBackgroundMode && (
         <div className="absolute inset-0 overflow-hidden" aria-hidden>
           <img
@@ -279,12 +279,14 @@ export function AdaptiveBentoTemplate({
             crossOrigin="anonymous"
             className="w-full h-full"
             style={{
-              objectFit: 'cover', filter: 'blur(20px) brightness(0.4) saturate(1.2)',
-              transform: 'scale(1.15)',
+              objectFit: 'cover',
+              objectPosition: `${data.imagePosition?.x ?? 50}% ${data.imagePosition?.y ?? 50}%`,
+              filter: 'blur(4px) brightness(0.6) saturate(1.3)',
+              transform: 'scale(1.06)',
             }}
           />
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(180deg, hsla(220,30%,3%,0.4) 0%, hsla(220,30%,3%,0.65) 50%, hsla(220,30%,3%,0.8) 100%)',
+            background: 'linear-gradient(180deg, hsla(220,30%,3%,0.2) 0%, hsla(220,30%,3%,0.3) 50%, hsla(220,30%,3%,0.45) 100%)',
           }} />
         </div>
       )}
