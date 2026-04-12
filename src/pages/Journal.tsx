@@ -767,17 +767,17 @@ export default function Journal() {
           <CardTitle>Today's Entry</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Mood & Energy Row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Mood & Energy */}
+          <div className="space-y-4">
             <div>
               <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">Mood</label>
-              <div className="flex justify-between">
+              <div className="flex gap-2 justify-between">
                 {moodOptions.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => setSelectedMood(option.value)}
                     className={cn(
-                      "mood-option text-xl",
+                      "mood-option text-xl shrink-0",
                       selectedMood === option.value && "selected"
                     )}
                     title={option.label}
@@ -789,13 +789,13 @@ export default function Journal() {
             </div>
             <div>
               <label className="text-[11px] font-medium mb-2 block uppercase tracking-wider text-muted-foreground/70">Energy</label>
-              <div className="flex justify-between">
+              <div className="flex gap-2 justify-between">
                 {energyOptions.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => setSelectedEnergy(option.value)}
                     className={cn(
-                      "mood-option",
+                      "mood-option shrink-0",
                       selectedEnergy === option.value && "selected"
                     )}
                     title={option.label}
