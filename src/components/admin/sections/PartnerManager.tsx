@@ -363,6 +363,7 @@ function PartnerProfile({ partner, onBack, onUpdate }: { partner: Partner; onBac
           <TabsTrigger value="overview" className="gap-1 text-xs"><Eye className="w-3 h-3" />Overview</TabsTrigger>
           <TabsTrigger value="assets" className="gap-1 text-xs"><Upload className="w-3 h-3" />Assets</TabsTrigger>
           <TabsTrigger value="campaigns" className="gap-1 text-xs"><BarChart3 className="w-3 h-3" />Campaigns</TabsTrigger>
+          <TabsTrigger value="analyst" className="gap-1 text-xs"><TrendingUp className="w-3 h-3" />Analyst</TabsTrigger>
           <TabsTrigger value="archive" className="gap-1 text-xs"><Archive className="w-3 h-3" />Archive</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1 text-xs"><StickyNote className="w-3 h-3" />Notes</TabsTrigger>
         </TabsList>
