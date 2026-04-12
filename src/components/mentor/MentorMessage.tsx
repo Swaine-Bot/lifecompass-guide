@@ -176,6 +176,9 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                   Turn into Moves
                 </Button>
               )}
+              {suggestedActions.length > 0 && (
+                <ContextualActions actions={suggestedActions} compact />
+              )}
             </>
           )}
         </div>
