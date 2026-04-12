@@ -30,12 +30,19 @@ export default function Auth() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, profile, loading: authContextLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate('/home');
-  }, [user, navigate]);
+    if (authContextLoading) return;
+    if (user) {
+      if (profile && !profile.onboarding_completed) {
+        navigate('/onboarding', { replace: true });
+      } else {
+        navigate('/home', { replace: true });
+      }
+    }
+  }, [user, profile, authContextLoading, navigate]);
 
   const validateForm = () => {
     try {
