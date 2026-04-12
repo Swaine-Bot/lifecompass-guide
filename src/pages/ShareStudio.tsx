@@ -322,7 +322,7 @@ export default function ShareStudio() {
       setSharing(false);
       setIsReleasing(false);
     }
-  }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink]);
+  }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink, sponsorEnabled, selectedPartnerId, activePartnerAsset, availablePartners]);
 
   const handleCopy = useCallback(async () => {
     const blob = await exportCompositionToBlob(normalizedContent, platform);
