@@ -1493,6 +1493,16 @@ export async function renderCompositionToCanvas(
     // Continue with LS fallback
   }
 
+  // Load sponsor/partner asset image
+  let sponsorImg: HTMLImageElement | null = null;
+  if (content.sponsor?.logoUrl) {
+    try {
+      sponsorImg = await loadImage(content.sponsor.logoUrl);
+    } catch {
+      // Continue without sponsor image
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // COLOR EXTRACTION — Media is the source of truth
   // ═══════════════════════════════════════════════════════════════
