@@ -219,13 +219,13 @@ export function LifePhaseBadge({ lifePhase, accentHex }: { lifePhase?: string; a
  * NEVER clipped: uses nowrap, flex-shrink-0, and dedicated safe zone.
  */
 export function PostedFromBadge({ footerHex, compact = false }: { footerHex: string; compact?: boolean }) {
-  const iconSize = compact ? 14 : 16;
-  const fontSize = compact ? 7.5 : 8;
+  const iconSize = compact ? 18 : 22;
+  const fontSize = compact ? 9 : 10;
   return (
     <div
-      className="inline-flex items-center gap-1.5 flex-shrink-0"
+      className="inline-flex items-center gap-2 flex-shrink-0"
       style={{
-        padding: compact ? '3px 8px 3px 5px' : '4px 10px 4px 6px',
+        padding: compact ? '4px 10px 4px 6px' : '5px 12px 5px 7px',
         borderRadius: 100,
         background: 'hsla(0,0%,0%,0.5)',
         backdropFilter: 'blur(10px)',
@@ -236,14 +236,20 @@ export function PostedFromBadge({ footerHex, compact = false }: { footerHex: str
       <img
         src={lifestackLogo} alt="LifeStack"
         className="flex-shrink-0"
-        style={{ width: iconSize, height: iconSize, borderRadius: 3, objectFit: 'contain' }}
+        style={{ width: iconSize, height: iconSize, borderRadius: 4, objectFit: 'contain' }}
         crossOrigin="anonymous"
       />
       <span style={{
-        fontSize, fontWeight: 600, letterSpacing: '0.07em',
-        color: 'hsla(0,0%,100%,0.84)', whiteSpace: 'nowrap', lineHeight: 1.2,
+        fontSize, fontWeight: 400, letterSpacing: '0.06em',
+        color: 'hsla(0,0%,100%,0.55)', whiteSpace: 'nowrap', lineHeight: 1.2,
       }}>
-        Posted from LifeStack
+        Posted from{' '}
+        <span style={{
+          fontWeight: 700, fontFamily: '"Playfair Display", Georgia, serif',
+          color: 'hsla(0,0%,100%,0.88)', letterSpacing: '0.08em',
+        }}>
+          LifeStack
+        </span>
       </span>
     </div>
   );

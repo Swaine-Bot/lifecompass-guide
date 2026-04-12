@@ -966,15 +966,15 @@ function drawBrandPanel(
   drawGlassEdges(ctx, panel.x, panel.y, panel.width, panel.height, sealRadius, 0.08, palette);
 
   // Seal icon — uses media accent for warmth
-  const iconSize = 28;
-  const brandSize = spec.typography.brandFontSize;
+  const iconSize = 32;
+  const brandSize = spec.typography.brandFontSize + 2;
   const accentColor = paletteAccent(palette, content.theme.accentHex);
 
-  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
+  ctx.font = `400 ${brandSize - 1}px ${FONT_FAMILY}`;
   const prefixW = ctx.measureText('Posted from ').width;
-  ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
+  ctx.font = `700 ${brandSize}px ${SERIF_FAMILY}`;
   const nameW = ctx.measureText('LifeStack').width;
-  const gap = 12;
+  const gap = 14;
   const totalContentW = iconSize + gap + prefixW + nameW;
   const startX = panel.x + (panel.width - totalContentW) / 2;
   const iconX = startX;
@@ -982,8 +982,8 @@ function drawBrandPanel(
 
   // Seal glow — media-aware
   const a = palette.extracted ? palette.accent : { r: 200, g: 164, b: 106 };
-  ctx.shadowColor = `rgba(${a.r}, ${a.g}, ${a.b}, 0.20)`;
-  ctx.shadowBlur = 18;
+  ctx.shadowColor = `rgba(${a.r}, ${a.g}, ${a.b}, 0.25)`;
+  ctx.shadowBlur = 22;
   ctx.shadowOffsetY = 0;
 
   // Circular seal — gradient from media accent
@@ -1013,29 +1013,29 @@ function drawBrandPanel(
   ctx.beginPath();
   ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 3, 0, Math.PI * 2);
   ctx.closePath();
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 0.7;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 0.8;
   ctx.stroke();
 
   // LS mark
-  ctx.font = `800 ${10}px ${FONT_FAMILY}`;
+  ctx.font = `800 ${12}px ${FONT_FAMILY}`;
   ctx.fillStyle = 'rgb(14, 12, 20)';
   ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 3.5);
+  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
   ctx.textAlign = 'left';
 
-  // Brand text
+  // Brand text — more prominent
   const textX = iconX + iconSize + gap;
   const textY = panel.y + panel.height / 2 + brandSize * 0.3;
 
-  ctx.font = `300 ${brandSize - 1}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.35, 'meta');
+  ctx.font = `400 ${brandSize - 1}px ${FONT_FAMILY}`;
+  ctx.fillStyle = envWhite(envTone, 0.50, 'meta');
   (ctx as any).letterSpacing = '0.8px';
   ctx.fillText('Posted from ', textX, textY);
 
-  ctx.font = `600 ${brandSize}px ${SERIF_FAMILY}`;
+  ctx.font = `700 ${brandSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = accentColor;
-  ctx.globalAlpha = 0.65;
+  ctx.globalAlpha = 0.80;
   (ctx as any).letterSpacing = '1.2px';
   ctx.fillText('LifeStack', textX + prefixW, textY);
   ctx.globalAlpha = 1;
