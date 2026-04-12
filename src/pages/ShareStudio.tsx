@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Share2, Copy, Download, RefreshCw, Sparkles, Check, Image, LayoutGrid, Link2, QrCode, ImageIcon, Columns, Layers, ClipboardCopy, Handshake, Move } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,6 +32,7 @@ import {
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
+import { fetchActivePartners, fetchActiveAssetForPartner, type Partner, type PartnerAsset } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { triggerHaptic } from '@/engines/hapticEngine';
