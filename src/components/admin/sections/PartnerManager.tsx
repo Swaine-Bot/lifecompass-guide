@@ -10,13 +10,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2 } from 'lucide-react';
+import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2, TrendingUp } from 'lucide-react';
 import {
   fetchPartners, createPartner, updatePartner,
   fetchPartnerAssets, uploadPartnerAsset, activatePartnerAsset,
   type Partner, type PartnerAsset, type PartnerCreateInput,
 } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
+import { PartnerAnalyst } from './PartnerAnalyst';
 
 // ─── Create Partner Dialog ────────────────────────────────────────────
 
@@ -362,6 +363,7 @@ function PartnerProfile({ partner, onBack, onUpdate }: { partner: Partner; onBac
           <TabsTrigger value="overview" className="gap-1 text-xs"><Eye className="w-3 h-3" />Overview</TabsTrigger>
           <TabsTrigger value="assets" className="gap-1 text-xs"><Upload className="w-3 h-3" />Assets</TabsTrigger>
           <TabsTrigger value="campaigns" className="gap-1 text-xs"><BarChart3 className="w-3 h-3" />Campaigns</TabsTrigger>
+          <TabsTrigger value="analyst" className="gap-1 text-xs"><TrendingUp className="w-3 h-3" />Analyst</TabsTrigger>
           <TabsTrigger value="archive" className="gap-1 text-xs"><Archive className="w-3 h-3" />Archive</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1 text-xs"><StickyNote className="w-3 h-3" />Notes</TabsTrigger>
         </TabsList>
@@ -447,6 +449,10 @@ function PartnerProfile({ partner, onBack, onUpdate }: { partner: Partner; onBac
               </Card>
             ));
           })()}
+        </TabsContent>
+
+        <TabsContent value="analyst" className="pt-4">
+          <PartnerAnalyst partnerId={partner.id} partnerName={partner.name} assets={assets} />
         </TabsContent>
 
         <TabsContent value="archive" className="space-y-3 pt-4">

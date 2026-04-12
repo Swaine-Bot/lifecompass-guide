@@ -1131,6 +1131,149 @@ export type Database = {
           },
         ]
       }
+      partner_click_events: {
+        Row: {
+          campaign_name: string | null
+          clicked_at: string
+          destination_url: string | null
+          id: string
+          partner_asset_id: string | null
+          partner_id: string
+          platform: string | null
+          share_event_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_name?: string | null
+          clicked_at?: string
+          destination_url?: string | null
+          id?: string
+          partner_asset_id?: string | null
+          partner_id: string
+          platform?: string | null
+          share_event_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_name?: string | null
+          clicked_at?: string
+          destination_url?: string | null
+          id?: string
+          partner_asset_id?: string | null
+          partner_id?: string
+          platform?: string | null
+          share_event_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_click_events_partner_asset_id_fkey"
+            columns: ["partner_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_click_events_partner_asset_id_fkey"
+            columns: ["partner_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_click_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_click_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_click_events_share_event_id_fkey"
+            columns: ["share_event_id"]
+            isOneToOne: false
+            referencedRelation: "partner_share_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_share_events: {
+        Row: {
+          campaign_name: string | null
+          created_at: string
+          destination_url: string | null
+          id: string
+          partner_asset_id: string | null
+          partner_id: string
+          platform: string | null
+          share_card_type: string | null
+          source_type: string | null
+          tracking_token: string
+          user_id: string
+        }
+        Insert: {
+          campaign_name?: string | null
+          created_at?: string
+          destination_url?: string | null
+          id?: string
+          partner_asset_id?: string | null
+          partner_id: string
+          platform?: string | null
+          share_card_type?: string | null
+          source_type?: string | null
+          tracking_token: string
+          user_id: string
+        }
+        Update: {
+          campaign_name?: string | null
+          created_at?: string
+          destination_url?: string | null
+          id?: string
+          partner_asset_id?: string | null
+          partner_id?: string
+          platform?: string | null
+          share_card_type?: string | null
+          source_type?: string | null
+          tracking_token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_share_events_partner_asset_id_fkey"
+            columns: ["partner_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_share_events_partner_asset_id_fkey"
+            columns: ["partner_asset_id"]
+            isOneToOne: false
+            referencedRelation: "partner_assets_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_share_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_share_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           billing_entity: string | null

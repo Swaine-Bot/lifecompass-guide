@@ -32,6 +32,7 @@ import {
 } from '@/services/shareService';
 import { getPhilosophyLine, mapLifeDomain } from '@/services/shareLanguageEngine';
 import { createShareLink } from '@/services/smartLinkService';
+import { recordPartnerShareEvent } from '@/services/partnerAnalyticsService';
 import { fetchActivePartners, fetchActiveAssetForPartner, type Partner, type PartnerAsset } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -275,6 +276,22 @@ export default function ShareStudio() {
       const result = await nativeShare(blob, nativePreset);
       await trackShareEvent(user.id, selectedCard.cardType, result.shared ? `native_${nativePreset}` : result.method, platform, privacyLevel);
       await saveShareCard(user.id, selectedCard, theme, privacyLevel, phrase);
+
+      // ── Record partner share event for analytics ──
+      if (sponsorEnabled && selectedPartnerId && activePartnerAsset) {
+        const partner = availablePartners.find(p => p.id === selectedPartnerId);
+        const ctaUrl = activePartnerAsset.cta_url_override || partner?.default_cta_url || partner?.website_url;
+        recordPartnerShareEvent({
+          userId: user.id,
+          partnerId: selectedPartnerId,
+          partnerAssetId: activePartnerAsset.id,
+          campaignName: activePartnerAsset.campaign_name || undefined,
+          platform,
+          shareCardType: selectedCard.cardType,
+          sourceType: selectedCard.sourceType || selectedCard.cardType,
+          destinationUrl: ctaUrl || undefined,
+        }).catch(() => {}); // fire and forget
+      }
       if (result.shared) {
         await copyToClipboard(caption);
         toast.success('Card shared! Caption copied for pasting.', { duration: 4000 });
@@ -305,7 +322,7 @@ export default function ShareStudio() {
       setSharing(false);
       setIsReleasing(false);
     }
-  }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink]);
+  }, [user, selectedCard, phrase, platform, privacyLevel, theme, aiInsight, aiInsightEnabled, normalizedContent, generateSmartLink, sponsorEnabled, selectedPartnerId, activePartnerAsset, availablePartners]);
 
   const handleCopy = useCallback(async () => {
     const blob = await exportCompositionToBlob(normalizedContent, platform);
