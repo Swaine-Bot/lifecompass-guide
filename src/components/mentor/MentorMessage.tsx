@@ -10,6 +10,9 @@ import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
 import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
+import { analyzeForActions } from '@/services/contextualActionEngine';
+import { ContextualActions } from '@/components/ds/ContextualActions';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MentorMessageProps {
   role: 'user' | 'assistant';
