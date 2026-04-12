@@ -194,8 +194,8 @@ export default function PlaybookDetail() {
         user_id: user.id,
         title: tmpl.title,
         description: tmpl.description || null,
-        domain: domain,
-        frequency: tmpl.frequency === 'weekly' ? 'weekly' : 'daily',
+        domain: domain as any,
+        frequency: (tmpl.frequency === 'weekly' ? 'weekly' : 'daily') as any,
       });
       if (error) throw error;
       setHabitCreated(true);
