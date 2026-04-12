@@ -487,6 +487,46 @@ export default function ShareStudio() {
                   platform={platform}
                   maxPreviewWidth={Math.min(280, window.innerWidth - 80)}
                 />
+                {/* Drag-to-reposition overlay on card preview */}
+                {hasPostImage && includePostImage && (
+                  <div
+                    className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing select-none"
+                    style={{ borderRadius: 34 }}
+                    onPointerDown={(e) => {
+                      const el = e.currentTarget;
+                      el.setPointerCapture(e.pointerId);
+                      const startX = e.clientX;
+                      const startY = e.clientY;
+                      const startPos = { ...imagePosition };
+
+                      const onMove = (ev: PointerEvent) => {
+                        const dx = ev.clientX - startX;
+                        const dy = ev.clientY - startY;
+                        const sensitivity = 0.3;
+                        const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
+                        const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
+                        setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                      };
+                      const onUp = () => {
+                        el.removeEventListener('pointermove', onMove);
+                        el.removeEventListener('pointerup', onUp);
+                      };
+                      el.addEventListener('pointermove', onMove);
+                      el.addEventListener('pointerup', onUp);
+                    }}
+                  >
+                    {/* Subtle reposition hint */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+                      style={{
+                        background: 'rgba(0,0,0,0.6)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}>
+                      <Move className="w-2.5 h-2.5 text-white/70" />
+                      <span className="text-[8px] text-white/70 font-medium tracking-wide">Drag to reposition</span>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             </div>
           </div>
