@@ -1018,12 +1018,22 @@ function drawBrandPanel(
   ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // LS mark
-  ctx.font = `800 ${12}px ${FONT_FAMILY}`;
-  ctx.fillStyle = 'rgb(14, 12, 20)';
-  ctx.textAlign = 'center';
-  ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
-  ctx.textAlign = 'left';
+  // Logo image or LS fallback
+  if (logoImg) {
+    const pad = 5;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(iconX + iconSize / 2, iconY + iconSize / 2, iconSize / 2 - 1, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(logoImg, iconX + pad, iconY + pad, iconSize - pad * 2, iconSize - pad * 2);
+    ctx.restore();
+  } else {
+    ctx.font = `800 ${12}px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgb(14, 12, 20)';
+    ctx.textAlign = 'center';
+    ctx.fillText('LS', iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+    ctx.textAlign = 'left';
+  }
 
   // Brand text — more prominent
   const textX = iconX + iconSize + gap;
