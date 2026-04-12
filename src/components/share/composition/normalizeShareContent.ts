@@ -34,6 +34,8 @@ export interface NormalizedShareContent {
   mediaUrls: string[] | null;
   mediaCount: number;
   imageTreatment: ImageTreatment;
+  /** Image focal point for crop/reposition (0-100 for x and y) */
+  imagePosition: { x: number; y: number };
 
   // Meta
   timeAnchor: string | null;
@@ -70,6 +72,8 @@ export interface NormalizeInput {
   imageLayout: ImageTreatment | 'hero_image' | 'split_image' | 'background_image' | 'none';
   showImageCount: boolean;
   strategy: BentoBaseVariant;
+  /** Image focal point for crop/reposition (0-100 for x and y) */
+  imagePosition?: { x: number; y: number };
 }
 
 /** Map legacy ImageLayout values to ImageTreatment */
