@@ -156,21 +156,17 @@
     color: rgba(255, 255, 255, 0.5) !important;
   }
 
-  /* Ensure all interactive elements have minimum touch targets */
-  button, [role="button"], a, input[type="checkbox"], input[type="radio"] {
-    min-height: 44px;
-    min-width: 44px;
+  /* Ensure interactive elements have minimum touch targets on touch devices */
+  @media (pointer: coarse) {
+    button:not(.inline-action),
+    [role="button"]:not(.inline-action) {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 
-  /* Exceptions: inline text links, icon-only items that explicitly size themselves */
-  a:not([role="button"]),
-  .inline-link {
-    min-height: unset;
-    min-width: unset;
-  }
-
-  /* Prevent long-press context menu on mobile (optional — keeps native feel) */
-  img, a {
+  /* Prevent long-press context menu on mobile images */
+  img {
     -webkit-touch-callout: none;
   }
 
