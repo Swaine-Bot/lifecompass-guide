@@ -148,7 +148,10 @@ export function computeCompositionSpec(
   // ── Panel sizing ──
   // Available height for content panels
   const brandH = content.showFooter ? 60 : 0;
-  const sponsorH = content.showSponsor ? (isStory ? 70 : 62) : 0;
+  const hasSponsorAsset = content.showSponsor && !!content.sponsor?.logoUrl;
+  const sponsorH = content.showSponsor
+    ? (hasSponsorAsset ? (isStory ? 280 : 240) : (isStory ? 70 : 62))
+    : 0;
   const availH = ch - brandH - sponsorH
     - (content.showFooter ? gap : 0)
     - (content.showSponsor ? gap : 0);
@@ -201,8 +204,10 @@ export function computeCompositionSpec(
   }
 
   if (hasInsight) {
-    // Reduce insight ratio when user text is long
-    if (hasVeryLongUserText) {
+    // Reduce insight ratio when user text is long or sponsor asset takes space
+    if (hasSponsorAsset) {
+      insightRatio = contentPanels >= 3 ? 0.18 : 0.24;
+    } else if (hasVeryLongUserText) {
       insightRatio = contentPanels >= 3 ? 0.22 : 0.30;
     } else {
       insightRatio = contentPanels >= 3 ? 0.30 : 0.40;

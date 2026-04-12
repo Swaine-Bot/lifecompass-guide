@@ -1074,45 +1074,127 @@ function drawSponsorPanel(
   spec: CompositionSpec,
   envTone: EnvironmentTone,
   palette: MediaPalette,
+  sponsorImg: HTMLImageElement | null = null,
 ) {
   if (!panel.visible || !content.sponsor) return;
 
   const sponsor = content.sponsor;
   const pad = 22;
+  const hasAssetImage = !!sponsorImg;
 
   ctx.save();
 
   drawGlassPanel(ctx, panel, spec.panelRadius, envTone, 'panel-tertiary', palette);
 
-  const prefixMap: Record<string, string> = {
-    sponsored: 'Sponsored by',
-    powered: 'Powered by',
-    partnership: 'In partnership with',
-    rewards: 'Rewards by',
-    productivity: 'Productivity partner:',
-  };
-  const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
+  // If we have a partner asset image, render it prominently
+  if (hasAssetImage) {
+    const imgPad = 12;
+    const textZoneH = 52; // space for attribution text at bottom
+    const imgAreaX = panel.x + imgPad;
+    const imgAreaY = panel.y + imgPad;
+    const imgAreaW = panel.width - imgPad * 2;
+    const imgAreaH = panel.height - imgPad * 2 - textZoneH;
 
-  const textX = panel.x + pad;
-  const centerY = panel.y + panel.height / 2;
+    if (imgAreaH > 0 && imgAreaW > 0) {
+      // Draw asset image with rounded corners inside the panel
+      const imgRadius = Math.max(spec.panelRadius - 8, 16);
+      ctx.save();
+      drawRoundedRect(ctx, imgAreaX, imgAreaY, imgAreaW, imgAreaH, imgRadius);
+      ctx.clip();
 
-  ctx.font = `400 ${14}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
-  (ctx as any).letterSpacing = '0.5px';
-  ctx.fillText(prefix, textX, centerY - 2);
+      // Cover-fit the image
+      const imgAspect = sponsorImg!.naturalWidth / sponsorImg!.naturalHeight;
+      const areaAspect = imgAreaW / imgAreaH;
+      let sx = 0, sy = 0, sw = sponsorImg!.naturalWidth, sh = sponsorImg!.naturalHeight;
+      if (imgAspect > areaAspect) {
+        sw = sponsorImg!.naturalHeight * areaAspect;
+        sx = (sponsorImg!.naturalWidth - sw) / 2;
+      } else {
+        sh = sponsorImg!.naturalWidth / areaAspect;
+        sy = (sponsorImg!.naturalHeight - sh) / 2;
+      }
+      ctx.drawImage(sponsorImg!, sx, sy, sw, sh, imgAreaX, imgAreaY, imgAreaW, imgAreaH);
 
-  const prefixW = ctx.measureText(prefix).width;
-  ctx.font = `600 ${15}px ${FONT_FAMILY}`;
-  ctx.fillStyle = envWhite(envTone, 0.85, 'secondary');
-  ctx.fillText(` ${sponsor.name}`, textX + prefixW, centerY - 2);
+      // Subtle vignette over partner asset
+      const vig = ctx.createRadialGradient(
+        imgAreaX + imgAreaW / 2, imgAreaY + imgAreaH / 2,
+        Math.min(imgAreaW, imgAreaH) * 0.3,
+        imgAreaX + imgAreaW / 2, imgAreaY + imgAreaH / 2,
+        Math.max(imgAreaW, imgAreaH) * 0.7,
+      );
+      vig.addColorStop(0, 'rgba(0,0,0,0)');
+      vig.addColorStop(1, 'rgba(0,0,0,0.12)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(imgAreaX, imgAreaY, imgAreaW, imgAreaH);
 
-  const tagline = sponsor.message || sponsor.cta;
-  if (tagline) {
-    ctx.font = `400 ${12}px ${FONT_FAMILY}`;
-    ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
-    const maxW = panel.width - pad * 2;
-    const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
-    ctx.fillText(clipped, textX, centerY + 18, maxW);
+      ctx.restore();
+
+      // Glass edges on the image area
+      drawGlassEdges(ctx, imgAreaX, imgAreaY, imgAreaW, imgAreaH, imgRadius, 0.12, palette);
+    }
+
+    // Attribution text below image
+    const textY = panel.y + panel.height - textZoneH / 2 + 4;
+    const prefixMap: Record<string, string> = {
+      sponsored: 'Sponsored by',
+      powered: 'Powered by',
+      partnership: 'In partnership with',
+      rewards: 'Rewards by',
+      productivity: 'Productivity partner:',
+    };
+    const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
+
+    ctx.font = `400 ${14}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
+    (ctx as any).letterSpacing = '0.5px';
+    const textX = panel.x + pad;
+    ctx.fillText(prefix, textX, textY);
+
+    const prefixW = ctx.measureText(prefix).width;
+    ctx.font = `600 ${15}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.85, 'secondary');
+    ctx.fillText(` ${sponsor.name}`, textX + prefixW, textY);
+
+    const tagline = sponsor.message || sponsor.cta;
+    if (tagline) {
+      ctx.font = `400 ${12}px ${FONT_FAMILY}`;
+      ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
+      const maxW = panel.width - pad * 2;
+      const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
+      ctx.fillText(clipped, textX, textY + 18, maxW);
+    }
+  } else {
+    // No asset image — text-only sponsor attribution (original behavior)
+    const prefixMap: Record<string, string> = {
+      sponsored: 'Sponsored by',
+      powered: 'Powered by',
+      partnership: 'In partnership with',
+      rewards: 'Rewards by',
+      productivity: 'Productivity partner:',
+    };
+    const prefix = prefixMap[sponsor.attributionType || 'sponsored'] || 'Sponsored by';
+
+    const textX = panel.x + pad;
+    const centerY = panel.y + panel.height / 2;
+
+    ctx.font = `400 ${14}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
+    (ctx as any).letterSpacing = '0.5px';
+    ctx.fillText(prefix, textX, centerY - 2);
+
+    const prefixW = ctx.measureText(prefix).width;
+    ctx.font = `600 ${15}px ${FONT_FAMILY}`;
+    ctx.fillStyle = envWhite(envTone, 0.85, 'secondary');
+    ctx.fillText(` ${sponsor.name}`, textX + prefixW, centerY - 2);
+
+    const tagline = sponsor.message || sponsor.cta;
+    if (tagline) {
+      ctx.font = `400 ${12}px ${FONT_FAMILY}`;
+      ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
+      const maxW = panel.width - pad * 2;
+      const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
+      ctx.fillText(clipped, textX, centerY + 18, maxW);
+    }
   }
 
   (ctx as any).letterSpacing = '0px';
@@ -1411,6 +1493,16 @@ export async function renderCompositionToCanvas(
     // Continue with LS fallback
   }
 
+  // Load sponsor/partner asset image
+  let sponsorImg: HTMLImageElement | null = null;
+  if (content.sponsor?.logoUrl) {
+    try {
+      sponsorImg = await loadImage(content.sponsor.logoUrl);
+    } catch {
+      // Continue without sponsor image
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // COLOR EXTRACTION — Media is the source of truth
   // ═══════════════════════════════════════════════════════════════
@@ -1440,7 +1532,7 @@ export async function renderCompositionToCanvas(
     [spec.panels.text, (c, p) => drawTextPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.momentum, (c, p) => drawMomentumPanel(c, p, content, spec, envTone, palette)],
     [spec.panels.meta, (c, p) => drawMetaPanel(c, p, content, spec, envTone, palette)],
-    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone, palette)],
+    [spec.panels.sponsor, (c, p) => drawSponsorPanel(c, p, content, spec, envTone, palette, sponsorImg)],
     [spec.panels.brand, (c, p) => drawBrandPanel(c, p, content, spec, envTone, palette, logoImg)],
   ];
 
