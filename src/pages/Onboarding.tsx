@@ -744,7 +744,7 @@ export default function Onboarding() {
   const canProceed = step === 0 ? formData.name.trim().length > 0 : true;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
+    <div className="min-h-screen-safe bg-background flex flex-col safe-area-top safe-area-bottom">
       {/* Progress Header */}
       <div className="p-4 border-b border-border/30">
         <div className="max-w-md mx-auto">
@@ -768,7 +768,7 @@ export default function Onboarding() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-start justify-center px-4 py-6 overflow-y-auto">
+      <div className="flex-1 flex items-start justify-center px-4 py-6 overflow-y-auto overscroll-safe">
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div

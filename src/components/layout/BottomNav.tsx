@@ -23,7 +23,7 @@ export const BottomNav = () => {
   if (isKeyboardOpen) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04] transition-opacity duration-200" style={{ paddingBottom: 'var(--safe-area-bottom, env(safe-area-inset-bottom, 0px))' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-card/80 backdrop-blur-2xl border-t border-white/[0.04] transition-opacity duration-200 tap-transparent" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}>
       <div className="flex items-center justify-around px-1 py-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
@@ -35,7 +35,7 @@ export const BottomNav = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex flex-col items-center gap-0.5 py-2 px-2 flex-1 relative transition-colors duration-200",
+                "flex flex-col items-center gap-0.5 py-2 px-2 flex-1 relative transition-colors duration-200 min-h-[48px] justify-center",
               )}
             >
               <div className="relative">

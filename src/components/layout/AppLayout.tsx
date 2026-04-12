@@ -61,15 +61,15 @@ export const AppLayout = () => {
 
   return (
     <SensoryProvider lifePhase={profile?.life_phase}>
-      <div className="flex min-h-screen bg-background relative">
+      <div className="flex h-screen-safe bg-background relative overflow-hidden">
         <EnvironmentLayer />
         <ContextOverlay />
         <FeedbackPulse />
         <Sidebar />
-        <main className="flex-1 flex flex-col min-h-screen lg:pb-0 overflow-x-hidden relative" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: isMentorKeyboardMode ? 'env(safe-area-inset-bottom, 0px)' : 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}>
+        <main className="flex-1 flex flex-col min-h-0 lg:pb-0 overflow-x-hidden overflow-y-auto relative overscroll-safe" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: isMentorKeyboardMode ? 'env(safe-area-inset-bottom, 0px)' : 'calc(max(env(safe-area-inset-bottom, 0px), 8px) + 5.5rem)' }}>
           <PullToRefresh 
             onRefresh={handleRefresh}
-            className="flex-1 h-full"
+            className="flex-1"
           >
             <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6">
               <Outlet />

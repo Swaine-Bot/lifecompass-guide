@@ -44,7 +44,8 @@ export const PullToRefresh = ({ children, onRefresh, className }: PullToRefreshP
     const diff = currentY - startY.current;
 
     if (diff > 0 && containerRef.current?.scrollTop === 0) {
-      e.preventDefault();
+      // Only prevent default if we're actually pulling (avoid passive listener issues)
+      try { e.preventDefault(); } catch { /* passive listener on some Android vendors */ }
       const resistance = 0.4;
       const distance = Math.min(diff * resistance, MAX_PULL);
       setPullDistance(distance);

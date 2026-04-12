@@ -55,7 +55,11 @@ export function triggerHaptic(event: HapticEvent, enabled: boolean = true): void
   if (supportsNativeHaptics()) {
     fireNativeHaptic(spec.nativeType);
   } else if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-    navigator.vibrate(spec.vibrationPattern);
+    try {
+      navigator.vibrate(spec.vibrationPattern);
+    } catch {
+      // Some Android WebView variants throw on vibrate — non-critical
+    }
   }
 }
 

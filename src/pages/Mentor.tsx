@@ -219,10 +219,10 @@ export default function Mentor() {
   const charWarning = charCount > MAX_MESSAGE_LENGTH * 0.9;
   const composerBottomInset = isKeyboardOpen
     ? `${Math.max(0, keyboardHeight)}px`
-    : `calc(env(safe-area-inset-bottom, 0px) + ${MENTOR_NAV_OFFSET})`;
+    : `calc(max(env(safe-area-inset-bottom, 0px), 8px) + ${MENTOR_NAV_OFFSET})`;
 
   return (
-    <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10">
+    <div className="fixed inset-0 bottom-0 lg:left-64 flex flex-col bg-background z-10" style={{ height: '100dvh' }}>
       {/* ── Premium top bar ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-card/70 backdrop-blur-2xl shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)' }}>
         <div className="flex items-center gap-3">
@@ -326,7 +326,7 @@ export default function Mentor() {
             {/* Soft vignette */}
             <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.3) 100%)' }} />
           </div>
-          <div className="flex-1 overflow-y-auto overscroll-contain relative z-10" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingBottom: `${composerHeight + 24}px` }}>
+          <div className="flex-1 overflow-y-auto overscroll-contain relative z-10" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', scrollPaddingBottom: `${composerHeight + 24}px` }}>
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
               {/* ── Empty state ── */}
               {messages.length === 0 && (
