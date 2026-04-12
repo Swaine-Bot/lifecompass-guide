@@ -228,6 +228,7 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
     mediaUrls,
     mediaCount,
     imageTreatment,
+    imagePosition: input.imagePosition || { x: 50, y: 50 },
 
     timeAnchor: privacy.includeDateTime ? (input.data.timeAnchor || null) : null,
     domain: input.data.domain || null,
