@@ -1107,22 +1107,34 @@ function drawSponsorPanel(
     const textX = panel.x + pad;
     const headingY = panel.y + imgPad + 16;
 
+    // Measure full heading width to center it
+    ctx.font = `400 ${14}px ${FONT_FAMILY}`;
+    (ctx as any).letterSpacing = '0.5px';
+    const prefixW = ctx.measureText(prefix).width;
+    ctx.font = `600 ${15}px ${FONT_FAMILY}`;
+    (ctx as any).letterSpacing = '0px';
+    const spaceW = ctx.measureText(' ').width;
+    const nameW = ctx.measureText(sponsor.name).width;
+    const totalHeadingW = prefixW + spaceW + nameW;
+    const headingStartX = panel.x + (panel.width - totalHeadingW) / 2;
+
     ctx.font = `400 ${14}px ${FONT_FAMILY}`;
     ctx.fillStyle = envWhite(envTone, 0.5, 'meta');
     (ctx as any).letterSpacing = '0.5px';
-    ctx.fillText(prefix, textX, headingY);
+    ctx.fillText(prefix, headingStartX, headingY);
 
-    const prefixW = ctx.measureText(prefix).width;
     ctx.font = `600 ${15}px ${FONT_FAMILY}`;
     ctx.fillStyle = envWhite(envTone, 0.85, 'secondary');
-    ctx.fillText(` ${sponsor.name}`, textX + prefixW, headingY);
+    (ctx as any).letterSpacing = '0px';
+    ctx.fillText(` ${sponsor.name}`, headingStartX + prefixW, headingY);
 
     if (tagline) {
       ctx.font = `400 ${12}px ${FONT_FAMILY}`;
       ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
-      const maxW = panel.width - pad * 2;
+      const tagW = ctx.measureText(tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline).width;
       const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
-      ctx.fillText(clipped, textX, headingY + 18, maxW);
+      const tagX = panel.x + (panel.width - tagW) / 2;
+      ctx.fillText(clipped, tagX, headingY + 18);
     }
 
     // ── Asset image below heading ──
