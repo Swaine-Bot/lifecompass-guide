@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain } from 'lucide-react';
+import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain, Handshake } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ import { DocumentCenter } from '@/components/admin/sections/DocumentCenter';
 import { ShareAnalytics } from '@/components/admin/sections/ShareAnalytics';
 import { TrustSafety } from '@/components/admin/sections/TrustSafety';
 import { AIAnalyst } from '@/components/admin/sections/AIAnalyst';
+import { PartnerManager } from '@/components/admin/sections/PartnerManager';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { id: 'mentor', label: 'Mentor', icon: MessageSquare },
   { id: 'retention', label: 'Retention', icon: Activity },
   { id: 'shares', label: 'Shares', icon: Share2 },
+  { id: 'partners', label: 'Partners', icon: Handshake },
   { id: 'safety', label: 'Safety', icon: ShieldAlert },
   { id: 'moderation', label: 'Users', icon: Users },
   { id: 'documents', label: 'Docs', icon: FileText },
@@ -170,6 +172,7 @@ export default function Admin() {
         {activeSection === 'mentor' && <MentorTopicIntelligence data={analytics} />}
         {activeSection === 'retention' && <RetentionSignals data={analytics} />}
         {activeSection === 'shares' && <ShareAnalytics data={(analytics as any).shareAnalytics} />}
+        {activeSection === 'partners' && <PartnerManager />}
         {activeSection === 'safety' && <TrustSafety />}
         {activeSection === 'moderation' && <ModerationControls data={analytics} onUserDeleted={handleUserDeleted} />}
         {activeSection === 'documents' && <DocumentCenter />}
