@@ -545,6 +545,39 @@
   .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
 }
 
+/* ═══ Global Mobile Stabilization — prevent ALL horizontal drift ═══ */
+
+/* All direct children of #root must not exceed viewport width */
+#root > * {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Tables inside cards/containers must scroll within their parent */
+table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+/* Prevent images from overflowing containers */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure pre/code blocks don't break layout */
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+  word-break: break-all;
+}
+
+/* Prevent flex children from overflowing in tight mobile layouts */
+.container {
+  min-width: 0;
+}
+
 @layer utilities {
   /* Safe area for mobile */
   .safe-area-inset-bottom {
