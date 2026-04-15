@@ -744,7 +744,7 @@ export default function Onboarding() {
   const canProceed = step === 0 ? formData.name.trim().length > 0 : true;
 
   return (
-    <div className="min-h-screen-safe bg-background flex flex-col safe-area-top safe-area-bottom">
+    <div className="min-h-screen-safe bg-background flex flex-col safe-area-top safe-area-bottom overflow-x-hidden">
       {/* Progress Header */}
       <div className="p-4 border-b border-border/30">
         <div className="max-w-md mx-auto">
