@@ -139,8 +139,8 @@ export default function Admin() {
         </div>
 
         {/* Section Navigation */}
-        <div className="max-w-7xl mx-auto px-4 overflow-x-auto overflow-y-hidden scrollbar-hide">
-          <div className="flex gap-1 pb-2 w-max min-w-full">
+        <div className="max-w-7xl mx-auto px-4 overflow-x-auto overflow-y-hidden scrollbar-hide min-w-0">
+          <div className="flex gap-1 pb-2 w-max">
             {NAV_ITEMS.map(item => (
               <button
                 key={item.id}
