@@ -48,6 +48,7 @@ import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
 import PlaybookDetail from "./pages/PlaybookDetail";
 import CuratedPlacements from "./pages/CuratedPlacements";
+import AdminIntelligenceWalkthrough from "./pages/AdminIntelligenceWalkthrough";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
                 <Route path="/play-store-submission" element={<PlayStoreSubmission />} />
                 <Route path="/s/:slug" element={<SharedContent />} />
                 <Route path="/curated-placements" element={<CuratedPlacements />} />
+                <Route path="/admin-intelligence" element={<AdminIntelligenceWalkthrough />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
