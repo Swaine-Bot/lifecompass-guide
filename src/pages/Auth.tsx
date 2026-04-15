@@ -90,7 +90,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen-safe flex flex-col relative overflow-hidden">
+    <div className="min-h-screen-safe flex flex-col relative overflow-hidden max-w-[100vw]">
       {/* ══ Cinematic Background Image ══ */}
       <img
         src={cinematicBg}

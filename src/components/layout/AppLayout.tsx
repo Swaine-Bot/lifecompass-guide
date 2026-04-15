@@ -61,17 +61,17 @@ export const AppLayout = () => {
 
   return (
     <SensoryProvider lifePhase={profile?.life_phase}>
-      <div className="flex h-screen-safe bg-background relative overflow-hidden">
+      <div className="flex h-screen-safe bg-background relative overflow-hidden max-w-[100vw]">
         <EnvironmentLayer />
         <ContextOverlay />
         <FeedbackPulse />
         <Sidebar />
-        <main className="flex-1 flex flex-col min-h-0 lg:pb-0 overflow-x-hidden overflow-y-auto relative overscroll-safe" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: isMentorKeyboardMode ? 'env(safe-area-inset-bottom, 0px)' : 'calc(max(env(safe-area-inset-bottom, 0px), 8px) + 5.5rem)' }}>
+        <main className="flex-1 flex flex-col min-h-0 min-w-0 lg:pb-0 overflow-x-hidden overflow-y-auto relative overscroll-safe" style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: isMentorKeyboardMode ? 'env(safe-area-inset-bottom, 0px)' : 'calc(max(env(safe-area-inset-bottom, 0px), 8px) + 5.5rem)' }}>
           <PullToRefresh 
             onRefresh={handleRefresh}
-            className="flex-1"
+            className="flex-1 min-w-0"
           >
-            <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6">
+            <div className="container max-w-5xl mx-auto py-6 px-4 lg:px-6 min-w-0 overflow-x-hidden">
               <Outlet />
             </div>
           </PullToRefresh>
