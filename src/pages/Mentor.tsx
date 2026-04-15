@@ -58,9 +58,18 @@ export default function Mentor() {
   }, [permission, requestLocation]);
 
   const prevMessageCount = useRef(0);
+  const lastAssistantRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messages.length > prevMessageCount.current) {
-      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg?.role === 'assistant' && lastAssistantRef.current) {
+        // Scroll so the TOP of the new reply is visible
+        requestAnimationFrame(() => {
+          lastAssistantRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      } else {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
     }
     prevMessageCount.current = messages.length;
   }, [messages]);
@@ -354,15 +363,19 @@ export default function Mentor() {
                 </div>
               )}
 
-              {messages.map((msg, i) => (
-                <MentorMessage
-                  key={i}
-                  role={msg.role}
-                  content={msg.content}
-                  imageUrl={msg.imageUrl}
-                  conversationId={activeConversationId || undefined}
-                />
-              ))}
+              {messages.map((msg, i) => {
+                const isLastAssistant = msg.role === 'assistant' && i === messages.length - 1;
+                return (
+                  <div key={i} ref={isLastAssistant ? lastAssistantRef : undefined}>
+                    <MentorMessage
+                      role={msg.role}
+                      content={msg.content}
+                      imageUrl={msg.imageUrl}
+                      conversationId={activeConversationId || undefined}
+                    />
+                  </div>
+                );
+              })}
 
               {/* ── Loading / thinking state ── */}
               {loading && (
