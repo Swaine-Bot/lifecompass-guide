@@ -18,7 +18,7 @@ const phases = ['Student / Early Career', 'Builder', 'Family & Home', 'Explorer'
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+    <div className="min-h-screen bg-background overflow-x-hidden" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
       {/* Header */}
       <header className="fixed left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/[0.06]" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="container max-w-6xl mx-auto px-4 sm:px-5 h-14 sm:h-16 flex items-center justify-between">
