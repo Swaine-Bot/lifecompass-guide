@@ -47,6 +47,7 @@ import ShareStudio from "./pages/ShareStudio";
 import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
 import PlaybookDetail from "./pages/PlaybookDetail";
+import CuratedPlacements from "./pages/CuratedPlacements";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/app-store-submission" element={<AppStoreSubmission />} />
                 <Route path="/play-store-submission" element={<PlayStoreSubmission />} />
                 <Route path="/s/:slug" element={<SharedContent />} />
+                <Route path="/curated-placements" element={<CuratedPlacements />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
