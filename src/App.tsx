@@ -48,6 +48,7 @@ import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
 import PlaybookDetail from "./pages/PlaybookDetail";
 import CuratedPlacements from "./pages/CuratedPlacements";
+import AdminIntelligenceWalkthrough from "./pages/AdminIntelligenceWalkthrough";
 
 const queryClient = new QueryClient();
 
