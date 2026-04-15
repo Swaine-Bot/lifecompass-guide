@@ -205,7 +205,7 @@ If borderline but not explicitly harmful, respond "safe".`
     }
 
     const phaseContext = profile?.life_phase 
-      ? `The user is in the "${profile.life_phase.replace('_', ' ')}" life phase.` 
+      ? `The user's life phase is "${profile.life_phase.replace('_', ' ')}". Use this as background context to inform your advice, but do NOT explicitly mention their life phase in your responses unless the user asks about it or it is genuinely critical to the point you are making. Never open a reply by referencing their phase.` 
       : '';
     
     const focusAreas = profile?.focus_areas?.length 

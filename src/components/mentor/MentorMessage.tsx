@@ -103,7 +103,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
               </div>
             </div>
           )}
-          {content && <div className="chat-bubble-user text-sm leading-relaxed">{content}</div>}
+          {content && <div className="chat-bubble-user text-sm leading-relaxed whitespace-pre-wrap">{content}</div>}
         </div>
         <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center shrink-0 ring-1 ring-white/[0.08]">
           <User className="w-3.5 h-3.5 text-foreground/80" />
