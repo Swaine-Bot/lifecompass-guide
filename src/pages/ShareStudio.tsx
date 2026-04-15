@@ -652,7 +652,7 @@ export default function ShareStudio() {
 
           {/* ═══ MODE RIBBON — horizontally scrollable glass band ═══ */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="relative mb-10 -mx-5">
+            <div className="relative mb-10 -mx-5 overflow-hidden">
               {/* Left fade edge */}
               <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
                 style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 100%)' }} />
