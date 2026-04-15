@@ -59,19 +59,26 @@ export default function Mentor() {
 
   const prevMessageCount = useRef(0);
   const lastAssistantRef = useRef<HTMLDivElement>(null);
+  const hasScrolledForReply = useRef(false);
   useEffect(() => {
-    if (messages.length > prevMessageCount.current) {
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg?.role === 'assistant' && lastAssistantRef.current) {
-        // Scroll so the TOP of the new reply is visible
-        requestAnimationFrame(() => {
-          lastAssistantRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+    const newCount = messages.length;
+    if (newCount > prevMessageCount.current) {
+      const lastMsg = messages[newCount - 1];
+      if (lastMsg?.role === 'assistant') {
+        // Only scroll once when a new assistant reply first appears
+        if (!hasScrolledForReply.current) {
+          hasScrolledForReply.current = true;
+          requestAnimationFrame(() => {
+            lastAssistantRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
       } else {
+        // User message — scroll to bottom, reset the reply-scroll gate
+        hasScrolledForReply.current = false;
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     }
-    prevMessageCount.current = messages.length;
+    prevMessageCount.current = newCount;
   }, [messages]);
 
   useEffect(() => {
