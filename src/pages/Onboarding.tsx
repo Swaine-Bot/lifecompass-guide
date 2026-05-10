@@ -769,7 +769,7 @@ export default function Onboarding() {
 
       {/* Content */}
       <div className="flex-1 flex items-start justify-center px-4 py-6 overflow-y-auto overscroll-safe">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md pb-4">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step}
@@ -791,34 +791,36 @@ export default function Onboarding() {
               </Card>
             </motion.div>
           </AnimatePresence>
+        </div>
+      </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between mt-6 pb-8">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={step === 0}
-              className={step === 0 ? 'invisible' : ''}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+      {/* Sticky Navigation Footer — always visible so users never get stuck */}
+      <div className="shrink-0 border-t border-border/30 bg-background/95 backdrop-blur-sm safe-area-bottom">
+        <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            disabled={step === 0}
+            className={step === 0 ? 'invisible' : ''}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
+          {isLastStep ? (
+            <Button variant="gold" onClick={handleComplete} disabled={loading}>
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
+              ) : (
+                <>Get Started<ArrowRight className="w-4 h-4 ml-2" /></>
+              )}
             </Button>
-
-            {isLastStep ? (
-              <Button variant="gold" onClick={handleComplete} disabled={loading}>
-                {loading ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
-                ) : (
-                  <>Get Started<ArrowRight className="w-4 h-4 ml-2" /></>
-                )}
-              </Button>
-            ) : (
-              <Button variant="gold" onClick={handleNext} disabled={!canProceed}>
-                Continue
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
-          </div>
+          ) : (
+            <Button variant="gold" onClick={handleNext} disabled={!canProceed}>
+              Continue
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
