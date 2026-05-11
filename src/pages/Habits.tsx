@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Flame, Check, TrendingUp } from 'lucide-react';
+import { Plus, Flame, Check, TrendingUp, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
