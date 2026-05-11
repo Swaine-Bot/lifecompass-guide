@@ -101,10 +101,14 @@ export const UserGuide = ({ onComplete, onSkip }: UserGuideProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/95 backdrop-blur-xl"
+      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl overflow-y-auto overscroll-contain"
+      style={{
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+      }}
     >
       {/* Background gradient animation */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
           className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full bg-primary/5 blur-3xl"
           animate={{
@@ -136,14 +140,15 @@ export const UserGuide = ({ onComplete, onSkip }: UserGuideProps) => {
         variant="ghost"
         size="sm"
         onClick={onSkip}
-        className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10"
+        className="fixed right-4 text-muted-foreground hover:text-foreground z-20"
+        style={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
       >
         Skip Guide
         <X className="w-4 h-4 ml-2" />
       </Button>
 
       {/* Main content */}
-      <div className="relative w-full max-w-lg">
+      <div className="relative w-full max-w-lg mx-auto px-4">
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
