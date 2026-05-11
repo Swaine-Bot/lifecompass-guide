@@ -99,7 +99,8 @@ const App = () => (
                   <Route path="/goals/:id" element={<GoalDetail />} />
                   <Route path="/goals/new" element={<NewGoal />} />
                   <Route path="/habits" element={<Habits />} />
-                  <Route path="/habits/new" element={<NewHabit />} />
+                 <Route path="/habits/new" element={<NewHabit />} />
+                 <Route path="/habits/:id/edit" element={<NewHabit />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/journal" element={<Journal />} />
                   <Route path="/journal/playback/:entryId" element={<JournalPlayback />} />
