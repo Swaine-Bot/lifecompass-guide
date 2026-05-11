@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Flame, Check, TrendingUp } from 'lucide-react';
+import { Plus, Flame, Check, TrendingUp, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { PageHeader } from '@/components/ds';
@@ -263,13 +263,22 @@ export default function Habits() {
                       </div>
                     </div>
 
-                    {/* Stats */}
-                    <div className="text-right shrink-0 hidden sm:block">
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground/60">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        {weeklyProgress}%
+                    {/* Stats + Edit */}
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <Link
+                        to={`/habits/${habit.id}/edit`}
+                        aria-label={`Edit ${habit.title}`}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-secondary/60 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Link>
+                      <div className="text-right hidden sm:block">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground/60">
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          {weeklyProgress}%
+                        </div>
+                        <p className="section-label">week</p>
                       </div>
-                      <p className="section-label">week</p>
                     </div>
                   </div>
                 </CardContent>

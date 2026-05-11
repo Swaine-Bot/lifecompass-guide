@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Flame, Loader2, Brain, Dumbbell, Wallet, Users, Crown } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, Flame, Loader2, Brain, Dumbbell, Wallet, Users, Crown, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { habitSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH, LIFE_DOMAINS, DOMAIN_LABELS, DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 
@@ -27,7 +31,11 @@ const frequencies = [
 ];
 
 export default function NewHabit() {
+  const { id } = useParams<{ id: string }>();
+  const isEdit = Boolean(id);
   const [loading, setLoading] = useState(false);
+  const [loadingHabit, setLoadingHabit] = useState(isEdit);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -42,8 +50,39 @@ export default function NewHabit() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Prefill from URL params (e.g. from Mentor contextual actions)
+  // Load habit when editing
   useEffect(() => {
+    if (!isEdit || !id) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error || !data) {
+        toast.error('Habit not found');
+        navigate('/habits');
+        return;
+      }
+      setFormData({
+        title: data.title ?? '',
+        description: data.description ?? '',
+        frequency: data.frequency ?? 'daily',
+        domain: (data.domain as string) ?? '',
+        target_value: data.target_value != null ? String(data.target_value) : '',
+        metric_unit: data.metric_unit ?? '',
+        color: data.color ?? '#D4AF37',
+      });
+      setLoadingHabit(false);
+    })();
+    return () => { cancelled = true; };
+  }, [id, isEdit, navigate]);
+
+  // Prefill from URL params (create mode only)
+  useEffect(() => {
+    if (isEdit) return;
     const title = searchParams.get('title');
     const domain = searchParams.get('domain');
     if (title || domain) {
@@ -53,9 +92,8 @@ export default function NewHabit() {
         ...(domain && { domain }),
       }));
     }
-  }, [searchParams]);
+  }, [searchParams, isEdit]);
 
-  // Derive color from domain selection
   const selectedDomain = formData.domain as LifeDomain;
   const effectiveColor = selectedDomain && DOMAIN_COLORS[selectedDomain] ? DOMAIN_COLORS[selectedDomain] : formData.color;
 
@@ -72,29 +110,55 @@ export default function NewHabit() {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('habits')
-        .insert({
-          user_id: user.id,
-          title: formData.title,
-          description: formData.description || null,
-          frequency: formData.frequency as 'daily' | 'weekly' | 'custom',
-          domain: formData.domain as LifeDomain,
-          target_value: formData.target_value ? parseFloat(formData.target_value) : null,
-          metric_unit: formData.metric_unit || null,
-          color: effectiveColor,
-        });
+      const payload = {
+        title: formData.title,
+        description: formData.description || null,
+        frequency: formData.frequency as 'daily' | 'weekly' | 'custom',
+        domain: formData.domain as LifeDomain,
+        target_value: formData.target_value ? parseFloat(formData.target_value) : null,
+        metric_unit: formData.metric_unit || null,
+        color: effectiveColor,
+      };
 
-      if (error) throw error;
+      if (isEdit && id) {
+        const { error } = await supabase.from('habits').update(payload).eq('id', id);
+        if (error) throw error;
+        toast.success('Habit updated');
+      } else {
+        const { error } = await supabase.from('habits').insert({ user_id: user.id, ...payload });
+        if (error) throw error;
+        toast.success('Habit created!');
+      }
 
-      toast.success('Habit created!');
       navigate('/habits');
     } catch (err) {
-      toast.error('Failed to create habit. Please try again.');
+      toast.error(isEdit ? 'Failed to update habit.' : 'Failed to create habit. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      const { error } = await supabase.from('habits').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Habit deleted');
+      navigate('/habits');
+    } catch {
+      toast.error('Failed to delete habit.');
+      setDeleting(false);
+    }
+  };
+
+  if (loadingHabit) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
@@ -103,15 +167,38 @@ export default function NewHabit() {
         <Button variant="ghost" size="icon" className="shrink-0 rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <Flame className="w-5 h-5 text-primary" />
           </div>
-          <div>
-            <h1 className="font-serif text-2xl font-bold tracking-tight">New Habit</h1>
-            <p className="text-sm text-muted-foreground">Build a routine that sticks</p>
+          <div className="min-w-0">
+            <h1 className="font-serif text-2xl font-bold tracking-tight">{isEdit ? 'Edit Habit' : 'New Habit'}</h1>
+            <p className="text-sm text-muted-foreground">{isEdit ? 'Refine your routine' : 'Build a routine that sticks'}</p>
           </div>
         </div>
+        {isEdit && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="shrink-0 rounded-full text-destructive hover:text-destructive">
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this habit?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the habit and all its check-in history. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -244,10 +331,10 @@ export default function NewHabit() {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating…
+                {isEdit ? 'Saving…' : 'Creating…'}
               </>
             ) : (
-              'Create Habit'
+              isEdit ? 'Save Changes' : 'Create Habit'
             )}
           </Button>
         </div>
