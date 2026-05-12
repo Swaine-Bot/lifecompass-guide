@@ -116,15 +116,17 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
-                <Checkbox
-                  checked={termsAccepted}
-                  onCheckedChange={(checked) => {
-                    const next = checked === true;
-                     console.log(`[TermsAcceptance] terms_checkbox_changed next=${next}`);
-                    setTermsAccepted(next);
-                  }}
-                  className="mt-1"
-                />
+                <div onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => {
+                      const next = checked === true;
+                      console.log(`[TermsAcceptance] terms_checkbox_changed next=${next}`);
+                      setTermsAccepted(next);
+                    }}
+                    className="mt-1"
+                  />
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <FileText className="w-4 h-4 text-primary" />
