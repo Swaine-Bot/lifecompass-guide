@@ -769,9 +769,18 @@ export default function Onboarding() {
               <Crown className="w-5 h-5 text-primary" />
               <span className="font-serif font-semibold">LifeStack</span>
             </div>
-            <span className="text-xs text-muted-foreground">
-              {step + 1} / {totalSteps}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {step + 1} / {totalSteps}
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/home')}
+                className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+              >
+                Skip
+              </button>
+            </div>
           </div>
           <div className="h-1 bg-secondary rounded-full overflow-hidden">
             <motion.div
