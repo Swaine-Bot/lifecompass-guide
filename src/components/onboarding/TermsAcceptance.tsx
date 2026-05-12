@@ -159,15 +159,17 @@ export const TermsAcceptance = ({ onAccept }: TermsAcceptanceProps) => {
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-start gap-4">
-                <Checkbox
-                  checked={privacyAccepted}
-                  onCheckedChange={(checked) => {
-                    const next = checked === true;
-                     console.log(`[TermsAcceptance] privacy_checkbox_changed next=${next}`);
-                    setPrivacyAccepted(next);
-                  }}
-                  className="mt-1"
-                />
+                <div onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={privacyAccepted}
+                    onCheckedChange={(checked) => {
+                      const next = checked === true;
+                      console.log(`[TermsAcceptance] privacy_checkbox_changed next=${next}`);
+                      setPrivacyAccepted(next);
+                    }}
+                    className="mt-1"
+                  />
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <Shield className="w-4 h-4 text-primary" />
