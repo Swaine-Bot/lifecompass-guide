@@ -376,19 +376,31 @@ export default function Onboarding() {
   if (showAccountType) {
     return (
       <div
-        className="min-h-[100dvh] bg-background overflow-y-auto overscroll-safe px-4 py-6"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+        className="h-[100dvh] bg-background flex flex-col"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="w-full max-w-md mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Crown className="w-6 h-6 text-primary" />
-            <span className="font-serif text-xl font-semibold">LifeStack</span>
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="w-full max-w-md mx-auto">
+            <div className="flex items-center justify-between gap-2 mb-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => { setShowAccountType(false); setShowTerms(true); }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" /> Back
+              </Button>
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" />
+                <span className="font-serif text-lg font-semibold">LifeStack</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/home')}>Skip</Button>
+            </div>
+            <Card variant="glass">
+              <CardContent className="p-6">
+                <AccountTypeSelect onComplete={handleAccountTypeComplete} />
+              </CardContent>
+            </Card>
           </div>
-          <Card variant="glass">
-            <CardContent className="p-6">
-              <AccountTypeSelect onComplete={handleAccountTypeComplete} />
-            </CardContent>
-          </Card>
         </div>
       </div>
     );
@@ -396,14 +408,10 @@ export default function Onboarding() {
 
   if (showIntro) {
     return (
-      <div
-        className="min-h-[100dvh] bg-background overflow-y-auto overscroll-safe px-4 py-6 flex flex-col"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
-      >
-        <div className="w-full max-w-2xl mx-auto my-auto">
-          <IntroVideo onComplete={() => setShowIntro(false)} />
-        </div>
-      </div>
+      <IntroVideo
+        onComplete={() => setShowIntro(false)}
+        onBack={() => { setShowIntro(false); setShowAccountType(true); }}
+      />
     );
   }
 
@@ -761,9 +769,18 @@ export default function Onboarding() {
               <Crown className="w-5 h-5 text-primary" />
               <span className="font-serif font-semibold">LifeStack</span>
             </div>
-            <span className="text-xs text-muted-foreground">
-              {step + 1} / {totalSteps}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {step + 1} / {totalSteps}
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/home')}
+                className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+              >
+                Skip
+              </button>
+            </div>
           </div>
           <div className="h-1 bg-secondary rounded-full overflow-hidden">
             <motion.div
