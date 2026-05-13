@@ -185,6 +185,39 @@ export default function MicroMoves() {
         </Button>
       </div>
 
+      {totalActive > 0 && (
+        <Button
+          variant="glass-gold"
+          size="sm"
+          className="w-full"
+          onClick={() => {
+            const activeTasks = [
+              ...grouped.overdue,
+              ...grouped.todayList,
+              ...grouped.upcoming,
+            ].slice(0, 12);
+            navigate('/mentor', {
+              state: {
+                actionPlanRequest: {
+                  visiblePrompt: 'Help me sequence my Micro Moves into a focused action plan for the days ahead.',
+                  goalContext: {
+                    title: 'My current Micro Moves',
+                    micro_moves: activeTasks.map(t => ({
+                      title: t.title,
+                      status: t.status,
+                      due_date: t.due_date,
+                    })),
+                  },
+                },
+              },
+            });
+          }}
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Ask Mentor for Action Plan
+        </Button>
+      )}
+
       {totalActive === 0 && grouped.completed.length === 0 ? (
         <Card variant="glass">
           <CardContent className="py-10 text-center">

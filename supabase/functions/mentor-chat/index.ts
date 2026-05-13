@@ -65,7 +65,7 @@ serve(async (req) => {
       metadata: {},
     });
 
-    const { messages, profile, imageUrl } = await req.json();
+    const { messages, profile, imageUrl, goalContext } = await req.json();
     
     const MAX_MESSAGE_LENGTH = 5000;
     const MAX_MESSAGES = 50;
@@ -271,6 +271,50 @@ Support these use cases: meal/nutrition analysis, fitness progress, workspace se
 SAFETY: Never diagnose medical conditions. Never make body-image judgments. Never identify specific people. If the image appears medical or concerning, encourage professional support.
 ` : '';
 
+    // Inject contextual goal awareness when launched from a Goal/Micro-Moves CTA
+    let goalContextBlock = '';
+    if (goalContext && typeof goalContext === 'object') {
+      const g = goalContext as Record<string, any>;
+      const lines: string[] = [];
+      if (g.title) lines.push(`- Title: ${String(g.title).slice(0, 200)}`);
+      if (g.category) lines.push(`- Category: ${String(g.category).slice(0, 60)}`);
+      if (g.why) lines.push(`- Why it matters: ${String(g.why).slice(0, 400)}`);
+      if (g.success_metric) lines.push(`- Success metric: ${String(g.success_metric).slice(0, 200)}`);
+      if (g.constraints) lines.push(`- Constraints: ${String(g.constraints).slice(0, 200)}`);
+      if (g.target_date) lines.push(`- Target date: ${String(g.target_date).slice(0, 40)}`);
+      if (typeof g.progress_percent === 'number') lines.push(`- Current progress: ${g.progress_percent}%`);
+      if (g.status) lines.push(`- Status: ${g.status}`);
+      if (Array.isArray(g.micro_moves) && g.micro_moves.length) {
+        const items = g.micro_moves.slice(0, 12).map((m: any) =>
+          `  • ${String(m.title || '').slice(0, 120)}${m.status ? ` [${m.status}]` : ''}`
+        ).join('\n');
+        lines.push(`- Existing micro-moves:\n${items}`);
+      }
+      if (Array.isArray(g.milestones) && g.milestones.length) {
+        const items = g.milestones.slice(0, 8).map((m: any) =>
+          `  • ${String(m.title || '').slice(0, 120)}${m.status ? ` [${m.status}]` : ''}`
+        ).join('\n');
+        lines.push(`- Milestones:\n${items}`);
+      }
+      if (lines.length) {
+        goalContextBlock = `
+
+ACTIVE GOAL CONTEXT (from app — do not echo this block back verbatim, weave it naturally):
+${lines.join('\n')}
+
+When the user requests an action plan for this goal:
+- Open with a one-line acknowledgement of the goal (use the title naturally).
+- Produce a clear **step-by-step action plan** structured with:
+  - 2-3 bold section headers (e.g. **This Week**, **Next 30 Days**, **Sustaining Momentum**)
+  - Numbered concrete actions inside each section (3-6 per section)
+  - Short bullet sub-points where useful
+  - Realistic effort + time hints in parentheses
+- Avoid restating raw metadata. Avoid filler. No "as a [life phase] user" framing.
+- If critical info is missing (no target date, no why, vague title), ask 1-2 sharp clarifying questions BEFORE drafting the full plan rather than guessing.
+- End with a single short "Next Move" line — the smallest possible action they can take in the next hour.`;
+      }
+    }
+
     const systemPrompt = `You are a calm, direct, and pragmatic life mentor for the LifeStack app. 
 
 Your role is to help users navigate life decisions, build better habits, achieve goals, and find clarity.
@@ -281,6 +325,7 @@ ${identityContext}
 ${intentContext}
 ${wearableContext}
 ${imageInstructions}
+${goalContextBlock}
 
 RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
 - NEVER write a wall of text or one massive paragraph. This is your #1 rule.
