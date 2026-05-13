@@ -314,10 +314,6 @@ When the user requests an action plan for this goal:
 - End with a single short "Next Move" line — the smallest possible action they can take in the next hour.`;
       }
     }
-` : '';
-
-    // Note: the trailing template literal end above is intentional; build prompt below.
-`;
 
     const systemPrompt = `You are a calm, direct, and pragmatic life mentor for the LifeStack app. 
 
@@ -329,6 +325,7 @@ ${identityContext}
 ${intentContext}
 ${wearableContext}
 ${imageInstructions}
+${goalContextBlock}
 
 RESPONSE FORMATTING - YOU MUST FOLLOW THESE RULES STRICTLY:
 - NEVER write a wall of text or one massive paragraph. This is your #1 rule.
