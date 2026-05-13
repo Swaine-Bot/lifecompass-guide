@@ -2602,6 +2602,17 @@ export type Database = {
         Args: { follower: string; target: string }
         Returns: boolean
       }
+      record_daily_activity: {
+        Args: { _local_date?: string }
+        Returns: {
+          changed: boolean
+          current_streak: number
+          last_activity_date: string
+          longest_streak: number
+          shield_available: boolean
+          shield_used: boolean
+        }[]
+      }
       update_momentum_streak: {
         Args: { _user_id: string }
         Returns: {
