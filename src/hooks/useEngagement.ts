@@ -164,11 +164,13 @@ export function useEngagement() {
     if (!user) return;
     const load = async () => {
       setLoading(true);
+      // Record today's activity authoritatively, then load fresh state.
+      await recordActivity();
       await Promise.all([fetchXP(), fetchStreak(), fetchDailySignal()]);
       setLoading(false);
     };
     load();
-  }, [user, fetchXP, fetchStreak, fetchDailySignal]);
+  }, [user, fetchXP, fetchStreak, fetchDailySignal, recordActivity]);
 
   const totalXP = domainXP.reduce((sum, d) => sum + d.total_xp, 0);
   const overallLevel = Math.max(1, Math.floor(Math.sqrt(totalXP / 100)) + 1);
@@ -182,6 +184,7 @@ export function useEngagement() {
     totalXP,
     overallLevel,
     awardXP,
+    recordActivity,
     markSignalRead,
     xpForLevel,
     xpForNextLevel,
