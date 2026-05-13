@@ -218,6 +218,7 @@ export default function MicroMoves() {
         </Button>
       )}
 
+      {totalActive === 0 && grouped.completed.length === 0 ? (
         <Card variant="glass">
           <CardContent className="py-10 text-center">
             <Sparkles className="w-7 h-7 mx-auto mb-3 text-primary/60" />
