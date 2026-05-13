@@ -95,6 +95,34 @@ export function useEngagement() {
     }
   }, [user]);
 
+  const recordActivity = useCallback(async () => {
+    if (!user) return null;
+    // Build local calendar date (YYYY-MM-DD) from device clock so streaks
+    // align with the user's wall time, not server UTC.
+    const now = new Date();
+    const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const prevStreak = streak.current_streak;
+    const { data, error } = await supabase.rpc('record_daily_activity', { _local_date: localDate });
+    if (error) {
+      console.error('[streak] record_daily_activity error', error);
+      return null;
+    }
+    const result: any = Array.isArray(data) ? data[0] : data;
+    if (result) {
+      setStreak({
+        current_streak: result.current_streak,
+        longest_streak: result.longest_streak,
+        last_activity_date: result.last_activity_date,
+        shield_available: result.shield_available,
+      });
+      if (result.changed && result.current_streak > prevStreak && prevStreak > 0) {
+        toast.success(`🔥 ${result.current_streak} day streak!`);
+      }
+      console.debug('[streak]', { localDate, prevStreak, result });
+    }
+    return result;
+  }, [user, streak.current_streak]);
+
   const awardXP = useCallback(async (domain: LifeDomain, amount: number, sourceType: string, sourceId?: string) => {
     if (!user) return null;
     const { data, error } = await supabase.rpc('award_xp', {
@@ -117,12 +145,11 @@ export function useEngagement() {
       toast.success(`+${amount} XP in ${domain.charAt(0).toUpperCase() + domain.slice(1)}`);
     }
 
-    // Also update streak
-    await supabase.rpc('update_momentum_streak', { _user_id: user.id });
-    
-    await Promise.all([fetchXP(), fetchStreak()]);
+    // Authoritative streak update (timezone-aware, atomic, idempotent)
+    await recordActivity();
+    await fetchXP();
     return result;
-  }, [user, fetchXP, fetchStreak]);
+  }, [user, fetchXP, recordActivity]);
 
   const markSignalRead = useCallback(async () => {
     if (!dailySignal || dailySignal.is_read) return;
@@ -137,11 +164,13 @@ export function useEngagement() {
     if (!user) return;
     const load = async () => {
       setLoading(true);
+      // Record today's activity authoritatively, then load fresh state.
+      await recordActivity();
       await Promise.all([fetchXP(), fetchStreak(), fetchDailySignal()]);
       setLoading(false);
     };
     load();
-  }, [user, fetchXP, fetchStreak, fetchDailySignal]);
+  }, [user, fetchXP, fetchStreak, fetchDailySignal, recordActivity]);
 
   const totalXP = domainXP.reduce((sum, d) => sum + d.total_xp, 0);
   const overallLevel = Math.max(1, Math.floor(Math.sqrt(totalXP / 100)) + 1);
@@ -155,6 +184,7 @@ export function useEngagement() {
     totalXP,
     overallLevel,
     awardXP,
+    recordActivity,
     markSignalRead,
     xpForLevel,
     xpForNextLevel,

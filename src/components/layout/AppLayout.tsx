@@ -13,6 +13,7 @@ import { EnvironmentLayer } from '@/components/sensory/EnvironmentLayer';
 import { ContextOverlay } from '@/components/sensory/ContextOverlay';
 import { FeedbackPulse } from '@/components/sensory/FeedbackPulse';
 import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
+import { useDailyStreakPing } from '@/hooks/useDailyStreakPing';
 
 export const AppLayout = () => {
   const { user, loading, profileLoading, profile, refreshProfile } = useAuth();
@@ -24,6 +25,7 @@ export const AppLayout = () => {
   // Track user session for screen time analytics
   useSessionTracking();
   useProgressiveProfiling();
+  useDailyStreakPing();
 
   const handleRefresh = useCallback(async () => {
     await Promise.all([
