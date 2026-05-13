@@ -404,9 +404,9 @@ export default function Home() {
                 </span>
               )}
             </CardTitle>
-            <span className="section-label tabular-nums">
-              {completedTasks.length} done
-            </span>
+            <Link to="/micro-moves" className="section-label tabular-nums hover:text-primary transition-colors flex items-center gap-1">
+              Manage all <ChevronRight className="w-3 h-3" />
+            </Link>
           </div>
         </CardHeader>
         <CardContent className="space-y-2">

@@ -20,6 +20,7 @@ import Goals from "./pages/Goals";
 import GoalDetail from "./pages/GoalDetail";
 import NewGoal from "./pages/NewGoal";
 import Habits from "./pages/Habits";
+import MicroMoves from "./pages/MicroMoves";
 import NewHabit from "./pages/NewHabit";
 import Mentor from "./pages/Mentor";
 import Journal from "./pages/Journal";
@@ -99,6 +100,7 @@ const App = () => (
                   <Route path="/goals/:id" element={<GoalDetail />} />
                   <Route path="/goals/new" element={<NewGoal />} />
                   <Route path="/habits" element={<Habits />} />
+                  <Route path="/micro-moves" element={<MicroMoves />} />
                  <Route path="/habits/new" element={<NewHabit />} />
                  <Route path="/habits/:id/edit" element={<NewHabit />} />
                   <Route path="/calendar" element={<Calendar />} />
