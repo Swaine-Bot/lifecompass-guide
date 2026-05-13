@@ -136,8 +136,11 @@ export default function Mentor() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, []);
 
-  const sendMessage = async () => {
-    const trimmedInput = input.trim();
+  // Persists goal context for the entire conversation so follow-ups remain context-aware
+  const conversationGoalContextRef = useRef<any>(null);
+
+  const sendMessage = useCallback(async (override?: { text?: string; goalContext?: any }) => {
+    const trimmedInput = (override?.text ?? input).trim();
     if ((!trimmedInput && !pendingImage) || loading) return;
     if (trimmedInput.length > MAX_MESSAGE_LENGTH) return;
 
@@ -146,6 +149,11 @@ export default function Mentor() {
       conversationId = await createConversation();
       if (!conversationId) return;
     }
+
+    if (override?.goalContext) {
+      conversationGoalContextRef.current = override.goalContext;
+    }
+    const goalContextToSend = conversationGoalContextRef.current;
 
     let storagePath: string | null = null;
 
@@ -164,8 +172,12 @@ export default function Mentor() {
       content: trimmedInput,
       imageUrl: storagePath,
     };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    let priorMessages: typeof messages = [];
+    setMessages(prev => {
+      priorMessages = prev;
+      return [...prev, userMessage];
+    });
+    if (!override?.text) setInput('');
     setPendingImage(null);
     setLoading(true);
 
@@ -183,9 +195,10 @@ export default function Mentor() {
 
       const response = await supabase.functions.invoke('mentor-chat', {
         body: {
-          messages: [...messages, { role: 'user', content: trimmedInput }],
+          messages: [...priorMessages, { role: 'user', content: trimmedInput }],
           profile,
           imageUrl: storagePath,
+          goalContext: goalContextToSend,
         },
       });
 
@@ -223,7 +236,32 @@ export default function Mentor() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, pendingImage, loading, activeConversationId, createConversation, uploadImage, saveMessage, profile, setMessages, setLoading]);
+
+  // ── Auto-trigger when launched with action plan request from a Goal/Micro-Move CTA ──
+  const routerLocation = useRouterLocation();
+  const navigate = useNavigate();
+  const autoFiredRef = useRef(false);
+  useEffect(() => {
+    const state = routerLocation.state as any;
+    const req = state?.actionPlanRequest;
+    if (!req || autoFiredRef.current || loading) return;
+    autoFiredRef.current = true;
+
+    // Reset to a fresh conversation so the goal plan is its own thread
+    conversationGoalContextRef.current = req.goalContext || null;
+    startNewConversation();
+
+    // Clear router state so refresh / back-nav doesn't refire
+    navigate(routerLocation.pathname, { replace: true, state: {} });
+
+    // Defer one tick so startNewConversation state settles
+    setTimeout(() => {
+      void sendMessage({ text: req.visiblePrompt, goalContext: req.goalContext });
+    }, 60);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.state]);
+
 
   const professionalLinks = [
     { label: 'Find a Therapist', query: 'therapist near me' },
