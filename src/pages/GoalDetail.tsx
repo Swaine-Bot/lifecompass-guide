@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, Target, CheckCircle2, Circle, Pause, Play, Archive, Trash2, Flag, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Target, CheckCircle2, Circle, Pause, Play, Archive, Trash2, Flag, Clock, Sparkles } from 'lucide-react';
 import { ShareButton } from '@/components/share/ShareButton';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { format } from 'date-fns';
