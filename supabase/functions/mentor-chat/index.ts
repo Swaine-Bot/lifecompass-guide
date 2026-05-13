@@ -65,7 +65,7 @@ serve(async (req) => {
       metadata: {},
     });
 
-    const { messages, profile, imageUrl } = await req.json();
+    const { messages, profile, imageUrl, goalContext } = await req.json();
     
     const MAX_MESSAGE_LENGTH = 5000;
     const MAX_MESSAGES = 50;
