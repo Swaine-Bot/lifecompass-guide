@@ -1979,6 +1979,7 @@ export type Database = {
           is_one_thing: boolean | null
           milestone_id: string | null
           playbook_id: string | null
+          priority: number
           sequence_order: number | null
           source_conversation_id: string | null
           source_type: string | null
@@ -1999,6 +2000,7 @@ export type Database = {
           is_one_thing?: boolean | null
           milestone_id?: string | null
           playbook_id?: string | null
+          priority?: number
           sequence_order?: number | null
           source_conversation_id?: string | null
           source_type?: string | null
@@ -2019,6 +2021,7 @@ export type Database = {
           is_one_thing?: boolean | null
           milestone_id?: string | null
           playbook_id?: string | null
+          priority?: number
           sequence_order?: number | null
           source_conversation_id?: string | null
           source_type?: string | null
