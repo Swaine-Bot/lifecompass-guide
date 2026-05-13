@@ -249,7 +249,38 @@ export default function GoalDetail() {
         </CardContent>
       </Card>
 
-      {/* Actions — Contextual */}
+      {/* Ask Mentor for Action Plan CTA */}
+      <Button
+        variant="gold"
+        size="lg"
+        className="w-full"
+        onClick={() => {
+          navigate('/mentor', {
+            state: {
+              actionPlanRequest: {
+                visiblePrompt: `Help me build a step-by-step action plan for my goal: "${goal.title}".`,
+                goalContext: {
+                  id: goal.id,
+                  title: goal.title,
+                  category: goal.category,
+                  why: goal.why,
+                  success_metric: goal.success_metric,
+                  constraints: goal.constraints,
+                  target_date: goal.target_date,
+                  status: goal.status,
+                  progress_percent: progressPercent,
+                  micro_moves: tasks.map(t => ({ title: t.title, status: t.status, due_date: t.due_date })),
+                  milestones: milestones.map(m => ({ title: m.title, status: m.status, due_date: m.due_date })),
+                },
+              },
+            },
+          });
+        }}
+      >
+        <Sparkles className="w-4 h-4 mr-2" />
+        Ask Mentor for Action Plan
+      </Button>
+
       <div className="flex items-center gap-2 flex-wrap">
         <ShareButton
           source={{
