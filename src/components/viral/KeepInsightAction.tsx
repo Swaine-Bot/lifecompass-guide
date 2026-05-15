@@ -19,15 +19,19 @@ export function KeepInsightAction({ quote, contextTag = 'Life Strategy', convers
   const [saved, setSaved] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
-  // Truncate to 20 words max for share card
-  const truncatedQuote = quote.split(/\s+/).slice(0, 20).join(' ');
-  const displayQuote = truncatedQuote.length < quote.length ? truncatedQuote + '…' : truncatedQuote;
+  // Save the FULL quote — never truncate at persistence layer.
+  // Only the share-card preview is shortened.
+  const shareCardPreview = (() => {
+    const words = quote.split(/\s+/);
+    if (words.length <= 20) return quote;
+    return words.slice(0, 20).join(' ') + '…';
+  })();
 
   const saveInsight = async () => {
     if (!user) return;
     const { error } = await supabase.from('saved_insights').insert({
       user_id: user.id,
-      quote: displayQuote,
+      quote: quote, // full content, markdown-safe, UTF-8 safe
       context_tag: contextTag,
       source_conversation_id: conversationId || null,
     });
@@ -49,7 +53,7 @@ export function KeepInsightAction({ quote, contextTag = 'Life Strategy', convers
     openShareStudio({
       type: 'mentor_insight',
       title: 'Mentor Insight',
-      quote: displayQuote,
+      quote: shareCardPreview,
       contextTag,
     });
     engagementEventService.log('insight_shared', 'broadcast', { context_tag: contextTag });

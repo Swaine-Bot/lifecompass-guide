@@ -1764,27 +1764,33 @@ export type Database = {
           context_tag: string | null
           created_at: string | null
           id: string
+          is_favorite: boolean
           personal_note: string | null
           quote: string
           source_conversation_id: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           context_tag?: string | null
           created_at?: string | null
           id?: string
+          is_favorite?: boolean
           personal_note?: string | null
           quote: string
           source_conversation_id?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           context_tag?: string | null
           created_at?: string | null
           id?: string
+          is_favorite?: boolean
           personal_note?: string | null
           quote?: string
           source_conversation_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
