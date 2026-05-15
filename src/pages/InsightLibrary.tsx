@@ -398,13 +398,19 @@ export default function InsightLibrary() {
                 ) : (
                   <article
                     className={cn(
-                      'prose prose-invert max-w-none',
-                      'prose-p:my-3 prose-p:leading-relaxed',
-                      'prose-headings:mt-5 prose-headings:mb-2',
-                      'prose-li:my-1 prose-ul:my-3 prose-ol:my-3',
-                      'prose-blockquote:border-l-primary/50 prose-blockquote:italic',
-                      'prose-strong:text-foreground prose-code:text-foreground',
-                      'text-[15px] text-foreground/90 break-words'
+                      'max-w-none text-[15px] text-foreground/90 break-words',
+                      '[&_p]:my-3 [&_p]:leading-relaxed',
+                      '[&_h1]:text-xl [&_h1]:font-semibold [&_h1]:mt-5 [&_h1]:mb-2',
+                      '[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:mt-5 [&_h2]:mb-2',
+                      '[&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2',
+                      '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3',
+                      '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-3',
+                      '[&_li]:my-1',
+                      '[&_blockquote]:border-l-2 [&_blockquote]:border-primary/50 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-foreground/80 [&_blockquote]:my-3',
+                      '[&_strong]:text-foreground [&_strong]:font-semibold',
+                      '[&_em]:italic',
+                      '[&_code]:bg-white/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[13px]',
+                      '[&_a]:text-primary [&_a]:underline'
                     )}
                     style={{ wordBreak: 'break-word' }}
                   >
