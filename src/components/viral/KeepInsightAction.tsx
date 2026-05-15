@@ -53,7 +53,7 @@ export function KeepInsightAction({ quote, contextTag = 'Life Strategy', convers
     openShareStudio({
       type: 'mentor_insight',
       title: 'Mentor Insight',
-      quote: displayQuote,
+      quote: shareCardPreview,
       contextTag,
     });
     engagementEventService.log('insight_shared', 'broadcast', { context_tag: contextTag });
