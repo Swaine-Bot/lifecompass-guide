@@ -30,6 +30,9 @@ const buttonVariants = cva(
           "bg-card/50 backdrop-blur-xl border border-white/10 text-foreground shadow-soft hover:bg-card/70 hover:border-white/20",
         "glass-gold":
           "bg-primary/10 backdrop-blur-xl border border-primary/30 text-primary shadow-gold hover:bg-primary/20",
+        // High-contrast CTA — always white text, visible rim, works on any background
+        cta:
+          "bg-gradient-to-r from-primary/35 via-primary/25 to-primary/35 text-white border-2 border-white/35 backdrop-blur-xl shadow-elevated hover:from-primary/45 hover:to-primary/45 hover:border-white/55 hover:-translate-y-0.5 font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]",
       },
       size: {
         default: "h-11 px-5 py-2.5",

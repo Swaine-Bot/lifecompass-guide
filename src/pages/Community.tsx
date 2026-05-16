@@ -120,10 +120,7 @@ interface PostAnalysis {
 }
 
 const REACTION_TYPES = [
-  { type: 'like', icon: ThumbsUp, label: 'Like' },
   { type: 'love', icon: Heart, label: 'Love' },
-  { type: 'celebrate', icon: Trophy, label: 'Celebrate' },
-  { type: 'support', icon: HandHeart, label: 'Support' },
   { type: 'insightful', icon: Lightbulb, label: 'Insightful' },
 ];
 
@@ -1127,12 +1124,13 @@ export default function Community() {
                           ) : (
                             <Button
                               variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive/70"
+                              size="sm"
+                              className="h-8 px-2.5 gap-1.5 text-foreground/80 hover:text-destructive hover:bg-destructive/10 min-h-[44px] sm:min-h-0"
                               onClick={() => setReportTarget({ id: post.id, type: 'post' })}
                               title="Report content"
                             >
                               <Flag className="w-3.5 h-3.5" />
+                              <span className="text-xs font-medium">Report Post</span>
                             </Button>
                           )}
                         </div>

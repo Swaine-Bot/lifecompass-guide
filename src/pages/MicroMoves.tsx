@@ -187,8 +187,8 @@ export default function MicroMoves() {
 
       {totalActive > 0 && (
         <Button
-          variant="glass-gold"
-          size="sm"
+          variant="cta"
+          size="default"
           className="w-full"
           onClick={() => {
             const activeTasks = [
@@ -314,24 +314,32 @@ function TaskRow({
     <Card variant="glass" className="overflow-hidden">
       <CardContent className="p-3 sm:p-3.5">
         <div className="flex items-start gap-3 min-w-0">
-          <Checkbox
-            checked={isDone}
-            onCheckedChange={() => onToggle(task)}
-            className="w-5 h-5 mt-0.5 shrink-0"
-            aria-label={isDone ? 'Mark incomplete' : 'Mark complete'}
-          />
+          <label
+            className="flex items-center gap-2 shrink-0 cursor-pointer select-none pt-0.5 min-h-[44px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              checked={isDone}
+              onCheckedChange={() => onToggle(task)}
+              className="w-5 h-5 shrink-0"
+              aria-label={isDone ? 'Mark incomplete' : 'Mark as complete'}
+            />
+            <span className="text-[10px] uppercase tracking-wider font-medium text-foreground/80 whitespace-nowrap hidden sm:inline">
+              {isDone ? 'Completed' : 'Mark as complete'}
+            </span>
+          </label>
           <button
             onClick={() => onEdit(task)}
             className="flex-1 min-w-0 text-left"
           >
             <p className={cn(
               'text-sm font-medium leading-snug break-words',
-              (isDone || muted) && 'line-through text-muted-foreground/50',
+              (isDone || muted) && 'line-through text-muted-foreground/60',
             )}>
               {task.title}
             </p>
             {task.description && !isDone && (
-              <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2 break-words">
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-words">
                 {task.description}
               </p>
             )}
@@ -342,13 +350,13 @@ function TaskRow({
                 </span>
               )}
               {task.due_date && (
-                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
                   <CalendarDays className="w-3 h-3" /> {format(parseISO(task.due_date), 'MMM d')}
                 </span>
               )}
               {task.effort_minutes ? (
-                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
-                  <Clock className="w-3 h-3" /> {task.effort_minutes}m
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <Clock className="w-3 h-3" /> ~{task.effort_minutes < 60 ? `${task.effort_minutes} min` : `${Math.round(task.effort_minutes / 60 * 10) / 10}h`}
                 </span>
               ) : null}
               {task.created_by === 'ai_mentor' && (
@@ -392,7 +400,8 @@ function EditSheet({
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<number>(2);
   const [dueDate, setDueDate] = useState('');
-  const [effort, setEffort] = useState<string>('15');
+  const [effort, setEffort] = useState<string>('');
+  const [effortUnit, setEffortUnit] = useState<'min' | 'hr'>('min');
   const [status, setStatus] = useState<Task['status']>('today');
   const [tagsText, setTagsText] = useState('');
   const [saving, setSaving] = useState(false);
@@ -403,7 +412,10 @@ function EditSheet({
       setDescription(task?.description ?? '');
       setPriority(task?.priority ?? 2);
       setDueDate(task?.due_date ?? '');
-      setEffort(String(task?.effort_minutes ?? 15));
+      const mins = task?.effort_minutes ?? null;
+      if (mins == null) { setEffort(''); setEffortUnit('min'); }
+      else if (mins >= 60 && mins % 60 === 0) { setEffort(String(mins / 60)); setEffortUnit('hr'); }
+      else { setEffort(String(mins)); setEffortUnit('min'); }
       setStatus(task?.status ?? 'today');
       const tags = Array.isArray(task?.tags) ? task!.tags : [];
       setTagsText(tags.join(', '));
@@ -415,12 +427,16 @@ function EditSheet({
     if (!userId) return;
     setSaving(true);
     const tags = tagsText.split(',').map(s => s.trim()).filter(Boolean);
+    const rawEffort = parseFloat(effort);
+    const effortMinutes = !effort.trim() || isNaN(rawEffort) || rawEffort <= 0
+      ? null
+      : Math.max(1, Math.min(600, Math.round(effortUnit === 'hr' ? rawEffort * 60 : rawEffort)));
     const payload = {
       title: title.trim().slice(0, 200),
       description: description.trim().slice(0, 2000) || null,
       priority,
       due_date: dueDate || null,
-      effort_minutes: Math.max(1, Math.min(600, parseInt(effort, 10) || 15)),
+      effort_minutes: effortMinutes,
       status,
       tags,
     };
@@ -488,10 +504,33 @@ function EditSheet({
               <Label htmlFor="mm-due">Due date</Label>
               <Input id="mm-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
-            <div className="space-y-1.5 min-w-0">
-              <Label htmlFor="mm-effort">Estimated minutes</Label>
-              <Input id="mm-effort" type="number" min={1} max={600} value={effort}
-                onChange={(e) => setEffort(e.target.value)} />
+            <div className="space-y-1.5 min-w-0 col-span-2">
+              <Label htmlFor="mm-effort" className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-primary/70" />
+                Estimated time to complete
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground ml-auto">Optional</span>
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="mm-effort"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  max={effortUnit === 'hr' ? 10 : 600}
+                  step={effortUnit === 'hr' ? 0.25 : 1}
+                  value={effort}
+                  onChange={(e) => setEffort(e.target.value)}
+                  placeholder="e.g. 15"
+                  className="flex-1"
+                />
+                <Select value={effortUnit} onValueChange={(v) => setEffortUnit(v as 'min' | 'hr')}>
+                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="min">Minutes</SelectItem>
+                    <SelectItem value="hr">Hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <div className="space-y-1.5">

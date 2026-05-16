@@ -19,13 +19,8 @@ export function KeepInsightAction({ quote, contextTag = 'Life Strategy', convers
   const [saved, setSaved] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
-  // Save the FULL quote — never truncate at persistence layer.
-  // Only the share-card preview is shortened.
-  const shareCardPreview = (() => {
-    const words = quote.split(/\s+/);
-    if (words.length <= 20) return quote;
-    return words.slice(0, 20).join(' ') + '…';
-  })();
+  // Full content is preserved everywhere — saved insight, share preview, exported image.
+  // The composition card handles long-form rendering with intelligent layout.
 
   const saveInsight = async () => {
     if (!user) return;
@@ -53,7 +48,7 @@ export function KeepInsightAction({ quote, contextTag = 'Life Strategy', convers
     openShareStudio({
       type: 'mentor_insight',
       title: 'Mentor Insight',
-      quote: shareCardPreview,
+      quote, // full content — no truncation
       contextTag,
     });
     engagementEventService.log('insight_shared', 'broadcast', { context_tag: contextTag });

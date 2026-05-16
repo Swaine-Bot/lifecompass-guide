@@ -29,6 +29,7 @@ import { InvitePrompt } from '@/components/viral/InvitePrompt';
 import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
+import { GoalsHomeCard } from '@/components/home/GoalsHomeCard';
 
 interface Task {
   id: string;
@@ -209,7 +210,7 @@ export default function Home() {
           title: newTaskTitle.trim(),
           status: 'today',
           user_id: user.id,
-          effort_minutes: 15,
+          effort_minutes: null,
           is_one_thing: false
         })
         .select()
@@ -392,7 +393,10 @@ export default function Home() {
         </Card>
       )}
 
-      {/* Today's Micro-Moves */}
+      {/* Active Goals — Separate, dedicated card */}
+      <GoalsHomeCard />
+
+      {/* Today's Micro-Moves — Separate, dedicated card */}
       <Card variant="glass">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
