@@ -392,7 +392,10 @@ export default function Home() {
         </Card>
       )}
 
-      {/* Today's Micro-Moves */}
+      {/* Active Goals — Separate, dedicated card */}
+      <GoalsHomeCard />
+
+      {/* Today's Micro-Moves — Separate, dedicated card */}
       <Card variant="glass">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
