@@ -187,8 +187,8 @@ export default function MicroMoves() {
 
       {totalActive > 0 && (
         <Button
-          variant="glass-gold"
-          size="sm"
+          variant="cta"
+          size="default"
           className="w-full"
           onClick={() => {
             const activeTasks = [
@@ -314,24 +314,32 @@ function TaskRow({
     <Card variant="glass" className="overflow-hidden">
       <CardContent className="p-3 sm:p-3.5">
         <div className="flex items-start gap-3 min-w-0">
-          <Checkbox
-            checked={isDone}
-            onCheckedChange={() => onToggle(task)}
-            className="w-5 h-5 mt-0.5 shrink-0"
-            aria-label={isDone ? 'Mark incomplete' : 'Mark complete'}
-          />
+          <label
+            className="flex items-center gap-2 shrink-0 cursor-pointer select-none pt-0.5 min-h-[44px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              checked={isDone}
+              onCheckedChange={() => onToggle(task)}
+              className="w-5 h-5 shrink-0"
+              aria-label={isDone ? 'Mark incomplete' : 'Mark as complete'}
+            />
+            <span className="text-[10px] uppercase tracking-wider font-medium text-foreground/80 whitespace-nowrap hidden sm:inline">
+              {isDone ? 'Completed' : 'Mark as complete'}
+            </span>
+          </label>
           <button
             onClick={() => onEdit(task)}
             className="flex-1 min-w-0 text-left"
           >
             <p className={cn(
               'text-sm font-medium leading-snug break-words',
-              (isDone || muted) && 'line-through text-muted-foreground/50',
+              (isDone || muted) && 'line-through text-muted-foreground/60',
             )}>
               {task.title}
             </p>
             {task.description && !isDone && (
-              <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2 break-words">
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-words">
                 {task.description}
               </p>
             )}
@@ -342,13 +350,13 @@ function TaskRow({
                 </span>
               )}
               {task.due_date && (
-                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
                   <CalendarDays className="w-3 h-3" /> {format(parseISO(task.due_date), 'MMM d')}
                 </span>
               )}
               {task.effort_minutes ? (
-                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
-                  <Clock className="w-3 h-3" /> {task.effort_minutes}m
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <Clock className="w-3 h-3" /> ~{task.effort_minutes < 60 ? `${task.effort_minutes} min` : `${Math.round(task.effort_minutes / 60 * 10) / 10}h`}
                 </span>
               ) : null}
               {task.created_by === 'ai_mentor' && (
