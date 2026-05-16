@@ -427,12 +427,16 @@ function EditSheet({
     if (!userId) return;
     setSaving(true);
     const tags = tagsText.split(',').map(s => s.trim()).filter(Boolean);
+    const rawEffort = parseFloat(effort);
+    const effortMinutes = !effort.trim() || isNaN(rawEffort) || rawEffort <= 0
+      ? null
+      : Math.max(1, Math.min(600, Math.round(effortUnit === 'hr' ? rawEffort * 60 : rawEffort)));
     const payload = {
       title: title.trim().slice(0, 200),
       description: description.trim().slice(0, 2000) || null,
       priority,
       due_date: dueDate || null,
-      effort_minutes: Math.max(1, Math.min(600, parseInt(effort, 10) || 15)),
+      effort_minutes: effortMinutes,
       status,
       tags,
     };
@@ -500,10 +504,33 @@ function EditSheet({
               <Label htmlFor="mm-due">Due date</Label>
               <Input id="mm-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
-            <div className="space-y-1.5 min-w-0">
-              <Label htmlFor="mm-effort">Estimated minutes</Label>
-              <Input id="mm-effort" type="number" min={1} max={600} value={effort}
-                onChange={(e) => setEffort(e.target.value)} />
+            <div className="space-y-1.5 min-w-0 col-span-2">
+              <Label htmlFor="mm-effort" className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-primary/70" />
+                Estimated time to complete
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground ml-auto">Optional</span>
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="mm-effort"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  max={effortUnit === 'hr' ? 10 : 600}
+                  step={effortUnit === 'hr' ? 0.25 : 1}
+                  value={effort}
+                  onChange={(e) => setEffort(e.target.value)}
+                  placeholder="e.g. 15"
+                  className="flex-1"
+                />
+                <Select value={effortUnit} onValueChange={(v) => setEffortUnit(v as 'min' | 'hr')}>
+                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="min">Minutes</SelectItem>
+                    <SelectItem value="hr">Hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <div className="space-y-1.5">
