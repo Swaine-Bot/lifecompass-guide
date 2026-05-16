@@ -209,7 +209,7 @@ export default function Home() {
           title: newTaskTitle.trim(),
           status: 'today',
           user_id: user.id,
-          effort_minutes: 15,
+          effort_minutes: null,
           is_one_thing: false
         })
         .select()
