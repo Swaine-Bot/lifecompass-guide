@@ -29,6 +29,7 @@ import { InvitePrompt } from '@/components/viral/InvitePrompt';
 import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
+import { GoalsHomeCard } from '@/components/home/GoalsHomeCard';
 
 interface Task {
   id: string;
