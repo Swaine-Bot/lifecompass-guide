@@ -400,7 +400,8 @@ function EditSheet({
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<number>(2);
   const [dueDate, setDueDate] = useState('');
-  const [effort, setEffort] = useState<string>('15');
+  const [effort, setEffort] = useState<string>('');
+  const [effortUnit, setEffortUnit] = useState<'min' | 'hr'>('min');
   const [status, setStatus] = useState<Task['status']>('today');
   const [tagsText, setTagsText] = useState('');
   const [saving, setSaving] = useState(false);
@@ -411,7 +412,10 @@ function EditSheet({
       setDescription(task?.description ?? '');
       setPriority(task?.priority ?? 2);
       setDueDate(task?.due_date ?? '');
-      setEffort(String(task?.effort_minutes ?? 15));
+      const mins = task?.effort_minutes ?? null;
+      if (mins == null) { setEffort(''); setEffortUnit('min'); }
+      else if (mins >= 60 && mins % 60 === 0) { setEffort(String(mins / 60)); setEffortUnit('hr'); }
+      else { setEffort(String(mins)); setEffortUnit('min'); }
       setStatus(task?.status ?? 'today');
       const tags = Array.isArray(task?.tags) ? task!.tags : [];
       setTagsText(tags.join(', '));
