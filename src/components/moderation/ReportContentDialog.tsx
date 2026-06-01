@@ -160,7 +160,7 @@ export function ReportContentDialog({ open, onOpenChange, targetId, targetType, 
               )}
             </Button>
 
-            <p className="text-[10px] text-muted-foreground/50 text-center">
+            <p className="text-[10px] text-muted-foreground/70 text-center">
               Reporter identity is never shared with the content author.
             </p>
           </div>

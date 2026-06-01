@@ -815,7 +815,7 @@ export default function Journal() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
-              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/70"
             />
           </div>
 
@@ -827,7 +827,7 @@ export default function Journal() {
               value={gratitude}
               onChange={(e) => setGratitude(e.target.value)}
               rows={2}
-              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/70"
             />
           </div>
 
@@ -839,7 +839,7 @@ export default function Journal() {
               value={reflection}
               onChange={(e) => setReflection(e.target.value)}
               rows={2}
-              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/25"
+              className="resize-none bg-white/[0.02] border-white/[0.05] focus:border-primary/25 placeholder:text-muted-foreground/70"
             />
           </div>
 

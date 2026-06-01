@@ -273,7 +273,7 @@ export default function PlaybookDetail() {
           </span>
         )}
         {moves.length > 0 && (
-          <span className="text-[10px] text-muted-foreground/50">
+          <span className="text-[10px] text-muted-foreground/70">
             {moves.length} action items
           </span>
         )}
@@ -397,7 +397,7 @@ export default function PlaybookDetail() {
                       <h4 className="text-sm font-medium leading-snug">{task.title}</h4>
                       <p className="text-xs text-muted-foreground/70 mt-1 leading-relaxed">{task.description}</p>
                       {task.effort_minutes > 0 && (
-                        <div className="flex items-center gap-1 mt-2 text-[11px] text-muted-foreground/50">
+                        <div className="flex items-center gap-1 mt-2 text-[11px] text-muted-foreground/70">
                           <Clock className="w-3 h-3" />
                           {task.effort_minutes} min
                         </div>

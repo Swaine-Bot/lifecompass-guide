@@ -77,7 +77,7 @@ function CuratedSpot({ partner, label, description, icon: Icon }: {
             <p className="text-sm font-medium text-foreground/90 leading-snug">{label}</p>
             <p className="text-xs text-muted-foreground/60 mt-1 leading-relaxed">{description}</p>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-1" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/70 shrink-0 mt-1" />
         </div>
       </CardContent>
     </Card>
@@ -133,7 +133,7 @@ function ShareCardMock({ title, stat, label, phrase, sponsor }: {
             style={{ background: 'hsla(0,0%,100%,0.03)', border: '1px solid hsla(0,0%,100%,0.06)' }}>
             <div className="flex items-center gap-2">
               <span className="source-badge">Curated</span>
-              <span className="text-[10px] text-muted-foreground/50">{sponsor}</span>
+              <span className="text-[10px] text-muted-foreground/70">{sponsor}</span>
             </div>
           </div>
         )}
@@ -164,13 +164,13 @@ function DomainCard({ icon: Icon, title, description, color, sponsor }: {
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-semibold font-serif text-foreground/90">{title}</h4>
-            <p className="text-[10px] text-muted-foreground/50">{description}</p>
+            <p className="text-[10px] text-muted-foreground/70">{description}</p>
           </div>
         </div>
         {sponsor && (
           <div className="flex items-center gap-2 pt-2 mt-2" style={{ borderTop: '1px solid hsla(0,0%,100%,0.04)' }}>
             <span className="source-badge">Exclusive Partner</span>
-            <span className="text-[10px] text-muted-foreground/40">{sponsor}</span>
+            <span className="text-[10px] text-muted-foreground/70">{sponsor}</span>
           </div>
         )}
       </CardContent>
@@ -207,13 +207,13 @@ export default function CuratedPlacements() {
 
           <div className="flex flex-col items-center gap-3">
             <span className="section-label text-primary/60">LifeStack</span>
-            <p className="text-xs text-muted-foreground/40 max-w-sm">
+            <p className="text-xs text-muted-foreground/70 max-w-sm">
               Your life companion app and AI mentor — from your first job to your last breath.
             </p>
           </div>
 
           <div className="pt-4">
-            <ChevronDown className="w-5 h-5 text-muted-foreground/30 mx-auto animate-bounce" />
+            <ChevronDown className="w-5 h-5 text-muted-foreground/70 mx-auto animate-bounce" />
           </div>
         </div>
       </Screen>
@@ -352,7 +352,7 @@ export default function CuratedPlacements() {
                   <Orb size="sm"><Icon /></Orb>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground/90">{title}</p>
-                    <p className="text-xs text-muted-foreground/50 mt-0.5 leading-relaxed">{desc}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5 leading-relaxed">{desc}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -384,7 +384,7 @@ export default function CuratedPlacements() {
                   <Orb size="sm"><Icon /></Orb>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground/90">{label}</p>
-                    <p className="text-xs text-muted-foreground/50 mt-0.5">{desc}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">{desc}</p>
                   </div>
                   <span className="category-chip shrink-0">{tag}</span>
                 </CardContent>
@@ -513,7 +513,7 @@ export default function CuratedPlacements() {
               <Orb size="sm"><TrendingUp /></Orb>
               <div>
                 <p className="text-sm font-medium text-foreground/80">Viral Reach</p>
-                <p className="text-xs text-muted-foreground/50 mt-0.5">
+                <p className="text-xs text-muted-foreground/70 mt-0.5">
                   Share cards extend curated brand presence to social platforms, messaging apps, and external audiences — every share is organic distribution.
                 </p>
               </div>
@@ -601,12 +601,12 @@ export default function CuratedPlacements() {
                   <div className="rounded-lg p-3" style={{ background: 'hsla(0,0%,100%,0.02)', border: '1px solid hsla(0,0%,100%,0.04)' }}>
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="source-badge">Curated</span>
-                      <span className="text-[10px] text-muted-foreground/40">{partner}</span>
+                      <span className="text-[10px] text-muted-foreground/70">{partner}</span>
                     </div>
                     <p className="text-xs text-foreground/70">{placement}</p>
                   </div>
 
-                  <p className="text-[10px] text-muted-foreground/40 italic">
+                  <p className="text-[10px] text-muted-foreground/70 italic">
                     User mindset: {mindset}
                   </p>
                 </CardContent>
@@ -648,7 +648,7 @@ export default function CuratedPlacements() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="section-label text-destructive/60 mb-2">Traditional Ads</p>
-                  <ul className="space-y-1.5 text-xs text-muted-foreground/50">
+                  <ul className="space-y-1.5 text-xs text-muted-foreground/70">
                     <li>• Interruptive placement</li>
                     <li>• Passive scrolling context</li>
                     <li>• Ad fatigue & blindness</li>
@@ -691,7 +691,7 @@ export default function CuratedPlacements() {
                 <div key={label} className="flex items-center justify-between py-3.5 first:pt-1 last:pb-1">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground/90">{label}</p>
-                    <p className="text-xs text-muted-foreground/50 mt-0.5">{desc}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">{desc}</p>
                   </div>
                   <div className={cn(
                     'w-10 h-6 rounded-full relative transition-colors shrink-0 ml-3',
@@ -785,7 +785,7 @@ export default function CuratedPlacements() {
                     <h4 className="text-sm font-serif font-semibold text-foreground/90">{tier}</h4>
                     <span className="status-badge bg-primary/10 text-primary/80 border-primary/20">{badge}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground/50 leading-relaxed">{desc}</p>
+                  <p className="text-xs text-muted-foreground/70 leading-relaxed">{desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -817,15 +817,15 @@ export default function CuratedPlacements() {
               <ArrowRight className="w-4 h-4 mr-2" />
               Begin Partnership Discussion
             </Button>
-            <p className="text-xs text-muted-foreground/40">
+            <p className="text-xs text-muted-foreground/70">
               partnerships@lifestack.app
             </p>
           </div>
 
           <div className="pt-8 flex items-center justify-center gap-2">
             <span className="section-label text-primary/40">LifeStack</span>
-            <span className="text-[10px] text-muted-foreground/30">|</span>
-            <span className="text-[10px] text-muted-foreground/30">Curated Placements</span>
+            <span className="text-[10px] text-muted-foreground/70">|</span>
+            <span className="text-[10px] text-muted-foreground/70">Curated Placements</span>
           </div>
         </div>
       </Screen>

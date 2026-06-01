@@ -114,7 +114,7 @@ export function ShareCardPreview({
           )}
         >
           {/* Subtle LifeStack watermark */}
-          <div className="absolute top-4 right-4 text-[10px] tracking-[0.2em] uppercase text-muted-foreground/30 font-medium">
+          <div className="absolute top-4 right-4 text-[10px] tracking-[0.2em] uppercase text-muted-foreground/70 font-medium">
             LifeStack
           </div>
 

@@ -478,7 +478,7 @@ export default function Home() {
                   {completedTasks.slice(0, 3).map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-2.5 py-1.5 px-2.5 text-muted-foreground/35"
+                      className="flex items-center gap-2.5 py-1.5 px-2.5 text-muted-foreground/70"
                     >
                       <Checkbox 
                         checked={true}
@@ -603,7 +603,7 @@ export default function Home() {
           <h3 className="font-serif font-semibold text-[15px] leading-tight">Library</h3>
           <p className="text-xs text-muted-foreground/70 mt-0.5">Your deeper LifeStack world</p>
         </div>
-        <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary/50 transition-colors shrink-0" />
+        <ChevronRight className="w-4 h-4 text-muted-foreground/70 group-hover:text-primary/50 transition-colors shrink-0" />
       </Link>
 
       {/* Quick Actions — Refined Grid */}
