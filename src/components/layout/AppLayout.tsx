@@ -14,6 +14,8 @@ import { ContextOverlay } from '@/components/sensory/ContextOverlay';
 import { FeedbackPulse } from '@/components/sensory/FeedbackPulse';
 import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
 import { useDailyStreakPing } from '@/hooks/useDailyStreakPing';
+import { MentorSpiritProvider } from '@/contexts/MentorSpiritContext';
+import { MentorSpirit } from '@/components/spirit/MentorSpirit';
 
 export const AppLayout = () => {
   const { user, loading, profileLoading, profile, refreshProfile } = useAuth();
