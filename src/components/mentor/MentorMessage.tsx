@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { ShareButton } from '@/components/share/ShareButton';
 import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
+import { MentorSpeakButton } from '@/components/mentor/MentorVoiceDock';
+import { MentorDocumentMenu } from '@/components/mentor/MentorDocumentMenu';
 import { MentorImageLightbox } from './MentorImageLightbox';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
@@ -156,9 +158,15 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                 source={{
                   type: 'mentor_insight',
                   title: 'Mentor Insight',
-                  quote: content.length > 120 ? content.slice(0, 117) + '...' : content,
+                  quote: content,
                   contextTag: 'Life Strategy',
                 }}
+              />
+              <MentorSpeakButton text={content} />
+              <MentorDocumentMenu
+                title="Mentor Insight"
+                content={content}
+                subtitle="Generated with LifeStack AI Mentor"
               />
               {showPlaybookAction && (
                 <Button

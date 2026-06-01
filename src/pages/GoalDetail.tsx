@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { analyzeForActions, type SuggestedAction } from '@/services/contextualActionEngine';
 import { ContextualActions } from '@/components/ds/ContextualActions';
+import { usePillarXP, type Pillar } from '@/hooks/usePillarXP';
+import { choreographedDispatch } from '@/engines/choreographyEngine';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +47,18 @@ interface Milestone {
   title: string;
   status: string;
   due_date: string | null;
+  pillar?: Pillar | null;
+  xp_awarded_at?: string | null;
+}
+
+/** Heuristic pillar mapping when a milestone has no explicit pillar. */
+function inferPillar(goalCategory: string | null, title: string): Pillar {
+  const text = `${goalCategory || ''} ${title}`.toLowerCase();
+  if (/(money|wealth|invest|save|business|career|finan)/.test(text)) return 'money';
+  if (/(health|fit|workout|run|sleep|nutri|body|exercise|gym)/.test(text)) return 'health';
+  if (/(family|friend|relationship|partner|love|connect|social)/.test(text)) return 'relationship';
+  if (/(legacy|impact|mentor|give|teach|create|brand)/.test(text)) return 'legacy';
+  return 'mind';
 }
 
 interface Task {
@@ -80,6 +94,31 @@ export default function GoalDetail() {
   const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { awardXp } = usePillarXP();
+
+  const toggleMilestone = async (m: Milestone) => {
+    const wasDone = m.status === 'done';
+    const nextStatus = wasDone ? 'backlog' : 'done';
+    setMilestones(prev => prev.map(x => x.id === m.id ? { ...x, status: nextStatus } : x));
+    const { error } = await supabase
+      .from('milestones')
+      .update({ status: nextStatus })
+      .eq('id', m.id);
+    if (error) {
+      setMilestones(prev => prev.map(x => x.id === m.id ? { ...x, status: m.status } : x));
+      toast.error('Could not update milestone');
+      return;
+    }
+    if (!wasDone && !m.xp_awarded_at) {
+      const pillar = (m.pillar as Pillar | undefined) || inferPillar(goal?.category ?? null, m.title);
+      await awardXp(pillar, 25, 'milestone', m.id);
+      await supabase.from('milestones').update({ xp_awarded_at: new Date().toISOString() }).eq('id', m.id);
+      choreographedDispatch('micro_move_complete');
+      toast.success('Milestone complete · +25 XP');
+    } else if (wasDone) {
+      toast('Milestone reopened');
+    }
+  };
 
   // Cross-feature suggestions based on goal context
   const goalSuggestions = useMemo(() => {
@@ -390,12 +429,14 @@ export default function GoalDetail() {
             {milestones.map((milestone) => {
               const isDone = milestone.status === 'done';
               return (
-                <div
+                <button
                   key={milestone.id}
+                  onClick={() => toggleMilestone(milestone)}
                   className={cn(
-                    "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
-                    isDone ? 'bg-success/[0.06]' : 'hover:bg-white/[0.03]'
+                    "w-full text-left flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors min-h-[44px]",
+                    isDone ? 'bg-success/[0.06]' : 'hover:bg-white/[0.05] active:bg-white/[0.08]'
                   )}
+                  aria-label={isDone ? 'Reopen milestone' : 'Complete milestone'}
                 >
                   {isDone ? (
                     <CheckCircle2 className="w-[18px] h-[18px] text-success shrink-0" />
@@ -413,7 +454,7 @@ export default function GoalDetail() {
                       {format(new Date(milestone.due_date), 'MMM d')}
                     </span>
                   )}
-                </div>
+                </button>
               );
             })}
           </CardContent>

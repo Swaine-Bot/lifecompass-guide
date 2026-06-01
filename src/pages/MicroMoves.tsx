@@ -227,7 +227,15 @@ export default function MicroMoves() {
               Small, deliberate actions compound. Add your first one.
             </p>
             <Button variant="gold" size="sm" onClick={() => setCreating(true)}>
-              <Plus className="w-4 h-4 mr-1" /> Add Micro Move
+              <Plus className="w-4 h-4 mr-1" /> Custom Micro Move
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2"
+              onClick={() => navigate('/library')}
+            >
+              Add as New Playbook
             </Button>
           </CardContent>
         </Card>
