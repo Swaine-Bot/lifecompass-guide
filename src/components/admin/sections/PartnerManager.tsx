@@ -512,7 +512,7 @@ function StatusBadge({ status }: { status: string }) {
     active: 'bg-green-500/10 text-green-600 border-green-500/20',
     draft: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
     approved: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-    archived: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
+    archived: 'bg-white/5 text-white/60 border-white/10',
   };
   return <span className={cn('text-[9px] px-1.5 py-0.5 rounded border font-medium', colors[status] || colors.draft)}>{status}</span>;
 }
