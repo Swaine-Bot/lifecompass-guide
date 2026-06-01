@@ -4,25 +4,21 @@ export type MentorMessageCategory = 'onLoad' | 'onMilestone' | 'onIdle' | 'onStr
 
 const POOL: Record<MentorMessageCategory, string[]> = {
   onLoad: [
-    "Welcome back. Let's make today count.",
-    "Good to see you. Take a breath — you're exactly where you need to be.",
-    "A fresh moment. What will you build with it?",
+    "Your potential is limitless. Let's build something extraordinary.",
+    "Every great journey begins with a single step. Yours starts now.",
   ],
   onMilestone: [
-    "You're building something great. Keep going 🚀",
-    "Look how far you've come. Be proud of this.",
-    "Progress, not perfection. This is what it looks like.",
-    "Another step forward. The path is becoming yours.",
+    "THIS is what growth looks like. You just leveled up.",
+    "That wasn't luck. That was YOU.",
+    "Unstoppable. Keep that energy.",
   ],
   onIdle: [
-    "Still here? No rush. I'll be right beside you.",
-    "Take your time. Clarity often comes in the quiet.",
-    "When you're ready, the next small move is enough.",
+    "Still here. Still believing in you.",
+    "The next breakthrough is one action away.",
   ],
   onStruggle: [
-    "Hey — slow down. You've got this. Try once more.",
-    "Every expert was once a beginner. Breathe and try again.",
-    "It's okay. Small adjustment, then forward.",
+    "The hard moments are where legends are made. Push through.",
+    "You haven't failed. You're learning at full speed.",
   ],
 };
 
