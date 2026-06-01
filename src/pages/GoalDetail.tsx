@@ -17,6 +17,7 @@ import { analyzeForActions, type SuggestedAction } from '@/services/contextualAc
 import { ContextualActions } from '@/components/ds/ContextualActions';
 import { usePillarXP, type Pillar } from '@/hooks/usePillarXP';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,6 +89,7 @@ export default function GoalDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { summon: summonSpirit } = useMentorSpirit();
   const [goal, setGoal] = useState<Goal | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -115,6 +117,7 @@ export default function GoalDetail() {
       await supabase.from('milestones').update({ xp_awarded_at: new Date().toISOString() }).eq('id', m.id);
       choreographedDispatch('micro_move_complete');
       toast.success('Milestone complete · +25 XP');
+      summonSpirit('task_complete');
     } else if (wasDone) {
       toast('Milestone reopened');
     }
@@ -188,6 +191,7 @@ export default function GoalDetail() {
     } else {
       setGoal({ ...goal, status });
       toast.success(`Goal marked as ${status}`);
+      if (status === 'completed') summonSpirit('goal_complete');
     }
   };
 

@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { format, isBefore, isToday, parseISO, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 
 interface Task {
   id: string;
@@ -57,6 +58,7 @@ export default function MicroMoves() {
   useEnvironment('home');
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { summon } = useMentorSpirit();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Task | null>(null);
@@ -133,6 +135,7 @@ export default function MicroMoves() {
     }
     if (newStatus === 'done') {
       choreographedDispatch('micro_move_complete');
+      summon('micro_move_complete');
       toast.success('✓ Completed');
     } else {
       toast('Marked incomplete');
@@ -404,6 +407,7 @@ function EditSheet({
   userId?: string;
 }) {
   const isCreate = !task;
+  const { summon } = useMentorSpirit();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<number>(2);
@@ -462,6 +466,7 @@ function EditSheet({
     setSaving(false);
     if (error) { toast.error('Save failed'); return; }
     toast.success(isCreate ? 'Micro Move added' : 'Micro Move updated');
+    if (isCreate) summon('micro_move_created');
     onSaved();
     onClose();
   };

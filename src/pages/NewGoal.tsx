@@ -14,6 +14,7 @@ import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGT
 import { GoalDeclarationPrompt } from '@/components/viral/GoalDeclarationPrompt';
 import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
 import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
@@ -33,6 +34,7 @@ const priorities = [
 ];
 
 export default function NewGoal() {
+  const { summon: summonSpirit } = useMentorSpirit();
   const [loading, setLoading] = useState(false);
   const [showDeclaration, setShowDeclaration] = useState(false);
   const [savedGoalId, setSavedGoalId] = useState<string | null>(null);
@@ -117,6 +119,7 @@ export default function NewGoal() {
       }
 
       toast.success('Goal created successfully!');
+      summonSpirit('goal_created');
       setSavedGoalTitle(formData.title);
       setSavedGoalCategory(formData.category);
       setShowPlaybookOffer(true);
