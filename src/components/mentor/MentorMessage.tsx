@@ -1,207 +1,114 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Bot, User, ChevronDown, ChevronUp, Loader2, Wand2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import ReactMarkdown from 'react-markdown';
-import { ShareButton } from '@/components/share/ShareButton';
-import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
-import { MentorSpeakButton } from '@/components/mentor/MentorVoiceDock';
-import { MentorDocumentMenu } from '@/components/mentor/MentorDocumentMenu';
-import { MentorImageLightbox } from './MentorImageLightbox';
-import { AiContentLabel } from '@/components/moderation/AiContentLabel';
-import { supabase } from '@/integrations/supabase/client';
-import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
-import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
-import { analyzeForActions } from '@/services/contextualActionEngine';
-import { ContextualActions } from '@/components/ds/ContextualActions';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import { useMentorMessage } from '@/contexts/MentorMessageContext';
 
-interface MentorMessageProps {
-  role: 'user' | 'assistant';
-  content: string;
-  conversationId?: string;
-  imageUrl?: string | null;
-}
+const DISPLAY_MS = 5200;
+const TYPE_SPEED = 24; // ms per character
 
-function hasActionableContent(content: string): boolean {
-  if (content.length < 100) return false;
-  const indicators = [
-    /\d+\.\s/, /[-•]\s/, /\bstep\b/i, /\bfirst\b.*\bthen\b/i,
-    /\brecommend\b/i, /\bstart\sby\b/i, /\btry\b.*\bnext\b/i,
-    /\bconsider\b/i, /\baction\b/i, /\bplan\b/i,
-  ];
-  return indicators.filter(r => r.test(content)).length >= 2;
-}
+export function MentorMessage() {
+  const { current, dismiss } = useMentorMessage();
+  const [typed, setTyped] = useState('');
+  const shakeKey = useRef<number>(0);
 
-export function MentorMessage({ role, content, conversationId, imageUrl }: MentorMessageProps) {
-  const [isHidden, setIsHidden] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [imageLoading, setImageLoading] = useState(!!imageUrl);
-  const [savingPlaybook, setSavingPlaybook] = useState(false);
-  const { profile } = useAuth();
-
-  const { generating, preview, generateFromMentor, savePlaybook, dismiss } = usePlaybookGenerator();
-
-  // Contextual cross-feature actions for assistant messages
-  const suggestedActions = useMemo(() => {
-    if (role !== 'assistant' || content.length < 60) return [];
-    return analyzeForActions({
-      text: content,
-      lifePhase: profile?.life_phase,
-      source: 'mentor',
-    });
-  }, [role, content, profile?.life_phase]);
-
+  // Typewriter
   useEffect(() => {
-    if (!imageUrl) return;
-    let cancelled = false;
-    const load = async () => {
-      setImageLoading(true);
-      const { data } = await supabase.storage
-        .from('mentor-images')
-        .createSignedUrl(imageUrl, 3600);
-      if (!cancelled && data?.signedUrl) setSignedUrl(data.signedUrl);
-      if (!cancelled) setImageLoading(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [imageUrl]);
+    if (!current) {
+      setTyped('');
+      return;
+    }
+    setTyped('');
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setTyped(current.text.slice(0, i));
+      if (i >= current.text.length) clearInterval(interval);
+    }, TYPE_SPEED);
+    return () => clearInterval(interval);
+  }, [current]);
 
-  const handleCreatePlaybook = () => {
-    generateFromMentor(content, conversationId);
-  };
+  // Auto-dismiss
+  useEffect(() => {
+    if (!current) return;
+    const t = setTimeout(dismiss, DISPLAY_MS);
+    return () => clearTimeout(t);
+  }, [current, dismiss]);
 
-  const handleSavePlaybook = async (tasks: { title: string; description: string; effort_minutes: number }[]) => {
-    if (!preview) return;
-    setSavingPlaybook(true);
-    await savePlaybook(
-      { ...preview, tasks },
-      { conversationId, sourceType: 'mentor', sourceMessageContent: content.slice(0, 500) }
-    );
-    setSavingPlaybook(false);
-  };
-
-  const showPlaybookAction = role === 'assistant' && hasActionableContent(content);
-
-  if (role === 'user') {
-    return (
-      <div className="flex gap-3 justify-end">
-        <div className="max-w-[80%]">
-          {signedUrl && (
-            <div className="mb-2 flex justify-end">
-              <img
-                src={signedUrl}
-                alt="Shared image"
-                className="max-h-48 max-w-full rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/[0.08] shadow-sm"
-                onClick={() => setLightboxOpen(true)}
-              />
-            </div>
-          )}
-          {imageLoading && !signedUrl && (
-            <div className="mb-2 flex justify-end">
-              <div className="h-32 w-32 rounded-xl bg-secondary/50 flex items-center justify-center border border-white/[0.06]">
-                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-              </div>
-            </div>
-          )}
-          {content && <div className="chat-bubble-user text-sm leading-relaxed whitespace-pre-wrap">{content}</div>}
-        </div>
-        <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center shrink-0 ring-1 ring-white/[0.08]">
-          <User className="w-3.5 h-3.5 text-foreground/80" />
-        </div>
-        {lightboxOpen && signedUrl && (
-          <MentorImageLightbox src={signedUrl} onClose={() => setLightboxOpen(false)} />
-        )}
-      </div>
-    );
-  }
+  if (current?.category === 'onStruggle') shakeKey.current++;
+  const isStruggle = current?.category === 'onStruggle';
 
   return (
-    <div className="flex gap-3 items-start">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-primary/15 mt-0.5">
-        <Bot className="w-3.5 h-3.5 text-primary/90" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="chat-bubble-assistant">
-          {isHidden ? (
-            <p className="text-foreground/50 text-sm italic">Response hidden</p>
-          ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none break-words text-foreground/90">
-              <ReactMarkdown>{content}</ReactMarkdown>
-            </div>
-          )}
-        </div>
-        {/* ── Action row ── */}
-        <div className="flex items-center gap-1 mt-2 flex-wrap">
-          <AiContentLabel label="Mentor AI" variant="inline" />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="action-btn h-6 px-2 text-[11px]"
-            onClick={() => setIsHidden(!isHidden)}
+    <AnimatePresence>
+      {current && (
+        <motion.div
+          key={current.id}
+          role="status"
+          aria-live="polite"
+          className="fixed pointer-events-auto"
+          style={{
+            zIndex: 60, // above content, below modals (which are typically 100+)
+            right: 'max(env(safe-area-inset-right, 0px), 16px)',
+            bottom: 'calc(max(env(safe-area-inset-bottom, 0px), 16px) + 6rem)',
+            maxWidth: 'min(360px, calc(100vw - 32px))',
+          }}
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={
+            isStruggle
+              ? { opacity: 1, y: 0, scale: 1, x: [0, -6, 6, -4, 4, 0] }
+              : { opacity: 1, y: 0, scale: 1 }
+          }
+          exit={{ opacity: 0, y: 12, scale: 0.97 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div
+            className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-2xl px-4 py-3 pr-9 shadow-[0_18px_60px_-20px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)_inset]"
           >
-            {isHidden ? (
-              <><ChevronDown className="w-3 h-3 mr-1" /> Show</>
-            ) : (
-              <><ChevronUp className="w-3 h-3 mr-1" /> Hide</>
-            )}
-          </Button>
-          {!isHidden && (
-            <>
-              <KeepInsightAction
-                quote={content}
-                contextTag="Life Strategy"
-                conversationId={conversationId}
-              />
-              <ShareButton
-                source={{
-                  type: 'mentor_insight',
-                  title: 'Mentor Insight',
-                  quote: content,
-                  contextTag: 'Life Strategy',
+            {/* Floating breathing orb avatar */}
+            <motion.div
+              className="relative shrink-0 mt-0.5"
+              animate={{ y: [0, -3, 0], scale: [1, 1.05, 1] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <div
+                className="w-9 h-9 rounded-full"
+                style={{
+                  background:
+                    'radial-gradient(circle at 38% 35%, rgba(255,255,255,0.95) 0%, rgba(255,225,170,0.85) 35%, rgba(180,200,255,0.55) 70%, rgba(120,150,220,0) 100%)',
+                  boxShadow:
+                    '0 0 18px 4px rgba(255,215,150,0.45), 0 0 36px 10px rgba(170,200,255,0.18), inset 0 0 10px rgba(255,255,255,0.6)',
                 }}
               />
-              <MentorSpeakButton text={content} />
-              <MentorDocumentMenu
-                title="Mentor Insight"
-                content={content}
-                subtitle="Generated with LifeStack AI Mentor"
+              <motion.div
+                className="absolute inset-0 rounded-full"
+                style={{ border: '1px solid rgba(255,235,190,0.35)' }}
+                animate={{ scale: [1, 1.55], opacity: [0.5, 0] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
               />
-              {showPlaybookAction && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-[11px] text-primary/70 hover:text-primary gap-1"
-                  onClick={handleCreatePlaybook}
-                  disabled={generating}
-                >
-                  {generating ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <Wand2 className="w-3 h-3" />
-                  )}
-                  Turn into Moves
-                </Button>
-              )}
-              {suggestedActions.length > 0 && (
-                <ContextualActions actions={suggestedActions} compact />
-              )}
-            </>
-          )}
-        </div>
+            </motion.div>
 
-        {preview && (
-          <PlaybookPreviewModal
-            open={!!preview}
-            title={preview.playbook_title}
-            tasks={preview.tasks}
-            saving={savingPlaybook}
-            onSave={handleSavePlaybook}
-            onDismiss={dismiss}
-          />
-        )}
-      </div>
-    </div>
+            <div className="min-w-0 flex-1">
+              <p
+                className="text-[13px] leading-snug text-white font-light tracking-wide"
+                style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
+              >
+                {typed}
+                {current && typed.length < current.text.length && (
+                  <span className="inline-block w-[2px] h-3 ml-0.5 align-middle bg-white/70 animate-pulse" />
+                )}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={dismiss}
+              aria-label="Dismiss mentor message"
+              className="absolute top-2 right-2 p-1 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
