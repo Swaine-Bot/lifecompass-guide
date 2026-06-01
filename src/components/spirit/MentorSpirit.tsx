@@ -4,32 +4,33 @@ import { useMentorSpirit, SpiritTrigger } from '@/contexts/MentorSpiritContext';
 
 const MESSAGES: Record<SpiritTrigger, string[]> = {
   task_complete: [
-    'Well done. Every step forward matters.',
-    'Another step taken. The path grows clearer.',
+    'THIS is what growth looks like. You just leveled up.',
+    "That wasn't luck. That was YOU.",
+    'Unstoppable. Keep that energy.',
   ],
   goal_complete: [
-    'A vision fulfilled. Honor this moment.',
-    'You have arrived where you set out to go.',
+    'THIS is what growth looks like. You just leveled up.',
+    "That wasn't luck. That was YOU.",
   ],
   micro_move_complete: [
-    'Small moves shape a great life.',
-    'Quiet progress is still progress.',
+    'Unstoppable. Keep that energy.',
+    "That wasn't luck. That was YOU.",
   ],
   journal_saved: [
-    'Your words carry power. Keep going.',
-    'Reflection is the first form of growth.',
+    'Your potential is limitless. Let’s build something extraordinary.',
+    'Every great journey begins with a single step. Yours starts now.',
   ],
   goal_created: [
-    'A new intention set. The path is yours.',
-    'You have named your direction. Walk gently into it.',
+    'Every great journey begins with a single step. Yours starts now.',
+    'Your potential is limitless. Let’s build something extraordinary.',
   ],
   task_created: [
-    'A new step claimed. Begin when ready.',
-    'Intention becomes form. Move with care.',
+    'The next breakthrough is one action away.',
+    'Every great journey begins with a single step. Yours starts now.',
   ],
   micro_move_created: [
-    'A small seed planted. Tend to it.',
-    'The smallest move can begin a great change.',
+    'The next breakthrough is one action away.',
+    'Still here. Still believing in you.',
   ],
 };
 
