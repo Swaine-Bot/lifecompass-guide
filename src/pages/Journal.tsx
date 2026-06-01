@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   DropdownMenu,
@@ -118,6 +119,7 @@ const ALLOWED_MIME_TYPES = [
 export default function Journal() {
   useEnvironment('journal');
   const { user, profile } = useAuth();
+  const { summon: summonSpirit } = useMentorSpirit();
   const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [scheduledMessages, setScheduledMessages] = useState<JournalEntry[]>([]);
