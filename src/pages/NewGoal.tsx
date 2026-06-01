@@ -14,6 +14,7 @@ import { goalSchema, validateWithSchema, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGT
 import { GoalDeclarationPrompt } from '@/components/viral/GoalDeclarationPrompt';
 import { usePlaybookGenerator } from '@/hooks/usePlaybookGenerator';
 import { PlaybookPreviewModal } from '@/components/playbook/PlaybookPreviewModal';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 
 const categories = [
   { value: 'health', label: 'Health & Fitness' },
@@ -117,6 +118,7 @@ export default function NewGoal() {
       }
 
       toast.success('Goal created successfully!');
+      summonSpirit('goal_created');
       setSavedGoalTitle(formData.title);
       setSavedGoalCategory(formData.category);
       setShowPlaybookOffer(true);
