@@ -830,24 +830,30 @@ export type Database = {
           due_date: string | null
           goal_id: string
           id: string
+          pillar: Database["public"]["Enums"]["life_pillar"] | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
+          xp_awarded_at: string | null
         }
         Insert: {
           created_at?: string | null
           due_date?: string | null
           goal_id: string
           id?: string
+          pillar?: Database["public"]["Enums"]["life_pillar"] | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
+          xp_awarded_at?: string | null
         }
         Update: {
           created_at?: string | null
           due_date?: string | null
           goal_id?: string
           id?: string
+          pillar?: Database["public"]["Enums"]["life_pillar"] | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
+          xp_awarded_at?: string | null
         }
         Relationships: [
           {
@@ -1349,6 +1355,36 @@ export type Database = {
         }
         Relationships: []
       }
+      playback_shares: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_public: boolean
+          slug: string
+          snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          slug: string
+          snapshot?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          slug?: string
+          snapshot?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       playbook_installs: {
         Row: {
           id: string
@@ -1590,6 +1626,7 @@ export type Database = {
           timezone: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
           website_url: string | null
         }
         Insert: {
@@ -1623,6 +1660,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
           website_url?: string | null
         }
         Update: {
@@ -1656,6 +1694,7 @@ export type Database = {
           timezone?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
           website_url?: string | null
         }
         Relationships: []
@@ -1765,6 +1804,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_favorite: boolean
+          is_public: boolean
           personal_note: string | null
           quote: string
           source_conversation_id: string | null
@@ -1776,6 +1816,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_favorite?: boolean
+          is_public?: boolean
           personal_note?: string | null
           quote: string
           source_conversation_id?: string | null
@@ -1787,6 +1828,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_favorite?: boolean
+          is_public?: boolean
           personal_note?: string | null
           quote?: string
           source_conversation_id?: string | null
@@ -2067,6 +2109,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_pillar_xp: {
+        Row: {
+          id: string
+          level: number
+          pillar: Database["public"]["Enums"]["life_pillar"]
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          level?: number
+          pillar: Database["public"]["Enums"]["life_pillar"]
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          level?: number
+          pillar?: Database["public"]["Enums"]["life_pillar"]
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -2539,6 +2608,19 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
       }
+      award_pillar_xp: {
+        Args: {
+          _amount: number
+          _pillar: Database["public"]["Enums"]["life_pillar"]
+          _source_id?: string
+          _source_type?: string
+        }
+        Returns: {
+          leveled_up: boolean
+          new_level: number
+          new_total_xp: number
+        }[]
+      }
       award_xp: {
         Args: {
           _domain: Database["public"]["Enums"]["life_domain"]
@@ -2599,6 +2681,7 @@ export type Database = {
           website_url: string
         }[]
       }
+      get_public_profile: { Args: { _target: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2622,6 +2705,19 @@ export type Database = {
           shield_used: boolean
         }[]
       }
+      search_profiles: {
+        Args: { _limit?: number; _query: string }
+        Returns: {
+          avatar_url: string
+          is_verified: boolean
+          life_phase: Database["public"]["Enums"]["life_phase"]
+          name: string
+          user_id: string
+          username: string
+        }[]
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       update_momentum_streak: {
         Args: { _user_id: string }
         Returns: {
@@ -2649,6 +2745,7 @@ export type Database = {
         | "family_home"
         | "explorer"
         | "legacy_impact"
+      life_pillar: "mind" | "money" | "health" | "relationship" | "legacy"
       partner_asset_status: "draft" | "approved" | "active" | "archived"
       partner_status: "active" | "inactive"
       post_type: "regular" | "goal" | "micro_move"
@@ -2803,6 +2900,7 @@ export const Constants = {
         "explorer",
         "legacy_impact",
       ],
+      life_pillar: ["mind", "money", "health", "relationship", "legacy"],
       partner_asset_status: ["draft", "approved", "active", "archived"],
       partner_status: ["active", "inactive"],
       post_type: ["regular", "goal", "micro_move"],
