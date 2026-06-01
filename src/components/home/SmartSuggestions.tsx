@@ -34,7 +34,7 @@ export function SmartSuggestions() {
 
     (async () => {
       const { data: prefs } = await supabase
-        .from('user_privacy_settings' as never)
+        .from('privacy_settings')
         .select('curated_suggestions_enabled')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -47,7 +47,7 @@ export function SmartSuggestions() {
       const [{ count: journalCount }, { count: goalCount }, { count: moveCount }] = await Promise.all([
         supabase.from('journal_entries').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', since),
         supabase.from('goals').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
-        supabase.from('micro_moves').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', since),
+        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', since),
       ]);
 
       if (cancelled) return;
