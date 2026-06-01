@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { format, isBefore, isToday, parseISO, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 
 interface Task {
   id: string;
