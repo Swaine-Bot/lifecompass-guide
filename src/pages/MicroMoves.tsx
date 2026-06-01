@@ -407,6 +407,7 @@ function EditSheet({
   userId?: string;
 }) {
   const isCreate = !task;
+  const { summon } = useMentorSpirit();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<number>(2);
@@ -465,6 +466,7 @@ function EditSheet({
     setSaving(false);
     if (error) { toast.error('Save failed'); return; }
     toast.success(isCreate ? 'Micro Move added' : 'Micro Move updated');
+    summon(isCreate ? 'micro_move_created' : 'task_complete');
     onSaved();
     onClose();
   };
