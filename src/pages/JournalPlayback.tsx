@@ -199,11 +199,18 @@ export default function JournalPlayback() {
 
   return (
     <div className="p-6 space-y-6 pb-20 md:pb-6 animate-fade-in">
-      <Button variant="ghost" onClick={() => navigate('/journal')}>
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Journal
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={() => navigate('/journal')}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Journal
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleShare} disabled={sharing}>
+          <Share2 className="w-4 h-4 mr-2" />
+          {sharing ? 'Capturing…' : 'Share'}
+        </Button>
+      </div>
 
+      <div ref={captureRef}>
       <Card variant="glass" className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-primary/20 to-primary/5">
           <CardTitle className="flex items-center gap-2">
