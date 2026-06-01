@@ -11,6 +11,7 @@ import { MAX_MESSAGE_LENGTH } from '@/lib/validation';
 import { MentorSidebar } from '@/components/mentor/MentorSidebar';
 import { MentorMessage } from '@/components/mentor/MentorMessage';
 import { MentorImagePreview } from '@/components/mentor/MentorImagePreview';
+import { MentorVoiceDock } from '@/components/mentor/MentorVoiceDock';
 import { useMentorConversations } from '@/hooks/useMentorConversations';
 import { cn } from '@/lib/utils';
 import { useEnvironment } from '@/contexts/SensoryContext';
@@ -491,6 +492,12 @@ export default function Mentor() {
                     {charCount}/{MAX_MESSAGE_LENGTH}
                   </span>
                 </div>
+                <MentorVoiceDock
+                  onTranscript={(text) => {
+                    setInput((prev) => (prev ? prev + ' ' : '') + text);
+                    setTimeout(() => void sendMessage({ text }), 60);
+                  }}
+                />
                 <Button
                   type="submit"
                   variant="gold"
