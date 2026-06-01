@@ -50,6 +50,7 @@ import SharedContent from "./pages/SharedContent";
 import PlaybookDetail from "./pages/PlaybookDetail";
 import CuratedPlacements from "./pages/CuratedPlacements";
 import AdminIntelligenceWalkthrough from "./pages/AdminIntelligenceWalkthrough";
+import PublicProfile from "./pages/PublicProfile";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
                   <Route path="/insights" element={<InsightLibrary />} />
                   <Route path="/playbook/:id" element={<PlaybookDetail />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/u/:userId" element={<PublicProfile />} />
                 </Route>
                 
                 <Route path="*" element={<NotFound />} />
