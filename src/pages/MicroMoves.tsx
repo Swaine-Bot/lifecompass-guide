@@ -466,7 +466,7 @@ function EditSheet({
     setSaving(false);
     if (error) { toast.error('Save failed'); return; }
     toast.success(isCreate ? 'Micro Move added' : 'Micro Move updated');
-    summon(isCreate ? 'micro_move_created' : 'task_complete');
+    if (isCreate) summon('micro_move_created');
     onSaved();
     onClose();
   };
