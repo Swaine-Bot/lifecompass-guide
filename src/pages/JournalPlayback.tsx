@@ -37,8 +37,42 @@ export default function JournalPlayback() {
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const captureRef = useRef<HTMLDivElement>(null);
+
+  const handleShare = async () => {
+    if (!captureRef.current || sharing) return;
+    setSharing(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#0a0a0f',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const blob: Blob | null = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('Capture failed');
+      const file = new File([blob], `playback_${Date.now()}.png`, { type: 'image/png' });
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = file.name; a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Playback saved');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not share this view');
+    } finally {
+      setSharing(false);
+    }
+  };
 
   useEffect(() => {
     if (user && entryId) {
