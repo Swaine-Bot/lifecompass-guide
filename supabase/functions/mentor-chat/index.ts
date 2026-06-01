@@ -205,7 +205,12 @@ If borderline but not explicitly harmful, respond "safe".`
     }
 
     const phaseContext = profile?.life_phase 
-      ? `The user's life phase is "${profile.life_phase.replace('_', ' ')}". Use this as background context to inform your advice, but do NOT explicitly mention their life phase in your responses unless the user asks about it or it is genuinely critical to the point you are making. Never open a reply by referencing their phase.` 
+      ? `BACKGROUND CONTEXT ONLY — The user's life phase is "${profile.life_phase.replace('_', ' ')}". This is silent context to shape your reasoning. STRICT RULES:
+- DO NOT open a response by referencing their life phase.
+- DO NOT mention the phase in casual or general responses.
+- DO NOT use framings like "As someone in the X phase…", "Because you are in X…", "Given your current life phase…".
+- ONLY mention the phase when (a) the user explicitly asks about it, (b) it materially changes the advice, or (c) it creates a unique risk/opportunity that must be flagged.
+- Aim to reduce explicit phase references by 90% vs naive behaviour. Sound like a human advisor who already knows the user, not a system reading metadata aloud.` 
       : '';
     
     const focusAreas = profile?.focus_areas?.length 
