@@ -4,32 +4,33 @@ import { useMentorSpirit, SpiritTrigger } from '@/contexts/MentorSpiritContext';
 
 const MESSAGES: Record<SpiritTrigger, string[]> = {
   task_complete: [
-    'Well done. Every step forward matters.',
-    'Another step taken. The path grows clearer.',
+    'THIS is what growth looks like. You just leveled up.',
+    "That wasn't luck. That was YOU.",
+    'Unstoppable. Keep that energy.',
   ],
   goal_complete: [
-    'A vision fulfilled. Honor this moment.',
-    'You have arrived where you set out to go.',
+    'THIS is what growth looks like. You just leveled up.',
+    "That wasn't luck. That was YOU.",
   ],
   micro_move_complete: [
-    'Small moves shape a great life.',
-    'Quiet progress is still progress.',
+    'Unstoppable. Keep that energy.',
+    "That wasn't luck. That was YOU.",
   ],
   journal_saved: [
-    'Your words carry power. Keep going.',
-    'Reflection is the first form of growth.',
+    'Your potential is limitless. Let’s build something extraordinary.',
+    'Every great journey begins with a single step. Yours starts now.',
   ],
   goal_created: [
-    'A new intention set. The path is yours.',
-    'You have named your direction. Walk gently into it.',
+    'Every great journey begins with a single step. Yours starts now.',
+    'Your potential is limitless. Let’s build something extraordinary.',
   ],
   task_created: [
-    'A new step claimed. Begin when ready.',
-    'Intention becomes form. Move with care.',
+    'The next breakthrough is one action away.',
+    'Every great journey begins with a single step. Yours starts now.',
   ],
   micro_move_created: [
-    'A small seed planted. Tend to it.',
-    'The smallest move can begin a great change.',
+    'The next breakthrough is one action away.',
+    'Still here. Still believing in you.',
   ],
 };
 
@@ -196,16 +197,30 @@ export function MentorSpirit() {
               );
             })}
 
-            {/* Message */}
+            {/* Message — centered at the heart of the Spirit */}
             <motion.p
-              className="relative mt-32 max-w-xs text-center text-white text-base font-light tracking-wide px-6"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-6 max-w-[18rem] sm:max-w-md pointer-events-none"
               style={{
-                textShadow: '0 2px 20px rgba(0,0,0,0.6), 0 0 30px rgba(255,220,160,0.3)',
+                fontFamily: "'Playfair Display', serif",
+                fontWeight: 700,
+                fontSize: 'clamp(1.5rem, 5.5vw, 2.5rem)',
+                lineHeight: 1.05,
+                letterSpacing: '0.01em',
+                background:
+                  'linear-gradient(180deg, #fff 0%, #ffe9b8 55%, #ffd07a 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter:
+                  'drop-shadow(0 2px 18px rgba(0,0,0,0.65)) drop-shadow(0 0 24px rgba(255,210,140,0.45))',
               }}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{
+                opacity: [0, 1, 1, 1],
+                scale: [0.85, 1.02, 1, 1.01],
+              }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ delay: 0.25, duration: 1.6, ease: [0.22, 1, 0.36, 1], repeat: Infinity, repeatType: 'mirror' }}
             >
               {message}
             </motion.p>
