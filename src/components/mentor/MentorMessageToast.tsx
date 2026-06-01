@@ -79,16 +79,32 @@ export function MentorMessageToast() {
               />
             </motion.div>
 
-            <div className="min-w-0 flex-1">
-              <p
-                className="text-[13px] leading-snug text-white font-light tracking-wide"
-                style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
+            <div className="min-w-0 flex-1 flex items-center justify-center text-center">
+              <motion.p
+                className="leading-tight"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontWeight: 700,
+                  fontSize: 'clamp(1rem, 3.6vw, 1.25rem)',
+                  letterSpacing: '0.01em',
+                  lineHeight: 1.1,
+                  background:
+                    'linear-gradient(180deg, #fff 0%, #ffe9b8 60%, #ffd07a 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter:
+                    'drop-shadow(0 1px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 14px rgba(255,210,140,0.35))',
+                }}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
                 {typed}
                 {current && typed.length < current.text.length && (
                   <span className="inline-block w-[2px] h-3 ml-0.5 align-middle bg-white/70 animate-pulse" />
                 )}
-              </p>
+              </motion.p>
             </div>
 
             <button
