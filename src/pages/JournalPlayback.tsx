@@ -318,6 +318,7 @@ export default function JournalPlayback() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
