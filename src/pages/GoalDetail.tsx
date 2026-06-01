@@ -17,6 +17,7 @@ import { analyzeForActions, type SuggestedAction } from '@/services/contextualAc
 import { ContextualActions } from '@/components/ds/ContextualActions';
 import { usePillarXP, type Pillar } from '@/hooks/usePillarXP';
 import { choreographedDispatch } from '@/engines/choreographyEngine';
+import { useMentorSpirit } from '@/contexts/MentorSpiritContext';
 import {
   AlertDialog,
   AlertDialogAction,
