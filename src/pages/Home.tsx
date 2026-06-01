@@ -395,6 +395,9 @@ export default function Home() {
       )}
 
       {/* Active Goals — Separate, dedicated card */}
+      <SmartSuggestions />
+
+      {/* Active Goals — Separate, dedicated card */}
       <GoalsHomeCard />
 
       {/* Today's Micro-Moves — Separate, dedicated card */}
