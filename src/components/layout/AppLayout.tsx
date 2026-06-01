@@ -16,6 +16,9 @@ import { useNativeKeyboard } from '@/hooks/useNativeKeyboard';
 import { useDailyStreakPing } from '@/hooks/useDailyStreakPing';
 import { MentorSpiritProvider } from '@/contexts/MentorSpiritContext';
 import { MentorSpirit } from '@/components/spirit/MentorSpirit';
+import { MentorMessageProvider } from '@/contexts/MentorMessageContext';
+import { MentorMessageToast } from '@/components/mentor/MentorMessageToast';
+import { MentorMessageOrchestrator } from '@/components/mentor/MentorMessageOrchestrator';
 
 export const AppLayout = () => {
   const { user, loading, profileLoading, profile, refreshProfile } = useAuth();
