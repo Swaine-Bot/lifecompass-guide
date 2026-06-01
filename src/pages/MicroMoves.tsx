@@ -58,6 +58,7 @@ export default function MicroMoves() {
   useEnvironment('home');
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { summon } = useMentorSpirit();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Task | null>(null);
@@ -134,6 +135,7 @@ export default function MicroMoves() {
     }
     if (newStatus === 'done') {
       choreographedDispatch('micro_move_complete');
+      summon('micro_move_complete');
       toast.success('✓ Completed');
     } else {
       toast('Marked incomplete');
