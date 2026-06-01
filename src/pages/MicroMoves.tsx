@@ -296,9 +296,9 @@ function Section({
     <div className="space-y-2 min-w-0">
       <h2 className={cn(
         'text-[11px] uppercase tracking-[0.14em] font-semibold px-1',
-        tone === 'danger' ? 'text-red-400/90' : muted ? 'text-muted-foreground/50' : 'text-muted-foreground/80',
+        tone === 'danger' ? 'text-red-400/90' : muted ? 'text-muted-foreground/70' : 'text-muted-foreground/80',
       )}>
-        {title} <span className="text-muted-foreground/40">· {tasks.length}</span>
+        {title} <span className="text-muted-foreground/70">· {tasks.length}</span>
       </h2>
       <div className="space-y-1.5">
         {tasks.map((t) => (

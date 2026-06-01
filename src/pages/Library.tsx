@@ -100,7 +100,7 @@ export default function Library() {
                 <h3 className="font-serif font-semibold text-[15px] leading-tight">{mod.title}</h3>
                 <p className="text-xs text-muted-foreground/70 mt-0.5 leading-snug">{mod.subtitle}</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary/50 transition-colors shrink-0" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground/70 group-hover:text-primary/50 transition-colors shrink-0" />
             </Link>
           );
         })}

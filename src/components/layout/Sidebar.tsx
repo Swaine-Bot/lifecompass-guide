@@ -99,7 +99,7 @@ export const Sidebar = () => {
 
         {/* Divider */}
         <div className="h-px bg-white/[0.04] my-3" />
-        <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground/25 px-4 mb-1.5 font-medium">More</p>
+        <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground/70 px-4 mb-1.5 font-medium">More</p>
         {secondaryNavItems.map(renderNavItem)}
 
         {isAdmin && (

@@ -484,7 +484,7 @@ export default function GoalDetail() {
                   {isDone ? (
                     <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
                   ) : (
-                    <Circle className="w-4 h-4 text-muted-foreground/25 shrink-0" />
+                    <Circle className="w-4 h-4 text-muted-foreground/70 shrink-0" />
                   )}
                   <span className={cn(
                     "flex-1 text-sm truncate",
