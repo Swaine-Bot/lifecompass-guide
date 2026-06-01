@@ -34,6 +34,7 @@ const priorities = [
 ];
 
 export default function NewGoal() {
+  const { summon: summonSpirit } = useMentorSpirit();
   const [loading, setLoading] = useState(false);
   const [showDeclaration, setShowDeclaration] = useState(false);
   const [savedGoalId, setSavedGoalId] = useState<string | null>(null);
