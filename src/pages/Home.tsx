@@ -30,6 +30,7 @@ import { StepProgressCard } from '@/components/wearables/StepProgressCard';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { DOMAIN_COLORS, type LifeDomain } from '@/lib/validation';
 import { GoalsHomeCard } from '@/components/home/GoalsHomeCard';
+import { SmartSuggestions } from '@/components/home/SmartSuggestions';
 
 interface Task {
   id: string;
@@ -392,6 +393,9 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
+
+      {/* Active Goals — Separate, dedicated card */}
+      <SmartSuggestions />
 
       {/* Active Goals — Separate, dedicated card */}
       <GoalsHomeCard />

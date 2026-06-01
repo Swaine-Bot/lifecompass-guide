@@ -4,8 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, Pause, Mic, Video, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Mic, Video, Calendar, Loader2, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface JournalEntry {
   id: string;
@@ -36,8 +37,42 @@ export default function JournalPlayback() {
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const captureRef = useRef<HTMLDivElement>(null);
+
+  const handleShare = async () => {
+    if (!captureRef.current || sharing) return;
+    setSharing(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#0a0a0f',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const blob: Blob | null = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('Capture failed');
+      const file = new File([blob], `playback_${Date.now()}.png`, { type: 'image/png' });
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = file.name; a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Playback saved');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not share this view');
+    } finally {
+      setSharing(false);
+    }
+  };
 
   useEffect(() => {
     if (user && entryId) {
@@ -164,11 +199,18 @@ export default function JournalPlayback() {
 
   return (
     <div className="p-6 space-y-6 pb-20 md:pb-6 animate-fade-in">
-      <Button variant="ghost" onClick={() => navigate('/journal')}>
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Journal
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={() => navigate('/journal')}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Journal
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleShare} disabled={sharing}>
+          <Share2 className="w-4 h-4 mr-2" />
+          {sharing ? 'Capturing…' : 'Share'}
+        </Button>
+      </div>
 
+      <div ref={captureRef}>
       <Card variant="glass" className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-primary/20 to-primary/5">
           <CardTitle className="flex items-center gap-2">
@@ -276,6 +318,7 @@ export default function JournalPlayback() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
