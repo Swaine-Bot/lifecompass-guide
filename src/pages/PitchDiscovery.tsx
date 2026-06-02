@@ -496,12 +496,9 @@ export default function PitchDiscovery() {
       </div>
 
       {printMode ? (
-        // Print: render all slides stacked
         SLIDES.map((S, idx) => (
-          <S.C key={idx} />
-        )).map((node, idx) => (
-          <SlideFrame key={idx} idx={idx} total={SLIDES.length} title={SLIDES[idx].title}>
-            {node}
+          <SlideFrame key={idx} idx={idx} total={SLIDES.length} title={S.title}>
+            <S.C />
           </SlideFrame>
         ))
       ) : (
