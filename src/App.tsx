@@ -94,6 +94,7 @@ const App = () => (
                 <Route path="/s/:slug" element={<SharedContent />} />
                 <Route path="/curated-placements" element={<CuratedPlacements />} />
                 <Route path="/admin-intelligence" element={<AdminIntelligenceWalkthrough />} />
+                <Route path="/pitch/discovery" element={<PitchDiscovery />} />
                 
                 {/* Protected routes */}
                 <Route element={<AppLayout />}>
