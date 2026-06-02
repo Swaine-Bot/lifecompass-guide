@@ -51,6 +51,7 @@ import PlaybookDetail from "./pages/PlaybookDetail";
 import CuratedPlacements from "./pages/CuratedPlacements";
 import AdminIntelligenceWalkthrough from "./pages/AdminIntelligenceWalkthrough";
 import PublicProfile from "./pages/PublicProfile";
+import PitchDiscovery from "./pages/PitchDiscovery";
 
 const queryClient = new QueryClient();
 
