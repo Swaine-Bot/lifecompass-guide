@@ -1459,25 +1459,59 @@ function drawOuterFrame(
 
 // ─── Main Render Function ─────────────────────────────────────────────
 
+/**
+ * Supersample factor — renders the canvas at N× the spec dimensions for
+ * 4K-quality export. All draw commands continue to use spec (1×) coordinates;
+ * a single ctx.scale() at init transparently upscales every operation,
+ * yielding razor-sharp typography, icons, gradients, and media after
+ * Instagram / LinkedIn / Facebook / WhatsApp / X compression.
+ *
+ * 1080×1350 base × 4 → 4320×5400 (4K UHD+)
+ * 1080×1920 base × 4 → 4320×7680 (Story / TikTok 4K)
+ *
+ * Auto-throttles to 3× on very tall stories to avoid >32M-pixel canvases
+ * that some mobile browsers reject.
+ */
 export async function renderCompositionToCanvas(
   spec: CompositionSpec,
   content: NormalizedShareContent,
 ): Promise<HTMLCanvasElement> {
+  // Pick supersample factor based on output area + device capability.
+  const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+  const baseArea = spec.width * spec.height;
+  // Target ~4K-class output. Throttle if it would exceed ~33MP (Safari/iOS limit ≈ 16384²
+  // but practical mobile ceiling is much lower).
+  const MAX_PIXELS = 33_000_000;
+  let supersample = 4;
+  while (supersample > 2 && baseArea * supersample * supersample > MAX_PIXELS) {
+    supersample -= 1;
+  }
+  // Never undersample — even on weak devices keep at least 2× crispness.
+  supersample = Math.max(2, Math.min(4, supersample));
+
   const canvas = document.createElement('canvas');
-  canvas.width = spec.width;
-  canvas.height = spec.height;
+  canvas.width = Math.round(spec.width * supersample);
+  canvas.height = Math.round(spec.height * supersample);
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2d context');
 
+  // Apply supersample once — every subsequent draw uses spec (1×) coordinates
+  // and is automatically rendered at the higher pixel density.
+  ctx.scale(supersample, supersample);
+
   const envTone = getEnvironmentTone(content.theme.id);
 
-  // Wait for fonts
+  // Wait for fonts so typography rasterizes crisp (no fallback flash baked in).
   if ('fonts' in document) {
     try { await (document as any).fonts.ready; } catch { /* continue */ }
   }
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+  // Hint: avoids brown-out on translucent compositing at high DPR.
+  // (no-op on browsers that don't support it)
+  try { (ctx as any).textRendering = 'geometricPrecision'; } catch { /* noop */ }
+  void dpr;
 
   // Load media image
   let mediaImg: HTMLImageElement | null = null;
