@@ -300,7 +300,7 @@ export default function Settings() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ name, timezone })
+      .update({ name, timezone, health_insurance_provider: healthInsurance === 'none' ? null : healthInsurance } as any)
       .eq('user_id', user.id);
 
     if (error) {
