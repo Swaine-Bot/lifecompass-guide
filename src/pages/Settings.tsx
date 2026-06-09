@@ -174,6 +174,7 @@ export default function Settings() {
     if (profile) {
       setName(profile.name || '');
       setTimezone(profile.timezone || 'UTC');
+      setHealthInsurance(((profile as any)?.health_insurance_provider) || 'none');
       loadAvatarUrl();
     }
     fetchPrivacySettings();
