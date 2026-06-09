@@ -243,6 +243,7 @@ export default function Onboarding() {
     { title: 'Your Mentor', subtitle: 'Choose your guidance style' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
     { title: 'Notifications', subtitle: 'Stay connected your way' },
+    { title: 'Health Insurance / Medical Aid', subtitle: 'Helps personalize wellness journeys, rewards integrations, and future partner experiences.' },
     // Layer 2 (conditional)
     ...(hasActivation ? [{ title: 'Fine-Tune', subtitle: 'Sharpen your focus areas' }] : []),
     { title: 'First Step', subtitle: 'Take your first action' },
