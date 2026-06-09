@@ -423,8 +423,9 @@ export default function Onboarding() {
 
   // ── Determine which Layer 2 activation areas apply ──
   const activationAreas = formData.focus_areas.filter(a => activationQuestions[a]);
-  const activationStepIndex = 7;
-  const firstStepIndex = hasActivation ? 8 : 7;
+  const healthStepIndex = 7;
+  const activationStepIndex = 8;
+  const firstStepIndex = hasActivation ? 9 : 8;
   const isLastStep = step === totalSteps - 1;
 
   // ── Render step content ──
