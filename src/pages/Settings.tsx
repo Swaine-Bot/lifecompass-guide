@@ -148,6 +148,7 @@ export default function Settings() {
   const { openShareStudio } = useUniversalShare();
   const [name, setName] = useState(profile?.name || '');
   const [timezone, setTimezone] = useState(profile?.timezone || 'UTC');
+  const [healthInsurance, setHealthInsurance] = useState<string>(((profile as any)?.health_insurance_provider) || 'none');
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
     terms_accepted: false,
     privacy_policy_accepted: false,
