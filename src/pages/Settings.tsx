@@ -531,6 +531,31 @@ export default function Settings() {
                 </Select>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="health_insurance" className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Health Insurance / Medical Aid
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Used to personalize wellness journeys and partner experiences.
+                </p>
+                <Select value={healthInsurance} onValueChange={setHealthInsurance}>
+                  <SelectTrigger id="health_insurance">
+                    <SelectValue placeholder="Select provider" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border border-border">
+                    <SelectItem value="none">None / Remove</SelectItem>
+                    <SelectItem value="discovery_health">Discovery Health</SelectItem>
+                    <SelectItem value="momentum">Momentum</SelectItem>
+                    <SelectItem value="profmed">ProfMed</SelectItem>
+                    <SelectItem value="bonitas">Bonitas</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="undisclosed">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+
               <div className="flex gap-2">
                 <Button variant="gold" onClick={updateProfile} disabled={loading} className="flex-1">
                   <Save className="w-4 h-4 mr-2" />
