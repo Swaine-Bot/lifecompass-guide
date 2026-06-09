@@ -152,6 +152,8 @@ export default function Journal() {
   const [showSchedulePlayback, setShowSchedulePlayback] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  const [justSavedEntryId, setJustSavedEntryId] = useState<string | null>(null);
+  const [savedToVault, setSavedToVault] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
