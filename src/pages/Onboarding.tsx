@@ -297,6 +297,7 @@ export default function Onboarding() {
         mentor_style: formData.mentor_style,
         identity_prompt: formData.identity_prompt || null,
         primary_intent: formData.primary_intent || null,
+        health_insurance_provider: formData.health_insurance_provider || null,
       } as any).eq('user_id', user.id);
 
       if (error) throw error;
