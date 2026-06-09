@@ -666,6 +666,50 @@ export default function Onboarding() {
       );
     }
 
+    // Step 7: Health Insurance / Medical Aid
+    if (step === healthStepIndex) {
+      const providers: { id: typeof formData.health_insurance_provider; label: string }[] = [
+        { id: 'discovery_health', label: 'Discovery Health' },
+        { id: 'momentum', label: 'Momentum' },
+        { id: 'profmed', label: 'ProfMed' },
+        { id: 'bonitas', label: 'Bonitas' },
+        { id: 'other', label: 'Other' },
+        { id: 'undisclosed', label: 'Prefer not to say' },
+      ];
+      return (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground text-center">Optional. You can change this later in Settings.</p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {providers.map((p) => {
+              const selected = formData.health_insurance_provider === p.id;
+              return (
+                <motion.button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    health_insurance_provider: selected ? '' : p.id,
+                  }))}
+                  className={cn(
+                    "p-3 rounded-xl border text-left text-sm transition-all",
+                    selected
+                      ? "border-primary bg-primary/10 text-white"
+                      : "border-border/50 hover:border-primary/30 text-white/90"
+                  )}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{p.label}</span>
+                    {selected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
     // Layer 2 — Activation (adaptive sub-questions)
     if (hasActivation && step === activationStepIndex) {
       return (
