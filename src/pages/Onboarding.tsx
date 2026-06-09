@@ -124,6 +124,7 @@ export default function Onboarding() {
     // Layer 2 adaptive
     activation_choices: {} as Record<string, string>,
     first_action: '' as '' | 'goal' | 'journal' | 'mentor',
+    health_insurance_provider: '' as '' | 'discovery_health' | 'momentum' | 'profmed' | 'bonitas' | 'other' | 'undisclosed',
   });
 
   const { user, refreshProfile, loading: authLoading, profile } = useAuth();
