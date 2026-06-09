@@ -548,38 +548,33 @@ export default function Journal() {
         })) : null,
       };
 
+      let savedId: string | null = null;
       if (existing) {
         await supabase
           .from('journal_entries')
           .update(entryData)
           .eq('id', existing.id);
+        savedId = existing.id;
       } else {
-        await supabase
+        const { data: inserted } = await supabase
           .from('journal_entries')
-          .insert({ ...entryData, user_id: user.id });
+          .insert({ ...entryData, user_id: user.id })
+          .select('id')
+          .single();
+        savedId = inserted?.id ?? null;
       }
 
       const successMessage = scheduledPlaybackAt 
         ? `Journal entry saved! You'll be reminded on ${format(new Date(scheduledPlaybackAt), 'MMM d, yyyy')} at ${format(new Date(scheduledPlaybackAt), 'h:mm a')}`
-        : 'Journal entry saved!';
+        : 'Journal entry saved';
       choreographedDispatch('reflection_saved');
       summonSpirit('journal_saved');
       toast.success(successMessage);
-      
-      // Reset all form fields for new entry
-      setContent('');
-      setGratitude('');
-      setReflection('');
-      setSelectedMood(null);
-      setSelectedEnergy(null);
-      setSelectedFiles([]);
-      setAudioBlob(null);
-      setAudioUrl(null);
-      setAnalysis(null);
-      setScheduledPlaybackDate(undefined);
-      setScheduledPlaybackTime('09:00');
-      setShowSchedulePlayback(false);
-      
+
+      // Preserve editor state. Mark entry as just-saved so post-save action bar shows.
+      setJustSavedEntryId(savedId);
+      setSavedToVault(false);
+
       fetchEntries();
     } catch (error) {
       console.error('Save error:', error);
