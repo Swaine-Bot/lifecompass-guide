@@ -152,6 +152,8 @@ export default function Journal() {
   const [showSchedulePlayback, setShowSchedulePlayback] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  const [justSavedEntryId, setJustSavedEntryId] = useState<string | null>(null);
+  const [savedToVault, setSavedToVault] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -546,38 +548,33 @@ export default function Journal() {
         })) : null,
       };
 
+      let savedId: string | null = null;
       if (existing) {
         await supabase
           .from('journal_entries')
           .update(entryData)
           .eq('id', existing.id);
+        savedId = existing.id;
       } else {
-        await supabase
+        const { data: inserted } = await supabase
           .from('journal_entries')
-          .insert({ ...entryData, user_id: user.id });
+          .insert({ ...entryData, user_id: user.id })
+          .select('id')
+          .single();
+        savedId = inserted?.id ?? null;
       }
 
       const successMessage = scheduledPlaybackAt 
         ? `Journal entry saved! You'll be reminded on ${format(new Date(scheduledPlaybackAt), 'MMM d, yyyy')} at ${format(new Date(scheduledPlaybackAt), 'h:mm a')}`
-        : 'Journal entry saved!';
+        : 'Journal entry saved';
       choreographedDispatch('reflection_saved');
       summonSpirit('journal_saved');
       toast.success(successMessage);
-      
-      // Reset all form fields for new entry
-      setContent('');
-      setGratitude('');
-      setReflection('');
-      setSelectedMood(null);
-      setSelectedEnergy(null);
-      setSelectedFiles([]);
-      setAudioBlob(null);
-      setAudioUrl(null);
-      setAnalysis(null);
-      setScheduledPlaybackDate(undefined);
-      setScheduledPlaybackTime('09:00');
-      setShowSchedulePlayback(false);
-      
+
+      // Preserve editor state. Mark entry as just-saved so post-save action bar shows.
+      setJustSavedEntryId(savedId);
+      setSavedToVault(false);
+
       fetchEntries();
     } catch (error) {
       console.error('Save error:', error);
@@ -1038,6 +1035,108 @@ export default function Journal() {
               )}
             </Button>
           </div>
+
+          {/* Post-save action bar — keeps entry visible and gives next-step options */}
+          {justSavedEntryId && (
+            <div className="mt-5 pt-4 border-t border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-sm text-white/90">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span>Journal entry saved — what next?</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => setJustSavedEntryId(null)}
+                  className="text-white"
+                >
+                  <PenLine className="w-4 h-4 mr-1.5" />
+                  Continue Editing
+                </Button>
+                <ShareButton
+                  variant="button"
+                  size="sm"
+                  className="text-white"
+                  source={{
+                    type: 'journal_reflection',
+                    id: justSavedEntryId,
+                    title: 'Journal reflection',
+                    excerpt: content || reflection || gratitude || '',
+                    quote: content || reflection || gratitude || '',
+                  }}
+                />
+                <Button
+                  variant="glass"
+                  size="sm"
+                  disabled={savedToVault || (!content && !reflection && !gratitude)}
+                  onClick={async () => {
+                    if (!user) return;
+                    const quote = (content || reflection || gratitude || '').trim();
+                    if (!quote) return;
+                    const { error } = await supabase.from('saved_insights').insert({
+                      user_id: user.id,
+                      quote: quote.slice(0, 2000),
+                      context_tag: 'Journal',
+                    });
+                    if (error) {
+                      toast.error('Could not save to Vault');
+                    } else {
+                      setSavedToVault(true);
+                      toast.success('Saved to Vault');
+                    }
+                  }}
+                  className="text-white"
+                >
+                  <Sparkles className="w-4 h-4 mr-1.5" />
+                  {savedToVault ? 'In Vault' : 'Save Insight'}
+                </Button>
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => navigate('/micro-moves', {
+                    state: { fromJournalEntryId: justSavedEntryId, sourceText: content || reflection || gratitude || '' },
+                  })}
+                  className="text-white"
+                >
+                  <Zap className="w-4 h-4 mr-1.5" />
+                  Micro Moves
+                </Button>
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => {
+                    setContent('');
+                    setGratitude('');
+                    setReflection('');
+                    setSelectedMood(null);
+                    setSelectedEnergy(null);
+                    setSelectedFiles([]);
+                    setAudioBlob(null);
+                    setAudioUrl(null);
+                    setAnalysis(null);
+                    setScheduledPlaybackDate(undefined);
+                    setScheduledPlaybackTime('09:00');
+                    setShowSchedulePlayback(false);
+                    setJustSavedEntryId(null);
+                    setSavedToVault(false);
+                  }}
+                  className="text-white"
+                >
+                  <PenLine className="w-4 h-4 mr-1.5" />
+                  Start New Entry
+                </Button>
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => setJustSavedEntryId(null)}
+                  className="text-white"
+                >
+                  <X className="w-4 h-4 mr-1.5" />
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

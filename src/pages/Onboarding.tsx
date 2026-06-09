@@ -124,6 +124,7 @@ export default function Onboarding() {
     // Layer 2 adaptive
     activation_choices: {} as Record<string, string>,
     first_action: '' as '' | 'goal' | 'journal' | 'mentor',
+    health_insurance_provider: '' as '' | 'discovery_health' | 'momentum' | 'profmed' | 'bonitas' | 'other' | 'undisclosed',
   });
 
   const { user, refreshProfile, loading: authLoading, profile } = useAuth();
@@ -242,6 +243,7 @@ export default function Onboarding() {
     { title: 'Your Mentor', subtitle: 'Choose your guidance style' },
     { title: 'Your Rhythm', subtitle: 'How do you like to work?' },
     { title: 'Notifications', subtitle: 'Stay connected your way' },
+    { title: 'Health Insurance / Medical Aid', subtitle: 'Helps personalize wellness journeys, rewards integrations, and future partner experiences.' },
     // Layer 2 (conditional)
     ...(hasActivation ? [{ title: 'Fine-Tune', subtitle: 'Sharpen your focus areas' }] : []),
     { title: 'First Step', subtitle: 'Take your first action' },
@@ -295,6 +297,7 @@ export default function Onboarding() {
         mentor_style: formData.mentor_style,
         identity_prompt: formData.identity_prompt || null,
         primary_intent: formData.primary_intent || null,
+        health_insurance_provider: formData.health_insurance_provider || null,
       } as any).eq('user_id', user.id);
 
       if (error) throw error;
@@ -421,8 +424,9 @@ export default function Onboarding() {
 
   // ── Determine which Layer 2 activation areas apply ──
   const activationAreas = formData.focus_areas.filter(a => activationQuestions[a]);
-  const activationStepIndex = 7;
-  const firstStepIndex = hasActivation ? 8 : 7;
+  const healthStepIndex = 7;
+  const activationStepIndex = 8;
+  const firstStepIndex = hasActivation ? 9 : 8;
   const isLastStep = step === totalSteps - 1;
 
   // ── Render step content ──
@@ -658,6 +662,50 @@ export default function Onboarding() {
             <p className="text-xs text-muted-foreground">
               Your data is protected with AES-256 encryption. We never sell personal information.
             </p>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 7: Health Insurance / Medical Aid
+    if (step === healthStepIndex) {
+      const providers: { id: typeof formData.health_insurance_provider; label: string }[] = [
+        { id: 'discovery_health', label: 'Discovery Health' },
+        { id: 'momentum', label: 'Momentum' },
+        { id: 'profmed', label: 'ProfMed' },
+        { id: 'bonitas', label: 'Bonitas' },
+        { id: 'other', label: 'Other' },
+        { id: 'undisclosed', label: 'Prefer not to say' },
+      ];
+      return (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground text-center">Optional. You can change this later in Settings.</p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {providers.map((p) => {
+              const selected = formData.health_insurance_provider === p.id;
+              return (
+                <motion.button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    health_insurance_provider: selected ? '' : p.id,
+                  }))}
+                  className={cn(
+                    "p-3 rounded-xl border text-left text-sm transition-all",
+                    selected
+                      ? "border-primary bg-primary/10 text-white"
+                      : "border-border/50 hover:border-primary/30 text-white/90"
+                  )}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{p.label}</span>
+                    {selected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  </div>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       );

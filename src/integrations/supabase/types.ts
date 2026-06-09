@@ -1606,6 +1606,7 @@ export type Database = {
           focus_areas: Json | null
           gender: string | null
           guide_completed: boolean | null
+          health_insurance_provider: string | null
           id: string
           identity_prompt: string | null
           is_verified: boolean | null
@@ -1640,6 +1641,7 @@ export type Database = {
           focus_areas?: Json | null
           gender?: string | null
           guide_completed?: boolean | null
+          health_insurance_provider?: string | null
           id?: string
           identity_prompt?: string | null
           is_verified?: boolean | null
@@ -1674,6 +1676,7 @@ export type Database = {
           focus_areas?: Json | null
           gender?: string | null
           guide_completed?: boolean | null
+          health_insurance_provider?: string | null
           id?: string
           identity_prompt?: string | null
           is_verified?: boolean | null

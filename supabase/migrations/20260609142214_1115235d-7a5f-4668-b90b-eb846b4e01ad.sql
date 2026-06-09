@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS health_insurance_provider text;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_health_insurance_provider_check CHECK (health_insurance_provider IS NULL OR health_insurance_provider IN ('discovery_health','momentum','profmed','bonitas','other','undisclosed'));
