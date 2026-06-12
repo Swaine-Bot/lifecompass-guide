@@ -212,14 +212,29 @@ function wrapText(
   const words = text.split(/\s+/);
   const lines: string[] = [];
   let currentLine = '';
+  const canAddLine = () => lines.length < maxLines;
 
   for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && currentLine) {
+    let remainingWord = word;
+    while (ctx.measureText(remainingWord).width > maxWidth && remainingWord.length > 1) {
+      let sliceEnd = remainingWord.length;
+      while (sliceEnd > 1 && ctx.measureText(remainingWord.slice(0, sliceEnd)).width > maxWidth) {
+        sliceEnd -= 1;
+      }
+      if (currentLine && canAddLine()) {
+        lines.push(currentLine);
+        currentLine = '';
+      }
+      if (!canAddLine()) return lines;
+      lines.push(remainingWord.slice(0, sliceEnd));
+      remainingWord = remainingWord.slice(sliceEnd);
+    }
+
+    const testLine = currentLine ? `${currentLine} ${remainingWord}` : remainingWord;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      if (!canAddLine()) return lines;
       lines.push(currentLine);
-      currentLine = word;
-      if (lines.length >= maxLines) break;
+      currentLine = remainingWord;
     } else {
       currentLine = testLine;
     }
@@ -229,15 +244,37 @@ function wrapText(
     lines.push(currentLine);
   }
 
-  if (lines.length >= maxLines && words.length > 0) {
-    const lastLine = lines[lines.length - 1];
-    const remaining = text.slice(lines.join(' ').length).trim();
-    if (remaining) {
-      lines[lines.length - 1] = lastLine + '…';
+  return lines;
+}
+
+function fitWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  availableHeight: number,
+  startFontSize: number,
+  minFontSize: number,
+  lineHeightRatio: number,
+  fontFactory: (size: number) => string,
+): { fontSize: number; lineHeight: number; lines: string[] } {
+  let fontSize = startFontSize;
+  let lineHeight = fontSize * lineHeightRatio;
+  let lines: string[] = [];
+
+  while (fontSize > minFontSize) {
+    ctx.font = fontFactory(fontSize);
+    lineHeight = fontSize * lineHeightRatio;
+    lines = wrapText(ctx, text, maxWidth, Number.MAX_SAFE_INTEGER);
+    if (lines.length * lineHeight <= availableHeight) {
+      return { fontSize, lineHeight, lines };
     }
+    fontSize -= 1;
   }
 
-  return lines;
+  ctx.font = fontFactory(minFontSize);
+  lineHeight = minFontSize * lineHeightRatio;
+  lines = wrapText(ctx, text, maxWidth, Number.MAX_SAFE_INTEGER);
+  return { fontSize: minFontSize, lineHeight, lines };
 }
 
 function envWhite(envTone: EnvironmentTone, alpha: number = 1, tier: 'primary' | 'secondary' | 'meta' = 'primary'): string {
