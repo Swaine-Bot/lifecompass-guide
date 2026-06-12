@@ -1526,7 +1526,7 @@ export async function renderCompositionToCanvas(
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(spec.width * supersample);
   canvas.height = Math.round(spec.height * supersample);
-  const ctx = canvas.getContext('2d', { alpha: true, colorSpace: 'display-p3' as any });
+  const ctx = canvas.getContext('2d', { alpha: true, colorSpace: 'display-p3' as any }) as CanvasRenderingContext2D | null;
   if (!ctx) throw new Error('Could not get 2d context');
 
   // Apply supersample once — every subsequent draw uses spec (1×) coordinates
