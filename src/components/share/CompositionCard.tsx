@@ -28,6 +28,7 @@ export function CompositionCard({
   className = '',
 }: CompositionCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderSeqRef = useRef(0);
   const [rendered, setRendered] = useState(false);
 
   const spec = useMemo(
@@ -42,12 +43,14 @@ export function CompositionCard({
 
   useEffect(() => {
     let cancelled = false;
+    const renderSeq = ++renderSeqRef.current;
+    let rafId = 0;
 
     async function render() {
       setRendered(false);
       try {
-        const canvas = await renderCompositionToCanvas(spec, content);
-        if (cancelled) return;
+        const canvas = await renderCompositionToCanvas(spec, content, { quality: 'preview' });
+        if (cancelled || renderSeq !== renderSeqRef.current) return;
 
         const target = canvasRef.current;
         if (!target) return;
@@ -64,8 +67,11 @@ export function CompositionCard({
       }
     }
 
-    render();
-    return () => { cancelled = true; };
+    rafId = window.requestAnimationFrame(() => { void render(); });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(rafId);
+    };
   }, [spec, content]);
 
   const accentHex = content.theme?.accentHex || 'rgba(200,164,106,0.15)';
@@ -137,7 +143,7 @@ export async function exportCompositionToBlob(
 ): Promise<Blob | null> {
   try {
     const spec = computeCompositionSpec(content, platform);
-    const canvas = await renderCompositionToCanvas(spec, content);
+    const canvas = await renderCompositionToCanvas(spec, content, { quality: 'export' });
     return await new Promise<Blob | null>((resolve) =>
       canvas.toBlob((blob) => resolve(blob), 'image/png', 1.0)
     );
