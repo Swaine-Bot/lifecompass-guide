@@ -46,7 +46,7 @@ export function ClassicTemplate({ data, theme: t, format, privacy: rawPrivacy, p
           <div className="flex items-center gap-2.5 min-w-0">
             <BrandLogoMark size={26} />
             {privacy.includeName && userName && (
-              <span className={cn('font-medium truncate', t.textSecondary)} style={{ fontSize: 11 }}>{userName}</span>
+              <span className={cn('font-medium', t.textSecondary)} style={{ fontSize: 11, whiteSpace: 'normal', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{userName}</span>
             )}
           </div>
           <span className={cn(t.pillBg, t.pillBorder, t.accent)}
