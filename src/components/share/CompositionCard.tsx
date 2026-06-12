@@ -44,7 +44,7 @@ export function CompositionCard({
   useEffect(() => {
     let cancelled = false;
     const renderSeq = ++renderSeqRef.current;
-    let rafId = 0;
+    let timeoutId = 0;
 
     async function render() {
       setRendered(false);
@@ -67,10 +67,10 @@ export function CompositionCard({
       }
     }
 
-    rafId = window.requestAnimationFrame(() => { void render(); });
+    timeoutId = window.setTimeout(() => { void render(); }, 90);
     return () => {
       cancelled = true;
-      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
     };
   }, [spec, content]);
 

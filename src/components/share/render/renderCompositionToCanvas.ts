@@ -175,14 +175,23 @@ function parseGradient(gradient: string): string[] {
   return colorMatches || ['#0a0a0f', '#0d0d14', '#111118'];
 }
 
+const imagePromiseCache = new Map<string, Promise<HTMLImageElement>>();
+
 async function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
+  const cached = imagePromiseCache.get(src);
+  if (cached) return cached;
+
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
     img.src = src;
   });
+
+  imagePromiseCache.set(src, promise);
+  promise.catch(() => imagePromiseCache.delete(src));
+  return promise;
 }
 
 function drawRoundedRect(
@@ -1410,11 +1419,16 @@ function drawBackground(
   ctx.fillStyle = coolAccent;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine grain texture
+  // Fine grain texture — deterministic so preview/export never shimmer or drift.
   ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
+  let seed = (spec.width * 73856093) ^ (spec.height * 19349663);
+  const seededRandom = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
   for (let i = 0; i < 180; i++) {
-    const nx = Math.random() * spec.width;
-    const ny = Math.random() * spec.height;
+    const nx = seededRandom() * spec.width;
+    const ny = seededRandom() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
