@@ -175,14 +175,23 @@ function parseGradient(gradient: string): string[] {
   return colorMatches || ['#0a0a0f', '#0d0d14', '#111118'];
 }
 
+const imagePromiseCache = new Map<string, Promise<HTMLImageElement>>();
+
 async function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
+  const cached = imagePromiseCache.get(src);
+  if (cached) return cached;
+
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
     img.src = src;
   });
+
+  imagePromiseCache.set(src, promise);
+  promise.catch(() => imagePromiseCache.delete(src));
+  return promise;
 }
 
 function drawRoundedRect(
@@ -1410,11 +1419,16 @@ function drawBackground(
   ctx.fillStyle = coolAccent;
   ctx.fillRect(0, 0, spec.width, spec.height);
 
-  // Fine grain texture
+  // Fine grain texture — deterministic so preview/export never shimmer or drift.
   ctx.fillStyle = 'rgba(255, 255, 255, 0.003)';
+  let seed = (spec.width * 73856093) ^ (spec.height * 19349663);
+  const seededRandom = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
   for (let i = 0; i < 180; i++) {
-    const nx = Math.random() * spec.width;
-    const ny = Math.random() * spec.height;
+    const nx = seededRandom() * spec.width;
+    const ny = seededRandom() * spec.height;
     ctx.fillRect(nx, ny, 1, 1);
   }
 
@@ -1510,25 +1524,34 @@ function drawOuterFrame(
  * Desktop budget:  ~32MP  → typically 4× supersample.
  * Mobile  budget:  ~14MP  → typically 3× supersample (4K-class long edge).
  */
+interface RenderCompositionOptions {
+  quality?: 'preview' | 'export';
+}
+
 export async function renderCompositionToCanvas(
   spec: CompositionSpec,
   content: NormalizedShareContent,
+  options: RenderCompositionOptions = {},
 ): Promise<HTMLCanvasElement> {
   const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
   const baseArea = spec.width * spec.height;
+  const quality = options.quality || 'export';
 
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   // iOS Safari ≈ 16MP hard ceiling. Stay safely under it.
-  const MAX_PIXELS = isIOS ? 14_000_000 : isMobile ? 20_000_000 : 32_000_000;
-  const MAX_SUPER = isMobile ? 4 : 5;
+  const MAX_PIXELS = quality === 'preview'
+    ? 4_500_000
+    : isIOS ? 14_000_000 : isMobile ? 20_000_000 : 32_000_000;
+  const MAX_SUPER = quality === 'preview' ? 1 : isMobile ? 4 : 5;
+  const MIN_SUPER = quality === 'preview' ? 1 : 2;
 
   let supersample = MAX_SUPER;
-  while (supersample > 2 && baseArea * supersample * supersample > MAX_PIXELS) {
+  while (supersample > MIN_SUPER && baseArea * supersample * supersample > MAX_PIXELS) {
     supersample -= 1;
   }
-  supersample = Math.max(2, supersample);
+  supersample = Math.max(MIN_SUPER, supersample);
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(spec.width * supersample);

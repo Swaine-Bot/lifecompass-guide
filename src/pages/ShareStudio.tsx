@@ -112,6 +112,8 @@ export default function ShareStudio() {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
   const [showImageCount, setShowImageCount] = useState(true);
   const [imagePosition, setImagePosition] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
+  const [viewportWidth, setViewportWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 390);
+  const dragFrameRef = useRef<number | null>(null);
 
   const [sponsorEnabled, setSponsorEnabled] = useState(!!prefill?.sponsor);
   const [sponsorName, setSponsorName] = useState(prefill?.sponsor?.name || '');
@@ -216,7 +218,26 @@ export default function ShareStudio() {
     });
   }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy, imagePosition]);
 
-  const previewWidth = Math.min(280, window.innerWidth - 80);
+  useEffect(() => {
+    const syncViewportWidth = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', syncViewportWidth, { passive: true });
+    window.visualViewport?.addEventListener('resize', syncViewportWidth, { passive: true });
+    return () => {
+      window.removeEventListener('resize', syncViewportWidth);
+      window.visualViewport?.removeEventListener('resize', syncViewportWidth);
+      if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
+    };
+  }, []);
+
+  const commitImagePosition = useCallback((next: { x: number; y: number }) => {
+    if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
+    dragFrameRef.current = window.requestAnimationFrame(() => {
+      setImagePosition({ x: Math.round(next.x), y: Math.round(next.y) });
+      dragFrameRef.current = null;
+    });
+  }, []);
+
+  const previewWidth = Math.min(280, Math.max(188, viewportWidth - 132));
   const previewSpec = useMemo(() => computeCompositionSpec(normalizedContent, platform), [normalizedContent, platform]);
   const previewScale = previewWidth / previewSpec.width;
   const mediaOverlayStyle = useMemo<React.CSSProperties | null>(() => {
@@ -593,8 +614,9 @@ export default function ShareStudio() {
                 {mediaOverlayStyle && (
                   <div
                     className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
-                    style={mediaOverlayStyle}
+                      style={{ ...mediaOverlayStyle, touchAction: 'none' }}
                     onPointerDown={(e) => {
+                        e.preventDefault();
                       const el = e.currentTarget;
                       el.setPointerCapture(e.pointerId);
                       const startX = e.clientX;
@@ -606,14 +628,16 @@ export default function ShareStudio() {
                         const sensitivity = 0.3;
                         const x = Math.max(0, Math.min(100, startPos.x - dx * sensitivity));
                         const y = Math.max(0, Math.min(100, startPos.y - dy * sensitivity));
-                        setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                        commitImagePosition({ x, y });
                       };
                       const onUp = () => {
                         el.removeEventListener('pointermove', onMove);
                         el.removeEventListener('pointerup', onUp);
+                        el.removeEventListener('lostpointercapture', onUp);
                       };
                       el.addEventListener('pointermove', onMove);
                       el.addEventListener('pointerup', onUp);
+                      el.addEventListener('lostpointercapture', onUp);
                     }}
                   >
                     <div
@@ -810,8 +834,10 @@ export default function ShareStudio() {
                           height: 140,
                           border: '1px solid rgba(255,255,255,0.08)',
                           background: 'rgba(0,0,0,0.3)',
+                          touchAction: 'none',
                         }}
                         onPointerDown={(e) => {
+                          e.preventDefault();
                           const el = e.currentTarget;
                           const rect = el.getBoundingClientRect();
                           el.setPointerCapture(e.pointerId);
@@ -819,7 +845,7 @@ export default function ShareStudio() {
                           const handleMove = (ev: PointerEvent) => {
                             const x = Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100));
                             const y = Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100));
-                            setImagePosition({ x: Math.round(x), y: Math.round(y) });
+                            commitImagePosition({ x, y });
                           };
 
                           handleMove(e.nativeEvent);
@@ -827,9 +853,11 @@ export default function ShareStudio() {
                           const onUp = () => {
                             el.removeEventListener('pointermove', onMove);
                             el.removeEventListener('pointerup', onUp);
+                            el.removeEventListener('lostpointercapture', onUp);
                           };
                           el.addEventListener('pointermove', onMove);
                           el.addEventListener('pointerup', onUp);
+                          el.addEventListener('lostpointercapture', onUp);
                         }}
                       >
                         <img
