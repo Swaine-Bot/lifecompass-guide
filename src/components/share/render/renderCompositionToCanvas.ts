@@ -212,14 +212,29 @@ function wrapText(
   const words = text.split(/\s+/);
   const lines: string[] = [];
   let currentLine = '';
+  const canAddLine = () => lines.length < maxLines;
 
   for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && currentLine) {
+    let remainingWord = word;
+    while (ctx.measureText(remainingWord).width > maxWidth && remainingWord.length > 1) {
+      let sliceEnd = remainingWord.length;
+      while (sliceEnd > 1 && ctx.measureText(remainingWord.slice(0, sliceEnd)).width > maxWidth) {
+        sliceEnd -= 1;
+      }
+      if (currentLine && canAddLine()) {
+        lines.push(currentLine);
+        currentLine = '';
+      }
+      if (!canAddLine()) return lines;
+      lines.push(remainingWord.slice(0, sliceEnd));
+      remainingWord = remainingWord.slice(sliceEnd);
+    }
+
+    const testLine = currentLine ? `${currentLine} ${remainingWord}` : remainingWord;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      if (!canAddLine()) return lines;
       lines.push(currentLine);
-      currentLine = word;
-      if (lines.length >= maxLines) break;
+      currentLine = remainingWord;
     } else {
       currentLine = testLine;
     }
@@ -229,15 +244,37 @@ function wrapText(
     lines.push(currentLine);
   }
 
-  if (lines.length >= maxLines && words.length > 0) {
-    const lastLine = lines[lines.length - 1];
-    const remaining = text.slice(lines.join(' ').length).trim();
-    if (remaining) {
-      lines[lines.length - 1] = lastLine + '…';
+  return lines;
+}
+
+function fitWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  availableHeight: number,
+  startFontSize: number,
+  minFontSize: number,
+  lineHeightRatio: number,
+  fontFactory: (size: number) => string,
+): { fontSize: number; lineHeight: number; lines: string[] } {
+  let fontSize = startFontSize;
+  let lineHeight = fontSize * lineHeightRatio;
+  let lines: string[] = [];
+
+  while (fontSize > minFontSize) {
+    ctx.font = fontFactory(fontSize);
+    lineHeight = fontSize * lineHeightRatio;
+    lines = wrapText(ctx, text, maxWidth, Number.MAX_SAFE_INTEGER);
+    if (lines.length * lineHeight <= availableHeight) {
+      return { fontSize, lineHeight, lines };
     }
+    fontSize -= 1;
   }
 
-  return lines;
+  ctx.font = fontFactory(minFontSize);
+  lineHeight = minFontSize * lineHeightRatio;
+  lines = wrapText(ctx, text, maxWidth, Number.MAX_SAFE_INTEGER);
+  return { fontSize: minFontSize, lineHeight, lines };
 }
 
 function envWhite(envTone: EnvironmentTone, alpha: number = 1, tier: 'primary' | 'secondary' | 'meta' = 'primary'): string {
@@ -671,22 +708,17 @@ function drawInsightPanel(
   const textX = panel.x + pad + 18;
   const textMaxW = panel.width - pad - (pad + 18);
   const availableTextH = panel.height - headerH - pad - 8;
-
-  ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  let lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
-  let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
-  let totalH = lines.length * lineH;
-
-  while (totalH > availableTextH && fontSize > 18) {
-    fontSize -= 2;
-    lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
-    ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-    lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
-    totalH = lines.length * lineH;
-  }
-
-  const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
-  const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
+  const fitted = fitWrappedText(
+    ctx,
+    content.aiInsight,
+    textMaxW,
+    availableTextH,
+    fontSize,
+    0.1,
+    spec.typography.insightLineHeight + 0.1,
+    (size) => `italic 400 ${size}px ${SERIF_FAMILY}`,
+  );
+  fontSize = fitted.fontSize;
 
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 0.97, 'primary');
@@ -695,9 +727,9 @@ function drawInsightPanel(
   ctx.shadowOffsetY = 2;
 
   let textY = panel.y + headerH + fontSize;
-  for (const line of finalLines) {
+  for (const line of fitted.lines) {
     ctx.fillText(line, textX, textY);
-    textY += lineH;
+    textY += fitted.lineHeight;
   }
 
   ctx.shadowColor = 'transparent';
@@ -732,9 +764,8 @@ function drawTextPanel(
   ctx.fillStyle = accentGrad;
   ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
 
-  // Title
-  const titleSize = spec.typography.titleFontSize;
-  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  // Title + subtitle are fitted as a full text block so share cards never snip copy.
+  const titleStartSize = spec.typography.titleFontSize;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 12;
@@ -742,10 +773,34 @@ function drawTextPanel(
   (ctx as any).letterSpacing = '1px';
 
   const textMaxW = panel.width - pad * 2;
-  const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.28;
+  const titleTopY = panel.y + pad + 18;
+  const bottomY = panel.y + panel.height - pad;
+  const subtitleGap = content.subtitle ? 22 : 0;
+  let titleSize = titleStartSize;
+  let subSize = content.subtitle ? spec.typography.subtitleFontSize : 0;
+  let titleLineH = titleSize * 1.28;
+  let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
+  let titleLines: string[] = [];
+  let subLines: string[] = [];
 
-  let cursorY = panel.y + pad + 18 + titleSize;
+  while (titleSize > 0.1) {
+    ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+    titleLineH = titleSize * 1.28;
+    titleLines = wrapText(ctx, content.title, textMaxW, Number.MAX_SAFE_INTEGER);
+    if (content.subtitle) {
+      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
+      subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
+      subLines = wrapText(ctx, content.subtitle, textMaxW, Number.MAX_SAFE_INTEGER);
+    }
+    const neededH = titleLines.length * titleLineH + subtitleGap + subLines.length * subLineH;
+    if (neededH <= bottomY - titleTopY) break;
+    const step = titleSize > 8 ? 1 : titleSize > 1 ? 0.25 : 0.05;
+    titleSize -= step;
+    subSize = content.subtitle ? Math.max(0.1, subSize - step) : 0;
+  }
+
+  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  let cursorY = titleTopY + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
@@ -756,32 +811,12 @@ function drawTextPanel(
 
   // Subtitle
   if (content.subtitle) {
-    cursorY += 22;
-    let subSize = spec.typography.subtitleFontSize;
-    const availableH = panel.y + panel.height - pad - cursorY;
-
+    cursorY += subtitleGap;
     ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
-    let totalTextH = subLines.length * subLineH;
-
-    const minSubSize = 16;
-    while (totalTextH > availableH && subSize > minSubSize) {
-      subSize -= 2;
-      subLineH = subSize * spec.typography.subtitleLineHeight;
-      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-      subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-      totalTextH = subLines.length * subLineH;
-    }
-
-    const maxVisibleLines = Math.floor(availableH / subLineH);
-    const finalMaxLines = Math.max(maxVisibleLines, 3);
-    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-    const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
     ctx.fillStyle = envWhite(envTone, 0.72, 'secondary');
     (ctx as any).letterSpacing = '0.3px';
 
-    for (const line of finalLines) {
+    for (const line of subLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
@@ -1131,10 +1166,9 @@ function drawSponsorPanel(
     if (tagline) {
       ctx.font = `400 ${12}px ${FONT_FAMILY}`;
       ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
-      const tagW = ctx.measureText(tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline).width;
-      const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
+      const tagW = Math.min(ctx.measureText(tagline).width, panel.width - pad * 2);
       const tagX = panel.x + (panel.width - tagW) / 2;
-      ctx.fillText(clipped, tagX, headingY + 18);
+      ctx.fillText(tagline, tagX, headingY + 18, panel.width - pad * 2);
     }
 
     // ── Asset image below heading ──
@@ -1196,8 +1230,7 @@ function drawSponsorPanel(
       ctx.font = `400 ${12}px ${FONT_FAMILY}`;
       ctx.fillStyle = envWhite(envTone, 0.4, 'meta');
       const maxW = panel.width - pad * 2;
-      const clipped = tagline.length > 60 ? tagline.slice(0, 59) + '…' : tagline;
-      ctx.fillText(clipped, textX, centerY + 18, maxW);
+      ctx.fillText(tagline, textX, centerY + 18, maxW);
     }
   }
 

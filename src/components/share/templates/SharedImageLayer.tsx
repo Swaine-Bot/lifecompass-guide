@@ -28,19 +28,14 @@ function CountBadge({ count }: { count: number }) {
 }
 
 /**
- * SAFE TEXT STYLE — prevents text from being cut off.
- * Uses word-wrap and overflow-wrap instead of line-clamp for safety.
- * Line-clamp is only used when explicitly needed with proper padding.
+ * SAFE TEXT STYLE — preserves full text. Share cards must never snip or ellipsize copy.
  */
 export function getClampStyle(maxLines: number, lineHeight: number, overrides: CSSProperties = {}): CSSProperties {
   return {
-    display: '-webkit-box',
-    WebkitLineClamp: maxLines,
-    WebkitBoxOrient: 'vertical' as const,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
+    display: 'block',
+    overflow: 'visible',
+    textOverflow: 'clip',
     lineHeight,
-    maxHeight: `${maxLines * lineHeight}em`,
     overflowWrap: 'break-word' as const,
     wordBreak: 'break-word' as const,
     ...overrides,
@@ -280,15 +275,17 @@ export function TemplateFooter({
           <p style={{
             fontSize: compact ? 9 : 10,
             fontWeight: 600, letterSpacing: '0.11em', textTransform: 'uppercase',
-            color: accentHex, overflow: 'hidden', textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap', lineHeight: 1.3,
+            color: accentHex, overflow: 'visible', textOverflow: 'clip',
+            whiteSpace: 'normal', lineHeight: 1.3,
+            overflowWrap: 'break-word', wordBreak: 'break-word',
           }}>
             {phrase}
           </p>
           {metaText && (
             <p style={{
               fontSize: 9, marginTop: 2, color: footerHex,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              overflow: 'visible', textOverflow: 'clip', whiteSpace: 'normal',
+              overflowWrap: 'break-word', wordBreak: 'break-word',
             }}>
               {metaText}
             </p>

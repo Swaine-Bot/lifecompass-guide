@@ -94,7 +94,7 @@ export function MomentumTemplate({ data, theme: t, format, privacy: rawPrivacy, 
                 {displaySecondary}
               </span>
               {data.secondaryLabel && (
-                <span className={cn('truncate', t.textSecondary)} style={{ fontSize: '0.625rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                <span className={t.textSecondary} style={{ fontSize: '0.625rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'normal', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   {data.secondaryLabel}
                 </span>
               )}

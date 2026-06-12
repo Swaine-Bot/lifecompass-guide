@@ -720,7 +720,7 @@ export default function ShareStudio() {
                             style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                             {CARD_TYPE_LABELS[card.cardType as CardType]}
                           </p>
-                          <p className="text-[9px] text-white truncate">{card.title}</p>
+                          <p className="text-[9px] text-white break-words whitespace-normal">{card.title}</p>
                         </div>
                       </button>
                     ))}
@@ -736,7 +736,7 @@ export default function ShareStudio() {
                         style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}>
                         {CARD_TYPE_LABELS[selectedCard.cardType as CardType]}
                       </p>
-                      <p className="text-[9px] text-white truncate">{selectedCard.title}</p>
+                      <p className="text-[9px] text-white break-words whitespace-normal">{selectedCard.title}</p>
                     </div>
                   </div>
                 </div>
@@ -962,7 +962,7 @@ export default function ShareStudio() {
                             <img src={activePartnerAsset.file_url} alt="" className="w-8 h-8 rounded object-cover" />
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-[10px] text-white/80 truncate">{activePartnerAsset.title}</p>
+                            <p className="text-[10px] text-white/80 break-words whitespace-normal">{activePartnerAsset.title}</p>
                             <p className="text-[8px] text-white/40">
                               {activePartnerAsset.campaign_name || 'No campaign'} · Active
                             </p>

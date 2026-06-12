@@ -47,7 +47,7 @@ export function StoryTemplate({ data, theme: t, format, privacy: rawPrivacy, phr
         {/* HEADER */}
         <div className="flex items-center gap-2 flex-shrink-0 min-w-0" style={{ marginBottom: 12 }}>
           <BrandLogoMark size={22} />
-          <span className={cn('truncate', t.textMuted)} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
+          <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'normal', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
             {data.identityLabel || CARD_TYPE_LABELS[data.cardType]}
           </span>
         </div>
