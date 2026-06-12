@@ -1494,18 +1494,21 @@ function drawOuterFrame(
 
 /**
  * Supersample factor — renders the canvas at N× the spec dimensions for
- * true 4K+ export. All draw commands continue to use spec (1×) coordinates;
- * a single ctx.scale() at init transparently upscales every operation,
- * yielding razor-sharp typography, icons, gradients, and media that survive
- * Instagram / Facebook / LinkedIn / WhatsApp / X recompression.
+ * a high-quality export. All draw commands continue to use spec (1×)
+ * coordinates; a single ctx.scale() at init transparently upscales every
+ * operation, yielding sharp typography, icons, gradients, and media.
  *
- * Minimum target: ≥4K on the long edge — no exceptions.
+ * Mobile browsers (iOS Safari in particular) have hard per-canvas pixel
+ * limits — iPhone caps around ~16MP and silently produces a BLANK canvas
+ * past that, which is what was causing the Share Studio to freeze and
+ * render mis-aligned/empty cards. We therefore:
  *
- * 1080×1350 feed  × 5 → 5400×6750 (5K)
- * 1080×1920 story × 4 → 4320×7680 (4K UHD+)
+ *   1. Detect mobile vs desktop and pick a safe budget.
+ *   2. Auto-throttle supersample so total pixels stay under that budget.
+ *   3. Never go below 2× (still clean on retina screens).
  *
- * Auto-throttles only if the resulting canvas would exceed ~50MP, the
- * practical mobile-browser ceiling. Never falls below 4× = guaranteed 4K.
+ * Desktop budget:  ~32MP  → typically 4× supersample.
+ * Mobile  budget:  ~14MP  → typically 3× supersample (4K-class long edge).
  */
 export async function renderCompositionToCanvas(
   spec: CompositionSpec,
@@ -1513,20 +1516,26 @@ export async function renderCompositionToCanvas(
 ): Promise<HTMLCanvasElement> {
   const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
   const baseArea = spec.width * spec.height;
-  // Cap aligned with modern iOS / Android canvas memory budgets.
-  const MAX_PIXELS = 50_000_000;
-  // Start at 5× for crystal-clear typography after platform recompression.
-  let supersample = 5;
-  while (supersample > 4 && baseArea * supersample * supersample > MAX_PIXELS) {
+
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  // iOS Safari ≈ 16MP hard ceiling. Stay safely under it.
+  const MAX_PIXELS = isIOS ? 14_000_000 : isMobile ? 20_000_000 : 32_000_000;
+  const MAX_SUPER = isMobile ? 4 : 5;
+
+  let supersample = MAX_SUPER;
+  while (supersample > 2 && baseArea * supersample * supersample > MAX_PIXELS) {
     supersample -= 1;
   }
-  // Hard floor: 4× = guaranteed 4K-class output on every device.
-  supersample = Math.max(4, Math.min(5, supersample));
+  supersample = Math.max(2, supersample);
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(spec.width * supersample);
   canvas.height = Math.round(spec.height * supersample);
-  const ctx = canvas.getContext('2d', { alpha: true, colorSpace: 'display-p3' as any }) as CanvasRenderingContext2D | null;
+  // Plain alpha context — display-p3 colorSpace breaks on older Safari and
+  // some Android WebViews, producing a blank canvas. Stick to default sRGB.
+  const ctx = canvas.getContext('2d', { alpha: true }) as CanvasRenderingContext2D | null;
   if (!ctx) throw new Error('Could not get 2d context');
 
   // Apply supersample once — every subsequent draw uses spec (1×) coordinates
