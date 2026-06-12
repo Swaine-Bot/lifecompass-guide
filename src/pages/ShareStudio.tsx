@@ -112,6 +112,8 @@ export default function ShareStudio() {
   const [imageLayout, setImageLayout] = useState<ImageLayout>(selectedCard.imageLayout || 'hero_image');
   const [showImageCount, setShowImageCount] = useState(true);
   const [imagePosition, setImagePosition] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
+  const [viewportWidth, setViewportWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 390);
+  const dragFrameRef = useRef<number | null>(null);
 
   const [sponsorEnabled, setSponsorEnabled] = useState(!!prefill?.sponsor);
   const [sponsorName, setSponsorName] = useState(prefill?.sponsor?.name || '');
@@ -216,7 +218,26 @@ export default function ShareStudio() {
     });
   }, [cardWithSponsor, privacy, themeObj, platform, phrase, aiInsight, aiInsightEnabled, includePostImage, imageLayout, showImageCount, strategy, imagePosition]);
 
-  const previewWidth = Math.min(280, window.innerWidth - 80);
+  useEffect(() => {
+    const syncViewportWidth = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', syncViewportWidth, { passive: true });
+    window.visualViewport?.addEventListener('resize', syncViewportWidth, { passive: true });
+    return () => {
+      window.removeEventListener('resize', syncViewportWidth);
+      window.visualViewport?.removeEventListener('resize', syncViewportWidth);
+      if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
+    };
+  }, []);
+
+  const commitImagePosition = useCallback((next: { x: number; y: number }) => {
+    if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
+    dragFrameRef.current = window.requestAnimationFrame(() => {
+      setImagePosition({ x: Math.round(next.x), y: Math.round(next.y) });
+      dragFrameRef.current = null;
+    });
+  }, []);
+
+  const previewWidth = Math.min(280, Math.max(188, viewportWidth - 132));
   const previewSpec = useMemo(() => computeCompositionSpec(normalizedContent, platform), [normalizedContent, platform]);
   const previewScale = previewWidth / previewSpec.width;
   const mediaOverlayStyle = useMemo<React.CSSProperties | null>(() => {
