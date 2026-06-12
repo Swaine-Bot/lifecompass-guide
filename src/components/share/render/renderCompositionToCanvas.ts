@@ -714,7 +714,7 @@ function drawInsightPanel(
     textMaxW,
     availableTextH,
     fontSize,
-    0.5,
+    0.1,
     spec.typography.insightLineHeight + 0.1,
     (size) => `italic 400 ${size}px ${SERIF_FAMILY}`,
   );
@@ -783,7 +783,7 @@ function drawTextPanel(
   let titleLines: string[] = [];
   let subLines: string[] = [];
 
-  while (titleSize > 0.5) {
+  while (titleSize > 0.1) {
     ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
     titleLineH = titleSize * 1.28;
     titleLines = wrapText(ctx, content.title, textMaxW, Number.MAX_SAFE_INTEGER);
@@ -794,9 +794,9 @@ function drawTextPanel(
     }
     const neededH = titleLines.length * titleLineH + subtitleGap + subLines.length * subLineH;
     if (neededH <= bottomY - titleTopY) break;
-    const step = titleSize > 8 ? 1 : 0.25;
+    const step = titleSize > 8 ? 1 : titleSize > 1 ? 0.25 : 0.05;
     titleSize -= step;
-    subSize = content.subtitle ? Math.max(0.5, subSize - step) : 0;
+    subSize = content.subtitle ? Math.max(0.1, subSize - step) : 0;
   }
 
   ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
