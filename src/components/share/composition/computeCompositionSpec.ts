@@ -251,7 +251,7 @@ export function computeCompositionSpec(
     x: isSplit ? cx : cx,
     y: isSplit ? cy : cursorY,
     width: isSplit ? splitMediaW : cw,
-    height: isSplit ? (availH - brandH - (content.showFooter ? gap : 0)) : mediaH,
+    height: isSplit ? availH : mediaH,
     visible: content.hasMedia && content.imageTreatment !== 'none',
     zIndex: content.imageTreatment === 'background' ? 0 : 2,
   };
@@ -284,7 +284,7 @@ export function computeCompositionSpec(
     ? cy + (hasInsight ? insightH + gap : 0)
     : cursorY;
   const textPanelH = isSplit
-    ? (availH - brandH - (content.showFooter ? gap : 0) - (hasInsight ? insightH + gap : 0) - (showBottomRow ? bottomRowH + gap : 0))
+    ? (availH - (hasInsight ? insightH + gap : 0) - (showBottomRow ? bottomRowH + gap : 0))
     : textH;
 
   const textPanelSpec: PanelSpec = {
@@ -303,7 +303,7 @@ export function computeCompositionSpec(
 
   // Bottom row: momentum + meta side by side
   const bottomY = isSplit
-    ? cy + (availH - brandH - (content.showFooter ? gap : 0) - bottomRowH)
+    ? cy + (availH - bottomRowH)
     : cursorY;
 
   const halfW = Math.round((panelW - gap) / 2);
