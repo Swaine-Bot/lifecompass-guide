@@ -24,7 +24,7 @@ export interface NormalizedShareContent {
   secondaryValue: string | null;
   secondaryLabel: string | null;
 
-  // AI Insight (already clamped to platform limits)
+  // AI Insight (preserved in full; renderer must fit, never snip)
   aiInsight: string | null;
   aiInsightLinks: { label: string; url: string }[] | null;
 
@@ -93,24 +93,9 @@ function mapImageLayout(layout: string): ImageTreatment {
   }
 }
 
-/** Clamp text to approximate line count (chars per line ~45 for card width) */
-function clampToLines(text: string, maxLines: number, isUserText = false): string {
-  // User text (subtitle/reflection) gets generous treatment — show full content
-  if (isUserText) {
-    const charsPerLine = 42;
-    const maxChars = maxLines * charsPerLine;
-    if (text.length <= maxChars) return text;
-    // For user text, only clamp at extreme lengths, never mid-sentence
-    const cutoff = text.lastIndexOf('.', maxChars);
-    if (cutoff > maxChars * 0.7) return text.slice(0, cutoff + 1);
-    const spaceCutoff = text.lastIndexOf(' ', maxChars);
-    if (spaceCutoff > maxChars * 0.8) return text.slice(0, spaceCutoff) + '…';
-    return text.slice(0, maxChars - 1).trim() + '…';
-  }
-  const charsPerLine = 42;
-  const maxChars = maxLines * charsPerLine;
-  if (text.length <= maxChars) return text;
-  return text.slice(0, maxChars - 1).trim() + '…';
+/** Preserve share-card text exactly. Fitting belongs to the renderer, never normalization. */
+function preserveText(text: string): string {
+  return text.trim();
 }
 
 /**
@@ -177,7 +162,7 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
   // Resolve AI insight
   let aiInsight: string | null = null;
   if (input.aiInsightEnabled && input.aiInsight?.trim()) {
-    aiInsight = clampToLines(input.aiInsight.trim(), profile.maxInsightLines);
+    aiInsight = preserveText(input.aiInsight);
   }
 
   // Resolve media
@@ -192,10 +177,10 @@ export function normalizeShareContent(input: NormalizeInput): NormalizedShareCon
     imageTreatment = profile.preferredImageTreatment[0] || 'hero';
   }
 
-  // Clamp title and subtitle — subtitle is user text, treated generously
-  const title = clampToLines(input.data.title, profile.maxTitleLines);
+  // Preserve title and subtitle in full — never snip user-facing share-card copy
+  const title = preserveText(input.data.title);
   const subtitle = input.data.subtitle
-    ? clampToLines(input.data.subtitle, profile.maxBodyLines, true)
+    ? preserveText(input.data.subtitle)
     : null;
 
   // Compute visibility
