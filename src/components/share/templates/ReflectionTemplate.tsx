@@ -44,7 +44,7 @@ export function ReflectionTemplate({ data, theme: t, format, phrase, animate, ai
         <div className="flex-shrink-0" style={{ marginBottom: 12 }}>
           <div className="flex items-center gap-2 min-w-0">
             <div style={{ width: 3, height: 14, borderRadius: 2, background: t.accentHex }} />
-            <span className={cn('truncate', t.textMuted)} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
+            <span className={t.textMuted} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'normal', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
               {data.identityLabel || 'Reflection'}
             </span>
           </div>
