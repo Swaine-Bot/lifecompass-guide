@@ -1510,25 +1510,34 @@ function drawOuterFrame(
  * Desktop budget:  ~32MP  → typically 4× supersample.
  * Mobile  budget:  ~14MP  → typically 3× supersample (4K-class long edge).
  */
+interface RenderCompositionOptions {
+  quality?: 'preview' | 'export';
+}
+
 export async function renderCompositionToCanvas(
   spec: CompositionSpec,
   content: NormalizedShareContent,
+  options: RenderCompositionOptions = {},
 ): Promise<HTMLCanvasElement> {
   const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
   const baseArea = spec.width * spec.height;
+  const quality = options.quality || 'export';
 
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   // iOS Safari ≈ 16MP hard ceiling. Stay safely under it.
-  const MAX_PIXELS = isIOS ? 14_000_000 : isMobile ? 20_000_000 : 32_000_000;
-  const MAX_SUPER = isMobile ? 4 : 5;
+  const MAX_PIXELS = quality === 'preview'
+    ? 4_500_000
+    : isIOS ? 14_000_000 : isMobile ? 20_000_000 : 32_000_000;
+  const MAX_SUPER = quality === 'preview' ? 1 : isMobile ? 4 : 5;
+  const MIN_SUPER = quality === 'preview' ? 1 : 2;
 
   let supersample = MAX_SUPER;
-  while (supersample > 2 && baseArea * supersample * supersample > MAX_PIXELS) {
+  while (supersample > MIN_SUPER && baseArea * supersample * supersample > MAX_PIXELS) {
     supersample -= 1;
   }
-  supersample = Math.max(2, supersample);
+  supersample = Math.max(MIN_SUPER, supersample);
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(spec.width * supersample);
