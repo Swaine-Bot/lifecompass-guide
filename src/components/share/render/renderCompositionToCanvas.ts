@@ -1494,38 +1494,39 @@ function drawOuterFrame(
 
 /**
  * Supersample factor — renders the canvas at N× the spec dimensions for
- * 4K-quality export. All draw commands continue to use spec (1×) coordinates;
+ * true 4K+ export. All draw commands continue to use spec (1×) coordinates;
  * a single ctx.scale() at init transparently upscales every operation,
- * yielding razor-sharp typography, icons, gradients, and media after
- * Instagram / LinkedIn / Facebook / WhatsApp / X compression.
+ * yielding razor-sharp typography, icons, gradients, and media that survive
+ * Instagram / Facebook / LinkedIn / WhatsApp / X recompression.
  *
- * 1080×1350 base × 4 → 4320×5400 (4K UHD+)
- * 1080×1920 base × 4 → 4320×7680 (Story / TikTok 4K)
+ * Minimum target: ≥4K on the long edge — no exceptions.
  *
- * Auto-throttles to 3× on very tall stories to avoid >32M-pixel canvases
- * that some mobile browsers reject.
+ * 1080×1350 feed  × 5 → 5400×6750 (5K)
+ * 1080×1920 story × 4 → 4320×7680 (4K UHD+)
+ *
+ * Auto-throttles only if the resulting canvas would exceed ~50MP, the
+ * practical mobile-browser ceiling. Never falls below 4× = guaranteed 4K.
  */
 export async function renderCompositionToCanvas(
   spec: CompositionSpec,
   content: NormalizedShareContent,
 ): Promise<HTMLCanvasElement> {
-  // Pick supersample factor based on output area + device capability.
   const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
   const baseArea = spec.width * spec.height;
-  // Target ~4K-class output. Throttle if it would exceed ~33MP (Safari/iOS limit ≈ 16384²
-  // but practical mobile ceiling is much lower).
-  const MAX_PIXELS = 33_000_000;
-  let supersample = 4;
-  while (supersample > 2 && baseArea * supersample * supersample > MAX_PIXELS) {
+  // Cap aligned with modern iOS / Android canvas memory budgets.
+  const MAX_PIXELS = 50_000_000;
+  // Start at 5× for crystal-clear typography after platform recompression.
+  let supersample = 5;
+  while (supersample > 4 && baseArea * supersample * supersample > MAX_PIXELS) {
     supersample -= 1;
   }
-  // Never undersample — even on weak devices keep at least 2× crispness.
-  supersample = Math.max(2, Math.min(4, supersample));
+  // Hard floor: 4× = guaranteed 4K-class output on every device.
+  supersample = Math.max(4, Math.min(5, supersample));
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(spec.width * supersample);
   canvas.height = Math.round(spec.height * supersample);
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: true, colorSpace: 'display-p3' as any });
   if (!ctx) throw new Error('Could not get 2d context');
 
   // Apply supersample once — every subsequent draw uses spec (1×) coordinates
@@ -1541,9 +1542,8 @@ export async function renderCompositionToCanvas(
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  // Hint: avoids brown-out on translucent compositing at high DPR.
-  // (no-op on browsers that don't support it)
   try { (ctx as any).textRendering = 'geometricPrecision'; } catch { /* noop */ }
+  try { (ctx as any).fontKerning = 'normal'; } catch { /* noop */ }
   void dpr;
 
   // Load media image
