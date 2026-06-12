@@ -708,22 +708,17 @@ function drawInsightPanel(
   const textX = panel.x + pad + 18;
   const textMaxW = panel.width - pad - (pad + 18);
   const availableTextH = panel.height - headerH - pad - 8;
-
-  ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-  let lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
-  let lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
-  let totalH = lines.length * lineH;
-
-  while (totalH > availableTextH && fontSize > 18) {
-    fontSize -= 2;
-    lineH = fontSize * (spec.typography.insightLineHeight + 0.1);
-    ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
-    lines = wrapText(ctx, content.aiInsight, textMaxW, 999);
-    totalH = lines.length * lineH;
-  }
-
-  const maxFitLines = Math.max(Math.floor(availableTextH / lineH), 2);
-  const finalLines = wrapText(ctx, content.aiInsight, textMaxW, maxFitLines);
+  const fitted = fitWrappedText(
+    ctx,
+    content.aiInsight,
+    textMaxW,
+    availableTextH,
+    fontSize,
+    4,
+    spec.typography.insightLineHeight + 0.1,
+    (size) => `italic 400 ${size}px ${SERIF_FAMILY}`,
+  );
+  fontSize = fitted.fontSize;
 
   ctx.font = `italic 400 ${fontSize}px ${SERIF_FAMILY}`;
   ctx.fillStyle = envWhite(envTone, 0.97, 'primary');
@@ -732,9 +727,9 @@ function drawInsightPanel(
   ctx.shadowOffsetY = 2;
 
   let textY = panel.y + headerH + fontSize;
-  for (const line of finalLines) {
+  for (const line of fitted.lines) {
     ctx.fillText(line, textX, textY);
-    textY += lineH;
+    textY += fitted.lineHeight;
   }
 
   ctx.shadowColor = 'transparent';
