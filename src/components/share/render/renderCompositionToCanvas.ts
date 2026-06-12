@@ -764,9 +764,8 @@ function drawTextPanel(
   ctx.fillStyle = accentGrad;
   ctx.fillRect(panel.x + pad, panel.y + pad, accentLineW, 2);
 
-  // Title
-  const titleSize = spec.typography.titleFontSize;
-  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  // Title + subtitle are fitted as a full text block so share cards never snip copy.
+  const titleStartSize = spec.typography.titleFontSize;
   ctx.fillStyle = envWhite(envTone, 1, 'primary');
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 12;
@@ -774,10 +773,33 @@ function drawTextPanel(
   (ctx as any).letterSpacing = '1px';
 
   const textMaxW = panel.width - pad * 2;
-  const titleLines = wrapText(ctx, content.title, textMaxW, spec.typography.titleMaxLines);
-  const titleLineH = titleSize * 1.28;
+  const titleTopY = panel.y + pad + 18;
+  const bottomY = panel.y + panel.height - pad;
+  const subtitleGap = content.subtitle ? 22 : 0;
+  let titleSize = titleStartSize;
+  let subSize = content.subtitle ? spec.typography.subtitleFontSize : 0;
+  let titleLineH = titleSize * 1.28;
+  let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
+  let titleLines: string[] = [];
+  let subLines: string[] = [];
 
-  let cursorY = panel.y + pad + 18 + titleSize;
+  while (titleSize > 4) {
+    ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+    titleLineH = titleSize * 1.28;
+    titleLines = wrapText(ctx, content.title, textMaxW, Number.MAX_SAFE_INTEGER);
+    if (content.subtitle) {
+      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
+      subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
+      subLines = wrapText(ctx, content.subtitle, textMaxW, Number.MAX_SAFE_INTEGER);
+    }
+    const neededH = titleLines.length * titleLineH + subtitleGap + subLines.length * subLineH;
+    if (neededH <= bottomY - titleTopY) break;
+    titleSize -= 1;
+    subSize = content.subtitle ? Math.max(4, subSize - 1) : 0;
+  }
+
+  ctx.font = `700 ${titleSize}px ${SERIF_FAMILY}`;
+  let cursorY = titleTopY + titleSize;
   for (const line of titleLines) {
     ctx.fillText(line, panel.x + pad, cursorY);
     cursorY += titleLineH;
@@ -788,32 +810,12 @@ function drawTextPanel(
 
   // Subtitle
   if (content.subtitle) {
-    cursorY += 22;
-    let subSize = spec.typography.subtitleFontSize;
-    const availableH = panel.y + panel.height - pad - cursorY;
-
+    cursorY += subtitleGap;
     ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-    let subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-    let subLineH = subSize * (spec.typography.subtitleLineHeight + 0.14);
-    let totalTextH = subLines.length * subLineH;
-
-    const minSubSize = 16;
-    while (totalTextH > availableH && subSize > minSubSize) {
-      subSize -= 2;
-      subLineH = subSize * spec.typography.subtitleLineHeight;
-      ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-      subLines = wrapText(ctx, content.subtitle, textMaxW, 999);
-      totalTextH = subLines.length * subLineH;
-    }
-
-    const maxVisibleLines = Math.floor(availableH / subLineH);
-    const finalMaxLines = Math.max(maxVisibleLines, 3);
-    ctx.font = `300 ${subSize}px ${FONT_FAMILY}`;
-    const finalLines = wrapText(ctx, content.subtitle, textMaxW, finalMaxLines);
     ctx.fillStyle = envWhite(envTone, 0.72, 'secondary');
     (ctx as any).letterSpacing = '0.3px';
 
-    for (const line of finalLines) {
+    for (const line of subLines) {
       ctx.fillText(line, panel.x + pad, cursorY);
       cursorY += subLineH;
     }
