@@ -95,6 +95,7 @@ const App = () => (
                 <Route path="/update-password" element={<UpdatePassword />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/predictive-intelligence" element={<PredictiveIntelligence />} />
                 <Route path="/ip-docs" element={<IPDocumentation />} />
                 <Route path="/launch-video" element={<LaunchVideo />} />
                 <Route path="/app-store-submission" element={<AppStoreSubmission />} />
