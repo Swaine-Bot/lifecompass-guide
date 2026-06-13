@@ -325,6 +325,21 @@ export default function Onboarding() {
         },
       });
 
+      // Phase 1: Mirror medical aid choice into insurer_connections + consent ledger.
+      if (formData.health_insurance_provider && formData.health_insurance_provider !== 'undisclosed') {
+        try {
+          const { connectInsurer, ensureSharingPrefs } = await import('@/services/insurer/insurerService');
+          const map: Record<string, 'discovery' | 'momentum' | 'profmed' | 'bonitas' | 'other'> = {
+            discovery_health: 'discovery', momentum: 'momentum', profmed: 'profmed', bonitas: 'bonitas', other: 'other',
+          };
+          const provider = map[formData.health_insurance_provider];
+          if (provider) {
+            await connectInsurer(user.id, provider, true);
+            await ensureSharingPrefs(user.id);
+          }
+        } catch { /* non-blocking */ }
+      }
+
       await refreshProfile();
       setShowGuide(true);
     } catch {
