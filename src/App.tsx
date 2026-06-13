@@ -73,9 +73,11 @@ const App = () => (
     <AuthProvider>
       <LanguageProvider>
         <SubscriptionProvider>
+          <DemoModeProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <DemoModeBanner />
             <BrowserRouter>
               <DeepLinkBridge />
               <ErrorBoundary>
