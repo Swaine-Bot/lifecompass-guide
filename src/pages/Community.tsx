@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { supabase } from '@/integrations/supabase/client';
@@ -128,6 +129,7 @@ export default function Community() {
   useEnvironment('community');
   const { user, profile } = useAuth();
   const { openShareStudio } = useUniversalShare();
+  const navigate = useNavigate();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1275,6 +1277,20 @@ export default function Community() {
                           <MessageCircle className="w-4 h-4" />
                           <span className="text-xs">{post.comments_count}</span>
                         </button>
+
+                        {post.user_id !== user?.id && post.content && (
+                          <button
+                            onClick={() => {
+                              const title = post.content.slice(0, 80).trim();
+                              navigate(`/goals/new?title=${encodeURIComponent(title)}`);
+                            }}
+                            className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+                            title="Turn this into one of your goals"
+                          >
+                            <Target className="w-4 h-4" />
+                            <span className="text-xs">Set as goal</span>
+                          </button>
+                        )}
 
                         <button
                           onClick={() => handleSharePost(post)}
