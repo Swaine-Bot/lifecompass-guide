@@ -134,10 +134,12 @@ const App = () => (
               </ErrorBoundary>
             </BrowserRouter>
           </TooltipProvider>
+          </DemoModeProvider>
         </SubscriptionProvider>
       </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
+
 
 export default App;
