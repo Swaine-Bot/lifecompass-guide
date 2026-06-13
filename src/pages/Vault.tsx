@@ -139,40 +139,48 @@ export default function Vault() {
             />
           ) : (
             shareCards.map(card => (
-              <Card key={card.id} variant="glass" className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+              <Card
+                key={card.id}
+                variant="glass"
+                className="p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                onClick={() => navigate(`/vault/card/${card.id}`)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
                     <p className="text-xs uppercase tracking-wider text-primary/60 font-medium">
                       {card.card_type.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-sm font-medium mt-1">{card.title}</p>
+                    <p className="text-sm font-medium mt-1 break-words">{card.title}</p>
                     {card.subtitle && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 break-words">{card.subtitle}</p>
                     )}
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">
                         {card.theme}
                       </span>
                       {card.signature_phrase && (
-                        <span className="text-[10px] text-primary/60 italic">
+                        <span className="text-[10px] text-primary/60 italic break-words">
                           {card.signature_phrase}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <Button
                       variant="ghost"
                       size="icon-sm"
                       className="text-muted-foreground hover:text-foreground"
-                      onClick={() => openShareStudio({
-                        type: 'vault_insight',
-                        id: card.id,
-                        title: card.title,
-                        subtitle: card.subtitle || undefined,
-                        statValue: card.stat_value || undefined,
-                        statLabel: card.stat_label || undefined,
-                      })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openShareStudio({
+                          type: 'vault_insight',
+                          id: card.id,
+                          title: card.title,
+                          subtitle: card.subtitle || undefined,
+                          statValue: card.stat_value || undefined,
+                          statLabel: card.stat_label || undefined,
+                        });
+                      }}
                     >
                       <Share2 className="w-3.5 h-3.5" />
                     </Button>
