@@ -2056,6 +2056,86 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_ledger: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          points: number
+          rule_id: string | null
+          source_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          points: number
+          rule_id?: string | null
+          source_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          points?: number
+          rule_id?: string | null
+          source_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_ledger_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "reward_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_rules: {
+        Row: {
+          active: boolean
+          created_at: string
+          event_type: string
+          id: string
+          label: string
+          max_per_day: number
+          multiplier: number
+          pillar: Database["public"]["Enums"]["life_pillar"] | null
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          event_type: string
+          id?: string
+          label: string
+          max_per_day?: number
+          multiplier?: number
+          pillar?: Database["public"]["Enums"]["life_pillar"] | null
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          event_type?: string
+          id?: string
+          label?: string
+          max_per_day?: number
+          multiplier?: number
+          pillar?: Database["public"]["Enums"]["life_pillar"] | null
+          points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       saved_insights: {
         Row: {
           context_tag: string | null
@@ -2879,6 +2959,14 @@ export type Database = {
           new_total_xp: number
         }[]
       }
+      award_reward: {
+        Args: { _event_type: string; _metadata?: Json; _source_id?: string }
+        Returns: {
+          awarded: number
+          balance: number
+          daily_remaining: number
+        }[]
+      }
       award_xp: {
         Args: {
           _domain: Database["public"]["Enums"]["life_domain"]
@@ -2923,6 +3011,18 @@ export type Database = {
           status: Database["public"]["Enums"]["partner_status"]
           website_url: string
         }[]
+      }
+      get_my_reward_balance: {
+        Args: never
+        Returns: {
+          balance: number
+          earned_today: number
+          earned_week: number
+        }[]
+      }
+      get_partner_aggregate_analytics: {
+        Args: { _days?: number; _partner_id: string }
+        Returns: Json
       }
       get_profile_for_viewer: {
         Args: { target_user_id: string }
