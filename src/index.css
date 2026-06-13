@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Phase 1 — Global UI Hardening (mobile-safe, overflow-safe, keyboard-safe) */
+@layer base {
+  html, body, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+  /* Prevent flex children from blowing horizontal bounds */
+  body * {
+    min-width: 0;
+  }
+  /* Resilient full-height alias */
+  .h-screen-safe { height: 100dvh; }
+  .min-h-screen-safe { min-height: 100dvh; }
+  /* Word-safe text for unbounded user content */
+  .text-safe { overflow-wrap: anywhere; word-break: break-word; }
+}
+
 /* LifeStack Premium Design System - Obsidian & Gold */
 
 @layer base {
