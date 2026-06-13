@@ -135,9 +135,15 @@ export default function Admin() {
               <p className="text-xs text-muted-foreground">Privacy-First Analytics · LifeStack</p>
             </div>
           </div>
-          <span className="text-[10px] text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
-            Suitable for external presentation
-          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => navigate('/admin/predictive-intelligence')} className="gap-1.5">
+              <Brain className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Predictive Intelligence</span>
+            </Button>
+            <span className="hidden md:inline text-[10px] text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
+              Suitable for external presentation
+            </span>
+          </div>
         </div>
 
         {/* Section Navigation */}
