@@ -45,6 +45,7 @@ import PlayStoreSubmission from "./pages/PlayStoreSubmission";
 import Mirror from "./pages/Mirror";
 import Cinematics from "./pages/Cinematics";
 import Vault from "./pages/Vault";
+import VaultCardDetail from "./pages/VaultCardDetail";
 import ShareStudio from "./pages/ShareStudio";
 import InsightLibrary from "./pages/InsightLibrary";
 import SharedContent from "./pages/SharedContent";
@@ -118,6 +119,7 @@ const App = () => (
                   <Route path="/mirror" element={<Mirror />} />
                   <Route path="/cinematics" element={<Cinematics />} />
                   <Route path="/vault" element={<Vault />} />
+                  <Route path="/vault/card/:id" element={<VaultCardDetail />} />
                   <Route path="/share-studio" element={<ShareStudio />} />
                   <Route path="/insights" element={<InsightLibrary />} />
                   <Route path="/playbook/:id" element={<PlaybookDetail />} />

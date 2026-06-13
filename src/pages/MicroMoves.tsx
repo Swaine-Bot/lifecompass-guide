@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnvironment } from '@/contexts/SensoryContext';
@@ -180,7 +180,7 @@ export default function MicroMoves() {
             Micro Moves
           </h1>
           <p className="text-xs uppercase tracking-wider text-muted-foreground/70">
-            {totalActive} active · {grouped.completed.length} done
+            {totalActive} active · {grouped.completed.length} done · <Link to="/goals" className="underline decoration-dotted underline-offset-2 hover:text-foreground">Goals →</Link>
           </p>
         </div>
         <Button variant="gold" size="sm" onClick={() => setCreating(true)} className="shrink-0">
