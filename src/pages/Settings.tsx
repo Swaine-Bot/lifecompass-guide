@@ -27,7 +27,9 @@ import { SubscriptionBadge, ProgressToPaywall, UpgradeModal } from '@/components
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPreferencesCard } from '@/components/viral/NotificationPreferences';
 import { WearableSettings } from '@/components/wearables/WearableSettings';
-import { Watch } from 'lucide-react';
+import { InsurerWellnessPanel } from '@/components/settings/InsurerWellnessPanel';
+import { CompliancePanel } from '@/components/settings/CompliancePanel';
+import { Watch, HeartPulse } from 'lucide-react';
 import { useSensory, useEnvironment } from '@/contexts/SensoryContext';
 
 interface PrivacySettings {
@@ -416,6 +418,10 @@ export default function Settings() {
           <TabsTrigger value="wearables" className="flex items-center gap-1">
             <Watch className="w-3.5 h-3.5" />
             Devices
+          </TabsTrigger>
+          <TabsTrigger value="wellness" className="flex items-center gap-1">
+            <HeartPulse className="w-3.5 h-3.5" />
+            Wellness
           </TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="sensory" className="flex items-center gap-1">
@@ -921,6 +927,12 @@ export default function Settings() {
         <TabsContent value="wearables" className="space-y-4">
           <WearableSettings />
         </TabsContent>
+
+        <TabsContent value="wellness" className="space-y-4">
+          <InsurerWellnessPanel />
+          <CompliancePanel />
+        </TabsContent>
+
 
         <TabsContent value="account" className="space-y-4">
           <Card variant="glass">

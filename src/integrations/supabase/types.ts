@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          ip_hash: string | null
+          resource_id: string | null
+          resource_type: string | null
+          ua_hash: string | null
+          user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          ip_hash?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          ua_hash?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          ip_hash?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          ua_hash?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cinematic_reports: {
         Row: {
           created_at: string | null
@@ -129,6 +168,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      consent_records: {
+        Row: {
+          granted: boolean
+          granted_at: string
+          id: string
+          ip_hash: string | null
+          metadata: Json | null
+          purpose: Database["public"]["Enums"]["consent_purpose"]
+          revoked_at: string | null
+          ua_hash: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          granted: boolean
+          granted_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json | null
+          purpose: Database["public"]["Enums"]["consent_purpose"]
+          revoked_at?: string | null
+          ua_hash?: string | null
+          user_id: string
+          version?: string
+        }
+        Update: {
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json | null
+          purpose?: Database["public"]["Enums"]["consent_purpose"]
+          revoked_at?: string | null
+          ua_hash?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
       }
       content_reports: {
         Row: {
@@ -279,6 +357,72 @@ export type Database = {
           signal_date?: string
           signal_type?: string
           suggested_action?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_erasure_requests: {
+        Row: {
+          cancelled_at: string | null
+          completed_at: string | null
+          id: string
+          reason: string | null
+          requested_at: string
+          scheduled_for: string
+          status: Database["public"]["Enums"]["compliance_request_status"]
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          id?: string
+          reason?: string | null
+          requested_at?: string
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["compliance_request_status"]
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          id?: string
+          reason?: string | null
+          requested_at?: string
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["compliance_request_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_export_requests: {
+        Row: {
+          completed_at: string | null
+          download_url: string | null
+          error_message: string | null
+          expires_at: string | null
+          id: string
+          requested_at: string
+          status: Database["public"]["Enums"]["compliance_request_status"]
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          requested_at?: string
+          status?: Database["public"]["Enums"]["compliance_request_status"]
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          requested_at?: string
+          status?: Database["public"]["Enums"]["compliance_request_status"]
           user_id?: string
         }
         Relationships: []
@@ -626,6 +770,105 @@ export type Database = {
           target_value?: number | null
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insurer_connections: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          external_member_id_hash: string | null
+          id: string
+          last_sync_at: string | null
+          metadata: Json | null
+          provider: Database["public"]["Enums"]["insurer_provider"]
+          revoked_at: string | null
+          scopes: Json
+          status: Database["public"]["Enums"]["insurer_connection_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          external_member_id_hash?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider: Database["public"]["Enums"]["insurer_provider"]
+          revoked_at?: string | null
+          scopes?: Json
+          status?: Database["public"]["Enums"]["insurer_connection_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          external_member_id_hash?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider?: Database["public"]["Enums"]["insurer_provider"]
+          revoked_at?: string | null
+          scopes?: Json
+          status?: Database["public"]["Enums"]["insurer_connection_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insurer_sharing_prefs: {
+        Row: {
+          allow_ai_recommendations: boolean
+          allow_anonymized_analytics: boolean
+          allow_personalized_rewards: boolean
+          allow_research: boolean
+          allow_sponsor_recommendations: boolean
+          created_at: string
+          share_activity: boolean
+          share_insights: boolean
+          share_nutrition: boolean
+          share_rewards: boolean
+          share_sleep: boolean
+          share_wearable: boolean
+          share_wellness: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_ai_recommendations?: boolean
+          allow_anonymized_analytics?: boolean
+          allow_personalized_rewards?: boolean
+          allow_research?: boolean
+          allow_sponsor_recommendations?: boolean
+          created_at?: string
+          share_activity?: boolean
+          share_insights?: boolean
+          share_nutrition?: boolean
+          share_rewards?: boolean
+          share_sleep?: boolean
+          share_wearable?: boolean
+          share_wellness?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_ai_recommendations?: boolean
+          allow_anonymized_analytics?: boolean
+          allow_personalized_rewards?: boolean
+          allow_research?: boolean
+          allow_sponsor_recommendations?: boolean
+          created_at?: string
+          share_activity?: boolean
+          share_insights?: boolean
+          share_nutrition?: boolean
+          share_rewards?: boolean
+          share_sleep?: boolean
+          share_wearable?: boolean
+          share_wellness?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1603,6 +1846,7 @@ export type Database = {
           bio: string | null
           country: string | null
           created_at: string | null
+          demo_mode: boolean
           focus_areas: Json | null
           gender: string | null
           guide_completed: boolean | null
@@ -1615,6 +1859,9 @@ export type Database = {
           last_longitude: number | null
           life_phase: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at: string | null
+          medical_aid_provider:
+            | Database["public"]["Enums"]["insurer_provider"]
+            | null
           mentor_style: string | null
           micro_moves_count: number
           name: string | null
@@ -1638,6 +1885,7 @@ export type Database = {
           bio?: string | null
           country?: string | null
           created_at?: string | null
+          demo_mode?: boolean
           focus_areas?: Json | null
           gender?: string | null
           guide_completed?: boolean | null
@@ -1650,6 +1898,9 @@ export type Database = {
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          medical_aid_provider?:
+            | Database["public"]["Enums"]["insurer_provider"]
+            | null
           mentor_style?: string | null
           micro_moves_count?: number
           name?: string | null
@@ -1673,6 +1924,7 @@ export type Database = {
           bio?: string | null
           country?: string | null
           created_at?: string | null
+          demo_mode?: boolean
           focus_areas?: Json | null
           gender?: string | null
           guide_completed?: boolean | null
@@ -1685,6 +1937,9 @@ export type Database = {
           last_longitude?: number | null
           life_phase?: Database["public"]["Enums"]["life_phase"] | null
           location_updated_at?: string | null
+          medical_aid_provider?:
+            | Database["public"]["Enums"]["insurer_provider"]
+            | null
           mentor_style?: string | null
           micro_moves_count?: number
           name?: string | null
@@ -2697,6 +2952,16 @@ export type Database = {
         Args: { follower: string; target: string }
         Returns: boolean
       }
+      log_audit_event: {
+        Args: {
+          _details?: Json
+          _event_type: string
+          _resource_id?: string
+          _resource_type?: string
+          _target_user_id?: string
+        }
+        Returns: string
+      }
       record_daily_activity: {
         Args: { _local_date?: string }
         Returns: {
@@ -2732,6 +2997,35 @@ export type Database = {
     Enums: {
       account_type: "individual" | "page"
       app_role: "admin" | "user"
+      compliance_request_status:
+        | "pending"
+        | "processing"
+        | "complete"
+        | "failed"
+        | "cancelled"
+      consent_purpose:
+        | "terms_of_service"
+        | "privacy_policy"
+        | "marketing"
+        | "analytics"
+        | "research"
+        | "insurer_share_wellness"
+        | "insurer_share_activity"
+        | "insurer_share_nutrition"
+        | "insurer_share_sleep"
+        | "insurer_share_rewards"
+        | "insurer_share_wearable"
+        | "insurer_share_insights"
+        | "insurer_personalized_rewards"
+        | "insurer_ai_recs"
+        | "insurer_anon_analytics"
+        | "insurer_research"
+        | "insurer_sponsor_recs"
+        | "insurer_connection_discovery"
+        | "insurer_connection_momentum"
+        | "insurer_connection_profmed"
+        | "insurer_connection_bonitas"
+        | "insurer_connection_other"
       event_type:
         | "birthday"
         | "anniversary"
@@ -2741,6 +3035,20 @@ export type Database = {
       friendship_status: "pending" | "accepted" | "declined" | "blocked"
       goal_status: "active" | "completed" | "paused" | "archived"
       habit_frequency: "daily" | "weekly" | "custom"
+      insurer_connection_status:
+        | "demo"
+        | "pending"
+        | "connected"
+        | "revoked"
+        | "error"
+      insurer_provider:
+        | "discovery"
+        | "momentum"
+        | "profmed"
+        | "bonitas"
+        | "other"
+        | "none"
+        | "prefer_not_say"
       life_domain: "physical" | "mind" | "wealth" | "relationships" | "legacy"
       life_phase:
         | "student_early_career"
@@ -2885,6 +3193,37 @@ export const Constants = {
     Enums: {
       account_type: ["individual", "page"],
       app_role: ["admin", "user"],
+      compliance_request_status: [
+        "pending",
+        "processing",
+        "complete",
+        "failed",
+        "cancelled",
+      ],
+      consent_purpose: [
+        "terms_of_service",
+        "privacy_policy",
+        "marketing",
+        "analytics",
+        "research",
+        "insurer_share_wellness",
+        "insurer_share_activity",
+        "insurer_share_nutrition",
+        "insurer_share_sleep",
+        "insurer_share_rewards",
+        "insurer_share_wearable",
+        "insurer_share_insights",
+        "insurer_personalized_rewards",
+        "insurer_ai_recs",
+        "insurer_anon_analytics",
+        "insurer_research",
+        "insurer_sponsor_recs",
+        "insurer_connection_discovery",
+        "insurer_connection_momentum",
+        "insurer_connection_profmed",
+        "insurer_connection_bonitas",
+        "insurer_connection_other",
+      ],
       event_type: [
         "birthday",
         "anniversary",
@@ -2895,6 +3234,22 @@ export const Constants = {
       friendship_status: ["pending", "accepted", "declined", "blocked"],
       goal_status: ["active", "completed", "paused", "archived"],
       habit_frequency: ["daily", "weekly", "custom"],
+      insurer_connection_status: [
+        "demo",
+        "pending",
+        "connected",
+        "revoked",
+        "error",
+      ],
+      insurer_provider: [
+        "discovery",
+        "momentum",
+        "profmed",
+        "bonitas",
+        "other",
+        "none",
+        "prefer_not_say",
+      ],
       life_domain: ["physical", "mind", "wealth", "relationships", "legacy"],
       life_phase: [
         "student_early_career",

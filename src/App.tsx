@@ -10,6 +10,7 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { registerNavigate } from "@/services/nativeDeepLinkRouter";
 import { isNative } from "@/lib/platform";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -76,9 +77,10 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <DeepLinkBridge />
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Landing />} />
+              <ErrorBoundary>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -125,6 +127,7 @@ const App = () => (
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </ErrorBoundary>
             </BrowserRouter>
           </TooltipProvider>
         </SubscriptionProvider>
