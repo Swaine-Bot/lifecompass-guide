@@ -104,7 +104,7 @@ export default function Goals() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="font-serif text-2xl md:text-3xl font-bold tracking-tight mb-1 on-image-title">Goals & Plans</h1>
-            <p className="on-image-subtitle text-xs uppercase tracking-wider font-medium">Your roadmap to an intentional life</p>
+            <p className="on-image-subtitle text-xs uppercase tracking-wider font-medium">Long-horizon outcomes · <Link to="/micro-moves" className="underline decoration-dotted underline-offset-2 hover:text-foreground">Daily Micro-Moves →</Link></p>
           </div>
           <Button variant="gold" asChild className="shrink-0">
             <Link to="/goals/new">
