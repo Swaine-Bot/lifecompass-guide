@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import { DemoModeBanner } from "@/components/system/DemoModeBanner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { registerNavigate } from "@/services/nativeDeepLinkRouter";
 import { isNative } from "@/lib/platform";
