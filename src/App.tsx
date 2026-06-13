@@ -56,6 +56,7 @@ import CuratedPlacements from "./pages/CuratedPlacements";
 import AdminIntelligenceWalkthrough from "./pages/AdminIntelligenceWalkthrough";
 import PublicProfile from "./pages/PublicProfile";
 import PitchDiscovery from "./pages/PitchDiscovery";
+import PredictiveIntelligence from "./pages/PredictiveIntelligence";
 
 const queryClient = new QueryClient();
 
