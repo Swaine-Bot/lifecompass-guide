@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
-import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain, Handshake } from 'lucide-react';
+import { ArrowLeft, Shield, LayoutDashboard, BarChart3, Heart, Target, MessageSquare, Activity, Users, FileText, Share2, ShieldAlert, Brain, Handshake, ScrollText } from 'lucide-react';
 import { AdminAnalytics, fetchAdminAnalytics } from '@/services/adminAnalyticsService';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ import { ShareAnalytics } from '@/components/admin/sections/ShareAnalytics';
 import { TrustSafety } from '@/components/admin/sections/TrustSafety';
 import { AIAnalyst } from '@/components/admin/sections/AIAnalyst';
 import { PartnerManager } from '@/components/admin/sections/PartnerManager';
+import { AuditLogSection } from '@/components/admin/sections/AuditLogSection';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { id: 'safety', label: 'Safety', icon: ShieldAlert },
   { id: 'moderation', label: 'Users', icon: Users },
   { id: 'documents', label: 'Docs', icon: FileText },
+  { id: 'audit', label: 'Audit', icon: ScrollText },
 ];
 
 export default function Admin() {
@@ -174,6 +176,7 @@ export default function Admin() {
         {activeSection === 'safety' && <TrustSafety />}
         {activeSection === 'moderation' && <ModerationControls data={analytics} onUserDeleted={handleUserDeleted} />}
         {activeSection === 'documents' && <DocumentCenter />}
+        {activeSection === 'audit' && <AuditLogSection />}
       </div>
     </div>
   );
