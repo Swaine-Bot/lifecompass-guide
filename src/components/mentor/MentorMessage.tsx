@@ -7,6 +7,7 @@ import { ShareButton } from '@/components/share/ShareButton';
 import { KeepInsightAction } from '@/components/viral/KeepInsightAction';
 import { MentorSpeakButton } from '@/components/mentor/MentorVoiceDock';
 import { MentorDocumentMenu } from '@/components/mentor/MentorDocumentMenu';
+import { MentorVerifyBadge } from '@/components/mentor/MentorVerifyBadge';
 import { MentorImageLightbox } from './MentorImageLightbox';
 import { AiContentLabel } from '@/components/moderation/AiContentLabel';
 import { supabase } from '@/integrations/supabase/client';
@@ -168,6 +169,7 @@ export function MentorMessage({ role, content, conversationId, imageUrl }: Mento
                 content={content}
                 subtitle="Generated with LifeStack AI Mentor"
               />
+              <MentorVerifyBadge assistantText={content} />
               {showPlaybookAction && (
                 <Button
                   variant="ghost"
