@@ -96,16 +96,11 @@ export interface ResolvedShareLink {
 }
 
 export async function resolveShareLink(slug: string): Promise<ResolvedShareLink | null> {
-  const { data, error } = await supabase
-    .from('share_links' as any)
-    .select('id, source_type, source_id, title, subtitle, card_type, landing_page_type, visibility_mode, is_revoked, expires_at')
-    .eq('slug', slug)
-    .single();
-
+  const { data, error } = await supabase.rpc('resolve_public_share_link' as any, { _slug: slug });
   if (error || !data) return null;
-  const d = data as any;
-  if (d.is_revoked) return null;
-  if (d.expires_at && new Date(d.expires_at) < new Date()) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  const d = row as any;
 
   return {
     id: d.id,
@@ -118,6 +113,7 @@ export async function resolveShareLink(slug: string): Promise<ResolvedShareLink 
     visibilityMode: d.visibility_mode,
   };
 }
+
 
 // ─── Log Share Link Event ───────────────────────────────────────────
 export async function logShareLinkEvent(
