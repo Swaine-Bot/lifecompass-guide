@@ -412,34 +412,46 @@ export default function PlaybookDetail() {
           </p>
           {moves.map((task, i) => {
             const isAdded = addedTasks.has(i);
+            const placement = placementByIndex.get(i);
             return (
-              <Card key={i} variant="glass" className="overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-xs font-medium text-primary/60 w-5 text-center pt-0.5 shrink-0">{i + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium leading-snug">{task.title}</h4>
-                      <p className="text-xs text-muted-foreground/70 mt-1 leading-relaxed">{task.description}</p>
-                      {task.effort_minutes > 0 && (
-                        <div className="flex items-center gap-1 mt-2 text-[11px] text-muted-foreground/70">
-                          <Clock className="w-3 h-3" />
-                          {task.effort_minutes} min
-                        </div>
-                      )}
+              <div key={i} className="space-y-2">
+                <Card variant="glass" className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-xs font-medium text-primary/60 w-5 text-center pt-0.5 shrink-0">{i + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium leading-snug">{task.title}</h4>
+                        <p className="text-xs text-muted-foreground/70 mt-1 leading-relaxed">{task.description}</p>
+                        {task.effort_minutes > 0 && (
+                          <div className="flex items-center gap-1 mt-2 text-[11px] text-muted-foreground/70">
+                            <Clock className="w-3 h-3" />
+                            {task.effort_minutes} min
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant={isAdded ? "outline" : "gold-outline"}
+                        size="sm"
+                        className="shrink-0 rounded-full text-[11px] h-8"
+                        onClick={() => !isAdded && addSingleTask(task, i)}
+                        disabled={isAdded}
+                      >
+                        {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 mr-1" />}
+                        {isAdded ? 'Added' : 'Add'}
+                      </Button>
                     </div>
-                    <Button
-                      variant={isAdded ? "outline" : "gold-outline"}
-                      size="sm"
-                      className="shrink-0 rounded-full text-[11px] h-8"
-                      onClick={() => !isAdded && addSingleTask(task, i)}
-                      disabled={isAdded}
-                    >
-                      {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 mr-1" />}
-                      {isAdded ? 'Added' : 'Add'}
-                    </Button>
+                  </CardContent>
+                </Card>
+                {placement && placement.partners.length > 0 && (
+                  <div className="pl-8 animate-fade-in">
+                    <PartnerRecommendationCard
+                      placements={placement.partners}
+                      layout={placementData?.layout || 'single'}
+                      playbookId={playbook.id}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             );
           })}
         </div>
