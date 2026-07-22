@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2, TrendingUp } from 'lucide-react';
+import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2, TrendingUp, Target } from 'lucide-react';
 import {
   fetchPartners, createPartner, updatePartner,
   fetchPartnerAssets, uploadPartnerAsset, activatePartnerAsset,
@@ -18,6 +18,7 @@ import {
 } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { PartnerAnalyst } from './PartnerAnalyst';
+import { PartnerPlacementConfig } from './PartnerPlacementConfig';
 
 // ─── Create Partner Dialog ────────────────────────────────────────────
 
