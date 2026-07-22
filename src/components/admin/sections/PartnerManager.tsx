@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2, TrendingUp } from 'lucide-react';
+import { Plus, Search, ArrowLeft, Upload, Zap, Archive, FileText, BarChart3, StickyNote, Eye, Building2, TrendingUp, Target } from 'lucide-react';
 import {
   fetchPartners, createPartner, updatePartner,
   fetchPartnerAssets, uploadPartnerAsset, activatePartnerAsset,
@@ -18,6 +18,7 @@ import {
 } from '@/services/partnerService';
 import { cn } from '@/lib/utils';
 import { PartnerAnalyst } from './PartnerAnalyst';
+import { PartnerPlacementConfig } from './PartnerPlacementConfig';
 
 // ─── Create Partner Dialog ────────────────────────────────────────────
 
@@ -361,12 +362,17 @@ function PartnerProfile({ partner, onBack, onUpdate }: { partner: Partner; onBac
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="overview" className="gap-1 text-xs"><Eye className="w-3 h-3" />Overview</TabsTrigger>
+          <TabsTrigger value="placement" className="gap-1 text-xs"><Target className="w-3 h-3" />Placement</TabsTrigger>
           <TabsTrigger value="assets" className="gap-1 text-xs"><Upload className="w-3 h-3" />Assets</TabsTrigger>
           <TabsTrigger value="campaigns" className="gap-1 text-xs"><BarChart3 className="w-3 h-3" />Campaigns</TabsTrigger>
           <TabsTrigger value="analyst" className="gap-1 text-xs"><TrendingUp className="w-3 h-3" />Analyst</TabsTrigger>
           <TabsTrigger value="archive" className="gap-1 text-xs"><Archive className="w-3 h-3" />Archive</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1 text-xs"><StickyNote className="w-3 h-3" />Notes</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="placement" className="pt-4">
+          <PartnerPlacementConfig partnerId={partner.id} />
+        </TabsContent>
 
         <TabsContent value="overview" className="space-y-4 pt-4">
           <div className="grid grid-cols-2 gap-4">

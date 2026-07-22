@@ -1380,6 +1380,96 @@ export type Database = {
           },
         ]
       }
+      partner_campaigns: {
+        Row: {
+          budget: number | null
+          campaign_name: string
+          created_at: string
+          end_date: string | null
+          expected_ctr: number | null
+          id: string
+          partner_id: string
+          priority: number
+          start_date: string | null
+          status: string
+          success_metrics: Json
+          target_age_bands: Json
+          target_countries: Json
+          target_gender: string | null
+          target_goal_types: Json
+          target_interests: Json
+          target_languages: Json
+          target_life_phases: Json
+          target_partner_categories: Json
+          target_playbook_tags: Json
+          target_step_categories: Json
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          campaign_name: string
+          created_at?: string
+          end_date?: string | null
+          expected_ctr?: number | null
+          id?: string
+          partner_id: string
+          priority?: number
+          start_date?: string | null
+          status?: string
+          success_metrics?: Json
+          target_age_bands?: Json
+          target_countries?: Json
+          target_gender?: string | null
+          target_goal_types?: Json
+          target_interests?: Json
+          target_languages?: Json
+          target_life_phases?: Json
+          target_partner_categories?: Json
+          target_playbook_tags?: Json
+          target_step_categories?: Json
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          campaign_name?: string
+          created_at?: string
+          end_date?: string | null
+          expected_ctr?: number | null
+          id?: string
+          partner_id?: string
+          priority?: number
+          start_date?: string | null
+          status?: string
+          success_metrics?: Json
+          target_age_bands?: Json
+          target_countries?: Json
+          target_gender?: string | null
+          target_goal_types?: Json
+          target_interests?: Json
+          target_languages?: Json
+          target_life_phases?: Json
+          target_partner_categories?: Json
+          target_playbook_tags?: Json
+          target_step_categories?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_campaigns_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_campaigns_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_click_events: {
         Row: {
           campaign_name: string | null
@@ -1448,6 +1538,138 @@ export type Database = {
             columns: ["share_event_id"]
             isOneToOne: false
             referencedRelation: "partner_share_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_placement_cache: {
+        Row: {
+          expires_at: string
+          explanation: string
+          generated_at: string
+          headline: string | null
+          id: string
+          partner_category: string
+          partner_id: string
+          playbook_tag: string | null
+          step_category: string
+        }
+        Insert: {
+          expires_at?: string
+          explanation: string
+          generated_at?: string
+          headline?: string | null
+          id?: string
+          partner_category: string
+          partner_id: string
+          playbook_tag?: string | null
+          step_category: string
+        }
+        Update: {
+          expires_at?: string
+          explanation?: string
+          generated_at?: string
+          headline?: string | null
+          id?: string
+          partner_category?: string
+          partner_id?: string
+          playbook_tag?: string | null
+          step_category?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_placement_cache_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_placement_cache_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_placement_events: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          partner_category: string | null
+          partner_id: string
+          playbook_id: string | null
+          step_category: string | null
+          surface: string | null
+          task_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          partner_category?: string | null
+          partner_id: string
+          playbook_id?: string | null
+          step_category?: string | null
+          surface?: string | null
+          task_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          partner_category?: string | null
+          partner_id?: string
+          playbook_id?: string | null
+          step_category?: string | null
+          surface?: string | null
+          task_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_placement_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "partner_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_placement_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_placement_events_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_placement_events_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "playbooks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_placement_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -1525,9 +1747,13 @@ export type Database = {
       }
       partners: {
         Row: {
+          app_store_link: string | null
+          availability: boolean
           billing_entity: string | null
           brand_color: string | null
           brand_description: string | null
+          campaign_end_date: string | null
+          campaign_start_date: string | null
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
@@ -1535,6 +1761,8 @@ export type Database = {
           contract_start_date: string | null
           country: string | null
           created_at: string
+          cta_text: string | null
+          deep_link: string | null
           default_cta_label: string | null
           default_cta_url: string | null
           disclosure_label: string
@@ -1543,15 +1771,25 @@ export type Database = {
           internal_notes: string | null
           logo_url: string | null
           name: string
+          partner_tier: string
+          play_store_link: string | null
+          priority_weight: number
+          province: string | null
           slug: string
           status: Database["public"]["Enums"]["partner_status"]
+          supported_categories: Json
+          supported_playbook_tags: Json
           updated_at: string
           website_url: string | null
         }
         Insert: {
+          app_store_link?: string | null
+          availability?: boolean
           billing_entity?: string | null
           brand_color?: string | null
           brand_description?: string | null
+          campaign_end_date?: string | null
+          campaign_start_date?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
@@ -1559,6 +1797,8 @@ export type Database = {
           contract_start_date?: string | null
           country?: string | null
           created_at?: string
+          cta_text?: string | null
+          deep_link?: string | null
           default_cta_label?: string | null
           default_cta_url?: string | null
           disclosure_label?: string
@@ -1567,15 +1807,25 @@ export type Database = {
           internal_notes?: string | null
           logo_url?: string | null
           name: string
+          partner_tier?: string
+          play_store_link?: string | null
+          priority_weight?: number
+          province?: string | null
           slug: string
           status?: Database["public"]["Enums"]["partner_status"]
+          supported_categories?: Json
+          supported_playbook_tags?: Json
           updated_at?: string
           website_url?: string | null
         }
         Update: {
+          app_store_link?: string | null
+          availability?: boolean
           billing_entity?: string | null
           brand_color?: string | null
           brand_description?: string | null
+          campaign_end_date?: string | null
+          campaign_start_date?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
@@ -1583,6 +1833,8 @@ export type Database = {
           contract_start_date?: string | null
           country?: string | null
           created_at?: string
+          cta_text?: string | null
+          deep_link?: string | null
           default_cta_label?: string | null
           default_cta_url?: string | null
           disclosure_label?: string
@@ -1591,8 +1843,14 @@ export type Database = {
           internal_notes?: string | null
           logo_url?: string | null
           name?: string
+          partner_tier?: string
+          play_store_link?: string | null
+          priority_weight?: number
+          province?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["partner_status"]
+          supported_categories?: Json
+          supported_playbook_tags?: Json
           updated_at?: string
           website_url?: string | null
         }
@@ -1653,6 +1911,63 @@ export type Database = {
             columns: ["playbook_id"]
             isOneToOne: false
             referencedRelation: "library_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playbook_step_metadata: {
+        Row: {
+          category_tags: Json
+          created_at: string
+          difficulty: string | null
+          id: string
+          milestone_label: string | null
+          partner_categories: Json
+          playbook_id: string | null
+          required_resources: Json
+          task_id: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          category_tags?: Json
+          created_at?: string
+          difficulty?: string | null
+          id?: string
+          milestone_label?: string | null
+          partner_categories?: Json
+          playbook_id?: string | null
+          required_resources?: Json
+          task_id: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          category_tags?: Json
+          created_at?: string
+          difficulty?: string | null
+          id?: string
+          milestone_label?: string | null
+          partner_categories?: Json
+          playbook_id?: string | null
+          required_resources?: Json
+          task_id?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbook_step_metadata_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "playbooks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playbook_step_metadata_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: true
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -2448,6 +2763,39 @@ export type Database = {
           },
         ]
       }
+      user_partner_preferences: {
+        Row: {
+          affiliations: Json
+          created_at: string
+          hidden_categories: Json
+          hidden_partner_ids: Json
+          id: string
+          preferences: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliations?: Json
+          created_at?: string
+          hidden_categories?: Json
+          hidden_partner_ids?: Json
+          id?: string
+          preferences?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliations?: Json
+          created_at?: string
+          hidden_categories?: Json
+          hidden_partner_ids?: Json
+          id?: string
+          preferences?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_pillar_xp: {
         Row: {
           id: string
@@ -3040,6 +3388,18 @@ export type Database = {
         }[]
       }
       get_public_profile: { Args: { _target: string }; Returns: Json }
+      get_step_metadata_for_tasks: {
+        Args: { _task_ids: string[] }
+        Returns: {
+          category_tags: Json
+          difficulty: string
+          milestone_label: string
+          partner_categories: Json
+          required_resources: Json
+          task_id: string
+          xp_reward: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
