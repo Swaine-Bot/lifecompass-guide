@@ -10,11 +10,15 @@ import { PageHeader } from '@/components/ds';
 import { useEnvironment } from '@/contexts/SensoryContext';
 import { useUniversalShare } from '@/hooks/useUniversalShare';
 import { cn } from '@/lib/utils';
+import { usePartnerPlacements } from '@/hooks/usePartnerPlacements';
+import { PartnerRecommendationCard } from '@/components/partner/PartnerRecommendationCard';
 
 interface PlaybookTask {
   title: string;
   description: string;
   effort_minutes: number;
+  partner_categories?: string[];
+  category_tags?: string[];
 }
 
 interface PlaybookContent {
