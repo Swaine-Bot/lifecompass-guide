@@ -3433,6 +3433,19 @@ export type Database = {
           shield_used: boolean
         }[]
       }
+      resolve_public_share_link: {
+        Args: { _slug: string }
+        Returns: {
+          card_type: string
+          id: string
+          landing_page_type: string
+          source_id: string
+          source_type: string
+          subtitle: string
+          title: string
+          visibility_mode: string
+        }[]
+      }
       search_profiles: {
         Args: { _limit?: number; _query: string }
         Returns: {
