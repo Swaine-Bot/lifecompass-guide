@@ -23,10 +23,13 @@ export function usePartnerPlacements(params: {
     steps: activeSteps.map((s) => ({ i: s.step_index, c: s.partner_categories })),
   });
 
+  const hasActiveSteps = activeSteps.length > 0;
+  const layoutKey = params.layout || 'single';
+
   useEffect(() => {
     if (params.enabled === false) return;
-    if (!activeSteps.length) {
-      setData({ layout: params.layout || 'single', results: [] });
+    if (!hasActiveSteps) {
+      setData({ layout: layoutKey, results: [] });
       return;
     }
     let cancelled = false;
@@ -49,7 +52,7 @@ export function usePartnerPlacements(params: {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, params.enabled]);
+  }, [key, params.enabled, hasActiveSteps, layoutKey]);
 
   return { data, loading };
 }
