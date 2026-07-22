@@ -248,6 +248,26 @@ export default function PlaybookDetail() {
   const hasHabit = actionTypes.includes('habit') && content?.habit_template;
   const hasMoves = actionTypes.includes('moves') && moves.length > 0;
 
+  const { data: placementData } = usePartnerPlacements({
+    playbook_id: playbook.id,
+    playbook_title: playbook.title,
+    playbook_tags: [playbook.category, playbook.phase].filter(Boolean) as string[],
+    steps: moves.map((m, i) => ({
+      step_index: i,
+      step_title: m.title,
+      step_description: m.description,
+      partner_categories: m.partner_categories?.length
+        ? m.partner_categories
+        : playbook.category
+        ? [playbook.category]
+        : [],
+      category_tags: m.category_tags || [],
+    })),
+    layout: 'single',
+    enabled: moves.length > 0,
+  });
+  const placementByIndex = new Map(placementData?.results.map((r) => [r.step_index, r]));
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-20">
       <PageHeader
